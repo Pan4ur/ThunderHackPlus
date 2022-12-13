@@ -1,0 +1,17 @@
+[
+  {
+    "modid": "thunderhack",
+    "name": "ThunderHackPlus",
+    "description": "Player  assistance mod (cheats for gays)",
+    "version": "2.33",
+    "mcversion": "1.12.2",
+    "url": "",
+    "updateUrl": "",
+    "authorList": [
+      "MrZak34",
+      "Pan4ur"
+    ],
+    "screenshots": [],
+    "dependencies": []
+  }
+]

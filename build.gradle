@@ -3,8 +3,8 @@ buildscript {
         mavenCentral()
         jcenter()
         maven {
-            name = 'forge'
-            url = 'https://maven.minecraftforge.net/'
+            name = "forge"
+            url = "https://files.minecraftforge.net/maven"
         }
         maven {
             name = 'SpongePowered'
@@ -26,7 +26,7 @@ apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'java'
 apply plugin: 'application'
 
-mainClassName = 'com.mrzak34.thunderhack.features.gui.installer.InstallerMain'
+mainClassName = 'com.mrzak34.thunderhack.installer.InstallerMain'
 compileJava.options.encoding = 'UTF-8'
 
 
@@ -54,21 +54,17 @@ repositories {
         name = 'spongepowered-repo'
         url = 'https://repo.spongepowered.org/maven/'
     }
-maven {
-    name = 'impactdevelopment-repo'
-    url = 'https://impactdevelopment.github.io/maven/'
-}
-maven {
-    name = 'swt-repo'
-    url = "https://maven-eclipse.github.io/maven"
-}
+    maven {
+        name = 'swt-repo'
+        url = "https://maven-eclipse.github.io/maven"
+    }
     maven { url 'https://repo.opencollab.dev/maven-snapshots/' }
     maven { url 'https://repo.opencollab.dev/maven-releases/' }
 
     maven {
-    name = "jitpack.io"
-    url = "https://jitpack.io"
-}
+        name = "jitpack.io"
+        url = "https://jitpack.io"
+    }
 
     jcenter()
 }
@@ -86,15 +82,7 @@ dependencies {
     }
 
     compile 'club.minnced:java-discord-rpc:2.0.2'
-    //compile 'com.googlecode.json-simple:json-simple:1.1.1'
-    // This Baritone will NOT be included in the jar
-    implementation 'com.github.cabaletta:baritone:1.2.14'
-
-    compile 'com.github.cabaletta:baritone:1.2.14'
-    // This Baritone WILL be included in the jar
-    jarLibs 'cabaletta:baritone-api:1.2'
-
-
+    compile 'org.jsoup:jsoup:1.7.2'
     implementation configurations.jarLibs
 }
 
@@ -123,7 +111,7 @@ shadowJar {
         include(dependency('club.minnced:java-discord-rpc'))
         include(dependency('com.googlecode.json-simple:json-simple:1.1.1'))
         include(dependency('org.spongepowered:mixin'))
-        include(dependency('com.github.cabaletta:baritone:1.2.14'))
+        include(dependency('org.jsoup:jsoup:1.7.2'))
     }
     exclude 'dummyThing'
     exclude 'LICENSE.txt'
@@ -132,7 +120,7 @@ shadowJar {
 
 mixin {
     defaultObfuscationEnv searge
-    add sourceSets.main, 'mixins.oyvey.refmap.json'
+    add sourceSets.main, 'mixins.thunderhack.refmap.json'
 
 }
 
@@ -146,13 +134,13 @@ reobf {
 jar {
     manifest {
         attributes(
-                'MixinConfigs': 'mixins.oyvey.json',
+                'MixinConfigs': 'mixins.thunderhack.json',
                 'tweakClass': 'org.spongepowered.asm.launch.MixinTweaker',
                 'TweakOrder': 0,
                 'FMLCorePluginContainsFMLMod': 'true',
                 'FMLCorePlugin': 'com.mrzak34.thunderhack.Thunderhack',
                 'ForceLoadAsMod': 'true',
-                'FMLAT': 'oyvey_at.cfg',
+                'FMLAT': 'th_at.cfg',
                 'Main-Class': mainClassName
 
         )
