@@ -4,7 +4,7 @@ import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.util.SpecialTagCompound;
 import io.netty.buffer.ByteBuf;
-import com.mrzak34.thunderhack.util.ffpshit.PacketListener;
+import com.mrzak34.thunderhack.util.ffp.PacketListener;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.EnumPacketDirection;
 import net.minecraft.network.Packet;

@@ -5,7 +5,7 @@ import com.mrzak34.thunderhack.manager.*;
 import com.mrzak34.thunderhack.util.ThunderUtils;
 import com.mrzak34.thunderhack.util.dism.EntityGib;
 import com.mrzak34.thunderhack.util.dism.RenderGib;
-import com.mrzak34.thunderhack.util.ffpshit.NetworkHandler;
+import com.mrzak34.thunderhack.util.ffp.NetworkHandler;
 import com.mrzak34.thunderhack.util.phobos.*;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
@@ -23,7 +23,7 @@ import java.util.Objects;
 @Mod(
         modid = "thunderhack",
         name = "ThunderHack",
-        version = "2.35")
+        version = "2.36")
 
 
 public class Thunderhack {
@@ -110,7 +110,7 @@ public class Thunderhack {
         }
 
 
-      //  ThunderUtils.syncCapes();
+        ThunderUtils.syncCapes();
         entityProvider = new EntityProvider();
 
         positionManager = new PositionManager();

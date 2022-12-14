@@ -44,7 +44,6 @@ public class ElytraFly2b2tNew extends Module {
     private final Setting<Float> speedSetting = register(new Setting<>("FSpeed", 16F, 0.1F, 20F));
     public Setting<Boolean> glide = register(new Setting<>("Glide", false));
     private final Setting<Float> glideSpeed = register(new Setting<>("GlideSpeed", 1F, 0.1F, 10f ,v ->glide.getValue()));
-    public Setting<Boolean> spoofRots = this.register(new Setting<>("Rotation", true));
 
     private boolean elytraIsEquipped = false;
     private int elytraDurability = 0;

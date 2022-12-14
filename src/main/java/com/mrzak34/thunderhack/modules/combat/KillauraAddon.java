@@ -155,6 +155,7 @@ public class KillauraAddon extends Module {
     }
 
 
+    // mega smart xD
     public BlockPos AI(ArrayList<BlockPos> blocks){
         BlockPos pos = null;
         double bestdist= 5;

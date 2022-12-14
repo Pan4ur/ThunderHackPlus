@@ -55,9 +55,8 @@ public class BowSpam
     @SubscribeEvent
     public void onPlayerPre(EventPreMotion event) {
         if (this.autoSwitch.getValue().booleanValue() && InventoryUtil.findHotbarBlock(ItemBow.class) != -1 && this.ownHealth.getValue().floatValue() <= EntityUtil.getHealth((Entity)BowSpam.mc.player) && (!this.onlyWhenSave.getValue().booleanValue() || EntityUtil.isSafe((Entity)BowSpam.mc.player))) {
-            NewAC crystal;
             EntityPlayer target = this.getTarget();
-            if (!(target == null || (crystal = Thunderhack.moduleManager.getModuleByClass(NewAC.class)).isOn() && InventoryUtil.holdingItem(ItemEndCrystal.class))) {
+            if (!(target == null )) {
                 Vec3d pos = target.getPositionVector();
                 double xPos = pos.x;
                 double yPos = pos.y;

@@ -109,33 +109,9 @@ public class ClanInvite extends Module {
 
     public int resolveMode(){
         return b.getValue().ordinal();
-        /*
-        switch (b.getValue()){
-            case ALL: return 0;
-            case Vip: return 1;
-            case Premium: return 2;
-            case Creativ: return 3;
-            case Vip: return 1;
-            case Vip: return 1;
-            case Vip: return 1;
-            case Vip: return 1;
-            case Vip: return 1;
-            case Vip: return 1;
-            case Vip: return 1;
-            case Vip: return 1;
-            case Vip: return 1;
-            case Vip: return 1;
-            case Vip: return 1;
-            case Vip: return 1;
-            case Vip: return 1;
-            case Vip: return 1;
-            case Vip: return 1;
-            case Vip: return 1;
-
-        }
-
-         */
     }
+
+
     public int resolveDonate(String nick){
         String donate = "null";
         NetHandlerPlayClient nethandlerplayclient = this.mc.player.connection;
@@ -225,7 +201,7 @@ public class ClanInvite extends Module {
                 if (packet.getChatComponent().getFormattedText().contains("принял ваше")) {
                     aboba++;
                     String finalmsg  = "```"+"Игрок " + ThunderUtils.solvename(packet.getChatComponent().getFormattedText()) + " принял приглашение в клан!" + "\n" + "Приглашено за сегодня " + aboba + "```";
-                    DiscordWebhook.sendMsg(finalmsg,DiscordWebhook.NeStradaiHuinei());
+                    DiscordWebhook.sendMsg(finalmsg,DiscordWebhook.readurl());
                 }
             }
         }

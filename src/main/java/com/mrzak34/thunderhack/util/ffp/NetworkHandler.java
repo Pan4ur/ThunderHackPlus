@@ -1,4 +1,4 @@
-package com.mrzak34.thunderhack.util.ffpshit;
+package com.mrzak34.thunderhack.util.ffp;
 
 import net.minecraft.network.EnumPacketDirection;
 import net.minecraft.network.INetHandler;

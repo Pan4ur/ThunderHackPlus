@@ -5,13 +5,11 @@ import com.mojang.realmsclient.gui.ChatFormatting;
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.event.events.*;
 import com.mrzak34.thunderhack.macro.Macro;
-import com.mrzak34.thunderhack.modules.combat.NewAC;
 import com.mrzak34.thunderhack.modules.misc.Macros;
 import com.mrzak34.thunderhack.util.ThunderUtils;
 import com.mrzak34.thunderhack.util.Timer;
 import com.mrzak34.thunderhack.modules.Feature;
 import com.mrzak34.thunderhack.command.Command;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGameOver;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
@@ -268,9 +266,6 @@ public class EventManager extends Feature {
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void onChatSent(ClientChatEvent event) {
-        if (event.getMessage().contains(Command.getCommandPrefix2())) {
-            ThunderUtils.syncCommands(event.getMessage());
-        }
         if (event.getMessage().startsWith(Command.getCommandPrefix())) {
             event.setCanceled(true);
             try {
@@ -293,7 +288,7 @@ public class EventManager extends Feature {
     public void onTickHighest(final TickEvent.ClientTickEvent event) {
         if (event.phase == TickEvent.Phase.START) {
             this.tickOngoing.set(true);
-            NewAC.getInstance().tickRunning.set(true);
+         //   NewAC.getInstance().tickRunning.set(true);
         }
     }
 
@@ -301,7 +296,7 @@ public class EventManager extends Feature {
     public void onTickLowest(final TickEvent.ClientTickEvent event) {
         if (event.phase == TickEvent.Phase.END) {
             this.tickOngoing.set(false);
-            NewAC.getInstance().tickRunning.set(false);
+            //NewAC.getInstance().tickRunning.set(false);
         }
     }
     public static boolean isMacro = false;

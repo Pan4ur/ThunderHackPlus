@@ -35,7 +35,6 @@ import java.util.Comparator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
-import static com.mrzak34.thunderhack.modules.combat.NewAC.glBillboardDistanceScaled;
 
 public class CevBreaker extends Module {
 
@@ -199,7 +198,7 @@ public class CevBreaker extends Module {
 
             GlStateManager.pushMatrix();
             try {
-                glBillboardDistanceScaled((float) lastBlock.getX() + 0.5f, (float) lastBlock.getY() + 0.5f, (float) lastBlock.getZ() + 0.5f, mc.player, 1);
+                RenderUtil.glBillboardDistanceScaled((float) lastBlock.getX() + 0.5f, (float) lastBlock.getY() + 0.5f, (float) lastBlock.getZ() + 0.5f, mc.player, 1);
             } catch (Exception ignored) {
             }
             GlStateManager.disableDepth();
@@ -475,7 +474,7 @@ public class CevBreaker extends Module {
 
     private boolean canBreakCrystal(BlockPos blockPos) {
         try {
-            if (AutoCrystalFuture.mc.world.getBlockState(blockPos).getBlock() != Blocks.BEDROCK && AutoCrystalFuture.mc.world.getBlockState(blockPos).getBlock() != Blocks.OBSIDIAN) {
+            if (mc.world.getBlockState(blockPos).getBlock() != Blocks.BEDROCK && mc.world.getBlockState(blockPos).getBlock() != Blocks.OBSIDIAN) {
                 return true;
             }
         } catch (Exception ignored) {
@@ -488,12 +487,12 @@ public class CevBreaker extends Module {
         BlockPos boost = blockPos.add(0, 1, 0);
         BlockPos boost2 = blockPos.add(0, 2, 0);
 
-        for (Entity entity : AutoCrystalFuture.mc.world.getEntitiesWithinAABB(Entity.class, new AxisAlignedBB(boost))) {
+        for (Entity entity : mc.world.getEntitiesWithinAABB(Entity.class, new AxisAlignedBB(boost))) {
             if (entity instanceof EntityEnderCrystal) {
                 return (EntityEnderCrystal) entity;
             }
         }
-        for (Entity entity : AutoCrystalFuture.mc.world.getEntitiesWithinAABB(Entity.class, new AxisAlignedBB(boost2))) {
+        for (Entity entity : mc.world.getEntitiesWithinAABB(Entity.class, new AxisAlignedBB(boost2))) {
             if (entity instanceof EntityEnderCrystal){
                 return (EntityEnderCrystal) entity;
             }

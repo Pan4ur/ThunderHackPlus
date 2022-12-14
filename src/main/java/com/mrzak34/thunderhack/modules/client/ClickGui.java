@@ -58,21 +58,21 @@ public class ClickGui
     private Setting<MainModeEn> mainMode = register(new Setting("ClickGuiMode", MainModeEn.New));
 
     private Setting<colorModeEn> colorMode = register(new Setting("ColorMode", colorModeEn.Analogous));
-    public final Setting<ColorSetting> hcolor1 = this.register(new Setting<>("MainColor", new ColorSetting(6451313),v-> mainMode.getValue() == MainModeEn.New));
-    public Setting<Integer> colorSpeed = this.register(new Setting<Integer>("ColorSpeed", 18, 2, 54,v-> mainMode.getValue() == MainModeEn.New));
-    public final Setting<ColorSetting> acolor = this.register(new Setting<>("MainColor2", new ColorSetting(6451313),v-> mainMode.getValue() == MainModeEn.New));
+    public final Setting<ColorSetting> hcolor1 = this.register(new Setting<>("MainColor", new ColorSetting(6451313)));
+    public Setting<Integer> colorSpeed = this.register(new Setting<Integer>("ColorSpeed", 18, 2, 54));
+    public final Setting<ColorSetting> acolor = this.register(new Setting<>("MainColor2", new ColorSetting(6451313)));
 
 
     public Setting<Boolean> showBinds = this.register(new Setting<Boolean>("ShowBinds", true));
 
-    public final Setting<ColorSetting> mainColor3 = this.register(new Setting<>("Main Color3", new ColorSetting(1227456905),v-> mainMode.getValue() != MainModeEn.New));
-    public final Setting<ColorSetting> mainColor2 = this.register(new Setting<>("Main Color2", new ColorSetting(825110833),v-> mainMode.getValue() != MainModeEn.New));
-    public final Setting<ColorSetting> slidercolor = this.register(new Setting<>("slider color", new ColorSetting(1227338229),v-> mainMode.getValue() != MainModeEn.New));
-    public final Setting<ColorSetting> gcolor1 = this.register(new Setting<>("gcolor1", new ColorSetting(-8660776,true),v-> mainMode.getValue() != MainModeEn.New));
-    public final Setting<ColorSetting> gcolor2 = this.register(new Setting<>("gcolor2", new ColorSetting(-13535104),v-> mainMode.getValue() != MainModeEn.New));
-    public final Setting<ColorSetting> mainColor = this.register(new Setting<>("Main Color", new ColorSetting(3649978),v-> mainMode.getValue() != MainModeEn.New));
-    public final Setting<ColorSetting> topColor = this.register(new Setting<>("Cat Color", new ColorSetting(-115042915),v-> mainMode.getValue() != MainModeEn.New));
-    public final Setting<ColorSetting> downColor = this.register(new Setting<>(" Down Color", new ColorSetting(-114219739),v-> mainMode.getValue() != MainModeEn.New));
+    public final Setting<ColorSetting> mainColor3 = this.register(new Setting<>("Main Color3", new ColorSetting(1227456905)));
+    public final Setting<ColorSetting> mainColor2 = this.register(new Setting<>("Main Color2", new ColorSetting(825110833)));
+    public final Setting<ColorSetting> slidercolor = this.register(new Setting<>("slider color", new ColorSetting(1227338229)));
+    public final Setting<ColorSetting> gcolor1 = this.register(new Setting<>("gcolor1", new ColorSetting(-8660776,true)));
+    public final Setting<ColorSetting> gcolor2 = this.register(new Setting<>("gcolor2", new ColorSetting(-13535104)));
+    public final Setting<ColorSetting> mainColor = this.register(new Setting<>("Main Color", new ColorSetting(3649978)));
+    public final Setting<ColorSetting> topColor = this.register(new Setting<>("Cat Color", new ColorSetting(-115042915)));
+    public final Setting<ColorSetting> downColor = this.register(new Setting<>(" Down Color", new ColorSetting(-114219739)));
 
 
     public final Setting<ColorSetting> imagecc = this.register(new Setting<>("ImageColorCorr", new ColorSetting(-705960218)));

@@ -9,15 +9,14 @@ import com.mrzak34.thunderhack.event.events.Render3DEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.modules.client.DiscordWebhook;
 import com.mrzak34.thunderhack.setting.ColorSetting;
-import com.mrzak34.thunderhack.setting.Parent;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.notification.NotificationManager;
 import com.mrzak34.thunderhack.notification.NotificationType;
 import com.mrzak34.thunderhack.util.AstolfoAnimation;
 import com.mrzak34.thunderhack.util.DeadCodeUtils.RotateCalculator;
 import com.mrzak34.thunderhack.util.DeadCodeUtils.cy_0;
-import com.mrzak34.thunderhack.util.rich.ExplosionBuilder;
-import com.mrzak34.thunderhack.util.rich.RotationHelper;
+import com.mrzak34.thunderhack.util.ExplosionBuilder;
+import com.mrzak34.thunderhack.util.RotationHelper;
 import com.mrzak34.thunderhack.util.rotations.AdvancedCast;
 import com.mrzak34.thunderhack.util.rotations.CastHelper;
 import com.mrzak34.thunderhack.util.rotations.RaycastHelper;
@@ -282,10 +281,6 @@ public class Aura extends Module {
                 double y = entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * mc.getRenderPartialTicks() - mc.getRenderManager().renderPosY + prevSinAnim * 1.4f;
                 double z = entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * mc.getRenderPartialTicks() - mc.getRenderManager().renderPosZ;
                 double nextY = entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * mc.getRenderPartialTicks() - mc.getRenderManager().renderPosY + sinAnim * 1.4f;
-
-               // float red = shitcollor.getValue().getRed() / 255F;
-               // float green = shitcollor.getValue().getGreen() / 255F;
-               // float blue = shitcollor.getValue().getBlue() / 255F;
 
                 GL11.glPushMatrix();
                 GL11.glDisable(GL11.GL_CULL_FACE);

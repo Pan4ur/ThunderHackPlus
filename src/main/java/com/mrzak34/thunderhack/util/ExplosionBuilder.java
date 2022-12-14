@@ -1,4 +1,4 @@
-package com.mrzak34.thunderhack.util.rich;
+package com.mrzak34.thunderhack.util;
 
 import com.google.common.collect.Sets;
 import net.minecraft.block.material.Material;

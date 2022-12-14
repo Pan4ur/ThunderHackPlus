@@ -40,7 +40,6 @@ import java.util.List;
 import java.util.Objects;
 
 import static com.mrzak34.thunderhack.modules.combat.Burrow.getEyePos;
-import static com.mrzak34.thunderhack.modules.combat.NewAC.glBillboardDistanceScaled;
 import static com.mrzak34.thunderhack.util.ItemUtil.mc;
 
 public class C4Aura extends Module {
@@ -52,10 +51,8 @@ public class C4Aura extends Module {
     public Setting<Float> ddd2 = this.register(new Setting<>("TrgtRange", 1.0f, 3f, 15.0f));
     public Setting<Float> rang = this.register(new Setting<>("Range", 1.0f, 0.1f, 10.0f));
     public Setting<Integer> placedelay = this.register(new Setting<>("PlaceDelay", 100, 0, 1000));
-    public Setting<Integer> breakdelay = this.register(new Setting<>("BreakDelay", 100, 0, 1000));
     public Setting<Boolean> placeinside = register(new Setting<>("placeInside", true));
     public Setting<Boolean> autoBurrow = register(new Setting<>("AutoBurrow", true));
-   // public Setting<Boolean> rtxxx = register(new Setting<>("RTX", true));
 
 
     Timer placeTimer = new Timer();
@@ -328,7 +325,7 @@ public class C4Aura extends Module {
             GlStateManager.disableDepth();
             GlStateManager.disableLighting();
             try {
-                glBillboardDistanceScaled((float) aboba.getX() + 0.5f, (float) aboba.getY() + 0.5f, (float) aboba.getZ() + 0.5f, mc.player, 1);
+                RenderUtil.glBillboardDistanceScaled((float) aboba.getX() + 0.5f, (float) aboba.getY() + 0.5f, (float) aboba.getZ() + 0.5f, mc.player, 1);
             } catch (Exception ignored) {
             }
             FontRender.drawString3(df.format(getDamage(aboba.x, aboba.y, aboba.z, target)), (int) -(FontRender.getStringWidth(df.format(getDamage(aboba.x, aboba.y + 1, aboba.z, target))) / 2.0D), -4, -1);

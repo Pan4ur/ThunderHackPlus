@@ -1,10 +1,9 @@
-package com.mrzak34.thunderhack.modules.funnygame;
+package com.mrzak34.thunderhack.modules.combat;
 
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.event.events.PacketEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.modules.combat.AutoCrystal;
-import com.mrzak34.thunderhack.modules.combat.NewAC;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.CrystalUtils;
 import com.mrzak34.thunderhack.util.Timer;
@@ -158,7 +157,7 @@ public class FGTotem extends Module {
                     return;
                 }
                 if (crystal.getValue()) {
-                    if (Thunderhack.moduleManager.getModuleByClass(AutoCrystal.class).isEnabled() || Thunderhack.moduleManager.getModuleByClass(NewAC.class).isEnabled()) {
+                    if (Thunderhack.moduleManager.getModuleByClass(AutoCrystal.class).isEnabled()) {
                         putItemIntoOffhand(Items.END_CRYSTAL);
                         return;
                     } else if (clearAfter.getValue()) {

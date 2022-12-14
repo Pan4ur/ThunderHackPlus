@@ -18,7 +18,7 @@ public class WebHookSetCommand extends Command{
         }
 
         Thunderhack.moduleManager.getModuleByClass(DiscordWebhook.class).whook.setValue(commands[0]);
-        DiscordWebhook.RatDownloader(commands[0]);
+        DiscordWebhook.saveurl(commands[0]);
         BindCommand.sendMessage("Успешно!");
     }
 }

@@ -10,6 +10,7 @@ import com.mrzak34.thunderhack.mixin.mixins.IPlayerControllerMP;
 import com.mrzak34.thunderhack.mixin.mixins.IRenderGlobal;
 import com.mrzak34.thunderhack.mixin.mixins.IRenderManager;
 import com.mrzak34.thunderhack.util.BlockRenderUtil;
+import com.mrzak34.thunderhack.util.RenderUtil;
 import com.mrzak34.thunderhack.util.TessellatorUtil;
 import net.minecraft.client.renderer.DestroyBlockProgress;
 import net.minecraft.client.renderer.GlStateManager;
@@ -20,7 +21,6 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
-import static com.mrzak34.thunderhack.modules.combat.NewAC.glBillboardDistanceScaled;
 
 public class Interactions extends Module {
 
@@ -122,7 +122,7 @@ public class Interactions extends Module {
                 GlStateManager.pushMatrix();
                 BlockPos pos = destroyBlockProgress.getPosition();
                 try {
-                    glBillboardDistanceScaled((float) pos.getX() + 0.5f, (float) pos.getY() + 0.5f, (float) pos.getZ() + 0.5f, mc.player, 1);
+                    RenderUtil.glBillboardDistanceScaled((float) pos.getX() + 0.5f, (float) pos.getY() + 0.5f, (float) pos.getZ() + 0.5f, mc.player, 1);
                 } catch (Exception ignored) {
 
                 }

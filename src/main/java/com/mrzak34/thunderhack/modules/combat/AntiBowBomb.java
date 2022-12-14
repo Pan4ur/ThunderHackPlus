@@ -81,11 +81,6 @@ public class AntiBowBomb extends Module {
                     Thunderhack.moduleManager.getModuleByClass(DeadCodeAura.class).toggle();
                 }
             }
-            if (stopa.getValue()){
-                if(Thunderhack.moduleManager.getModuleByClass(OldAura.class).isEnabled()) {
-                    Thunderhack.moduleManager.getModuleByClass(OldAura.class).toggle();
-                }
-            }
             InventoryUtil.switchToHotbarSlot(shield,false);
 
             if (mc.player.getHeldItemMainhand().getItem() instanceof ItemShield) {

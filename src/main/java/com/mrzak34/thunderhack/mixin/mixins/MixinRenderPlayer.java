@@ -3,8 +3,6 @@ package com.mrzak34.thunderhack.mixin.mixins;
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.event.events.FreecamEvent;
 import com.mrzak34.thunderhack.command.commands.ChangeSkinCommand;
-import com.mrzak34.thunderhack.modules.combat.Aura;
-import com.mrzak34.thunderhack.modules.movement.Eletra;
 import com.mrzak34.thunderhack.modules.player.PacketRender;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.Vec3d;
@@ -42,20 +40,6 @@ public class MixinRenderPlayer
         return abstractClientPlayer.isUser();
     }
 
-    @Inject(method = "applyRotations", at = @At("RETURN"))
-    protected void applyRotations(AbstractClientPlayer entityLiving, float ageInTicks, float rotationYaw, float partialTicks, CallbackInfo ci) {
-        if (entityLiving == mc.player && Thunderhack.moduleManager.getModuleByClass(Eletra.class).shouldSwing()) {
-            Vec3d vec3d = entityLiving.getLook(partialTicks);
-            double d0 = entityLiving.motionX * entityLiving.motionX + entityLiving.motionZ * entityLiving.motionZ;
-            double d1 = vec3d.x * vec3d.x + vec3d.z * vec3d.z;
-
-            if (d0 > 0.0D && d1 > 0.0D) {
-                double d2 = (entityLiving.motionX * vec3d.x + entityLiving.motionZ * vec3d.z) / (Math.sqrt(d0) * Math.sqrt(d1));
-                double d3 = entityLiving.motionX * vec3d.z - entityLiving.motionZ * vec3d.x;
-                GlStateManager.rotate(-((float) (Math.signum(d3) * Math.acos(d2)) * 180.0F / (float) Math.PI), 0.0F, 1.0F, 0.0F);
-            }
-        }
-    }
 
     private float
             renderPitch,

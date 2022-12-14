@@ -1,22 +1,19 @@
 package com.mrzak34.thunderhack.util.phobos;
 
-import com.mojang.realmsclient.gui.ChatFormatting;
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.util.MathUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.*;
 import net.minecraft.world.IBlockAccess;
 
-import java.util.Arrays;
 import java.util.function.BiPredicate;
 
 import static com.mrzak34.thunderhack.util.Util.mc;
-import static com.mrzak34.thunderhack.util.rich.RotationHelper.interpolatedEyePos;
-import static com.mrzak34.thunderhack.util.rich.RotationHelper.interpolatedEyeVec;
+import static com.mrzak34.thunderhack.util.RotationHelper.interpolatedEyePos;
+import static com.mrzak34.thunderhack.util.RotationHelper.interpolatedEyeVec;
 
 public class RotationUtil
 {

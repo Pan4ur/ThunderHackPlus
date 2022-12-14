@@ -17,19 +17,6 @@ import net.minecraft.world.World;
 
 
 public class DamageUtil implements Util {
-    public static boolean isArmorLow(EntityPlayer player, int durability) {
-        for (ItemStack piece : player.inventory.armorInventory) {
-            if (piece == null) {
-                return true;
-            }
-            if (DamageUtil.getItemDamage(piece) >= durability) continue;
-            return true;
-        }
-        return false;
-    }
-
-
-
 
     public static int ChekTotalarmorDamage(EntityPlayer player) {
         Integer damage_vsey_broni = 0;
@@ -43,58 +30,11 @@ public class DamageUtil implements Util {
         return damage_vsey_broni;
     }
 
-
     public static int getItemDamage(ItemStack stack) {
         return stack.getMaxDamage() - stack.getItemDamage();
     }
 
 
-
-
-    public static int getCooldownByWeapon(EntityPlayer player) {
-        Item item = player.getHeldItemMainhand().getItem();
-        if (item instanceof ItemSword) {
-            return 600;
-        }
-        if (item instanceof ItemPickaxe) {
-            return 850;
-        }
-        if (item == Items.IRON_AXE) {
-            return 1100;
-        }
-        if (item == Items.STONE_HOE) {
-            return 500;
-        }
-        if (item == Items.IRON_HOE) {
-            return 350;
-        }
-        if (item == Items.WOODEN_AXE || item == Items.STONE_AXE) {
-            return 1250;
-        }
-        if (item instanceof ItemSpade || item == Items.GOLDEN_AXE || item == Items.DIAMOND_AXE || item == Items.WOODEN_HOE || item == Items.GOLDEN_HOE) {
-            return 1000;
-        }
-        return 250;
-    }
-
-
-    public static float calculateDamage(final double posX,  final double posY,  final double posZ,  final Entity entity) {
-        final float doubleExplosionSize = 12.0f;
-        final double distancedsize = entity.getDistance(posX,  posY,  posZ) / doubleExplosionSize;
-        final Vec3d vec3d = new Vec3d(posX,  posY,  posZ);
-        double blockDensity = 0.0;
-        try {
-            blockDensity = entity.world.getBlockDensity(vec3d,  entity.getEntityBoundingBox());
-        }
-        catch (Exception ex) {}
-        final double v = (1.0 - distancedsize) * blockDensity;
-        final float damage = (float)(int)((v * v + v) / 2.0 * 7.0 * doubleExplosionSize + 1.0);
-        double finald = 1.0;
-        if (entity instanceof EntityLivingBase) {
-            finald = getBlastReduction((EntityLivingBase)entity,  getDamageMultiplied(damage),  new Explosion((World)DamageUtil.mc.world,  (Entity)null,  posX,  posY,  posZ,  6.0f,  false,  true));
-        }
-        return (float)finald;
-    }
 
     public static float calculateDamage(double posX, double posY, double posZ, Entity entity, boolean ignoreTerrain) {
         float finalDamage = 1.0f;
@@ -190,12 +130,5 @@ public class DamageUtil implements Util {
         return damage * ((diff == 0) ? 0.0f : ((diff == 2) ? 1.0f : ((diff == 1) ? 0.5f : 1.5f)));
     }
 
-    public static float calculateDamage(final Entity crystal,  final Entity entity) {
-        return calculateDamage(crystal.posX,  crystal.posY,  crystal.posZ,  entity);
-    }
-
-    public static float calculateDamage(final BlockPos pos, final Entity entity) {
-        return calculateDamage(pos.getX() + 0.5,  pos.getY() + 1,  pos.getZ() + 0.5,  entity);
-    }
 }
 

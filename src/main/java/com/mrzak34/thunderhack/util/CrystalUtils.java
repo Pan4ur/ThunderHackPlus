@@ -1,6 +1,5 @@
 package com.mrzak34.thunderhack.util;
 
-import com.mrzak34.thunderhack.modules.combat.NewAC;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
 import net.minecraft.block.material.Material;
@@ -69,17 +68,6 @@ public class CrystalUtils {
         int diff = p_World.getDifficulty().getId();
         return damage * (diff == 0 ? 0 : (diff == 2 ? 1 : (diff == 1 ? 0.5f : 1.5f)));
     }
-
-    public static boolean rayTraceBreak(double x, double y, double z) {
-        if (mc.world.rayTraceBlocks(new Vec3d(mc.player.posX, mc.player.posY + (double) mc.player.getEyeHeight(), mc.player.posZ), new Vec3d(x, y + 1.8, z), false, true, false) == null) {
-            return true;
-        }
-        if (mc.world.rayTraceBlocks(new Vec3d(mc.player.posX, mc.player.posY + (double) mc.player.getEyeHeight(), mc.player.posZ), new Vec3d(x, y + 1.5, z), false, true, false) == null) {
-            return true;
-        }
-        return mc.world.rayTraceBlocks(new Vec3d(mc.player.posX, mc.player.posY + (double) mc.player.getEyeHeight(), mc.player.posZ), new Vec3d(x, y, z), false, true, false) == null;
-    }
-
     public static boolean isVisible(Vec3d vec3d) {
         Vec3d eyesPos = new Vec3d(mc.player.posX, (mc.player.getEntityBoundingBox()).minY + mc.player.getEyeHeight(), mc.player.posZ);
         return mc.world.rayTraceBlocks(eyesPos, vec3d) == null;
@@ -128,7 +116,7 @@ public class CrystalUtils {
         double dZ = entity.posZ - entity.prevPosZ;
         double entityMotionPosX = 0;
         double entityMotionPosZ = 0;
-        if (NewAC.checkColis) {
+
             for (int i = 1; i <= ticks; i++) {
                if (mc.world.getBlockState(new BlockPos(entity.posX + dX * i, entity.posY, entity.posZ + dZ * i)).getBlock() instanceof BlockAir) {
                    entityMotionPosX = dX * i;
@@ -137,10 +125,7 @@ public class CrystalUtils {
                    break;
                }
             }
-        } else {
-            entityMotionPosX = dX * ticks;
-            entityMotionPosZ = dZ * ticks;
-        }
+
         return new Vec3d(entityMotionPosX, 0, entityMotionPosZ);
     }
 
@@ -178,24 +163,7 @@ public class CrystalUtils {
         return crystalSlot;
     }
 
-    public static int getSwordSlot() {
-        int swordSlot = -1;
 
-        if (Util.mc.player.getHeldItemMainhand().getItem() == Items.DIAMOND_SWORD) {
-            swordSlot = Util.mc.player.inventory.currentItem;
-        }
-
-        if (swordSlot == -1) {
-            for (int l = 0; l < 9; ++l) {
-                if (Util.mc.player.inventory.getStackInSlot(l).getItem() == Items.DIAMOND_SWORD) {
-                    swordSlot = l;
-                    break;
-                }
-            }
-        }
-
-        return swordSlot;
-    }
 
     public static boolean canPlaceCrystal(BlockPos blockPos) {
         BlockPos boost = blockPos.add(0, 1, 0);
@@ -476,20 +444,12 @@ public class CrystalUtils {
     public static float calculateDamage(double posX, double posY, double posZ, Entity entity) {
         float doubleExplosionSize = 12.0F;
         double distancedsize;
-        Vec3d entityPosVec = getEntityPosVec(entity, NewAC.getInstance().predictTicks.getValue() > 0 ? NewAC.getInstance().predictTicks.getValue() : 0);
+        Vec3d entityPosVec = getEntityPosVec(entity, 3);
         distancedsize = entityPosVec.distanceTo(new Vec3d(posX, posY, posZ)) / (double) doubleExplosionSize;
         Vec3d vec3d = new Vec3d(posX, posY, posZ);
         double blockDensity = 0.0D;
         try {
-            if (NewAC.getInstance().terrainIgnore.getValue()) {
-                blockDensity = getBlockDensity(vec3d, NewAC.getInstance().predictTicks.getValue() > 0 ?
-                        entity.getEntityBoundingBox().offset(getMotionVec(entity, NewAC.getInstance().predictTicks.getValue())) :
-                        entity.getEntityBoundingBox());
-            } else {
-                blockDensity = entity.world.getBlockDensity(vec3d, NewAC.getInstance().predictTicks.getValue() > 0 ?
-                        entity.getEntityBoundingBox().offset(getMotionVec(entity, NewAC.getInstance().predictTicks.getValue())) :
-                        entity.getEntityBoundingBox());
-            }
+                blockDensity = entity.world.getBlockDensity(vec3d, entity.getEntityBoundingBox().offset(getMotionVec(entity, 3)));
         } catch (Exception ignored) {
 
         }
@@ -507,72 +467,5 @@ public class CrystalUtils {
         return calculateDamage(crystal.posX, crystal.posY, crystal.posZ, entity);
     }
 
-
-    public static boolean rayTracePlace(BlockPos pos) {
-        if (NewAC.getInstance().directionMode.getValue() != NewAC.DirectionMode.VANILLA) {
-            double increment = 0.45D;
-            double start = 0.05D;
-            double end = 0.95D;
-
-            Vec3d eyesPos = new Vec3d(mc.player.posX, (mc.player.getEntityBoundingBox()).minY + mc.player.getEyeHeight(), mc.player.posZ);
-
-            for (double xS = start; xS <= end; xS += increment) {
-                for (double yS = start; yS <= end; yS += increment) {
-                    for (double zS = start; zS <= end; zS += increment) {
-                        Vec3d posVec = (new Vec3d(pos)).add(xS, yS, zS);
-
-                        double distToPosVec = eyesPos.distanceTo(posVec);
-
-                        if (NewAC.getInstance().strictDirection.getValue()) {
-                            if (distToPosVec > NewAC.getInstance().placeRange.getValue()) continue;
-                        }
-
-                        double diffX = posVec.x - eyesPos.x;
-                        double diffY = posVec.y - eyesPos.y;
-                        double diffZ = posVec.z - eyesPos.z;
-                        double diffXZ = MathHelper.sqrt(diffX * diffX + diffZ * diffZ);
-
-                        double[] tempPlaceRotation = new double[]{MathHelper.wrapDegrees((float) Math.toDegrees(Math.atan2(diffZ, diffX)) - 90.0F), MathHelper.wrapDegrees((float) -Math.toDegrees(Math.atan2(diffY, diffXZ)))};
-
-                        // inline values for slightly better perfornamce
-                        // Entity.getVectorForRotation()
-                        float yawCos = MathHelper.cos((float) (-tempPlaceRotation[0] * 0.017453292F - 3.1415927F));
-                        float yawSin = MathHelper.sin((float) (-tempPlaceRotation[0] * 0.017453292F - 3.1415927F));
-                        float pitchCos = -MathHelper.cos((float) (-tempPlaceRotation[1] * 0.017453292F));
-                        float pitchSin = MathHelper.sin((float) (-tempPlaceRotation[1] * 0.017453292F));
-
-                        Vec3d rotationVec = new Vec3d((yawSin * pitchCos), pitchSin, (yawCos * pitchCos));
-                        Vec3d eyesRotationVec = eyesPos.add(rotationVec.x * distToPosVec, rotationVec.y * distToPosVec, rotationVec.z * distToPosVec);
-
-                        RayTraceResult rayTraceResult = mc.world.rayTraceBlocks(eyesPos, eyesRotationVec, false, false, false);
-                        if (rayTraceResult != null) {
-                            if (rayTraceResult.typeOfHit == RayTraceResult.Type.BLOCK) {
-                                if (rayTraceResult.getBlockPos().equals(pos)) {
-                                    return true;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            return false;
-        } else {
-            for (EnumFacing facing : EnumFacing.values()) {
-                Vec3d cVector = new Vec3d(pos.getX() + 0.5 + facing.getDirectionVec().getX() * 0.5,
-                        pos.getY() + 0.5 + facing.getDirectionVec().getY() * 0.5,
-                        pos.getZ() + 0.5 + facing.getDirectionVec().getZ() * 0.5);
-                if (NewAC.getInstance().strictDirection.getValue()) {
-                    if (mc.player.getPositionVector().add(0, mc.player.getEyeHeight(), 0).distanceTo(cVector) > NewAC.getInstance().placeRange.getValue()) {
-                        continue;
-                    }
-                }
-                RayTraceResult rayTraceResult = mc.world.rayTraceBlocks(new Vec3d(mc.player.posX, mc.player.posY + mc.player.getEyeHeight(), mc.player.posZ), cVector, false, true, false);
-                if (rayTraceResult != null && rayTraceResult.typeOfHit.equals(RayTraceResult.Type.BLOCK) && rayTraceResult.getBlockPos().equals(pos)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
 
 }

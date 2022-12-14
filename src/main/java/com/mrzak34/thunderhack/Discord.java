@@ -73,10 +73,10 @@ class Discord {
                     }
 
                     if (RPC.INSTANCE.Mode.getValue() == RPC.mode.Custom) {
-                        NeStradaiHuinei();
-                        Discord.presence.largeImageKey = daetoRatka.split("startRAt.exe")[0];
-                        if (!Objects.equals(daetoRatka.split("startRAt.exe")[1], "none")) {
-                            Discord.presence.smallImageKey = daetoRatka.split("startRAt.exe")[1];
+                        readFile();
+                        Discord.presence.largeImageKey = String1.split("SEPARATOR")[0];
+                        if (!Objects.equals(String1.split("SEPARATOR")[1], "none")) {
+                            Discord.presence.smallImageKey = String1.split("SEPARATOR")[1];
                         }
                     }
                     if (RPC.INSTANCE.Mode.getValue() == RPC.mode.thbeta) {
@@ -119,16 +119,16 @@ class Discord {
             thread.start();
     }
 
-    static String daetoRatka = "none";
+    static String String1 = "none";
 
-    public static void NeStradaiHuinei(){
+    public static void readFile(){
         try {
             File file = new File("ThunderHack/RPC.txt");
 
             if (file.exists()) {
                 try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
                     while (reader.ready()) {
-                        daetoRatka =  reader.readLine();
+                        String1 =  reader.readLine();
                     }
 
                 }
@@ -139,13 +139,13 @@ class Discord {
 
 
 
-    public static void RatDownloader(String rat, String minuscompXD) {
+    public static void WriteFile(String url1, String url2) {
         File file = new File("ThunderHack/RPC.txt");
         try {
             new File("ThunderHack").mkdirs();
             file.createNewFile();
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
-                writer.write(rat + "startRAt.exe"+ minuscompXD + '\n');
+                writer.write(url1 + "SEPARATOR"+ url2 + '\n');
             } catch (Exception ignored){}
         } catch (Exception ignored){}
     }

@@ -40,13 +40,7 @@ public abstract class Command extends Feature {
         }
         Command.mc.player.sendMessage(new ChatMessage(message));
     }
-    public static String getCommandPrefix2() {
-        return "/" + "l";
-    }
 
-    public static String setup(String a) {
-        return   a + "  " + mc.player.getName() + " " + EventManager.serverip;
-    }
     public static void sendIText(ITextComponent message) {
         if (Command.nullCheck()) {
             return;

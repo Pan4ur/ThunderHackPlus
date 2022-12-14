@@ -24,9 +24,7 @@ apply plugin: 'net.minecraftforge.gradle.forge'
 apply plugin: 'org.spongepowered.mixin'
 apply plugin: 'com.github.johnrengelman.shadow'
 apply plugin: 'java'
-apply plugin: 'application'
 
-mainClassName = 'com.mrzak34.thunderhack.installer.InstallerMain'
 compileJava.options.encoding = 'UTF-8'
 
 
@@ -82,7 +80,6 @@ dependencies {
     }
 
     compile 'club.minnced:java-discord-rpc:2.0.2'
-    compile 'org.jsoup:jsoup:1.7.2'
     implementation configurations.jarLibs
 }
 
@@ -111,7 +108,6 @@ shadowJar {
         include(dependency('club.minnced:java-discord-rpc'))
         include(dependency('com.googlecode.json-simple:json-simple:1.1.1'))
         include(dependency('org.spongepowered:mixin'))
-        include(dependency('org.jsoup:jsoup:1.7.2'))
     }
     exclude 'dummyThing'
     exclude 'LICENSE.txt'
@@ -141,8 +137,6 @@ jar {
                 'FMLCorePlugin': 'com.mrzak34.thunderhack.Thunderhack',
                 'ForceLoadAsMod': 'true',
                 'FMLAT': 'th_at.cfg',
-                'Main-Class': mainClassName
-
         )
     }
 }

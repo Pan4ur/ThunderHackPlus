@@ -1,4 +1,4 @@
-package com.mrzak34.thunderhack.util.rich;
+package com.mrzak34.thunderhack.util;
 
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.modules.combat.Aura;

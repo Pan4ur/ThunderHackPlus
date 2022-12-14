@@ -31,7 +31,6 @@ import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
 
-import static com.mrzak34.thunderhack.modules.combat.NewAC.glBillboardDistanceScaled;
 
 public class Speedmine
         extends Module {
@@ -426,37 +425,25 @@ public class Speedmine
             if (mc.player.getDistanceSq(lastBlock) >= rangeDisableBreaker.getValue()) {
                 lastBlock = null;
             } else if (display.getValue()) {
-                if (mode.getValue() == Mode.Breaker || (mode.getValue() == Mode.Packet || mode.getValue() == Mode.PacketRebreak && !(BlockUtils.getBlockgs(lastBlock) instanceof BlockAir)) || (mode.getValue()== Mode.Packet || mode.getValue() == Mode.PacketRebreak))
-                    RenderUtil.drawBlockOutline(lastBlock,new Color(175,175,255), 2f,false );
-                    if(showProgress.getValue()){
+                if (mode.getValue() == Mode.Breaker || (mode.getValue() == Mode.Packet || mode.getValue() == Mode.PacketRebreak && !(BlockUtils.getBlockgs(lastBlock) instanceof BlockAir)) || (mode.getValue()== Mode.Packet || mode.getValue() == Mode.PacketRebreak)) {
+                    RenderUtil.drawBlockOutline(lastBlock, new Color(175, 175, 255), 2f, false);
+                    if (showProgress.getValue()) {
                         int prognum = (int) ((((float) tick / pickTickSwitch.getValue() * 100) / Blocks.OBSIDIAN.blockHardness) * mc.world.getBlockState(lastBlock).getBlock().blockHardness);
-                       // String[] progress = ready ? new String[]{"100%"} : new String[]{String.format("%.02f%%", prognum)};
-                       // Command.sendMessage( String.valueOf(prognum));
-                     //   drawNametag((double) lastBlock.getX() + 0.5d, (double) lastBlock.getY() + 0.5d,
-                     //           (double) lastBlock.getZ() + 0.5d, progress, new Color(0, 255, 4,200), 1);
                         GlStateManager.pushMatrix();
                         try {
-                            glBillboardDistanceScaled((float) lastBlock.getX() + 0.5f, (float) lastBlock.getY() + 0.5f, (float) lastBlock.getZ() + 0.5f, mc.player, 1);
-                        } catch (Exception e) {
+                            RenderUtil.glBillboardDistanceScaled((float) lastBlock.getX() + 0.5f, (float) lastBlock.getY() + 0.5f, (float) lastBlock.getZ() + 0.5f, mc.player, 1);
+                        } catch (Exception ignored) {
 
                         }
-                        //String damageText = "nigga";
                         GlStateManager.disableDepth();
-
                         GlStateManager.disableLighting();
                         GL11.glColor4f(1, 1, 1, 1);
-
-
                         mc.fontRenderer.drawStringWithShadow(String.valueOf(prognum), (int) -(mc.fontRenderer.getStringWidth(String.valueOf(prognum)) / 2.0D), -4, -1);
-
-
                         GlStateManager.enableLighting();
                         GlStateManager.enableDepth();
                         GlStateManager.popMatrix();
-
-
-
                     }
+                }
                 else lastBlock = null;
             }
 

@@ -1,10 +1,8 @@
 package com.mrzak34.thunderhack.mixin.mixins;
 
 import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.modules.misc.ThirdPersView;
 import com.mrzak34.thunderhack.modules.misc.Weather;
-import com.mrzak34.thunderhack.modules.movement.Eletra;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.entity.item.EntityItemFrame;
 import net.minecraft.entity.passive.EntityAnimal;
@@ -27,20 +25,17 @@ import net.minecraft.entity.*;
 import net.minecraft.block.state.*;
 import net.minecraft.init.*;
 import net.minecraft.client.renderer.*;
-import net.minecraft.client.multiplayer.*;
 import net.minecraft.util.math.*;
 import com.google.common.base.*;
 import com.mrzak34.thunderhack.modules.player.*;
 
 import java.awt.*;
-import java.util.*;
 import java.util.List;
 import java.util.Objects;
 
 import com.mrzak34.thunderhack.modules.render.*;
 import org.spongepowered.asm.mixin.injection.*;
 
-import javax.annotation.Nullable;
 import javax.vecmath.Vector3f;
 
 @Mixin({ EntityRenderer.class })
@@ -611,14 +606,6 @@ public abstract class MixinEntityRenderer
         cloudFog = this.mc.renderGlobal.hasCloudFog(d0, d1, d2, partialTicks);
     }
 
-    @Inject(method = "orientCamera", at = @At("RETURN"))
-    private void orientCameraStoreEyeHeight(float partialTicks, CallbackInfo ci) {
-        if (!Thunderhack.moduleManager.getModuleByClass(Eletra.class).shouldSwing()) return;
-        Entity entity = mc.getRenderViewEntity();
-        if (entity != null) {
-            GlStateManager.translate(0.0f, entity.getEyeHeight() - 0.4f, 0.0f);
-        }
-    }
 
 
 }

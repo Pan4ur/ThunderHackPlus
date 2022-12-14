@@ -2,6 +2,7 @@ package com.mrzak34.thunderhack.util;
 
 import com.github.lunatrius.schematica.world.chunk.SchematicContainer;
 import com.mrzak34.thunderhack.gui.font.FontRendererWrapper;
+import com.mrzak34.thunderhack.mixin.mixins.IRenderManager;
 import com.mrzak34.thunderhack.util.EntityUtil;
 import com.mrzak34.thunderhack.util.Util;
 import net.minecraft.block.material.Material;
@@ -13,6 +14,7 @@ import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.culling.ICamera;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -50,7 +52,22 @@ public class RenderUtil implements Util {
         float factor = dif * speed;
         return current + (shouldContinueAnimation ? factor : -factor);
     }
-
+    public static void glBillboard(float x, float y, float z) {
+        float scale = 0.016666668f * 1.6f;
+        GlStateManager.translate(x - ((IRenderManager) mc.getRenderManager()).getRenderPosX(), y - ((IRenderManager) mc.getRenderManager()).getRenderPosY(), z - ((IRenderManager) mc.getRenderManager()).getRenderPosZ());
+        GlStateManager.glNormal3f(0.0f, 1.0f, 0.0f);
+        GlStateManager.rotate(-Minecraft.getMinecraft().player.rotationYaw, 0.0f, 1.0f, 0.0f);
+        GlStateManager.rotate(Minecraft.getMinecraft().player.rotationPitch, Minecraft.getMinecraft().gameSettings.thirdPersonView == 2 ? -1.0f : 1.0f, 0.0f, 0.0f);
+        GlStateManager.scale(-scale, -scale, scale);
+    }
+    public static void glBillboardDistanceScaled(float x, float y, float z, EntityPlayer player, float scale) {
+        glBillboard(x, y, z);
+        int distance = (int) player.getDistance(x, y, z);
+        float scaleDistance = (distance / 2.0f) / (2.0f + (2.0f - scale));
+        if (scaleDistance < 1f)
+            scaleDistance = 1;
+        GlStateManager.scale(scaleDistance, scaleDistance, scaleDistance);
+    }
 
     public static void scale() {
         switch (mc.gameSettings.guiScale) {

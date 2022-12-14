@@ -99,9 +99,8 @@ public class ContainerPreviewModule extends Module {
         }
         else if (event.getPacket() instanceof SPacketOpenWindow)
         {
-            final SPacketOpenWindow l_Packet = (SPacketOpenWindow) event.getPacket();
+            final SPacketOpenWindow l_Packet = event.getPacket();
             TotalSlots = l_Packet.getSlotCount();
-            return;
         }
     }
 
@@ -151,9 +150,6 @@ public class ContainerPreviewModule extends Module {
             {
                 if (stack != null)
                 {
-
-                    //==final Item item = stack.getItem();
-                    //if (item != Items.AIR)
                     {
                         GlStateManager.pushMatrix();
                         GlStateManager.enableBlend();

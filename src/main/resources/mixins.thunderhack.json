@@ -58,7 +58,6 @@
     "MixinAbstractClientPlayer",
     "MixinGuiChest",
     "MixinGuiConnecting",
-    "MixinMapItemRenderer",
     "MixinModelBiped",
     "MixinPlayerModel",
     "MixinRenderEnderCrystal",

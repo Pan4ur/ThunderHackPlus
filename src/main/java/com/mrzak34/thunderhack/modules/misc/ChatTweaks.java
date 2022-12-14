@@ -13,6 +13,7 @@ import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.notification.NotificationManager;
 import com.mrzak34.thunderhack.notification.NotificationType;
 import com.mrzak34.thunderhack.util.PNGtoResourceLocation;
+import com.mrzak34.thunderhack.util.ThunderUtils;
 import com.mrzak34.thunderhack.util.Timer;
 import com.mrzak34.thunderhack.util.Util;
 import net.minecraft.client.Minecraft;
@@ -54,7 +55,11 @@ public class ChatTweaks
     public Setting<Boolean> infinite = this.register(new Setting<Boolean>("InfiniteChat", Boolean.valueOf(false)));
     public Setting<Boolean> timestamps = this.register(new Setting<Boolean>("TimeStamps", Boolean.valueOf(false)));
     public Setting<Boolean> namehighlight = this.register(new Setting<Boolean>("NameHighLight", Boolean.valueOf(false)));
-    public Setting<Boolean> welcomer = this.register(new Setting<Boolean>("WelcomerCS", Boolean.valueOf(false)));
+
+    public Setting<Boolean> welcomerCS = this.register(new Setting<Boolean>("WelcomerCS", Boolean.valueOf(false)));
+    public Setting<Boolean> welcomerSS = this.register(new Setting<Boolean>("WelcomerSS", Boolean.valueOf(false)));
+
+
     private final Map<String, String> uuidNameCache = Maps.newConcurrentMap();
     public Setting<Boolean> futils = this.register(new Setting<Boolean>("FunnyGam Utils", true));
     public Setting<Boolean> popusktome = this.register(new Setting<Boolean>("[Попуск -> Я] adds", true, v -> futils.getValue()));
@@ -65,7 +70,6 @@ public class ChatTweaks
     public Setting<Boolean> itemclear = this.register(new Setting<Boolean>("item clear", true, v -> futils.getValue()));
     public Setting<Boolean> chatmarks = this.register(new Setting<Boolean>("G |", true, v -> futils.getValue()));
     public Setting<Boolean> bans = this.register(new Setting<Boolean>("kick/mute/ban", true, v -> futils.getValue()));
-    public Setting<Boolean> welcom = this.register(new Setting<Boolean>("NN JOINS", true, v -> futils.getValue()));
     public Setting<Boolean> privat = this.register(new Setting<Boolean>("Privates", true, v -> futils.getValue()));
     public boolean check;
     public String date = "";
@@ -126,7 +130,7 @@ public class ChatTweaks
     @SubscribeEvent
     public void onConnectionEvent(ConnectionEvent e){
 
-        if(welcomer.getValue() && mc.player != null && mc.world != null /*&& !Objects.equals(Minecraft.getMinecraft().currentServerData.serverIP, "mcfunny.su")*/) {
+        if(welcomerSS.getValue() && mc.player != null && mc.world != null) {
             int n = (int) Math.floor(Math.random() * myString.length);
             int n2 = (int) Math.floor(Math.random() * myString2.length);
             String welcm = myString2[n2];
@@ -146,8 +150,7 @@ public class ChatTweaks
                     mc.player.sendChatMessage("!" + welcmout + e.getName());
                 }
             } else if (e.getStage() == 2) {
-                Command.sendMessage(myString[n] + uuidtoname(e.getUuid().toString()));
-
+                Command.sendMessage(myString[n] + ThunderUtils.uuidtoname(e.getUuid().toString()));
             }
         }
     }
@@ -162,8 +165,6 @@ public class ChatTweaks
 
     private boolean tryProcessChat(String message, final String unformatted) {
         String out = message;
-        final String[] parts = out.split(" ");
-        final String[] partsUnformatted = unformatted.split(" ");
         out = message;
         if( out.contains("discordapp") && out.contains("png")){
                 discord = out;
@@ -192,9 +193,6 @@ public class ChatTweaks
                 String url = "https://" + splitted[1];
                 String[] splitted1 = url.split(".jpg");
                 last = splitted1[0]+".jpg";
-                URL nigUrl = new URL(last);
-                String withoutlink = discord.replace(last, "");
-
                 ITextComponent cancel2 = new TextComponentString(last);
                 ITextComponent cancel = new TextComponentString("<" + solvename(out) + "> Отправил картинку [Show Discord Image]");
                 cancel.setStyle(cancel.getStyle().setColor(TextFormatting.AQUA).setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, cancel2)));
@@ -351,38 +349,6 @@ public class ChatTweaks
         } catch (Exception exception){}
         return true;
     }
-
-
-
-
-
-
-    public String uuidtoname(String uuid) {
-        uuid = uuid.replace("-", "");
-        if (uuidNameCache.containsKey(uuid)) {
-            return uuidNameCache.get(uuid);
-        }
-
-        final String url = "https://api.mojang.com/user/profiles/" + uuid + "/names";
-        try {
-            final String nameJson = IOUtils.toString(new URL(url));
-            if (nameJson != null && nameJson.length() > 0) {
-                final JSONArray jsonArray = (JSONArray) JSONValue.parseWithException(nameJson);
-                if (jsonArray != null) {
-                    final JSONObject latestName = (JSONObject) jsonArray.get(jsonArray.size() - 1);
-                    if (latestName != null) {
-                        return latestName.get("name").toString();
-                    }
-                }
-            }
-        }
-        catch (IOException | ParseException e) {
-            e.printStackTrace();
-        }
-
-        return null;
-    }
-
 
 
 

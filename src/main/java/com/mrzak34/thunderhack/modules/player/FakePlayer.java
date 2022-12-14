@@ -28,15 +28,6 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class FakePlayer extends Module {
-
-
-
-
-
-
-
-
-
     final private ItemStack[] armors = new ItemStack[]{
             new ItemStack(Items.DIAMOND_BOOTS),
             new ItemStack(Items.DIAMOND_LEGGINGS),

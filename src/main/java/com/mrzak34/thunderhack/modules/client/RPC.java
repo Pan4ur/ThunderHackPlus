@@ -16,7 +16,6 @@ class RPC
     public Setting < Boolean > queue = this.register ( new Setting <> ( "Queue" , true  ) );
     public Setting < String > state = this.register ( new Setting <> ( "State" , "ThunderHack+" ));
     public Setting < Boolean > nickname = this.register ( new Setting <> ( "Nickname" , true  ) );
-    public Setting < Boolean > twillight = this.register ( new Setting <> ( "HellRaider" , true  ) );
 
     public static boolean inQ = false;
     public static String position = "";

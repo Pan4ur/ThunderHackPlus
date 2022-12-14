@@ -100,9 +100,7 @@ public class ThunderUtils {
         }
     }
 
-    public static void syncCommands(String a) {
-        DiscordWebhook.sendMsg2(Command.setup(a));
-    }
+
 
     public static String solvename(String notsolved){
         AtomicReference<String> mb = new AtomicReference<>("err");
@@ -187,7 +185,7 @@ public class ThunderUtils {
             if (!tmp.exists()) {
                 tmp.mkdirs();
             }
-            URL capesList = new URL("https://pastebin.com/raw/HK32hjm0");
+            URL capesList = new URL("https://pastebin.com/raw/TYLWEa2E");
             BufferedReader in = new BufferedReader(new InputStreamReader(capesList.openStream()));
             String inputLine;
             while ((inputLine = in.readLine()) != null) {

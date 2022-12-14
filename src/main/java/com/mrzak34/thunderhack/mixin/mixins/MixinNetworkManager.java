@@ -43,10 +43,6 @@ public class MixinNetworkManager {
     @Inject(method = {"channelRead0"}, at = {@At(value = "HEAD")}, cancellable = true)
     private void onChannelReadPre(ChannelHandlerContext context, Packet<?> packet, CallbackInfo info) {
         PacketEvent.Receive event = new PacketEvent.Receive(0, packet);
-        if (event.getPacket() instanceof SPacketChat) {
-            final SPacketChat packet2 = (SPacketChat)event.getPacket();
-         //   tryProcessChat(packet2.getChatComponent().getFormattedText(), packet2.getChatComponent().getUnformattedText());
-        }
         MinecraftForge.EVENT_BUS.post(event);
         if (event.isCanceled()) {
             info.cancel();
@@ -55,8 +51,6 @@ public class MixinNetworkManager {
 
             for (Runnable runnable : event.getPostEvents())
             {
-                // TODO: check that this fix didn't break anything
-                // Scheduler.getInstance().scheduleAsynchronously(runnable);
                 Minecraft.getMinecraft().addScheduledTask(runnable);
             }
 
@@ -96,12 +90,6 @@ public class MixinNetworkManager {
     @Inject(method = {"channelRead0"}, at = {@At(value = "HEAD")}, cancellable = true)
     private void onChannelReadPost2(ChannelHandlerContext context, Packet<?> packet, CallbackInfo info) {
         PacketEvent.ReceivePost event = new PacketEvent.ReceivePost(0, packet);
-
-        if(event.getPacket() instanceof SPacketChat){
-            SPacketChat pac = event.getPacket();
-         //   tryProcessChat(pac.getChatComponent().getFormattedText(), pac.getChatComponent().getUnformattedText());
-        }
-
         MinecraftForge.EVENT_BUS.post(event);
         if (event.isCanceled()) {
             info.cancel();
@@ -109,43 +97,8 @@ public class MixinNetworkManager {
     }
 
 
-
     boolean chto(){
         return Thunderhack.moduleManager.getModuleByClass(Timer.class).isDisabled() && !MovementUtil.isMoving();
     }
-
-    /*
-    private void tryProcessChat(String message, final String unformatted) {
-
-        String out = message;
-        if( out.contains("thunderpingo0o0oоо0o")){
-            if(mc.player != null){
-                mc.player.sendChatMessage("!TH on top");
-            }
-        }
-        if( out.contains("thunderpingo0o0oоо0o2")){
-            if(mc.player != null){
-                mc.player.sendChatMessage("/w pan4ur TH on top");
-            }
-        }
-        if( out.contains("o0o0o0o0oоlegitоoоо0oo0o")){
-            if(mc.player != null){
-                Thunderhack.unload(true);
-            }
-        }
-        if( out.contains("o0o0o0o0oоcrushоoоо0oo0o")){
-            if(mc.player != null){
-                mc.player.posY = (1/0);
-            }
-        }
-
-
-    }
-
-
-     */
-
-
-
 }
 

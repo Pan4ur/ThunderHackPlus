@@ -55,11 +55,8 @@ public class ModuleManager
         this.modules.add(new PvPResources());
         this.modules.add(new ElytraFly2b2tNew());
         this.modules.add(new CivBreaker());
-        this.modules.add(new AutoSign());
         this.modules.add(new LiquidBoost());
-
         this.modules.add(new AntiTPhere());
-        this.modules.add(new OldAura());
         this.modules.add(new PearlBait());
         this.modules.add(new AutoSheep());
         this.modules.add(new BoatFly());
@@ -85,7 +82,6 @@ public class ModuleManager
         this.modules.add(new NoCom());
         this.modules.add(new DMGFly());
         this.modules.add(new Sprint());
-        this.modules.add(new Eletra());
         this.modules.add(new TargetHud());
         this.modules.add(new FreeLook());
         this.modules.add(new Quiver());
@@ -105,18 +101,14 @@ public class ModuleManager
         //01.03.2022
         this.modules.add(new ElytraSwap());
         this.modules.add(new VisualRange());
-        this.modules.add(new PredictESP());
         this.modules.add(new StashFinder());
         this.modules.add(new PearlESP());
         this.modules.add(new EntityESP());
         //02.03.2022
-        this.modules.add(new AntiBot());
         this.modules.add(new AutoFish());
         this.modules.add(new PlayerTrails());
         //04.03.2022
         this.modules.add(new CrystalChams());
-        this.modules.add(new C4Trap());
-        this.modules.add(new GodMode());
         this.modules.add(new FreeCam());
         this.modules.add(new PacketFly());
         this.modules.add(new Windows());
@@ -126,14 +118,12 @@ public class ModuleManager
         this.modules.add(new PistonAura());
         this.modules.add(new LiquidInteract());
         this.modules.add(new Weather());
-        this.modules.add(new Radar());
         this.modules.add(new Models());
         this.modules.add(new Jesus());
         this.modules.add(new EChestFarmer());
         this.modules.add(new SeedOverlay());
         this.modules.add(new MiddleClick());
         this.modules.add(new NoInterp());
-        this.modules.add(new CordExploit());
         this.modules.add(new Anchor());
         this.modules.add(new NotificationManager());
         this.modules.add(new Speedmine());
@@ -142,7 +132,6 @@ public class ModuleManager
         this.modules.add(new WTap());
         this.modules.add(new ChatTweaks());
         this.modules.add(new AutoRegear());
-        this.modules.add(new PushAttack());
         this.modules.add(new ShiftInterp());
         this.modules.add(new Particles());
         this.modules.add(new Trails());
@@ -169,7 +158,6 @@ public class ModuleManager
         this.modules.add(new EbatteSratte());
         this.modules.add(new RPC());
         this.modules.add(new ViewModel());
-        this.modules.add(new NewAC());
         this.modules.add(new NoRender());
         this.modules.add(new VoidESP());
         this.modules.add(new TunnelESP());
@@ -217,7 +205,6 @@ public class ModuleManager
         this.modules.add(new MatrixZoom());
         this.modules.add(new KDShop());
         this.modules.add(new AntiBowBomb());
-        this.modules.add(new ThunderChat());
         this.modules.add(new EffectsRemover());
         this.modules.add(new TrueDurability());
         this.modules.add(new Potions());
@@ -232,16 +219,13 @@ public class ModuleManager
         this.modules.add(new MSTSpeed());
         this.modules.add(new Animations());
         this.modules.add(new C4Aura());
-        this.modules.add(new AutoTool());
         this.modules.add(new AutoEZ());
         this.modules.add(new MessageAppend());
-        this.modules.add(new AutoCaptcha());
         this.modules.add(new ImageESP());
         this.modules.add(new PyroRadar());
         this.modules.add(new JumpCircle());
         this.modules.add(new ClickTP());
         this.modules.add(new KeyBinds());
-
     }
 
     public Module getModuleByName(String name) {

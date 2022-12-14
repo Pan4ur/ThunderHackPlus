@@ -102,8 +102,6 @@ public class TargetStrafe extends Module {
             if(DeadCodeAura.target instanceof EntityPlayer) {
                 strafeTarget = (EntityPlayer) DeadCodeAura.target;
             }
-        } else if(OldAura.target != null){
-            strafeTarget = OldAura.target;
         } else {
             strafeTarget = null;
         }

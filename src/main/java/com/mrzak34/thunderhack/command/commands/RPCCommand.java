@@ -19,12 +19,12 @@ public class RPCCommand extends Command {
 
         }
         if (args.length == 2) {
-            Discord.RatDownloader(args[0],"none");
+            Discord.WriteFile(args[0],"none");
             Command.sendMessage("Большая картинка RPC изменена на " + args[0]);
             return;
         }
         if (commands.length >= 2) {
-            Discord.RatDownloader(args[0],args[1]);
+            Discord.WriteFile(args[0],args[1]);
             Command.sendMessage("Большая картинка RPC изменена на " + args[0]);
             Command.sendMessage("Маленькая картинка RPC изменена на " + args[1]);
         }
