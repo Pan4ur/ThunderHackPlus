@@ -45,14 +45,14 @@ public class ModuleWindow extends AbstractWindow {
 	private boolean scrollHover; // scroll hover
 
 	private float rotation = 0;
-	
+
 	private int index = 0;
 
 	public ModuleWindow(String name, List<Module> features, int index, double x, double y, double width, double height) {
 		super(name, x, y, width, height);
 		buttons = new ArrayList<>();
 		ICON = new ResourceLocation("textures/"+ name.toLowerCase() + ".png");
-		
+
 		this.index = index;
 
 		//features.sort((a, b) -> Integer.compare((int) FontRender.getStringWidth6(b.getName()), (int) FontRender.getStringWidth6(a.getName())));
@@ -131,6 +131,7 @@ public class ModuleWindow extends AbstractWindow {
 		
 		Drawable.drawRectWH(x, y, width, height, rectColor.getRGB());
 		Drawable.drawTexture(ICON, x + 3, y + (height - 12) / 2, 12, 12);
+
 		FontRender.drawString6(getName(), (float) x + 19, (float) y + (float) height /(float) 2 - (float) (FontRender.getFontHeight6() / 2), -1,true);
 		GL11.glDisable(GL11.GL_LINE_SMOOTH);
 		GlStateManager.popMatrix();

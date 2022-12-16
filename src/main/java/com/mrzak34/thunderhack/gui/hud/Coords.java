@@ -34,24 +34,25 @@ public class Coords extends Module{
 
         y1 = sr.getScaledHeight() * pos.getValue().getY();
         x1 = sr.getScaledWidth() * pos.getValue().getX();
+
+
         int posX = (int) mc.player.posX;
         int posY = (int) mc.player.posY;
         int posZ = (int) mc.player.posZ;
         float nether = !inHell ? 0.125F : 8.0F;
         int hposX = (int) (mc.player.posX * nether);
         int hposZ = (int) (mc.player.posZ * nether);
-        // y1 = imageScaleY.getValue();
-        //  x1 = imageScaleX.getValue();
         String coordinates = ChatFormatting.WHITE + "XYZ " + ChatFormatting.RESET + (inHell ? (posX + ", " + posY + ", " + posZ + ChatFormatting.WHITE + " [" + ChatFormatting.RESET + hposX + ", " + hposZ + ChatFormatting.WHITE + "]" + ChatFormatting.RESET) : (posX + ", " + posY + ", " + posZ + ChatFormatting.WHITE + " [" + ChatFormatting.RESET + hposX + ", " + hposZ + ChatFormatting.WHITE + "]"));
         Util.fr.drawStringWithShadow(coordinates,x1,y1, color.getValue().getRawColor());
+
+
+
         if(mc.currentScreen instanceof GuiChat || mc.currentScreen instanceof HudEditorGui){
             if(isHovering()){
-                if(Mouse.isButtonDown(0) && mousestate){
-                    pos.getValue().setX( (float) (normaliseX() - dragX) /  sr.getScaledWidth());
-                    pos.getValue().setY( (float) (normaliseY() - dragY) / sr.getScaledHeight());
+                if(Mouse.isButtonDown(0) && mousestate) {
+                    pos.getValue().setX((float) (normaliseX() - dragX) / sr.getScaledWidth());
+                    pos.getValue().setY((float) (normaliseY() - dragY) / sr.getScaledHeight());
                 }
-
-                RenderUtil.drawRect2(x1 - 10,y1 ,x1 + 50,y1 + 100,new Color(0x73A9A9A9, true).getRGB());
             }
         }
 

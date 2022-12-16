@@ -118,6 +118,9 @@ public class TargetStrafe extends Module {
     public void onUpdateWalkingPlayerPre(EventPreMotion event) {
         if (strafeTarget == null)
             return;
+        if(mc.player.getDistanceSq(strafeTarget) < 0.2){
+            return;
+        }
 
         if (autoThirdPerson.getValue()) {
             if (strafeTarget.getHealth() > 0.0f && mc.player.getDistance(strafeTarget) <= trgrange.getValue() && mc.player.getHealth() > 0.0f) {

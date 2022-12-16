@@ -88,6 +88,9 @@ public class Aura extends Module {
     public Setting<Integer> fov = register(new Setting("FOV", 180, 5, 180));//(antiCheat);
     public Setting<Boolean> backtrack = register(new Setting<>("BackTrack", false));//(antiCheat);
     public Setting<Integer> btticks = register(new Setting("TrackTicks", 5, 1, 15));//(antiCheat);
+    public Setting<Boolean> btkick = register(new Setting<>("BTAntiKick", false));//(antiCheat);
+    public Setting<Integer> btkicksetting = register(new Setting("AntiKickFOV", 20, 0, 60));//(antiCheat);
+
     public Setting<Boolean> gappleFix = register(new Setting<>("GappleFix", true));//(antiCheat);
     /*-------------------------------------*/
 
@@ -116,7 +119,6 @@ public class Aura extends Module {
     public Setting<Boolean> Mobsss = register(new Setting<>("Mobs", true));//(targets);
     public Setting<Boolean> Animalsss = register(new Setting<>("Animals", true));//(targets);
     public Setting<Boolean> Villagersss = register(new Setting<>("Villagers", true));//(targets);
-    public Setting<Boolean> Friendsss = register(new Setting<>("Friends", false));//(targets);
     public Setting<Boolean> Slimesss = register(new Setting<>("Slimes", true));//(targets);
     public Setting<Boolean> Crystalsss = register(new Setting<>("Crystals", true));//(targets);
     public Setting<Boolean> ignoreNaked = register(new Setting<>("IgnoreNaked", true));//(targets);
@@ -253,20 +255,25 @@ public class Aura extends Module {
             ghost.hurtTime = target.hurtTime;
             GlStateManager.pushMatrix();
 
-            boolean BLEND = GL11.glIsEnabled(GL11.GL_BLEND);
+            boolean lighting = GL11.glIsEnabled(GL11.GL_LIGHTING);
+            boolean blend = GL11.glIsEnabled(GL11.GL_BLEND);
+            boolean depthtest = GL11.glIsEnabled(GL11.GL_DEPTH_TEST);
+
             GlStateManager.enableLighting();
             GlStateManager.enableBlend();
             GlStateManager.enableDepth();
-            GL11.glEnable(GL11.GL_TEXTURE_2D);
+            GlStateManager.color(1, 1, 1, 1);
 
             try {
                 mc.getRenderManager().renderEntity(ghost, getBacktrackPos().x - mc.getRenderManager().renderPosX, getBacktrackPos().y - mc.getRenderManager().renderPosY, getBacktrackPos().z - mc.getRenderManager().renderPosZ, target.rotationYaw, mc.getRenderPartialTicks(), false);
             } catch (Exception ignored){}
 
-            GL11.glDisable(GL11.GL_TEXTURE_2D);
-            GlStateManager.disableDepth();
-            GlStateManager.disableLighting();
-            GlStateManager.disableBlend();
+            if(!depthtest)
+                GlStateManager.disableDepth();
+            if(!lighting)
+                GlStateManager.disableLighting();
+            if(!blend)
+                GlStateManager.disableBlend();
 
 
             GlStateManager.popMatrix();
@@ -638,9 +645,6 @@ public class Aura extends Module {
         if (Villagersss.getValue()) {
             castHelper.apply(CastHelper.EntityType.VILLAGERS);
         }
-        if (Friendsss.getValue()) {
-            castHelper.apply(CastHelper.EntityType.FRIENDS);
-        }
         if (entity instanceof EntitySlime) {
             return Slimesss.getValue();
         }
@@ -853,8 +857,14 @@ public class Aura extends Module {
         } else {
             if(getBacktrackPos() != null) {
                 if((getDistanceBT(getBacktrackPos().add(0, yCoord, 0)) < getDistanceBT(target.getPositionVector().add(0, yCoord, 0))) && (getDistanceBT(target.getPositionVector().add(0, yCoord, 0)) > (distance.getValue()*distance.getValue()))){
-                    btprofit = true;
-                    return getBacktrackPos().add(0, yCoord, 0);
+
+                    if(btkick.getValue() && canKick(target.getPositionVector().add(0, yCoord, 0),getBacktrackPos().add(0, yCoord, 0))){
+                        btprofit = false;
+                        return target.getPositionVector().add(0, yCoord, 0);
+                    } else {
+                        btprofit = true;
+                        return getBacktrackPos().add(0, yCoord, 0);
+                    }
                 } else{
                     btprofit = false;
                     return target.getPositionVector().add(0, yCoord, 0);
@@ -864,6 +874,16 @@ public class Aura extends Module {
                 return target.getPositionVector().add(0, yCoord, 0);
             }
         }
+    }
+
+
+    public boolean canKick(Vec3d real , Vec3d fake){
+        float fakeAngle = RotationHelper.getNCPRotationsBT(fake)[0];
+        float realAngle = RotationHelper.getNCPRotationsBT(real)[0];
+        if(Math.abs((realAngle - fakeAngle)) > btkicksetting.getValue()){
+            return true;
+        }
+        return false;
     }
 
     public float getDistanceBT(Vec3d vector) {

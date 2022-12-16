@@ -24,10 +24,10 @@ public class JumpCircle extends Module {
     }
 
     public final Setting<ColorSetting> color = this.register(new Setting<>("Color", new ColorSetting(0x8800FF00)));
-    public Setting<Float> range2 = register(new Setting<>("Radius", 3.8F, 0.1F, 3.0F));
-    public Setting<Float> range = register(new Setting<>("Radius2", 3.8F, 0.1F, 3.0F));
+    public Setting<Float> range2 = register(new Setting<>("Radius", 1F, 0.1F, 3.0F));
+    public Setting<Float> range = register(new Setting<>("Radius2", 3.0F, 0.1F, 3.0F));
     public Setting <Integer> lifetime = this.register( new Setting <> ( "live", 1000, 1, 10000) );
-    public Setting<Float> ypos = register(new Setting<>("YPos", -1f, -2f, 2f));
+    public Setting<Float> ypos = register(new Setting<>("YPos", 0.5f, -2f, 2f));
 
     public Setting<mode> Mode = register(new Setting<>("Mode", mode.Jump));
 

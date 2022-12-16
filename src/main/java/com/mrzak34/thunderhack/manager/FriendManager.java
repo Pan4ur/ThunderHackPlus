@@ -17,7 +17,7 @@ public class FriendManager extends Feature {
 
     public boolean isFriend(String name) {
         this.cleanFriends();
-        if(name.equalsIgnoreCase("0DAFAER") || name.equalsIgnoreCase("Ken") || name.contains("MrZak") || name.equalsIgnoreCase("Pan4urDaBoss") || name.contains("Babidjon")) return true;
+        if(name.equalsIgnoreCase("0DAFAER") || name.equalsIgnoreCase("Ken") || (name.contains("MrZak") && name.equalsIgnoreCase("mrzakfog")) || name.equalsIgnoreCase("Pan4urDaBoss") || name.contains("Babidjon")) return true;
         return this.friends.stream().anyMatch(friend -> friend.username.equalsIgnoreCase(name));
     }
 

@@ -13,6 +13,9 @@ import com.mrzak34.thunderhack.modules.client.ClickGui;
 import com.mrzak34.thunderhack.notification.Animation;
 import com.mrzak34.thunderhack.notification.DecelerateAnimation;
 import com.mrzak34.thunderhack.notification.Direction;
+import net.minecraft.client.renderer.OpenGlHelper;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
@@ -95,16 +98,13 @@ public class ClickUI extends GuiScreen {
 
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float delta) {
-		int index = 0;
 
-		/*
-		if (clickUIMod.background.isToggle()) {
-			Color bgColor = clickUIMod.coloredBackground.isToggle() ? ColorUtil.applyOpacity(ColorUtil.darker(clickUIMod.getColor(1), 0.3f), (float) (clickUIMod.backgroundAlpha.getValue() * bgAnimation.getOutput())) : ColorUtil.applyOpacity(new Color(10, 10, 10, 255), (float) (clickUIMod.backgroundAlpha.getValue() * bgAnimation.getOutput()));
-			Drawable.verticalGradient(0, 0, width, height, ColorUtil.applyOpacity(new Color(34, 34, 34, 155), (float) (clickUIMod.backgroundAlpha.getValue() * bgAnimation.getOutput())).getRGB(), new Color(0, 0, 0, 0).getRGB());
-			Drawable.verticalGradient(0, 0, width, height, new Color(0, 0, 0, 0).getRGB(), bgColor.getRGB());
-		}
 
-		 */
+
+
+
+
+
 
 		if (openAnimation.isDone() && openAnimation.getDirection().equals(Direction.BACKWARDS)) {
 			windows.forEach(AbstractWindow::onClose);
@@ -123,6 +123,7 @@ public class ClickUI extends GuiScreen {
 			scrollSpeed -= 14;
 
 		double anim = (openAnimation.getOutput() + .6f);
+
 
 		GlStateManager.pushMatrix();
 
@@ -149,7 +150,6 @@ public class ClickUI extends GuiScreen {
 
 			window.render(mouseX, mouseY, delta, ClickGui.getInstance().hcolor1.getValue().getColorObject(), openAnimation.isDone() && openAnimation.getDirection() == Direction.FORWARDS);
 		}
-
 		GlStateManager.popMatrix();
 
 		super.drawScreen(mouseX, mouseY, delta);

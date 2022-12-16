@@ -47,7 +47,7 @@ class Discord {
             Discord.presence.startTimestamp = (System.currentTimeMillis() / 1000L);
             Discord.presence.details = Util.mc.currentScreen instanceof GuiMainMenu ? "В главном меню" : "Играет " + (Minecraft.getMinecraft().currentServerData != null ? (RPC.INSTANCE.showIP.getValue() ? Minecraft.getMinecraft().currentServerData.serverIP.equals("localhost") ? "на " + "2bt2.org via 2bored2wait" : "на " + Minecraft.getMinecraft().currentServerData.serverIP : " НН сервер") : " Читерит в одиночке");
             Discord.presence.state = RPC.INSTANCE.state.getValue();
-            Discord.presence.largeImageText = "v2.36";
+            Discord.presence.largeImageText = "v2.37";
             rpc.Discord_UpdatePresence(presence);
 
             thread = new Thread(() -> {

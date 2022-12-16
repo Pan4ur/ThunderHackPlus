@@ -23,7 +23,7 @@ import java.util.Objects;
 @Mod(
         modid = "thunderhack",
         name = "ThunderHack",
-        version = "2.36")
+        version = "2.37")
 
 
 public class Thunderhack {
@@ -147,7 +147,6 @@ public class Thunderhack {
         setDeadManager.init();
         nobitches.init();
         entityProvider.init();
-
 
         moduleManager.onLoad();
     }

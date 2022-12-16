@@ -66,7 +66,7 @@ public class CevBreaker extends Module {
 
 
     public enum Mode {
-        Packet, DoubleP, TripleP, Vanilla
+        Packet, DoubleP, TripleP, Vanilla, StrictFast
     }
 
 
@@ -251,7 +251,8 @@ public class CevBreaker extends Module {
                         mc.playerController.onPlayerDamageBlock(toppos, handlePlaceRotation(toppos));
                     }
                 }
-            } else {
+            }
+            else {
                 if(!startBreak) {
                     onBreakPacket();
                     startBreak = true;

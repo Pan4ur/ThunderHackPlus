@@ -5,6 +5,8 @@ import net.minecraft.entity.Entity;
 import net.minecraftforge.fml.common.eventhandler.Cancelable;
 import net.minecraftforge.fml.common.eventhandler.Event;
 
+import static com.mrzak34.thunderhack.util.ItemUtil.mc;
+
 @Cancelable
 public class AttackEvent extends EventStage {
 

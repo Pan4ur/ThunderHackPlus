@@ -18,6 +18,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import java.util.ArrayList;
 
 import static com.mrzak34.thunderhack.modules.combat.Aura.calcAngle;
+import static com.mrzak34.thunderhack.modules.combat.Aura.target;
 
 public class KillauraAddon extends Module {
 
@@ -38,7 +39,6 @@ public class KillauraAddon extends Module {
     BlockPos CoolPosition;
     Timer placeDelay = new Timer();
     Timer breakDelay = new Timer();
-    Timer actionDelay = new Timer();
 
 
     @SubscribeEvent
@@ -159,6 +159,7 @@ public class KillauraAddon extends Module {
     public BlockPos AI(ArrayList<BlockPos> blocks){
         BlockPos pos = null;
         double bestdist= 5;
+        if(trgt == null) return null;
         for (BlockPos pos1 : blocks){
             if((pos1.getDistance((int) trgt.posX, (int) trgt.posY, (int) trgt.posZ) > 2) && trgt.getDistanceSqToCenter(pos1) < bestdist){
                 bestdist = trgt.getDistanceSqToCenter(pos1);
