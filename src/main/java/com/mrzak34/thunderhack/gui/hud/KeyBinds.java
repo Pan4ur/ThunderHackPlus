@@ -31,9 +31,8 @@ public class KeyBinds extends Module{
 
     @SubscribeEvent
     public void onRender2D(Render2DEvent e){
-        ScaledResolution sr = new ScaledResolution(mc);
-        y1 = sr.getScaledHeight() * pos.getValue().getY();
-        x1 = sr.getScaledWidth() * pos.getValue().getX();
+        y1 = e.scaledResolution.getScaledHeight() * pos.getValue().getY();
+        x1 = e.scaledResolution.getScaledWidth() * pos.getValue().getX();
 
 
 
@@ -44,7 +43,7 @@ public class KeyBinds extends Module{
 
         for (Module feature : Thunderhack.moduleManager.modules) {
             if (!Objects.equals(feature.getBind().toString(), "None") && !feature.getName().equalsIgnoreCase("clickgui") && !feature.getName().equalsIgnoreCase("thundergui")) {
-                RenderUtil.drawRect(x1, y, x1 + 105, 13 + y1, new Color(61, 58, 58).getRGB());
+                RenderUtil.drawRect(x1, y1, x1 + 105, 13 + y1, new Color(61, 58, 58).getRGB());
                 RenderUtil.drawRect(x1, y1 - 10, 105 + x1, 2 + y1, new Color(123, 0, 255).getRGB());
                 RenderUtil.drawRect(x1, y1 - 8, 105 + x1, 12 + y1, new Color(61, 58, 58).getRGB());
                 fr.drawStringWithShadow("keybinds", 10 + fr.getStringWidth("keybinds") + x1, y1 - 5, -1);
@@ -60,15 +59,15 @@ public class KeyBinds extends Module{
         if(mc.currentScreen instanceof GuiChat || mc.currentScreen instanceof HudEditorGui){
             if(isHovering()){
                 if(Mouse.isButtonDown(0) && mousestate){
-                    pos.getValue().setX( (float) (normaliseX() - dragX) /  sr.getScaledWidth());
-                    pos.getValue().setY( (float) (normaliseY() - dragY) / sr.getScaledHeight());
+                    pos.getValue().setX( (float) (normaliseX() - dragX) /  e.scaledResolution.getScaledWidth());
+                    pos.getValue().setY( (float) (normaliseY() - dragY) / e.scaledResolution.getScaledHeight());
                 }
             }
         }
         if(Mouse.isButtonDown(0) && isHovering()){
             if(!mousestate){
-                dragX = (int) (normaliseX() - (pos.getValue().getX() * sr.getScaledWidth()));
-                dragY = (int) (normaliseY() - (pos.getValue().getY() * sr.getScaledHeight()));
+                dragX = (int) (normaliseX() - (pos.getValue().getX() * e.scaledResolution.getScaledWidth()));
+                dragY = (int) (normaliseY() - (pos.getValue().getY() * e.scaledResolution.getScaledHeight()));
             }
             mousestate = true;
         } else {

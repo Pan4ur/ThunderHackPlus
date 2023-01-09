@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import static com.mrzak34.thunderhack.util.ItemUtil.mc;
 
 public class IDHelper extends Feature
 {

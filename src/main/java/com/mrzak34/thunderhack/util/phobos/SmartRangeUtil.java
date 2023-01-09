@@ -3,7 +3,7 @@ package com.mrzak34.thunderhack.util.phobos;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
 
-import static com.mrzak34.thunderhack.util.ItemUtil.mc;
+import static com.mrzak34.thunderhack.util.Util.mc;
 
 public class SmartRangeUtil {
     public static boolean isInSmartRange(BlockPos pos, Entity entity,
@@ -29,8 +29,7 @@ public class SmartRangeUtil {
             double entityX, double entityY, double entityZ) {
         final double height = 2.0f;
         // TODO: ehhhh???
-        final double pY = entityY + mc.player
-                .getEyeHeight();
+        final double pY = entityY + mc.player.getEyeHeight();
         final double dY = crystalY;
         // LALALALALALA THIS IS FROM NCP idc
         //noinspection StatementWithEmptyBody

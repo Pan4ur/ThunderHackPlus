@@ -1,11 +1,7 @@
 package com.mrzak34.thunderhack.mixin.mixins;
 
-import com.google.common.collect.Maps;
-import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.event.events.DeathEvent;
 import com.mrzak34.thunderhack.util.Util;
-import net.minecraft.client.Minecraft;
-import net.minecraft.network.PacketThreadUtil;
 import org.spongepowered.asm.mixin.*;
 import net.minecraft.client.network.*;
 import net.minecraft.network.play.server.*;
@@ -16,10 +12,6 @@ import net.minecraftforge.fml.common.eventhandler.*;
 
 import net.minecraft.entity.*;
 import org.spongepowered.asm.mixin.injection.*;
-
-import java.util.Iterator;
-import java.util.Map;
-import java.util.UUID;
 
 @Mixin({ NetHandlerPlayClient.class })
 public class MixinNetHandlerPlayClient

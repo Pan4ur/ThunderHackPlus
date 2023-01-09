@@ -50,10 +50,6 @@ public class EntityESP extends Module {
     public enum colorModeEn {
         Custom, Astolfo,Rainbow,Client;
     }
-    private Setting<triangleModeEn> triangleMode = register(new Setting("TriangleMode", triangleModeEn.Custom));
-    public enum triangleModeEn {
-        Custom, Astolfo,Rainbow,Client;
-    }
     private Setting<espModeEn> espMode = register(new Setting("espMode", espModeEn.Flat));
     public enum espModeEn {
         Flat, Box;

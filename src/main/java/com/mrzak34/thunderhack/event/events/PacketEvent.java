@@ -54,16 +54,14 @@ public class PacketEvent
     }
 
     @Cancelable
-    public static class SendPost
-            extends PacketEvent {
+    public static class SendPost extends PacketEvent {
         public SendPost(int stage, Packet<?> packet) {
             super(stage, packet);
         }
     }
 
     @Cancelable
-    public static class ReceivePost
-            extends PacketEvent {
+    public static class ReceivePost extends PacketEvent {
         public ReceivePost(int stage, Packet<?> packet) {
             super(stage, packet);
         }

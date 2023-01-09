@@ -1,6 +1,7 @@
 package com.mrzak34.thunderhack.util.phobos;
 
 import com.mrzak34.thunderhack.setting.Setting;
+import com.mrzak34.thunderhack.util.Util;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.entity.item.EntityEnderCrystal;
 
@@ -8,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import static com.mrzak34.thunderhack.util.ItemUtil.mc;
 
 public class FakeCrystalRender
 {
@@ -23,11 +23,11 @@ public class FakeCrystalRender
     public void addFakeCrystal(EntityEnderCrystal crystal)
     {
         crystal.setShowBottom(false);
-        mc.addScheduledTask(() -> // TODO: why what?
+        Util.mc.addScheduledTask(() -> // TODO: why what?
         {
-            if (mc.world != null)
+            if (Util.mc.world != null)
             {
-                for (EntityEnderCrystal entity : mc.world.getEntitiesWithinAABB(
+                for (EntityEnderCrystal entity : Util.mc.world.getEntitiesWithinAABB(
                         EntityEnderCrystal.class,
                         crystal.getEntityBoundingBox()))
                 {
@@ -78,7 +78,7 @@ public class FakeCrystalRender
 
     public void render(float partialTicks)
     {
-        RenderManager manager = mc.getRenderManager();
+        RenderManager manager = Util.mc.getRenderManager();
         for (EntityEnderCrystal crystal : crystals)
         {
             manager.renderEntityStatic(crystal, partialTicks, false);

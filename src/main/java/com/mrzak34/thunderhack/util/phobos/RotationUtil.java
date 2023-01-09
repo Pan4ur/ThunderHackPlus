@@ -12,8 +12,7 @@ import net.minecraft.world.IBlockAccess;
 import java.util.function.BiPredicate;
 
 import static com.mrzak34.thunderhack.util.Util.mc;
-import static com.mrzak34.thunderhack.util.RotationHelper.interpolatedEyePos;
-import static com.mrzak34.thunderhack.util.RotationHelper.interpolatedEyeVec;
+
 
 public class RotationUtil
 {
@@ -228,6 +227,14 @@ public class RotationUtil
                 entity.posZ);
 
         return MathUtil.angle(vec3d, interpolatedEyeVec());
+    }
+    public static Vec3d interpolatedEyeVec()
+    {
+        return mc.player.getLook(mc.getRenderPartialTicks());
+    }
+    public static Vec3d interpolatedEyePos()
+    {
+        return mc.player.getPositionEyes(mc.getRenderPartialTicks());
     }
 
     public static double getAngle(double x, double y, double z)

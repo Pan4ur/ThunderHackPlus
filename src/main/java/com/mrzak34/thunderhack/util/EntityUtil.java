@@ -101,25 +101,6 @@ public class EntityUtil
     }
 
 
-
-    public static boolean isInWater(Entity entity) {
-        if (entity == null) {
-            return false;
-        }
-        double y = entity.posY + 0.01;
-        for (int x = MathHelper.floor(entity.posX); x < MathHelper.ceil(entity.posX); ++x) {
-            for (int z = MathHelper.floor(entity.posZ); z < MathHelper.ceil(entity.posZ); ++z) {
-                BlockPos pos = new BlockPos(x, (int) y, z);
-                if (!(mc.world.getBlockState(pos).getBlock() instanceof BlockLiquid)) continue;
-                return true;
-            }
-        }
-        return false;
-    }
-
-
-
-
     public static List<Vec3d> targets(Vec3d vec3d, boolean antiScaffold, boolean antiStep, boolean legs, boolean platform, boolean antiDrop, boolean raytrace) {
         ArrayList<Vec3d> placeTargets = new ArrayList<Vec3d>();
         if (antiDrop) {
@@ -185,14 +166,8 @@ public class EntityUtil
         return offsets.toArray(array);
     }
 
-
-
     public static boolean isLiving(Entity entity) {
         return entity instanceof EntityLivingBase;
-    }
-
-    public static boolean isAlive(Entity entity) {
-        return EntityUtil.isLiving(entity) && !entity.isDead && ((EntityLivingBase) entity).getHealth() > 0.0f;
     }
 
 
@@ -234,15 +209,6 @@ public class EntityUtil
     public static boolean canEntityBeSeen(Entity entityIn) {
         return mc.world.rayTraceBlocks(new Vec3d(mc.player.posX, mc.player.posX + (double) mc.player.getEyeHeight(), mc.player.posZ), new Vec3d(entityIn.posX, entityIn.posY + (double) entityIn.getEyeHeight(), entityIn.posZ), false, true, false) == null;
     }
-    public static boolean isntValid(Entity entity, double range) {
-        return entity == null || EntityUtil.isDead(entity) || entity.equals(mc.player) || entity instanceof EntityPlayer && Thunderhack.friendManager.isFriend(entity.getName()) || mc.player.getDistanceSq(entity) > MathUtil.square(range);
-    }
-
-    public static boolean holdingWeapon(EntityPlayer player) {
-        return player.getHeldItemMainhand().getItem() instanceof ItemSword || player.getHeldItemMainhand().getItem() instanceof ItemAxe;
-    }
-
-
 
 
 

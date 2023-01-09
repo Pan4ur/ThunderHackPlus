@@ -1,6 +1,6 @@
 package com.mrzak34.thunderhack.modules.player;
 
-import com.mrzak34.thunderhack.event.events.FreecamEntityEvent;
+
 import com.mrzak34.thunderhack.event.events.FreecamEvent;
 import com.mrzak34.thunderhack.event.events.Render2DEvent;
 import com.mrzak34.thunderhack.event.events.RenderItemOverlayEvent;
@@ -136,13 +136,6 @@ public class FreeCam extends Module{
         String str = ".vclip " + yCoord;
         FontRender.drawString6(str, (float) ((sr.getScaledWidth() - FontRender.getStringWidth6(str)) / 1.98), (float) (sr.getScaledHeight() / 1.8 - 20), -1,false);
 
-    }
-
-    @SubscribeEvent
-    public void onFreecamEntity(FreecamEntityEvent event) {
-        if(getActiveEntity() != null) {
-            event.setEntity((EntityPlayerSP) getActiveEntity());
-        }
     }
 
     @Override

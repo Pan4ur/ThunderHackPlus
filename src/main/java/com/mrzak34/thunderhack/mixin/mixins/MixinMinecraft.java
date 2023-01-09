@@ -2,7 +2,6 @@ package com.mrzak34.thunderhack.mixin.mixins;
 
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.event.events.*;
-import com.mrzak34.thunderhack.mainmenu.ThunderMenu;
 import com.mrzak34.thunderhack.modules.client.AntiDisconnect;
 import com.mrzak34.thunderhack.util.phobos.IMinecraft;
 import net.minecraft.client.Minecraft;
@@ -133,39 +132,8 @@ public abstract class MixinMinecraft implements IMinecraft {
             minecraft.shutdown();
         }
     }
-
     private void unload() {
         Thunderhack.onUnload();
     }
-
-
-    @Redirect(method = "sendClickBlockToController", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/entity/EntityPlayerSP;isHandActive()Z"))
-    public boolean handActiveRedirect(EntityPlayerSP entityPlayerSP) {
-        InteractEvent event = new InteractEvent(entityPlayerSP.isHandActive());
-        MinecraftForge.EVENT_BUS.post(event);
-        return event.isInteracting();
-    }
-
-    /*
-
-    @Inject(method={"runTick()V"}, at={@At(value="RETURN")})
-    private void runTick(CallbackInfo callbackInfo) {
-        if (Minecraft.getMinecraft().currentScreen instanceof GuiMainMenu ) {
-            Minecraft.getMinecraft().displayGuiScreen(new ThunderMenu());
-        }
-    }
-
-    @Inject(method={"displayGuiScreen"}, at={@At(value="HEAD")})
-    private void displayGuiScreenHook(GuiScreen screen, CallbackInfo ci) {
-        if (screen instanceof GuiMainMenu) {
-            mc.displayGuiScreen(new ThunderMenu());
-        }
-    }
-
-
-     */
-
-
-
 }
 

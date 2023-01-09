@@ -1,12 +1,18 @@
 package com.mrzak34.thunderhack.mixin.mixins;
 
+import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.event.events.*;
+import com.mrzak34.thunderhack.modules.movement.Speed;
+import com.mrzak34.thunderhack.modules.movement.Strafe;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockLiquid;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.network.NetHandlerPlayClient;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.MoverType;
+import net.minecraft.init.Blocks;
 import net.minecraft.network.play.client.CPacketEntityAction;
 import net.minecraft.network.play.client.CPacketInput;
 import net.minecraft.network.play.client.CPacketPlayer;
@@ -16,6 +22,7 @@ import net.minecraft.stats.StatisticsManager;
 import net.minecraft.util.MovementInput;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import org.spongepowered.asm.mixin.Mixin;
@@ -27,7 +34,8 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import static com.mrzak34.thunderhack.util.ItemUtil.mc;
+import static com.mrzak34.thunderhack.util.Util.mc;
+
 
 @Mixin(value = {EntityPlayerSP.class}, priority = 9998)
 public abstract class MixinEntityPlayerSP
@@ -39,11 +47,6 @@ public abstract class MixinEntityPlayerSP
         this.connection = p_i47378_3_;
     }
 
-    @Inject(method = {"sendChatMessage"}, at = {@At(value = "HEAD")}, cancellable = true)
-    public void sendChatMessage(String message, CallbackInfo callback) {
-        ChatEvent chatEvent = new ChatEvent(message);
-        MinecraftForge.EVENT_BUS.post(chatEvent);
-    }
 
     @Redirect(method = "onUpdateWalkingPlayer", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/entity/EntityPlayerSP;isCurrentViewEntity()Z"))
     private boolean redirectIsCurrentViewEntity(EntityPlayerSP entityPlayerSP) {
@@ -60,7 +63,7 @@ public abstract class MixinEntityPlayerSP
     public final NetHandlerPlayClient connection;
 
     @Inject(method = {"onUpdate"}, at = {@At(value = "HEAD")})
-    private void updatehook(CallbackInfo info) {
+    private void updateHook(CallbackInfo info) {
         PlayerUpdateEvent playerUpdateEvent = new PlayerUpdateEvent();
         MinecraftForge.EVENT_BUS.post(playerUpdateEvent);
     }
@@ -86,30 +89,66 @@ public abstract class MixinEntityPlayerSP
         }
     }
 
+
+    double preX, preZ;
+
     @Inject(method = "move", at = @At("HEAD"), cancellable = true)
     private void movePre(MoverType type, double x, double y, double z, CallbackInfo info) {
+
         EventMove event = new EventMove(type, x, y, z,0);
         MinecraftForge.EVENT_BUS.post(event);
         if (event.isCanceled()) {
             super.move(type, event.get_x(), event.get_y(), event.get_z());
             info.cancel();
         }
+
+        preX = posX;
+        preZ = posZ;
+        AxisAlignedBB before = getEntityBoundingBox();
+
+        boolean predictGround = false;
+
+        if(Thunderhack.moduleManager.getModuleByClass(Strafe.class).isEnabled() || Thunderhack.moduleManager.getModuleByClass(Speed.class).isEnabled()){
+            final AxisAlignedBB bb =  mc.player.getEntityBoundingBox().contract(0.0d, 0.0d, 0.0d).offset(0.0d, -0.13, 0.0d);
+            int y1 = (int) bb.minY;
+            for (int x2 = MathHelper.floor(bb.minX); x2 < MathHelper.floor(bb.maxX + 1.0D); x2++) {
+                for (int z3 = MathHelper.floor(bb.minZ); z3 < MathHelper.floor(bb.maxZ + 1.0D); z3++) {
+                    final Block block = mc.world.getBlockState(new BlockPos(x2, y1, z3)).getBlock();
+                    if (    block != Blocks.AIR
+                            && block != Blocks.TALLGRASS
+                            && block != Blocks.RED_FLOWER
+                            && block != Blocks.YELLOW_FLOWER
+                            && block != Blocks.DOUBLE_PLANT ) {
+                        predictGround = true;
+                    }
+                }
+            }
+
+        }
+
+        MatrixMove move = new MatrixMove(mc.player.posX, mc.player.posY, mc.player.posZ,x, y, z, predictGround, before);
+        MinecraftForge.EVENT_BUS.post(move);
+        if (move.isCanceled()) {
+            super.move(type, move.getMotionX(), move.getMotionY(), move.getMotionZ());
+            info.cancel();
+        }
+
     }
 
-    @Inject(method = "move", at = @At("RETURN"), cancellable = true)
+    @Inject(method = "move", at = @At("RETURN"))
     private void movePost(MoverType type, double x, double y, double z, CallbackInfo info) {
         EventMove event = new EventMove(type, x, y, z,1);
         MinecraftForge.EVENT_BUS.post(event);
-        if (event.isCanceled()) {
-            super.move(type, event.get_x(), event.get_y(), event.get_z());
-            info.cancel();
-        }
+        double deltaX = posX - preX, deltaZ = posZ - preZ;
+        MinecraftForge.EVENT_BUS.post(new EventPostMove(Math.sqrt(deltaX * deltaX + deltaZ * deltaZ)));
     }
 
     @Inject(method = {"onUpdateWalkingPlayer"}, at = {@At(value = "HEAD")})
     private void preMotion(CallbackInfo info) {
         EventPreMotion event = new EventPreMotion(rotationYaw,rotationPitch);
         MinecraftForge.EVENT_BUS.post(event);
+        EventSprint e = new EventSprint(isSprinting());
+        MinecraftForge.EVENT_BUS.post(e);
     }
 
     @Inject(method = {"onUpdateWalkingPlayer"}, at = {@At(value = "RETURN")})

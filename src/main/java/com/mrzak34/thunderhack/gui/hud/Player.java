@@ -35,15 +35,14 @@ public class Player extends Module {
 
     @SubscribeEvent
     public void onRender2D(Render2DEvent e){
-        ScaledResolution sr = new ScaledResolution(mc);
-        y1 = sr.getScaledHeight() * pos.getValue().getY();
-        x1 = sr.getScaledWidth() * pos.getValue().getX();
+        y1 = e.scaledResolution.getScaledHeight() * pos.getValue().getY();
+        x1 = e.scaledResolution.getScaledWidth() * pos.getValue().getX();
         drawPlayerOnScreen((int) x1, (int) y1, scale.getValue(), -30, 0, Minecraft.getMinecraft().player, yw.getValue(), pch.getValue());
         if(mc.currentScreen instanceof GuiChat || mc.currentScreen instanceof HudEditorGui){
             if(isHovering()){
                 if(Mouse.isButtonDown(0) && mousestate){
-                    pos.getValue().setX( (float) (normaliseX() - dragX) /  sr.getScaledWidth());
-                    pos.getValue().setY( (float) (normaliseY() - dragY) / sr.getScaledHeight());
+                    pos.getValue().setX( (float) (normaliseX() - dragX) /  e.scaledResolution.getScaledWidth());
+                    pos.getValue().setY( (float) (normaliseY() - dragY) / e.scaledResolution.getScaledHeight());
                 }
 
             }
@@ -51,8 +50,8 @@ public class Player extends Module {
 
         if(Mouse.isButtonDown(0) && isHovering()){
             if(!mousestate){
-                dragX = (int) (normaliseX() - (pos.getValue().getX() * sr.getScaledWidth()));
-                dragY = (int) (normaliseY() - (pos.getValue().getY() * sr.getScaledHeight()));
+                dragX = (int) (normaliseX() - (pos.getValue().getX() * e.scaledResolution.getScaledWidth()));
+                dragY = (int) (normaliseY() - (pos.getValue().getY() * e.scaledResolution.getScaledHeight()));
             }
             mousestate = true;
         } else {

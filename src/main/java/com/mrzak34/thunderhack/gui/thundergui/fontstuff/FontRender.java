@@ -79,16 +79,11 @@ public class FontRender{
 
 
     public static float drawString6(String text, float x, float y, int color,boolean shadow) {
-        if (shadow) {
             return Thunderhack.fontRenderer6.drawString(text, x, y, color);
-
-            // Thunderhack.fontRenderer6.drawString(text, x - 0.6F, y - 0.6F,new Color(0x66000001, true).getRGB(), false);
-          //  Thunderhack.fontRenderer6.drawString(text, x, y, color, false);
-        } else {
-            return Thunderhack.fontRenderer6.drawString(text, x, y, color);
-        }
     }
-
+    public static float drawString7(String text, float x, float y, int color,boolean shadow) {
+        return Thunderhack.fontRenderer7.drawString(text, x, y, color);
+    }
 
     public static float drawCentString6(String text, float x, float y, int color) {
         return Thunderhack.fontRenderer6.drawString(text, x - getStringWidth6(text) / 2f, y, color);

@@ -81,9 +81,8 @@ public class CoolCrosshair extends Module {
     float animation = 0;
     @SubscribeEvent
     public void onRender2D(Render2DEvent event) {
-        ScaledResolution sr = new ScaledResolution(mc);
-        float x1 = (float) (sr.getScaledWidth_double() / 2F);
-        float y1 = (float) (sr.getScaledHeight_double() / 2F);
+        float x1 = (float) (event.scaledResolution.getScaledWidth_double() / 2F);
+        float y1 = (float) (event.scaledResolution.getScaledHeight_double() / 2F);
 
 
       // Command.sendMessage(String.valueOf(mc.itemRenderer.equippedProgressMainHand));
@@ -107,7 +106,7 @@ public class CoolCrosshair extends Module {
                 animation += 1f;
             }
             RoundedShader.drawRound(x1 - animation, y1 - 3f, animation*2, 6, 4,  new Color(0x0A0A0A));
-            RenderUtil.glScissor(x1 - animation, y1 - 3f, x1 + animation*2, x1 + 6, sr);
+            RenderUtil.glScissor(x1 - animation, y1 - 3f, x1 + animation*2, x1 + 6, event.scaledResolution);
             GL11.glEnable(GL11.GL_SCISSOR_TEST);
 
             if(EZbowPOP.ticks > (float)Thunderhack.moduleManager.getModuleByClass(EZbowPOP.class).getMaxDelay() * 0.666f){

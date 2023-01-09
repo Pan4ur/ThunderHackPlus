@@ -1,10 +1,22 @@
 package com.mrzak34.thunderhack.mixin.mixins;
 
+import com.mrzak34.thunderhack.Thunderhack;
+import com.mrzak34.thunderhack.modules.player.AutoTool;
+import com.mrzak34.thunderhack.modules.render.XRay;
 import net.minecraft.block.state.*;
+import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Enchantments;
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.*;
 import org.spongepowered.asm.mixin.*;
 import net.minecraft.util.math.*;
 import net.minecraft.block.*;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+import static com.mrzak34.thunderhack.util.Util.mc;
 
 @Mixin({ Block.class })
 public abstract class MixinBlock
@@ -20,23 +32,45 @@ public abstract class MixinBlock
             info.cancel();
         }
     }
-
+*/
     @Inject(method = { "isFullCube" },  at = { @At("HEAD") },  cancellable = true)
     public void isFullCubeHook(final IBlockState blockState,  final CallbackInfoReturnable<Boolean> info) {
-        try {
+    try{
             if (Thunderhack.moduleManager.getModuleByClass(XRay.class).isOn() && Thunderhack.moduleManager.getModuleByClass(XRay.class).wh.getValue() ) {
-              //  info.setReturnValue((Object)XRay.getInstance().shouldRender((Block)Block.class.cast(this)));
-                info.cancel();
+                info.setReturnValue(Thunderhack.moduleManager.getModuleByClass(XRay.class).shouldRender(Block.class.cast(this)));
             }
-        }
+    }
         catch (Exception ex) {}
     }
 
-     */
 
 
 
 
+    @Inject(method = "getPlayerRelativeBlockHardness", at = @At("HEAD"), cancellable = true)
+    public void getPlayerRelativeBlockHardness(IBlockState state, EntityPlayer player, World worldIn, BlockPos pos, CallbackInfoReturnable<Float> ci) {
+        float f = state.getBlockHardness(worldIn, pos);
+        if (f < 0.0F)
+        {
+            ci.setReturnValue(0.0f);;
+        }
+        else
+        {
+            AutoTool autoTool = Thunderhack.moduleManager.getModuleByClass(AutoTool.class);
+            ci.setReturnValue(!player.canHarvestBlock(state) ? getDigSpeed(state, (autoTool.isEnabled() && autoTool.silent.getValue()) ? player.inventory.getStackInSlot(autoTool.itemIndex) : player.getHeldItemMainhand()) / f / 100.0F : getDigSpeed(state,(autoTool.isEnabled() && autoTool.silent.getValue()) ? player.inventory.getStackInSlot(autoTool.itemIndex) : player.getHeldItemMainhand()) / f / 30.0F);
+        }
+    }
+
+
+
+    public float getDigSpeed(IBlockState state, ItemStack is){
+        final float digSpeed = EnchantmentHelper.getEnchantmentLevel(Enchantments.EFFICIENCY, is);
+        float f = is.getDestroySpeed(state);
+        if (digSpeed > 0 && !is.isEmpty()) {
+            f += (float) (digSpeed * digSpeed + 1);
+        }
+        return f;
+    }
 
 
 }

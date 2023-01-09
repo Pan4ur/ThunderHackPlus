@@ -13,8 +13,7 @@ import com.mrzak34.thunderhack.util.RenderUtil;
 import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.init.SoundEvents;
 
-public class SubBindButton
-        extends Button {
+public class SubBindButton extends Button {
     private final Setting setting;
     public boolean isListening;
 

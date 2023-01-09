@@ -348,6 +348,14 @@ public class InventoryUtil
         }
         return -1;
     }
+    public static int getSwordAtHotbar() {
+        for (int i = 0; i < 9; ++i) {
+            ItemStack itemStack = Util.mc.player.inventory.getStackInSlot(i);
+            if (!(itemStack.getItem() instanceof ItemSword)) continue;
+            return i;
+        }
+        return -1;
+    }
 
     public static int getCrysathotbar() {
         for (int i = 0; i < 9; ++i) {
@@ -420,7 +428,18 @@ public class InventoryUtil
             ItemStack itemStack = Util.mc.player.inventory.getStackInSlot(i);
             if (!(itemStack.getItem() == Items.POTIONITEM)) continue;
             Item maybepot = itemStack.getItem();
-            if (!(itemStack.getItem().getItemStackDisplayName(itemStack).equals("Несоздаваемое зелье"))) continue;
+            if (!(itemStack.getDisplayName().contains("Каппучино"))) continue;
+            return i;
+        }
+        return -1;
+    }
+
+    public static int getAmericanoAtHotbar() {
+        for (int i = 0; i < 9; ++i) {
+            ItemStack itemStack = Util.mc.player.inventory.getStackInSlot(i);
+            if (!(itemStack.getItem() == Items.POTIONITEM)) continue;
+            Item maybepot = itemStack.getItem();
+            if (!(itemStack.getDisplayName().contains("Американо"))) continue;
             return i;
         }
         return -1;
@@ -480,6 +499,78 @@ public class InventoryUtil
         return ((ItemBlock) mainHand.getItem()).getBlock() == block || ((ItemBlock) offHand.getItem()).getBlock() == block;
     }
 
+
+
+    public static int getGappleSlot(boolean crapple) {
+        if (Items.GOLDEN_APPLE == mc.player.getHeldItemOffhand().getItem() && (crapple == (mc.player.getHeldItemOffhand().getRarity().equals(EnumRarity.RARE))))
+            return -1;
+        for (int i = 36; i >= 0; i--) {
+            final ItemStack item = mc.player.inventory.getStackInSlot(i);
+            if ((crapple == item.getRarity().equals(EnumRarity.RARE)) && item.getItem() == Items.GOLDEN_APPLE) {
+                if (i < 9) {
+                    i += 36;
+                }
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    public static int getRodSlot() {
+        for (int i = 0; i < 9; i++) {
+            final ItemStack item = mc.player.inventory.getStackInSlot(i);
+            if (item.getItem() == Items.FISHING_ROD && item.getItemDamage() < 52) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+
+
+    public static int getItemSlot(Item input) {
+        if (input == mc.player.getHeldItemOffhand().getItem()) return -1;
+        for (int i = 36; i >= 0; i--) {
+            final Item item = mc.player.inventory.getStackInSlot(i).getItem();
+            if (item == input) {
+                if (i < 9) {
+                    i += 36;
+                }
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    public static void swapToOffhandSlot(int slot) {
+        if (slot == -1) return;
+        mc.playerController.windowClick(0, slot, 0, ClickType.PICKUP, mc.player);
+        mc.playerController.windowClick(0, 45, 0, ClickType.PICKUP, mc.player);
+        mc.playerController.windowClick(0, slot, 0, ClickType.PICKUP, mc.player);
+        mc.playerController.updateController();
+    }
+
+    public static int swapToHotbarSlot(int slot, boolean silent){
+        if (mc.player.inventory.currentItem == slot || slot < 0 || slot > 8) return slot;
+        mc.player.connection.sendPacket(new CPacketHeldItemChange(slot));
+        if (!silent) mc.player.inventory.currentItem = slot;
+        mc.playerController.updateController();
+        return slot;
+    }
+
+    public static int findItem(Class clazz) {
+        for (int i = 0; i < 9; ++i) {
+            ItemStack stack = mc.player.inventory.getStackInSlot(i);
+            if (stack == ItemStack.EMPTY) continue;
+            if (clazz.isInstance(stack.getItem())) {
+                return i;
+            }
+            if (!(stack.getItem() instanceof ItemBlock) || !clazz.isInstance((( ItemBlock ) stack.getItem()).getBlock()))
+                continue;
+            return i;
+        }
+        return -1;
+    }
 
 }
 

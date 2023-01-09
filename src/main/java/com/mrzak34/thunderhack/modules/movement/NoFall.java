@@ -20,9 +20,8 @@ public class NoFall extends Module {
     public Setting<rotmod> mod = register(new Setting("Mode", rotmod.Matrix));
 
     public enum rotmod {
-        Matrix, Matrix2, Rubberband, Default;
+        Matrix, Rubberband, Default;
     }
-    public boolean b;
 
 
     @Override
@@ -40,13 +39,7 @@ public class NoFall extends Module {
 
         if (mod.getValue() == rotmod.Default) {
             if ((double)mc.player.fallDistance > 2.5) {
-                mc.player.connection.sendPacket((Packet)new CPacketPlayer(true));
-            }
-        } else if (mod.getValue() == rotmod.Matrix2) {
-            if ((double)mc.player.fallDistance > 2.5 && mc.player.fallDistance < 10.0f) {
-                a(true);
-            } else if (mc.player.onGround) {
-                l();
+                mc.player.connection.sendPacket(new CPacketPlayer(true));
             }
         }
     }
@@ -56,32 +49,10 @@ public class NoFall extends Module {
         if (mod.getValue() != rotmod.Matrix) {
             return;
         }
-        if (!mc.player.onGround && mc.player.fallDistance > 2.0f && b(mc.player.getPosition().down()) == Blocks.AIR) {
-            this.b = true;
-        }
-        if (this.b) {
+        if (!mc.player.onGround && mc.player.fallDistance > 2.0f &&  mc.world.getBlockState(mc.player.getPosition().down()).getBlock() == Blocks.AIR) {
             mc.player.onGround = false;
         }
     }
 
-    private static boolean l;
-    public static boolean c;
 
-    public static void l() {
-        c = false;
-        l = mc.player.onGround;
-    }
-
-    public static void a(boolean bl) {
-        l = bl;
-        c = true;
-    }
-
-    public static IBlockState a(BlockPos blockPos) {
-        return mc.world.getBlockState(blockPos);
-    }
-
-    public static Block b(BlockPos blockPos) {
-        return a(blockPos).getBlock();
-    }
 }

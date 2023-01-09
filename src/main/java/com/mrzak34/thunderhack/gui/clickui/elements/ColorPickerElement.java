@@ -50,10 +50,17 @@ public class ColorPickerElement extends AbstractElement {
     @Override
     public void render(int mouseX, int mouseY, float delta) {
         RoundedShader.drawRound((float) x + 2, (float) y + 2, (float) width - 4, (float) height - 4, 4, new Color(bgcolor));
+        FontRender.drawString5(setting.getName(), (float) x + 4, (float) y + 5, -1);
 
-        FontRender.drawString5(setting.getName(), (float) x + 4, (float) y + 4, -1);
         Drawable.drawBlurredShadow((int) (x + width - 20), (int) (y + 5), 14, 6, 10, getColorSetting().getColorObject());
         RoundedShader.drawRound((float) (x + width - 20), (float) (y + 5), 14, 6, 1, getColorSetting().getColorObject());
+
+        if(!getColorSetting().isCycle()){
+            FontRender.drawString5("R", (float) (x + width - 30), (float) (y + 7), new Color(0x484848).getRGB());
+        } else {
+            FontRender.drawString5("R", (float) (x + width - 30), (float) (y + 7), -1);
+        }
+
 
         renderPicker(mouseX, mouseY, getColorSetting().getColorObject());
     }
@@ -152,6 +159,9 @@ public class ColorPickerElement extends AbstractElement {
 
         else if (Drawable.isHovered(mouseX, mouseY, cx, cy, cw, ch) && button == 0)
             sbfocused = true;
+
+        else if (Drawable.isHovered(mouseX, mouseY, (float) (x + width - 30), (float) (y + 7), 10, 10) && button == 0)
+            getColorSetting().setCycle(!getColorSetting().isCycle());
     }
 
     @Override

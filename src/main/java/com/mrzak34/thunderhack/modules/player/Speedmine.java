@@ -10,6 +10,8 @@ import com.mrzak34.thunderhack.util.*;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
+import net.minecraft.item.ItemAxe;
 import net.minecraft.item.ItemPickaxe;
 import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraft.network.play.client.CPacketPlayerDigging;
@@ -43,7 +45,7 @@ public class Speedmine
     private Setting<Mode> mode = register(new Setting("Mode", Mode.Packet));
 
     public enum Mode {
-        Packet, Damage, Instant, Breaker, PacketRebreak
+        Packet, Damage, Instant, Breaker, PacketRebreak,NexusGrief
     }
 
 
@@ -69,7 +71,6 @@ public class Speedmine
     public Setting<Boolean> stopEating = this.register(new Setting<Boolean>("Stop Eating", false, v -> (mode.getValue() == Mode.Breaker ||mode.getValue() == Mode.Packet) && silentSwitch.getValue() ));
     public Setting<Boolean> switchBack = this.register(new Setting<Boolean>("Switch Back", false, v -> mode.getValue() == Mode.Breaker ||mode.getValue() == Mode.Packet ));
     public Setting<Boolean> switchPick = this.register(new Setting<Boolean>("Switch Pick", false, v -> mode.getValue() == Mode.Breaker ||mode.getValue() == Mode.Packet ));
-    public Setting<Boolean> haste = this.register(new Setting<Boolean>("Haste", false, v -> mode.getValue() == Mode.Damage));
     public Setting<Boolean> continueBreaking = this.register(new Setting<Boolean>("Continue Breaking", true));
     public Setting<Boolean> showProgress = this.register(new Setting<Boolean>("Show Progress", true, v -> mode.getValue() == Mode.Breaker ||mode.getValue() == Mode.Packet));
 
@@ -208,14 +209,6 @@ public class Speedmine
         }
 
         mc.playerController.blockHitDelay = 0;
-
-        if (haste.getValue()) {
-            PotionEffect effect = new PotionEffect(MobEffects.HASTE, 80950, 1, false, false);
-            mc.player.addPotionEffect(new PotionEffect(effect));
-        }
-        if (!(haste.getValue()) && mc.player.isPotionActive(MobEffects.HASTE)) {
-            mc.player.removePotionEffect(MobEffects.HASTE);
-        }
         if (!onlyOnPick.getValue() || mc.player.getHeldItemMainhand().getItem() instanceof ItemPickaxe)
             if (mode.getValue() == Mode.Breaker) {
                 if (lastBlock != null && ((spammer.getValue() && tickSpammer++ >= spammerTickDelay.getValue()))) {
@@ -355,6 +348,31 @@ public class Speedmine
                 }
                 break;
             }
+            case NexusGrief: {
+                if(mc.player.getHeldItemMainhand().getItem() instanceof ItemPickaxe) {
+                    if (mc.playerController.curBlockDamageMP < 0.17f)
+                        mc.playerController.curBlockDamageMP = 0.17f;
+
+                    if (mc.playerController.curBlockDamageMP >= 0.83) {
+                        mc.playerController.curBlockDamageMP = 0.83f;
+                    }
+                } else if(mc.player.getHeldItemMainhand().getItem() instanceof ItemAxe){
+                    if (mc.playerController.curBlockDamageMP < 0.17f)
+                        mc.playerController.curBlockDamageMP = 0.17f;
+
+                    if (mc.playerController.curBlockDamageMP >= 1f) {
+                        mc.playerController.curBlockDamageMP = 1.0f;
+                    }
+                } else if(mc.player.getHeldItemMainhand().getItem() == Items.STONE_SHOVEL || mc.player.getHeldItemMainhand().getItem() == Items.IRON_SHOVEL || mc.player.getHeldItemMainhand().getItem() == Items.DIAMOND_SHOVEL ){
+                    if (mc.playerController.curBlockDamageMP < 0.17f)
+                        mc.playerController.curBlockDamageMP = 0.17f;
+
+                    if (mc.playerController.curBlockDamageMP >= 1f) {
+                        mc.playerController.curBlockDamageMP = 1.0f;
+                    }
+                }
+                break;
+            }
             case Instant: {
                 mc.player.swingArm(EnumHand.MAIN_HAND);
                 mc.player.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.START_DESTROY_BLOCK, event.getBlockPos(), event.getEnumFacing()));
@@ -412,9 +430,6 @@ public class Speedmine
     }
 
     public void onDisable() {
-        if (haste.getValue()) {
-            mc.player.removePotionEffect(MobEffects.HASTE);
-        }
         breakTick = 0;
         continueBlock = null;
         first = true;

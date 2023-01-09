@@ -14,7 +14,7 @@ import java.util.Optional;
 
 import static com.mrzak34.thunderhack.modules.combat.Burrow.getEyePos;
 import static com.mrzak34.thunderhack.modules.combat.Burrow.getVec3d;
-import static com.mrzak34.thunderhack.util.ItemUtil.mc;
+import static com.mrzak34.thunderhack.util.Util.mc;
 
 // TODO: better rayTrace for 2b2t. Find the part of the block we can see
 public class RayTraceUtil

@@ -7,22 +7,16 @@ import java.util.List;
 
 import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.gui.clickui.ColorUtil;
+import com.mrzak34.thunderhack.gui.clickui.elements.*;
+import com.mrzak34.thunderhack.setting.*;
 import com.mrzak34.thunderhack.util.Drawable;
 import com.mrzak34.thunderhack.gui.clickui.base.AbstractElement;
-import com.mrzak34.thunderhack.gui.clickui.elements.CheckBoxElement;
-import com.mrzak34.thunderhack.gui.clickui.elements.ColorPickerElement;
-import com.mrzak34.thunderhack.gui.clickui.elements.ComboBoxElement;
-import com.mrzak34.thunderhack.gui.clickui.elements.SliderElement;
 import com.mrzak34.thunderhack.gui.thundergui.fontstuff.FontRender;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.modules.client.ClickGui;
 import com.mrzak34.thunderhack.notification.Animation;
 import com.mrzak34.thunderhack.notification.DecelerateAnimation;
 import com.mrzak34.thunderhack.notification.Direction;
-import com.mrzak34.thunderhack.setting.ColorSetting;
-import com.mrzak34.thunderhack.setting.Parent;
-import com.mrzak34.thunderhack.setting.PositionSetting;
-import com.mrzak34.thunderhack.setting.Setting;
 import org.lwjgl.input.Keyboard;
 
 import com.mojang.realmsclient.gui.ChatFormatting;
@@ -57,6 +51,10 @@ public class ModuleButton {
 				elements.add(new SliderElement(setting));
 			} else if (setting.isEnumSetting() && !(setting.getValue() instanceof Parent) && !(setting.getValue() instanceof PositionSetting)){
 				elements.add(new ComboBoxElement(setting));
+			} else if (setting.getValue() instanceof SubBind) {
+				elements.add(new SubBindElement(setting));
+			}else if ((setting.getValue() instanceof String || setting.getValue() instanceof Character) && !setting.getName().equalsIgnoreCase("displayName")) {
+				elements.add(new StringElement(setting));
 			}
 		}
 	}

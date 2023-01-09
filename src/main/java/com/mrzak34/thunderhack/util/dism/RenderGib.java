@@ -2,13 +2,16 @@ package com.mrzak34.thunderhack.util.dism;
 
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.modules.misc.Dismemberment;
+import com.mrzak34.thunderhack.util.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.monster.EntityCreeper;
 import net.minecraft.entity.monster.EntitySkeleton;
+import net.minecraft.entity.monster.EntityZombie;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
@@ -30,36 +33,29 @@ public class RenderGib extends Render<EntityGib>
         modelGib = new ModelGib();
     }
 
+
+    private static final ResourceLocation zombieTexture = new ResourceLocation("textures/entity/zombie/zombie.png");
+    private static final ResourceLocation skeletonTexture = new ResourceLocation("textures/entity/skeleton/skeleton.png");
+    private static final ResourceLocation creeperTexture = new ResourceLocation("textures/entity/creeper/creeper.png");
+
     @Override
     public ResourceLocation getEntityTexture(EntityGib gib)
     {
         if(gib.parent instanceof EntityPlayer) {
             return ((AbstractClientPlayer) gib.parent).getLocationSkin();
         } else {
-            Render render = Minecraft.getMinecraft().getRenderManager().getEntityRenderObject(gib.parent);
-            return getEntityTexture(render, render.getClass(), gib.parent);
-        }
-    }
-
-    @SideOnly(Side.CLIENT)
-    @Nullable
-    public static <T extends Render<V>, V extends Entity> ResourceLocation getEntityTexture(T rend, Class clz, V ent) {
-        try {
-            Method m = clz.getDeclaredMethod("getEntityTexture", Entity.class);
-            m.setAccessible(true);
-            return (ResourceLocation)m.invoke(rend, ent);
-        } catch (NoSuchMethodException var4) {
-            if (clz != Render.class) {
-                return getEntityTexture(rend, clz.getSuperclass(), ent);
+            if(gib.parent instanceof EntityZombie){
+                return zombieTexture;
             }
-        } catch (Exception var5) {
-            var5.printStackTrace();
+            if(gib.parent instanceof EntitySkeleton){
+                return skeletonTexture;
+            }
+            if(gib.parent instanceof EntityCreeper){
+                return creeperTexture;
+            }
+            return zombieTexture;
         }
-
-        return null;
     }
-
-
 
 
 

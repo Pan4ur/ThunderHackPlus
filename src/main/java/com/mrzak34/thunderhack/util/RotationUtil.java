@@ -1,5 +1,6 @@
 package com.mrzak34.thunderhack.util;
 
+import com.mrzak34.thunderhack.util.rotations.GCDFix;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -11,6 +12,8 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.*;
 import net.minecraft.world.IBlockAccess;
 import org.apache.commons.lang3.RandomUtils;
+
+import static com.mrzak34.thunderhack.util.CrystalUtils.mc;
 
 public class RotationUtil
         implements Util {
@@ -118,25 +121,6 @@ public class RotationUtil
     }
 
 
-
-    public static boolean canSeeEntityAtFov(Entity entityLiving, float scope) {
-        Util.mc.getMinecraft();
-        double diffX = entityLiving.posX - Util.mc.player.posX;
-        Minecraft.getMinecraft();
-        double diffZ = entityLiving.posZ - Util.mc.player.posZ;
-        float newYaw = (float)(Math.toDegrees(Math.atan2(diffZ, diffX)) - 90.0);
-        double d = newYaw;
-        Minecraft.getMinecraft();
-        double difference = RotationUtil.angleDifference(d, Util.mc.player.rotationYaw);
-        return difference <= (double)scope;
-    }
-    public static double angleDifference(double a, double b) {
-        float yaw360 = (float)(Math.abs(a - b) % 360.0);
-        if (yaw360 > 180.0f) {
-            yaw360 = 360.0f - yaw360;
-        }
-        return yaw360;
-    }
     public static float[] getNeededRotations(final Entity entityLivingBase) {
         final double d = entityLivingBase.posX - Util.mc.player.posX;
         final double d2 = entityLivingBase.posZ - Util.mc.player.posZ;
@@ -189,5 +173,40 @@ public class RotationUtil
     public static boolean isInFov(Entity player) {
         return false;
     }
+
+
+    public static float[] getNCPRotations(Entity entityIn, boolean interpolate) {
+        double diffX;
+        double diffZ;
+        if(interpolate){
+            diffX = entityIn.posX + (entityIn.posX - entityIn.prevPosX) * mc.getRenderPartialTicks() - mc.player.posX - mc.player.motionX *  mc.getRenderPartialTicks() ;
+            diffZ = entityIn.posZ + (entityIn.posZ - entityIn.prevPosZ) * mc.getRenderPartialTicks() - mc.player.posZ - mc.player.motionZ * mc.getRenderPartialTicks();
+        } else {
+            diffX = entityIn.posX - mc.player.posX;
+            diffZ = entityIn.posZ - mc.player.posZ;
+        }
+
+        double diffY;
+
+        if (entityIn instanceof EntityLivingBase) {
+            diffY = entityIn.posY + entityIn.getEyeHeight() - (mc.player.posY + mc.player.getEyeHeight()) - 0.2f;
+        } else {
+            diffY = (entityIn.getEntityBoundingBox().minY + entityIn.getEntityBoundingBox().maxY) / 2 - (mc.player.posY + mc.player.getEyeHeight());
+        }
+        if (!mc.player.canEntityBeSeen(entityIn)) {
+            diffY = entityIn.posY + entityIn.height - (mc.player.posY + mc.player.getEyeHeight());
+        }
+        final double diffXZ = MathHelper.sqrt(diffX * diffX + diffZ * diffZ);
+
+        float yaw = (float) ((Math.toDegrees(Math.atan2(diffZ, diffX)) - 90));
+        float pitch = (float) ((Math.toDegrees(-Math.atan2(diffY, diffXZ))));
+
+        yaw = (mc.player.rotationYaw + GCDFix.getFixedRotation(MathHelper.wrapDegrees(yaw - mc.player.rotationYaw)));
+        pitch = mc.player.rotationPitch + GCDFix.getFixedRotation(MathHelper.wrapDegrees(pitch - mc.player.rotationPitch));
+        pitch = MathHelper.clamp(pitch, -90F, 90F);
+
+        return new float[]{yaw, pitch};
+    }
+
 }
 

@@ -134,7 +134,7 @@ jar {
                 'tweakClass': 'org.spongepowered.asm.launch.MixinTweaker',
                 'TweakOrder': 0,
                 'FMLCorePluginContainsFMLMod': 'true',
-                'FMLCorePlugin': 'com.mrzak34.thunderhack.Thunderhack',
+                'FMLCorePlugin': 'com.mrzak34.thunderhack.mixin.THLoader',
                 'ForceLoadAsMod': 'true',
                 'FMLAT': 'th_at.cfg',
         )

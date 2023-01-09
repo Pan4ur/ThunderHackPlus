@@ -3,8 +3,7 @@ package com.mrzak34.thunderhack;
 import club.minnced.discord.rpc.DiscordEventHandlers;
 import club.minnced.discord.rpc.DiscordRPC;
 import club.minnced.discord.rpc.DiscordRichPresence;
-
-import com.mrzak34.thunderhack.modules.misc.ChatTweaks;
+import com.mrzak34.thunderhack.modules.misc.NameProtect;
 import com.mrzak34.thunderhack.util.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiMainMenu;
@@ -17,7 +16,6 @@ import net.minecraft.client.gui.GuiScreenServerList;
 import java.io.*;
 import java.util.Objects;
 
-import static com.mrzak34.thunderhack.util.ItemUtil.mc;
 
 public
 class Discord {
@@ -47,7 +45,7 @@ class Discord {
             Discord.presence.startTimestamp = (System.currentTimeMillis() / 1000L);
             Discord.presence.details = Util.mc.currentScreen instanceof GuiMainMenu ? "В главном меню" : "Играет " + (Minecraft.getMinecraft().currentServerData != null ? (RPC.INSTANCE.showIP.getValue() ? Minecraft.getMinecraft().currentServerData.serverIP.equals("localhost") ? "на " + "2bt2.org via 2bored2wait" : "на " + Minecraft.getMinecraft().currentServerData.serverIP : " НН сервер") : " Читерит в одиночке");
             Discord.presence.state = RPC.INSTANCE.state.getValue();
-            Discord.presence.largeImageText = "v2.37";
+            Discord.presence.largeImageText = "v2.38";
             rpc.Discord_UpdatePresence(presence);
 
             thread = new Thread(() -> {
@@ -65,8 +63,12 @@ class Discord {
 
 
                     if (RPC.INSTANCE.nickname.getValue()) {
-                        Discord.presence.smallImageText = "logged as - " + mc.session.getUsername();
-                        Discord.presence.smallImageKey = "https://minotar.net/helm/" + mc.session.getUsername() + "/100.png";
+                        if(Thunderhack.moduleManager.getModuleByClass(NameProtect.class).isDisabled()) {
+                            Discord.presence.smallImageText = "logged as - " + Util.mc.session.getUsername();
+                        } else {
+                            Discord.presence.smallImageText = "logged as - Protected";
+                        }
+                        Discord.presence.smallImageKey = "https://minotar.net/helm/" +  Util.mc.session.getUsername()+ "/100.png";
                     }
                     if (RPC.INSTANCE.Mode.getValue() == RPC.mode.MegaCute) {
                         Discord.presence.largeImageKey = "https://media1.tenor.com/images/6bcbfcc0be97d029613b54f97845bc59/tenor.gif?itemid=26823781";
@@ -157,4 +159,5 @@ class Discord {
         }
         rpc.Discord_Shutdown ( );
     }
+
 }

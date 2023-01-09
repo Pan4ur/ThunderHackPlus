@@ -78,45 +78,6 @@ public class ColorUtil {
         return new Color(Color.HSBtoRGB(hsb[0], hsb[1], hsb[2]));
     }
 
-    public static Color getHealthColor(EntityLivingBase entityLivingBase) {
-        float health = entityLivingBase.getHealth();
-        float[] fractions = new float[]{0.0f, 0.15f, 0.55f, 0.7f, 0.9f};
-        Color[] colors = new Color[]{new Color(133, 0, 0), Color.RED, Color.ORANGE, Color.YELLOW, Color.GREEN};
-        float progress = health / entityLivingBase.getMaxHealth();
-        return health >= 0.0f ? ColorUtil.blendColors(fractions, colors, progress).brighter() : colors[0];
-    }
-
-    public static Color blendColors(float[] fractions, Color[] colors, float progress) {
-        if (fractions == null) {
-            throw new IllegalArgumentException("Fractions can't be null");
-        }
-        if (colors == null) {
-            throw new IllegalArgumentException("Colours can't be null");
-        }
-        if (fractions.length != colors.length) {
-            throw new IllegalArgumentException("Fractions and colours must have equal number of elements");
-        }
-        int[] indicies = ColorUtil.getFractionIndicies(fractions, progress);
-        float[] range = new float[]{fractions[indicies[0]], fractions[indicies[1]]};
-        Color[] colorRange = new Color[]{colors[indicies[0]], colors[indicies[1]]};
-        float max = range[1] - range[0];
-        float value = progress - range[0];
-        float weight = value / max;
-        return ColorUtil.blend(colorRange[0], colorRange[1], 1.0f - weight);
-    }
-
-    public static int[] getFractionIndicies(float[] fractions, float progress) {
-        int startPoint;
-        int[] range = new int[2];
-        for (startPoint = 0; startPoint < fractions.length && fractions[startPoint] <= progress; ++startPoint) {
-        }
-        if (startPoint >= fractions.length) {
-            startPoint = fractions.length - 1;
-        }
-        range[0] = startPoint - 1;
-        range[1] = startPoint;
-        return range;
-    }
 
     public static Color blend(Color color1, Color color2, double ratio) {
         float r = (float)ratio;

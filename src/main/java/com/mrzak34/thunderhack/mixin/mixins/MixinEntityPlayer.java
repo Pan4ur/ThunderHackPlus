@@ -3,6 +3,7 @@ package com.mrzak34.thunderhack.mixin.mixins;
 import com.mojang.authlib.GameProfile;
 import com.mrzak34.thunderhack.event.events.EventPlayerTravel;
 import com.mrzak34.thunderhack.mixin.ducks.IEntityPlayer;
+import com.mrzak34.thunderhack.util.Util;
 import com.mrzak34.thunderhack.util.phobos.MotionTracker;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.MoverType;
@@ -16,7 +17,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import static com.mrzak34.thunderhack.util.ItemUtil.mc;
 
 @Mixin(value={EntityPlayer.class})
 public abstract class MixinEntityPlayer extends EntityLivingBase implements IEntityPlayer {
@@ -82,8 +82,8 @@ public abstract class MixinEntityPlayer extends EntityLivingBase implements IEnt
     @Inject(method = { "travel" }, at = { @At("HEAD") }, cancellable = true)
     public void travel(final float strafe, final float vertical, final float forward, final CallbackInfo info) {
         EntityPlayer us = null;
-        if(mc.player != null) {
-            us = (EntityPlayer) mc.player;
+        if(Util.mc.player != null) {
+            us = (EntityPlayer) Util.mc.player;
         }
         if (us == null) {
             return;

@@ -40,9 +40,8 @@ public class Potions extends Module{
 
     @SubscribeEvent
     public void onRender2D(Render2DEvent e){
-        ScaledResolution sr = new ScaledResolution(mc);
-        y1 = sr.getScaledHeight() * pos.getValue().getY();
-        x1 = sr.getScaledWidth() * pos.getValue().getX();
+        y1 = e.scaledResolution.getScaledHeight() * pos.getValue().getY();
+        x1 = e.scaledResolution.getScaledWidth() * pos.getValue().getX();
 
       //  Util.fr.drawStringWithShadow(str,x1,y1, color.getValue().getRawColor());
 
@@ -52,12 +51,11 @@ public class Potions extends Module{
 
         java.util.ArrayList<PotionEffect> effects = new ArrayList();
         for (PotionEffect potionEffect : mc.player.getActivePotionEffects()) {
-            if (potionEffect.getDuration() != 0
-                    && !potionEffect.getPotion().getName().contains("effect.nightVision")) {
+            if (potionEffect.getDuration() != 0 && !potionEffect.getPotion().getName().contains("effect.nightVision")) {
                 effects.add(potionEffect);
             }
         }
-        int j = sr.getScaledHeight() / 2 - (effects.size() * 24) / 2;
+        int j = e.scaledResolution.getScaledHeight() / 2 - (effects.size() * 24) / 2;
         for (PotionEffect potionEffect : effects) {
             Potion potion = potionEffect.getPotion();
             String power = "";
@@ -95,16 +93,16 @@ public class Potions extends Module{
         if(mc.currentScreen instanceof GuiChat || mc.currentScreen instanceof HudEditorGui){
             if(isHovering()){
                 if(Mouse.isButtonDown(0) && mousestate){
-                    pos.getValue().setX( (float) (normaliseX() - dragX) /  sr.getScaledWidth());
-                    pos.getValue().setY( (float) (normaliseY() - dragY) / sr.getScaledHeight());
+                    pos.getValue().setX( (float) (normaliseX() - dragX) /  e.scaledResolution.getScaledWidth());
+                    pos.getValue().setY( (float) (normaliseY() - dragY) / e.scaledResolution.getScaledHeight());
                 }
             }
         }
 
         if(Mouse.isButtonDown(0) && isHovering()){
             if(!mousestate){
-                dragX = (int) (normaliseX() - (pos.getValue().getX() * sr.getScaledWidth()));
-                dragY = (int) (normaliseY() - (pos.getValue().getY() * sr.getScaledHeight()));
+                dragX = (int) (normaliseX() - (pos.getValue().getX() * e.scaledResolution.getScaledWidth()));
+                dragY = (int) (normaliseY() - (pos.getValue().getY() * e.scaledResolution.getScaledHeight()));
             }
             mousestate = true;
         } else {

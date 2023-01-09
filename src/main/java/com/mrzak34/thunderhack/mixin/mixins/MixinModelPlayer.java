@@ -109,6 +109,11 @@ public class MixinModelPlayer extends ModelBiped{
         right_leg = new ModelRenderer(this);
         right_leg.setRotationPoint(2.0F, 18.0F, 0.0F);
         right_leg.setTextureOffset(13, 0).addBox(-5.9F, 0.0F, -1.5F, 3, 6, 3);
+
+
+
+
+
         final ModelRenderer footRight = new ModelRenderer(this, 22, 39);
         this.footRight = footRight;
         footRight.setRotationPoint(0.0f, 8.0f, 0.0f);
@@ -300,6 +305,9 @@ public class MixinModelPlayer extends ModelBiped{
         right_leg = new ModelRenderer(this);
         right_leg.setRotationPoint(2.0F, 18.0F, 0.0F);
         right_leg.setTextureOffset(13, 0).addBox(-5.9F, 0.0F, -1.5F, 3, 6, 3);
+
+
+
         (this.rabbitBone = new ModelRenderer(this)).setRotationPoint(0.0F, 24.0F, 0.0F);
         this.rabbitBone.cubeList.add(new ModelBox(this.rabbitBone, 28, 45, -5.0F, -13.0F, -5.0F, 10, 11, 8, 0.0F, false));
         (this.rabbitRleg = new ModelRenderer(this)).setRotationPoint(-3.0F, -2.0F, -1.0F);
@@ -324,7 +332,6 @@ public class MixinModelPlayer extends ModelBiped{
         this.rabbitHead.cubeList.add(new ModelBox(this.rabbitHead, 0, 45, -4.0F, -11.0F, -4.0F, 8, 11, 8, 0.0F, false));
         this.rabbitHead.cubeList.add(new ModelBox(this.rabbitHead, 46, 0, 1.0F, -20.0F, 0.0F, 3, 9, 1, 0.0F, false));
         this.rabbitHead.cubeList.add(new ModelBox(this.rabbitHead, 46, 0, -4.0F, -20.0F, 0.0F, 3, 9, 1, 0.0F, false));
-
         this.textureWidth = 100;
         this.textureHeight = 80;
         final ModelRenderer footRight = new ModelRenderer(this, 22, 39);
@@ -516,12 +523,9 @@ public class MixinModelPlayer extends ModelBiped{
     @Overwrite
     public void render(Entity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale)
     {
-//        super.render(entityIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale);
-
         if(left_leg == null){
             generatemodel();
         }
-
 
 
         Models customModel = Thunderhack.moduleManager.getModuleByClass(Models.class);

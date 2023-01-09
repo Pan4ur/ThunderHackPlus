@@ -88,7 +88,7 @@ public class FakePlayer extends Module {
     EntityOtherPlayerMP clonedPlayer = null;
     void spawnPlayer() {
         // Clone empty player
-        clonedPlayer = new EntityOtherPlayerMP(mc.world, new GameProfile(UUID.fromString("fdee323e-7f0c-4c15-8d1c-0f277442342a"), nameFakePlayer.getValue() + incr));
+        clonedPlayer = new EntityOtherPlayerMP(mc.world, new GameProfile(UUID.fromString("fdee323e-7f0c-4c15-8d1c-0f277442342a"), nameFakePlayer.getValue()));
         // Copy angles
         clonedPlayer.copyLocationAndAnglesFrom(mc.player);
         clonedPlayer.rotationYawHead = mc.player.rotationYawHead;

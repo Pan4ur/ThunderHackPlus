@@ -6,21 +6,12 @@ import net.minecraft.init.*;
 
 public class IceSpeed extends Module
 {
-    private static IceSpeed INSTANCE;
-    private final Setting<Float> speed;
+    private final Setting<Float> speed = this.register(new Setting<>("Speed", 0.4f, 0.1f, 1.5f));
 
     public IceSpeed() {
         super("IceSpeed",  "+скорость если на льду",  Module.Category.MOVEMENT,  false,  false,  false);
-        this.speed = (Setting<Float>)this.register(new Setting("Speed", 0.4f, 0.1f, 1.5f));
-        IceSpeed.INSTANCE = this;
     }
 
-    public static IceSpeed getINSTANCE() {
-        if (IceSpeed.INSTANCE == null) {
-            IceSpeed.INSTANCE = new IceSpeed();
-        }
-        return IceSpeed.INSTANCE;
-    }
 
     public void onUpdate() {
         Blocks.ICE.slipperiness = this.speed.getValue();
@@ -32,9 +23,5 @@ public class IceSpeed extends Module
         Blocks.ICE.slipperiness = 0.98f;
         Blocks.PACKED_ICE.slipperiness = 0.98f;
         Blocks.FROSTED_ICE.slipperiness = 0.98f;
-    }
-
-    static {
-        IceSpeed.INSTANCE = new IceSpeed();
     }
 }

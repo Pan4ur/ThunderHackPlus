@@ -10,7 +10,7 @@ import net.minecraft.network.play.client.CPacketUseEntity;
 import net.minecraft.network.play.server.SPacketSpawnObject;
 import net.minecraft.util.EnumHand;
 
-import static com.mrzak34.thunderhack.util.ItemUtil.mc;
+import static com.mrzak34.thunderhack.util.Util.mc;
 import static com.mrzak34.thunderhack.util.phobos.HelperRotation.acquire;
 
 public class HelperInstantAttack

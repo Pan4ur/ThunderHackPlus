@@ -13,6 +13,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.init.Blocks;
 import net.minecraft.network.play.client.CPacketPlayerDigging;
 import net.minecraft.network.play.server.SPacketBlockChange;
 import net.minecraft.network.play.server.SPacketMultiBlockChange;
@@ -25,7 +26,7 @@ import java.util.ArrayList;
 
 public class XRay extends Module {
     public XRay() {
-        super("XRay", "Lets you look through walls.", Category.MISC, false, false, true);
+        super("XRay", "Искать алмазы на ezzzzz", Category.MISC, true, false, false);
     }
     ArrayList<BlockPos> ores = new ArrayList();
     ArrayList<BlockPos> toCheck = new ArrayList();
@@ -52,6 +53,8 @@ public class XRay extends Module {
     public Setting<Boolean> lapis = this.register(new Setting<>("lapis", false));
     public Setting<Boolean> coal = this.register(new Setting<>("coal", false));
     public Setting<Boolean> wow = this.register(new Setting<>("WowEffect", true,v-> brutForce.getValue()));
+    public Setting<Boolean> water = this.register(new Setting<>("water", false));
+    public Setting<Boolean> lava = this.register(new Setting<>("lava", false));
 
     @Override
     public void onEnable() {
@@ -67,8 +70,10 @@ public class XRay extends Module {
         }
         all = this.toCheck.size();
         done = 0;
-        super.onEnable();
+        mc.renderGlobal.loadRenderers();
     }
+
+
 
     @Override
     public void onDisable() {
@@ -266,7 +271,36 @@ public class XRay extends Module {
         return BlockUtils.getAllInBox(min, max);
     }
 
-
+    public Boolean shouldRender(Block cast) {
+        if(cast == Blocks.DIAMOND_ORE && diamond.getValue()){
+            return true;
+        }
+        if(cast == Blocks.GOLD_ORE && gold.getValue()){
+            return true;
+        }
+        if(cast == Blocks.WATER && water.getValue()){
+            return true;
+        }
+        if(cast == Blocks.LAVA && lava.getValue()){
+            return true;
+        }
+        if(cast == Blocks.IRON_ORE && iron.getValue()){
+            return true;
+        }
+        if(cast == Blocks.EMERALD_ORE && emerald.getValue()){
+            return true;
+        }
+        if(cast == Blocks.REDSTONE_ORE && redstone.getValue()){
+            return true;
+        }
+        if(cast == Blocks.LAPIS_ORE && lapis.getValue()){
+            return true;
+        }
+        if(cast == Blocks.COAL_ORE && coal.getValue()){
+            return true;
+        }
+        return !wh.getValue();
+    }
 
 
 }

@@ -30,7 +30,7 @@ public class RadarRewrite extends Module {
     }
 
     private Setting<Float> width = register( new Setting<>("TracerHeight", 2.28f, 0.1f, 5f));
-    private Setting<Float> rad22ius = register(new Setting<>("TracerDown", 3.63f, 0.1F, 20.0F)); //радиус круга компасса ежжи
+    private Setting<Float> rad22ius = register(new Setting<>("TracerDown", 3.63f, 0.1F, 20.0F));
     private Setting<Float> tracerA = register(new Setting<>("TracerWidth", 0.44F, 0.0F, 8.0F));
     private Setting<Integer> xOffset = register(new Setting<>("TracerRadius", 68, 20, 100));
     private Setting<Integer> maxup2 = register(new Setting<>("PitchLock", 42, -90, 90));
@@ -41,7 +41,7 @@ public class RadarRewrite extends Module {
     private Setting<triangleModeEn> triangleMode = register(new Setting<>("TracerCMode", triangleModeEn.Astolfo));
     private Setting<mode2> Mode2 = register(new Setting<>("CircleCMode", mode2.Astolfo));
     private Setting<PositionSetting> pos = this.register(new Setting<>("Position", new PositionSetting(0.5f, 0.78f)));
-    private Setting<Float> CRadius = register(new Setting<>("CompasRadius", 47F, 0.1F, 70.0F)); //радиус круга компасса ежжи
+    private Setting<Float> CRadius = register(new Setting<>("CompasRadius", 47F, 0.1F, 70.0F));
     private Setting<Integer> fsef = register(new Setting<>("Correct", 12, -90, 90));
     private  Setting<ColorSetting> cColor = this.register(new Setting<>("CompassColor", new ColorSetting(0x2250b4b4)));
     private  Setting<ColorSetting> ciColor = this.register(new Setting<>("CircleColor", new ColorSetting(0x2250b4b4)));
@@ -84,14 +84,11 @@ public class RadarRewrite extends Module {
 
     @SubscribeEvent
     public void onRender2D(Render2DEvent event) {
-
-        ScaledResolution sr = new ScaledResolution(mc);
-
         if(mc.currentScreen instanceof GuiChat || mc.currentScreen instanceof HudEditorGui){
             if(isHovering()){
                 if(Mouse.isButtonDown(0) && mousestate){
-                    pos.getValue().setX( (float) (normaliseX() - dragX) /  sr.getScaledWidth());
-                    pos.getValue().setY( (float) (normaliseY() - dragY) / sr.getScaledHeight());
+                    pos.getValue().setX( (float) (normaliseX() - dragX) /  event.scaledResolution.getScaledWidth());
+                    pos.getValue().setY( (float) (normaliseY() - dragY) /  event.scaledResolution.getScaledHeight());
                 }
 
             }
@@ -99,8 +96,8 @@ public class RadarRewrite extends Module {
 
         if(Mouse.isButtonDown(0) && isHovering()){
             if(!mousestate){
-                dragX = (int) (normaliseX() - (pos.getValue().getX() * sr.getScaledWidth()));
-                dragY = (int) (normaliseY() - (pos.getValue().getY() * sr.getScaledHeight()));
+                dragX = (int) (normaliseX() - (pos.getValue().getX() * event.scaledResolution.getScaledWidth()));
+                dragY = (int) (normaliseY() - (pos.getValue().getY() * event.scaledResolution.getScaledHeight()));
             }
             mousestate = true;
         } else {
@@ -111,8 +108,8 @@ public class RadarRewrite extends Module {
         rendercompass();
         GlStateManager.popMatrix();
 
-        xOffset2 = (sr.getScaledWidth() * pos.getValue().getX());
-        yOffset2 = (sr.getScaledHeight() * pos.getValue().getY());
+        xOffset2 = (event.scaledResolution.getScaledWidth() * pos.getValue().getX());
+        yOffset2 = (event.scaledResolution.getScaledHeight() * pos.getValue().getY());
 
         int color = 0;
         switch (triangleMode.getValue()) {
@@ -126,8 +123,8 @@ public class RadarRewrite extends Module {
                 color = DrawHelper.rainbow(300, 1, 1).getRGB();
                 break;
         }
-        float xOffset = sr.getScaledWidth() * pos.getValue().getX() ;
-        float yOffset = sr.getScaledHeight() * pos.getValue().getY() ;
+        float xOffset = event.scaledResolution.getScaledWidth() * pos.getValue().getX() ;
+        float yOffset = event.scaledResolution.getScaledHeight() * pos.getValue().getY() ;
 
         GlStateManager.pushMatrix();
         GlStateManager.translate(xOffset2, yOffset2, 0);
@@ -249,12 +246,12 @@ public class RadarRewrite extends Module {
         GL11.glColor4f(red, green, blue, alpha);
     }
 
-    private float getRotations(Entity entity) {
+    public static float getRotations(Entity entity) {
         double x = interp(entity.posX,entity.lastTickPosX) - interp(mc.player.posX,mc.player.lastTickPosX);
         double z = interp(entity.posZ,entity.lastTickPosZ) - interp(mc.player.posZ, mc.player.lastTickPosZ);
         return (float)-(Math.atan2(x, z) * (180 / Math.PI));
     }
-    public double interp(double d, double d2) {
+    public static double interp(double d, double d2) {
         return d2 + (d - d2) * (double)mc.getRenderPartialTicks();
     }
 }

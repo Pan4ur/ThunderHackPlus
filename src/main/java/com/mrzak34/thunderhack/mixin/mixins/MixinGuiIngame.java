@@ -22,12 +22,15 @@ public class MixinGuiIngame extends Gui
         }
     }
 
+    /*
     @Inject(method = { "renderScoreboard" },  at = { @At("HEAD") },  cancellable = true)
     protected void renderScoreboardHook(ScoreObjective objective, ScaledResolution scaledRes, CallbackInfo ci) {
         if (Thunderhack.moduleManager.getModuleByClass(AntiTittle.class).scoreBoard.getValue()) {
             ci.cancel();
         }
     }
+
+     */
 
 
     @Inject(method = "renderAttackIndicator", at = @At("HEAD"), cancellable = true)
@@ -36,4 +39,5 @@ public class MixinGuiIngame extends Gui
         MinecraftForge.EVENT_BUS.post(event);
         if (event.isCanceled()) ci.cancel();
     }
+
 }

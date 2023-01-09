@@ -14,6 +14,7 @@ import net.minecraft.network.play.client.CPacketHeldItemChange;
 import net.minecraft.network.play.client.CPacketPlayerTryUseItem;
 import net.minecraft.potion.Potion;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.util.Objects;
@@ -24,7 +25,7 @@ public class EffectsRemover extends Module{
     }
 
 
-    public Setting<Boolean> jumpBoost = this.register(new Setting<Boolean>("JumpBoostRemove", true));
+    public Setting<Boolean> jumpBoost = this.register(new Setting<Boolean>("JumpBoostRemove", false));
     public Setting<Boolean> oldr = this.register(new Setting<Boolean>("OldRemove", false));
 
     public Timer timer = new Timer();
@@ -34,7 +35,8 @@ public class EffectsRemover extends Module{
     @Override
     public void onUpdate() {
         --nig;
-        if( timer.passedMs(500) &&  !(EffectsRemover.mc.player.isPotionActive(Objects.requireNonNull(Potion.getPotionFromResourceLocation((String)"strength"))))){
+        if( timer.passedMs(500) &&  !(EffectsRemover.mc.player.isPotionActive(Objects.requireNonNull(Potion.getPotionFromResourceLocation((String)"strength")))) && mc.objectMouseOver.typeOfHit != RayTraceResult.Type.BLOCK){
+
 
             int hotbarslot = mc.player.inventory.currentItem;
 

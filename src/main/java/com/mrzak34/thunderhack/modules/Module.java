@@ -128,7 +128,7 @@ public class Module
         }
 
 
-        if((!Objects.equals(this.getDisplayName(), "ElytraSwap") && (!Objects.equals(this.getDisplayName(), "ACRender")) && (!Objects.equals(this.getDisplayName(), "ClickGui"))&& (!Objects.equals(this.getDisplayName(), "ThunderGui")) && (!Objects.equals(this.getDisplayName(), "Windows")))) {
+        if((!Objects.equals(this.getDisplayName(), "ElytraSwap")  && (!Objects.equals(this.getDisplayName(), "ClickGui"))&& (!Objects.equals(this.getDisplayName(), "ThunderGui")) && (!Objects.equals(this.getDisplayName(), "Windows")))) {
             NotificationManager.publicity(this.getDisplayName(), "was enabled!", 2, NotificationType.INFO);
         }
         if (Thunderhack.moduleManager.getModuleByClass(MainSettings.class).notifyToggles.getValue()) {
@@ -155,7 +155,7 @@ public class Module
         }
 
         this.enabled.setValue(false);
-        if((!Objects.equals(this.getDisplayName(), "ElytraSwap") && (!Objects.equals(this.getDisplayName(), "ACRender"))&& (!Objects.equals(this.getDisplayName(), "ThunderGui")) && (!Objects.equals(this.getDisplayName(), "ClickGui"))  && (!Objects.equals(this.getDisplayName(), "Windows")))) {
+        if((!Objects.equals(this.getDisplayName(), "ElytraSwap") && (!Objects.equals(this.getDisplayName(), "ThunderGui")) && (!Objects.equals(this.getDisplayName(), "ClickGui"))  && (!Objects.equals(this.getDisplayName(), "Windows")))) {
             NotificationManager.publicity(this.getDisplayName(), "was disabled!", 2, NotificationType.INFO);
         }
         if (Thunderhack.moduleManager.getModuleByClass(MainSettings.class).notifyToggles.getValue()) {

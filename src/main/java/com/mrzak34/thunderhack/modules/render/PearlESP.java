@@ -1,108 +1,94 @@
 package com.mrzak34.thunderhack.modules.render;
 
+import com.mrzak34.thunderhack.Thunderhack;
+import com.mrzak34.thunderhack.event.events.PacketEvent;
 import com.mrzak34.thunderhack.event.events.Render2DEvent;
 import com.mrzak34.thunderhack.event.events.Render3DEvent;
+import com.mrzak34.thunderhack.gui.clickui.ColorUtil;
+import com.mrzak34.thunderhack.gui.hud.HudEditorGui;
+import com.mrzak34.thunderhack.gui.hud.RadarRewrite;
+import com.mrzak34.thunderhack.mixin.mixins.IRenderManager;
 import com.mrzak34.thunderhack.modules.Module;
+import com.mrzak34.thunderhack.modules.movement.PacketFly;
+import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.setting.Setting;
-import com.mrzak34.thunderhack.util.MathematicHelper;
-import com.mrzak34.thunderhack.util.Util;
+import com.mrzak34.thunderhack.util.*;
+import net.minecraft.client.gui.GuiChat;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityEnderPearl;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.projectile.EntityArrow;
+import net.minecraft.network.play.server.SPacketDestroyEntities;
+import net.minecraft.network.play.server.SPacketSpawnObject;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import static com.mrzak34.thunderhack.gui.hud.RadarRewrite.hexColor;
+import static org.lwjgl.opengl.GL11.*;
 
 public class PearlESP extends Module {
 
     public PearlESP() {
-        super("PearlESP", "PearlESP", Category.RENDER, true, false, false);
+        super("Predictions", "Predictions", Category.RENDER, true, false, false);
+    }
+
+    private Setting<Boolean> triangleESP = this.register(new Setting<>("TriangleESP", true));
+
+    private Setting<Boolean> glow = this.register(new Setting<>("Glow", true));
+    private Setting<Float> width = register( new Setting<>("TracerHeight", 2.5f, 0.1f, 5f));
+    private Setting<Float> radius = register( new Setting<>("Radius", 50f, -50f, 50f));
+    private Setting<Float> rad22ius = register(new Setting<>("TracerDown", 3.0f, 0.1F, 20.0F));
+    private Setting<Float> tracerA = register(new Setting<>("TracerWidth", 0.50F, 0.0F, 8.0F));
+    private Setting<Integer> glowe = register(new Setting<>("GlowRadius", 10, 1, 20));
+    private Setting<Integer> glowa = register(new Setting<>("GlowAlpha", 150, 0, 255));
+
+    public Setting<Float> width2 = register(new Setting("Width", 1.6F, 0.1F, 10.0F));
+    public Setting<Boolean> arrows = register(new Setting("Arrows", false));
+    public Setting<Boolean> pearls = register(new Setting("Pearls", false));
+    public Setting<Boolean> snowballs = register(new Setting("Snowballs", false));
+    public Setting <Integer> time = this.register ( new Setting <> ( "Time", 1, 1, 10) );
+    private final Setting<ColorSetting> color = this.register(new Setting<>("Color1", new ColorSetting(0x8800FF00)));
+    private final Setting<ColorSetting> color2 = this.register(new Setting<>("Color2", new ColorSetting(0x8800FF00)));
+    private final Setting<ColorSetting> TriangleColor = this.register(new Setting<>("TriangleColor", new ColorSetting(0x8800FF00)));
+
+
+    protected Map<Integer, TimeAnimation> ids = new ConcurrentHashMap<>();
+    protected Map<Integer, List<Trace>> traceLists = new ConcurrentHashMap<>();
+    protected Map<Integer, Trace> traces = new ConcurrentHashMap<>();
+    public static final Vec3d ORIGIN = new Vec3d(8.0, 64.0, 8.0);
+
+
+    private  Setting<Mode> mode = this.register (new Setting<>("LineMode", Mode.Mode1));
+
+    public enum Mode {
+        NONE, Mode1, Mode2, Both
     }
 
 
-
-
-
-    public static List<PredictionLine> lines;
-    public static EntityEnderPearl entityPearl;
-
-
-
-    private Setting<Boolean> pearlPrediction = this.register(new Setting<Boolean>("PearlPrediction", true));
-    private Setting<Boolean> triangleESP = this.register(new Setting<Boolean>("TriangleESP", true));
-
-
-    //distance - prev dist
-    /*
-
-    public static void handleEntityPrediction(final Entity proj) {
-        if (proj instanceof EntityEnderPearl) {
-            final EntityEnderPearl ent = PearlESP.entityPearl = (EntityEnderPearl)proj;
-            double sx = ent.posX;
-            double sy = ent.posY;
-            double sz = ent.posZ;
-            double mx = ent.motionX;
-            double my = ent.motionY;
-            double mz = ent.motionZ;
-            mx += ent.k().s;
-            mx += ent.getLookVec().x;
-            mz += ent.k().u;
-            if (!ent.k().z) {
-                my += ent.k().t;
-            }
-            final int maxUpdateTicks = 250;
-            int updateTicks = 250;
-            final ArrayList<PredictionPosition> positions = new ArrayList<PredictionPosition>();
-            while (updateTicks > 0) {
-                final Vec3d vec3d = new Vec3d(sx, sy, sz);
-                if (--updateTicks != 250) {
-                    final int cnt = updateTicks % 83;
-                    final float p = cnt / 83.333336f;
-                    float trg = 0.0f;
-                    trg = ((p > 0.5f) ? (1.0f - p * 2.0f) : (p * 2.0f));
-                    final Vec3d color = new Vec3d(0.3f + 0.4f * trg, 0.5f - 0.4f * trg, 0.8999999761581421);
-                    final PredictionPosition pos = new PredictionPosition(vec3d, color);
-                    positions.add(pos);
-                }
-                final Vec3d vec3d2 = new Vec3d(sx + mx, sy + my, sz + mz);
-                final RayTraceResult raytraceresult = ent.l.a(vec3d, vec3d2);
-                sx += mx;
-                sy += my;
-                sz += mz;
-                final float f1 = 0.99f;
-                final float f2 = ent.j();
-                mx *= f1;
-                my *= f1;
-                mz *= f1;
-                if (!ent.aj()) {
-                    my -= f2;
-                }
-                if (raytraceresult == null) {
-                    continue;
-                }
-                final Vec3d color2 = new Vec3d(1.0, 1.0, 1.0);
-                final PredictionPosition pos2 = new PredictionPosition(new Vec3d(sx + mx, sy + my, sz + mz), color2);
-                positions.add(pos2);
-                break;
-            }
-            addLine(positions, ent);
+    @SubscribeEvent
+    public void onRender3D(Render3DEvent event) {
+        if(mode.getValue() == Mode.Mode2){
+            PlayerToPearl(event);
+        } else if(mode.getValue() == Mode.Mode1){
+            PearlToDest(event);
+        } else if(mode.getValue() == Mode.Both){
+            PlayerToPearl(event);
+            PearlToDest(event);
         }
     }
 
-     */
-
-    @Override
-    public void onUpdate() {
-        if (!pearlPrediction.getValue()) {
-            return;
-        }
-        PearlESP.lines.removeIf(PredictionLine::remove);
-    }
 
     @SubscribeEvent
     public void onRender2D(Render2DEvent event) {
@@ -110,141 +96,294 @@ public class PearlESP extends Module {
             return;
         }
         final ScaledResolution sr = new ScaledResolution(PearlESP.mc);
-        final float size = 50.0f;
-        final float xOffset = sr.getScaledWidth() / 2.0f - 24.5f;
-        final float yOffset = sr.getScaledHeight() / 2.0f - 25.2f;
         for (final Entity entity : PearlESP.mc.world.loadedEntityList) {
             if (entity != null) {
                 if (!(entity instanceof EntityEnderPearl)) {
                     continue;
                 }
+                float xOffset = sr.getScaledWidth() / 2f;
+                float yOffset = sr.getScaledHeight() / 2f;
+
                 GlStateManager.pushMatrix();
-                double x = entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * event.getPartialTicks() - Util.mc.getRenderManager().viewerPosX;
-                double z = entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * event.getPartialTicks() - Util.mc.getRenderManager().viewerPosZ;
-                final double cos = Math.cos(PearlESP.mc.player.rotationYaw  * 0.017453292519943295);
-                final double sin = Math.sin(PearlESP.mc.player.rotationYaw  * 0.017453292519943295);
-                final double rotY = -(z * cos - x * sin);
-                final double rotX = -(x * cos + z * sin);
-                final float angle = (float)(Math.atan2(rotY - 0.0, rotX - 0.0) * 180.0 / 3.141592653589793);
-                final double xPos = size / 2.0f * Math.cos(Math.toRadians(angle)) + xOffset + size / 2.0f;
-                final double y = size / 2.0f * Math.sin(Math.toRadians(angle)) + yOffset + size / 2.0f;
-                GlStateManager.translate(xPos, y, 0.0);
-                GlStateManager.rotate(angle, 0.0f, 0.0f, 1.0f);
-                final String distance = MathematicHelper.round(PearlESP.mc.player.getDistance(entity), 2) + "m";
-                drawTriangle(5.0f, 1.0f, 7.0f, 90.0f, new Color(5, 5, 5, 150).getRGB());
-                drawTriangle(5.0f, 1.0f, 6.0f, 90.0f, new Color(0xA9A9F1).getRGB());
-                PearlESP.mc.fontRenderer.drawString(distance, (int) -2.0f, (int) 9.0f, -1);
+                float yaw = RadarRewrite.getRotations(entity) - mc.player.rotationYaw;
+                GL11.glTranslatef(xOffset, yOffset, 0.0F);
+                GL11.glRotatef(yaw, 0.0F, 0.0F, 1.0F);
+                GL11.glTranslatef(-xOffset, -yOffset, 0.0F);
+                drawTriangle(xOffset, yOffset - radius.getValue(), width.getValue() * 5F, TriangleColor.getValue().getColor());
+                GL11.glTranslatef(xOffset, yOffset, 0.0F);
+                GL11.glRotatef(-yaw, 0.0F, 0.0F, 1.0F);
+                GL11.glTranslatef(-xOffset, -yOffset, 0.0F);
+                GL11.glColor4f(1F, 1F, 1F, 1F);
                 GlStateManager.popMatrix();
             }
         }
     }
 
-    public static void drawTriangle(final float x, final float y, final float size, final float vector, final int color) {
-        GL11.glTranslated((double)x, (double)y, 0.0);
-        GL11.glRotatef(180.0f + vector, 0.0f, 0.0f, 1.0f);
-        final float alpha = (color >> 24 & 0xFF) / 255.0f;
-        final float red = (color >> 16 & 0xFF) / 255.0f;
-        final float green = (color >> 8 & 0xFF) / 255.0f;
-        final float blue = (color & 0xFF) / 255.0f;
-        GlStateManager.color(red, green, blue, alpha);
-        GL11.glEnable(3042);
-        GL11.glDisable(3553);
-        GL11.glEnable(2848);
-        GL11.glBlendFunc(770, 771);
-        GL11.glLineWidth(1.0f);
-        GL11.glBegin(6);
 
-        GL11.glVertex2d(0.0, (double)size);
-        GL11.glVertex2d((double)(1.0f * size), (double)(-size));
-        GL11.glVertex2d((double)(-(1.0f * size)), (double)(-size));
 
-        GL11.glEnd();
-        GL11.glDisable(2848);
-        GL11.glEnable(3553);
-        GL11.glDisable(3042);
-        GL11.glRotatef(-180.0f - vector, 0.0f, 0.0f, 1.0f);
-        GL11.glTranslated((double)(-x), (double)(-y), 0.0);
+
+
+
+    @Override
+    public void onEnable() {
+        ids = new ConcurrentHashMap<>();
+        traces = new ConcurrentHashMap<>();
+        traceLists = new ConcurrentHashMap<>();
     }
 
+
     @SubscribeEvent
-    public void onRender3D(Render3DEvent event) {
-        if (!pearlPrediction.getValue()) {
-            return;
-        }
-        final double ix = -(PearlESP.mc.player.lastTickPosX + (PearlESP.mc.player.posX - PearlESP.mc.player.lastTickPosX) * event.getPartialTicks());
-        final double iy = -(PearlESP.mc.player.lastTickPosY + (PearlESP.mc.player.posY- PearlESP.mc.player.lastTickPosY) * event.getPartialTicks());
-        final double iz = -(PearlESP.mc.player.lastTickPosZ + (PearlESP.mc.player.posZ- PearlESP.mc.player.lastTickPosZ) * event.getPartialTicks());
-        GL11.glPushMatrix();
-        GL11.glTranslated(ix, iy, iz);
-        GL11.glDisable(3008);
-        GL11.glDisable(2884);
-        GL11.glEnable(3042);
-        GL11.glDisable(3553);
-        GL11.glBlendFunc(770, 771);
-        GL11.glShadeModel(7425);
-        GL11.glLineWidth(1.0f);
-        GL11.glBegin(1);
-        for (final PredictionLine line : PearlESP.lines) {
-            final List<PredictionPosition> positions = line.positions;
-            for (int i = 0; i < positions.size(); ++i) {
-                if (positions.size() > i + 1) {
-                    final PredictionPosition c = positions.get(i);
-                    final PredictionPosition n = positions.get(i + 1);
-                    final int color = new Color(0xE1CFCF).getRGB();
-                    GlStateManager.color(new Color(color).getRGB() / 255.0f, new Color(color).getGreen() / 255.0f, new Color(color).getBlue() / 255.0f, new Color(color).getAlpha() / 255.0f);
-                    GL11.glVertex3d(c.vector.x, c.vector.y, c.vector.z);
-                    GL11.glVertex3d(n.vector.z, n.vector.z, n.vector.z);
-                    GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+    public void onPacketReceive(PacketEvent.Receive event) {
+        if (event.getPacket() instanceof SPacketDestroyEntities) {
+            for (int id : ((SPacketDestroyEntities) event.getPacket()).getEntityIDs()) {
+                if (ids.containsKey(id)) {
+                    ids.get(id).play();
                 }
             }
         }
-        GL11.glEnd();
-        GL11.glEnable(3553);
-        GL11.glDisable(3042);
-        GL11.glEnable(3008);
-        GL11.glShadeModel(7424);
-        GL11.glEnable(2884);
-        GL11.glPopMatrix();
-        GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-    }
-
-    static void addLine(final List<PredictionPosition> positions, final EntityEnderPearl predictable) {
-        PearlESP.lines.add(new PredictionLine(positions, predictable));
-    }
-
-    static {
-        PearlESP.lines = new ArrayList<PredictionLine>();
-    }
-
-    static class PredictionPosition
-    {
-        Vec3d vector;
-        Vec3d color;
-
-        PredictionPosition(final Vec3d vector, final Vec3d color) {
-            this.vector = vector;
-            this.color = color;
-        }
-    }
-
-    static class PredictionLine
-    {
-        List<PredictionPosition> positions;
-        int ownerID;
-
-        PredictionLine(final List<PredictionPosition> positions, final EntityEnderPearl predictable) {
-            this.positions = positions;
-            this.ownerID = predictable.getEntityId();
-        }
-
-        boolean remove() {
-          //  final EntityEnderPearl target = bib.z().f.a(this.ownerID);
-            final Entity target = mc.world.getEntityByID(ownerID);
-            if (!this.positions.isEmpty()) {
-                this.positions.remove(0);
+        if (event.getPacket() instanceof SPacketSpawnObject) {
+            if ((pearls.getValue() && ((SPacketSpawnObject) event.getPacket()).getType() == 65)
+                    || (arrows.getValue() && ((SPacketSpawnObject) event.getPacket()).getType() == 60)
+                    || (snowballs.getValue() && ((SPacketSpawnObject) event.getPacket()).getType() == 61)) {
+                TimeAnimation animation = new TimeAnimation(time.getValue() * 1000, 0, color.getValue().getAlpha(), false, AnimationMode.LINEAR);
+                animation.stop();
+                ids.put(((SPacketSpawnObject) event.getPacket()).getEntityID(), animation);
+                traceLists.put(((SPacketSpawnObject) event.getPacket()).getEntityID(), new ArrayList<>());
+                try {
+                    traces.put(((SPacketSpawnObject) event.getPacket()).getEntityID(), new Trace(0,
+                            null,
+                            mc.world.provider.getDimensionType(),
+                            new Vec3d(((SPacketSpawnObject) event.getPacket()).getX(), ((SPacketSpawnObject) event.getPacket()).getY(), ((SPacketSpawnObject) event.getPacket()).getZ()),
+                            new ArrayList<>()));
+                } catch (Exception e){
+                    System.out.println(e.getMessage());
+                }
             }
-            return this.positions.isEmpty() || target == null;
         }
+    }
+
+
+    public void PlayerToPearl(Render3DEvent event) {
+        if (mc.world == null || mc.player == null) return;
+        for (Map.Entry<Integer, List<Trace>> entry : traceLists.entrySet()) {
+            GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
+            GL11.glPushMatrix();
+            GL11.glDisable(GL11.GL_ALPHA_TEST);
+            GL11.glEnable(GL11.GL_BLEND);
+            GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+            GL11.glDisable(GL11.GL_TEXTURE_2D);
+            GL11.glDisable(GL11.GL_DEPTH_TEST);
+            GL11.glDepthMask(false);
+            GL11.glEnable(GL11.GL_CULL_FACE);
+            GL11.glEnable(GL11.GL_LINE_SMOOTH);
+            GL11.glHint(GL11.GL_LINE_SMOOTH_HINT, GL11.GL_FASTEST);
+            GL11.glDisable(GL11.GL_LIGHTING);
+            GL11.glLineWidth(width2.getValue());
+            TimeAnimation animation = ids.get(entry.getKey());
+            animation.add(event.getPartialTicks());
+
+            GL11.glColor4f(color.getValue().getRed(), color.getValue().getGreen(), color.getValue().getBlue(), MathHelper.clamp((float) (color.getValue().getAlpha() - animation.getCurrent() / 255.0f), 0, 255));
+
+
+            entry.getValue().forEach(trace ->
+            {
+                GL11.glBegin(GL11.GL_LINE_STRIP);
+                trace.getTrace().forEach(this::renderVec);
+                GL11.glEnd();
+            });
+
+            GL11.glColor4f(color.getValue().getRed(), color.getValue().getGreen(), color.getValue().getBlue(), MathHelper.clamp((float) (color.getValue().getAlpha() - animation.getCurrent() / 255.0f), 0, 255));
+
+
+
+            GL11.glBegin(GL11.GL_LINE_STRIP);
+            Trace trace = traces.get(entry.getKey());
+            if (trace != null) {
+                trace.getTrace().forEach(this::renderVec);
+            }
+            GL11.glEnd();
+            GL11.glEnable(GL11.GL_LIGHTING);
+            GL11.glDisable(GL11.GL_LINE_SMOOTH);
+            GL11.glEnable(GL11.GL_TEXTURE_2D);
+            GL11.glEnable(GL11.GL_DEPTH_TEST);
+            GL11.glDisable(GL11.GL_BLEND);
+            GL11.glEnable(GL11.GL_ALPHA_TEST);
+            GL11.glDepthMask(true);
+            GL11.glCullFace(GL11.GL_BACK);
+            GL11.glPopMatrix();
+            GL11.glPopAttrib();
+        }
+    }
+
+    private void renderVec(Trace.TracePos tracePos)
+    {
+        double x = tracePos.getPos().x - ((IRenderManager) mc.getRenderManager()).getRenderPosX();
+        double y = tracePos.getPos().y - ((IRenderManager) mc.getRenderManager()).getRenderPosY();
+        double z = tracePos.getPos().z - ((IRenderManager) mc.getRenderManager()).getRenderPosZ();
+        GL11.glVertex3d(x, y, z);
+    }
+
+
+
+    @Override
+    public void onUpdate() {
+        if (mc.world == null) return;
+        if (ids.keySet().isEmpty()) return;
+        for (Integer id : ids.keySet()) {
+            if (id == null) continue;
+            if (mc.world.loadedEntityList == null) return;
+            if (mc.world.loadedEntityList.isEmpty()) return;
+            Trace idTrace = traces.get(id);
+            Entity entity = mc.world.getEntityByID(id);
+            if (entity != null) {
+                Vec3d vec = entity.getPositionVector();
+                if (vec == null) continue;
+                if (vec.equals(ORIGIN))
+                {
+                    continue;
+                }
+
+                if (!traces.containsKey(id) || idTrace == null)
+                {
+                    traces.put(id, new Trace(0, null, mc.world.provider.getDimensionType(), vec, new ArrayList<>()));
+                    idTrace = traces.get(id);
+                }
+
+                List<Trace.TracePos> trace = idTrace.getTrace();
+                Vec3d vec3d = trace.isEmpty() ? vec : trace.get(trace.size() - 1).getPos();
+                if (!trace.isEmpty() && (vec.distanceTo(vec3d) > 100.0 || idTrace.getType() != mc.world.provider.getDimensionType()))
+                {
+                    traceLists.get(id).add(idTrace);
+                    trace = new ArrayList<>();
+                    traces.put(id, new Trace(traceLists.get(id).size() + 1, null, mc.world.provider.getDimensionType(), vec, new ArrayList<>()));
+                }
+
+                if (trace.isEmpty() || !vec.equals(vec3d))
+                {
+                    trace.add(new Trace.TracePos(vec));
+                }
+            }
+
+            TimeAnimation animation = ids.get(id);
+
+            if (entity instanceof EntityArrow && (entity.onGround || entity.collided || !entity.isAirBorne)) {
+                animation.play();
+            }
+
+            if (animation != null && color.getValue().getAlpha() - animation.getCurrent() <= 0/*animation.getCurrent() >= color.getAlpha()*/) {
+                animation.stop();
+                ids.remove(id);
+                traceLists.remove(id);
+                traces.remove(id);
+            }
+        }
+    }
+
+
+    public  void drawTriangle(float x, float y, float size, int color) {
+        boolean blend = GL11.glIsEnabled(GL_BLEND);
+        GL11.glEnable(GL_BLEND);
+        boolean depth = GL11.glIsEnabled(GL_DEPTH_TEST);
+        glDisable(GL_DEPTH_TEST);
+
+        GL11.glDisable(GL_TEXTURE_2D);
+        GL11.glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        GL11.glEnable(GL_LINE_SMOOTH);
+        GL11.glPushMatrix();
+
+        hexColor(color);
+        GL11.glBegin(7);
+        GL11.glVertex2d(x, y);
+        GL11.glVertex2d((x - size * tracerA.getValue() ), (y + size));
+        GL11.glVertex2d(x, (y + size- rad22ius.getValue()));
+        GL11.glVertex2d(x, y);
+        GL11.glEnd();
+
+        hexColor(ColorUtil.darker(new Color(color),0.8f).getRGB());
+        GL11.glBegin(7);
+        GL11.glVertex2d(x, y); //top
+        GL11.glVertex2d(x, (y + size- rad22ius.getValue())); //midle
+        GL11.glVertex2d((x + size * tracerA.getValue()), (y + size)); // left right
+        GL11.glVertex2d(x, y); //top
+        GL11.glEnd();
+
+
+        hexColor(ColorUtil.darker(new Color(color),0.6f).getRGB());
+        GL11.glBegin(7);
+        GL11.glVertex2d((x - size * tracerA.getValue() ), (y + size ));
+        GL11.glVertex2d((x + size * tracerA.getValue()), (y + size )); // left right
+        GL11.glVertex2d(x, (y + size - rad22ius.getValue())); //midle
+        GL11.glVertex2d((x - size * tracerA.getValue() ), (y + size ));
+        GL11.glEnd();
+        GL11.glPopMatrix();
+
+        GL11.glEnable(GL_TEXTURE_2D);
+        if (!blend)
+            GL11.glDisable(GL_BLEND);
+        GL11.glDisable(GL_LINE_SMOOTH);
+        if(glow.getValue())
+            Drawable.drawBlurredShadow(x- size * tracerA.getValue(),y,(x + size * tracerA.getValue()) -(x - size * tracerA.getValue() ),size,glowe.getValue(), DrawHelper.injectAlpha(new Color(color),glowa.getValue()) );
+        if(depth)
+            glEnable(GL_DEPTH_TEST);
+    }
+
+
+    public Map<Entity, List<PredictedPosition> > entAndTrail = new HashMap<>();
+    public void draw(List<PredictedPosition> list, Entity entity) {
+        boolean first = true;
+        GL11.glPushMatrix();
+        GL11.glDisable(GL11.GL_TEXTURE_2D);
+         GL11.glColor4f(color2.getValue().getRed() / 255.f, color2.getValue().getGreen() / 255.f, color2.getValue().getBlue() / 255.f, color2.getValue().getAlpha() / 255.f);
+
+      //  GL11.glColor4f(1.f, 1.f, 1.f, 1f);
+
+        GL11.glEnable(GL11.GL_LINE_SMOOTH);
+        GL11.glDisable(GL11.GL_DEPTH_TEST);
+        GL11.glLineWidth(0.5f);
+        GL11.glBegin(GL11.GL_LINE_STRIP);
+        for (int i = 0; i < list.size(); i++) {
+            PredictedPosition pp = list.get(i);
+            Vec3d v = new Vec3d(pp.pos.x, pp.pos.y, pp.pos.z);
+            if (list.size() > 2 && first) {
+                PredictedPosition next = list.get(i + 1);
+                v = v.add( (next.pos.x - v.x) * mc.getRenderPartialTicks(),
+                        (next.pos.y - v.y) * mc.getRenderPartialTicks(),
+                        (next.pos.z - v.z) * mc.getRenderPartialTicks());
+            }
+            GL11.glVertex3d(v.x - mc.getRenderManager().renderPosX, v.y - mc.getRenderManager().renderPosY,
+                    v.z - mc.getRenderManager().renderPosZ);
+            first = false;
+        }
+        list.removeIf(w -> w.tick < entity.ticksExisted);
+        GL11.glEnd();
+        GL11.glEnable(GL11.GL_DEPTH_TEST);
+        GL11.glEnable(GL11.GL_TEXTURE_2D);
+        GL11.glPopMatrix();
+    }
+
+
+    public void PearlToDest(Render3DEvent event) {
+        for (Entity entity : mc.world.loadedEntityList) {
+            if (entity instanceof EntityEnderPearl) {
+                if(entAndTrail.get(entity) != null) {
+                    draw(entAndTrail.get(entity), entity);
+                }
+            }
+            if (entity instanceof EntityArrow) {
+                if(entAndTrail.get(entity) != null) {
+                    draw(entAndTrail.get(entity), entity);
+                }
+            }
+
+        }
+    }
+
+
+
+    public static class PredictedPosition {
+        public Color color;
+        public Vec3d pos;
+        public int tick;
     }
 
 

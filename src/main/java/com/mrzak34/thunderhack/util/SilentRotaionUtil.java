@@ -9,8 +9,6 @@ import static com.mrzak34.thunderhack.util.Util.mc;
 
 public class SilentRotaionUtil {
 
-
-
     public static void lookAtVector(Vec3d vec) {
         float[] angle = calcAngle(mc.player.getPositionEyes(mc.getRenderPartialTicks()), vec);
         setPlayerRotations(angle[0], angle[1]);
@@ -22,18 +20,6 @@ public class SilentRotaionUtil {
     public static void lookAtEntity(Entity entity) {
         float[] angle = calcAngle(mc.player.getPositionEyes(mc.getRenderPartialTicks()), entity.getPositionEyes(mc.getRenderPartialTicks()));
         lookAtAngles(angle[0], angle[1]);
-    }
-
-
-    public static void lookAtXYZ(float X, float Y, float Z) {
-
-        Vec3d vec = new Vec3d(X, Y, Z);
-
-        float[] angle = calcAngle(mc.player.getPositionEyes(mc.getRenderPartialTicks()), vec);
-        setPlayerRotations(angle[0], angle[1]);
-        // mc.player.renderYawOffset = angle[0];
-        mc.player.rotationYawHead = angle[0];
-
     }
 
 
@@ -59,6 +45,7 @@ public class SilentRotaionUtil {
         mc.player.rotationPitch = pitch;
     }
 
+
     public static float[] calcAngle(Vec3d from, Vec3d to) {
         double difX = to.x - from.x;
         double difY = (to.y - from.y) * -1.0;
@@ -66,6 +53,7 @@ public class SilentRotaionUtil {
         double dist = MathHelper.sqrt(difX * difX + difZ * difZ);
         return new float[]{(float) MathHelper.wrapDegrees(Math.toDegrees(Math.atan2(difZ, difX)) - 90.0), (float) MathHelper.wrapDegrees(Math.toDegrees(Math.atan2(difY, dist)))};
     }
+
 
     public static float[] calculateAngle(Vec3d from, Vec3d to) {
         double difX = to.x - from.x;
@@ -81,7 +69,4 @@ public class SilentRotaionUtil {
         }
         return new float[]{yD, pD};
     }
-
-
-
 }

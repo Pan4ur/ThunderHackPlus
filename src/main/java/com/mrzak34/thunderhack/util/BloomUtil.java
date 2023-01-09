@@ -12,7 +12,6 @@ import java.nio.FloatBuffer;
 
 import static com.mrzak34.thunderhack.util.RenderUtil.bindTexture;
 import static com.mrzak34.thunderhack.gui.hud.WaterMark.createFrameBuffer;
-import static com.mrzak34.thunderhack.util.ItemUtil.mc;
 import static org.lwjgl.opengl.GL11.GL_GREATER;
 
 public class BloomUtil {
@@ -47,7 +46,7 @@ public class BloomUtil {
         framebuffer.unbindFramebuffer();
 
 
-        mc.getFramebuffer().bindFramebuffer(true);
+        Util.mc.getFramebuffer().bindFramebuffer(true);
         gaussianBloom.init();
         setupUniforms(radius, 0, offset, weightBuffer);
         GL13.glActiveTexture(GL13.GL_TEXTURE16);
@@ -70,7 +69,7 @@ public class BloomUtil {
         gaussianBloom.setUniformi("inTexture", 0);
         gaussianBloom.setUniformi("textureToCheck", 16);
         gaussianBloom.setUniformf("radius", radius);
-        gaussianBloom.setUniformf("texelSize", 1.0F / (float) mc.displayWidth, 1.0F / (float) mc.displayHeight);
+        gaussianBloom.setUniformf("texelSize", 1.0F / (float) Util.mc.displayWidth, 1.0F / (float) Util.mc.displayHeight);
         gaussianBloom.setUniformf("direction", directionX, directionY);
         GL20.glUniform1(gaussianBloom.getUniform("weights"), weights);
     }

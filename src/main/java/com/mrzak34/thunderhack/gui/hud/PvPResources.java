@@ -40,12 +40,9 @@ public class PvPResources extends Module{
 
     @SubscribeEvent
     public void onRender2D(Render2DEvent e){
-        ScaledResolution sr = new ScaledResolution(mc);
 
-
-
-        y1 = sr.getScaledHeight() * pos.getValue().getY();
-        x1 = sr.getScaledWidth() * pos.getValue().getX();
+        y1 = e.scaledResolution.getScaledHeight() * pos.getValue().getY();
+        x1 = e.scaledResolution.getScaledWidth() * pos.getValue().getX();
 
         RectHelper.drawBorderedRect(x1 + 2.5F, y1 + 2.5F, (x1 + sizeRect.getValue()) - 2.5F, (y1 + sizeRect.getValue()) - 2.5F, 0.5F, PaletteHelper.getColor(2),color.getValue().getColor(), false);
         RectHelper.drawBorderedRect(x1 + 3, y1 + 3, x1 + sizeRect.getValue() - 3, y1 + sizeRect.getValue() - 3, 0.2F, PaletteHelper.getColor(2), color.getValue().getColor(), false);
@@ -105,8 +102,8 @@ public class PvPResources extends Module{
         if(mc.currentScreen instanceof GuiChat || mc.currentScreen instanceof HudEditorGui){
             if(isHovering()){
                 if(Mouse.isButtonDown(0) && mousestate){
-                    pos.getValue().setX( (float) (normaliseX() - dragX) /  sr.getScaledWidth());
-                    pos.getValue().setY( (float) (normaliseY() - dragY) / sr.getScaledHeight());
+                    pos.getValue().setX( (float) (normaliseX() - dragX) / e.scaledResolution.getScaledWidth());
+                    pos.getValue().setY( (float) (normaliseY() - dragY) / e.scaledResolution.getScaledHeight());
                 }
 
                 RenderUtil.drawRect2(x1 - 10,y1 ,x1 + 50,y1 + 10,new Color(0x73A9A9A9, true).getRGB());
@@ -115,8 +112,8 @@ public class PvPResources extends Module{
 
         if(Mouse.isButtonDown(0) && isHovering()){
             if(!mousestate){
-                dragX = (int) (normaliseX() - (pos.getValue().getX() * sr.getScaledWidth()));
-                dragY = (int) (normaliseY() - (pos.getValue().getY() * sr.getScaledHeight()));
+                dragX = (int) (normaliseX() - (pos.getValue().getX() * e.scaledResolution.getScaledWidth()));
+                dragY = (int) (normaliseY() - (pos.getValue().getY() * e.scaledResolution.getScaledHeight()));
             }
             mousestate = true;
         } else {

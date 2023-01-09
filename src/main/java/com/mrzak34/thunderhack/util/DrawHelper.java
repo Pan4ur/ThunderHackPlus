@@ -18,45 +18,6 @@ public class DrawHelper{
 
     private static Minecraft mc = Minecraft.getMinecraft();
 
-    public static void drawTriangle(float cx,  float r, int color) {
-        float x = r * 3.0f;
-        float y = 0.0f;
-        GL11.glPushMatrix();
-        DrawHelper.enableGL2D();
-        GL11.glLineWidth(2);
-
-        GL11.glScalef(0.5f, 0.5f, 0.5f);
-        DrawHelper.setColor(color);
-        GL11.glDisable(GL11.GL_DEPTH_TEST);
-        GL11.glDepthMask(false);
-
-        DrawHelper.enableSmoothLine(1.5f);
-        GL11.glBegin(2);
-
-        int ii = 0;
-        while (ii < 3) {
-            GL11.glVertex2f(x + cx, y);
-            float t = x;
-            x = -0.4999999f * x - 0.8660254f * y;
-            y = 0.8660254f * t - 0.4999999f * y;
-            ii++;
-        }
-
-        GL11.glEnd();
-        GL11.glScalef(4.0f, 4.0f, 4.0f);
-        DrawHelper.disableSmoothLine();
-        DrawHelper.disableGL2D();
-        GL11.glEnable(GL11.GL_DEPTH_TEST);
-        GL11.glDepthMask(true);
-
-        GL11.glPopMatrix();
-    }
-
-
-
-    
-
-
     public static void drawEntityBox(Entity entity, Color color, boolean fullBox, float alpha) {
         GlStateManager.pushMatrix();
         GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
@@ -102,7 +63,7 @@ public class DrawHelper{
     }
 
     public static Color astolfo(boolean clickgui, int yOffset) {
-        float speed = clickgui ? 1 * 100 : 10 * 100;
+        float speed = clickgui ?100 : 10 * 100;
         float hue = (System.currentTimeMillis() % (int) speed) + yOffset;
         if (hue > speed) {
             hue -= speed;
@@ -209,16 +170,6 @@ public class DrawHelper{
         ts.draw();
     }
 
-    public static void enableGL2D() {
-        GL11.glDisable(2929);
-        GL11.glDisable(3553);
-        GL11.glBlendFunc(770, 771);
-        GL11.glDepthMask(true);
-        GL11.glEnable(2848);
-        GL11.glHint(3154, 4354);
-        GL11.glHint(3155, 4354);
-    }
-
 
     public static void disableStandardItemLighting() {
         GlStateManager.disableLighting();
@@ -226,41 +177,7 @@ public class DrawHelper{
         GlStateManager.disableLight(1);
         GlStateManager.disableColorMaterial();
     }
-    public static void disableGL2D() {
-        GL11.glEnable(3553);
-        GL11.glEnable(2929);
-        GL11.glDisable(2848);
-        GL11.glHint(3154, 4352);
-        GL11.glHint(3155, 4352);
-    }
 
-
-
-    public static void enableSmoothLine(float width) {
-        GL11.glDisable(3008);
-        GL11.glEnable(3042);
-        GL11.glBlendFunc(770, 771);
-        GL11.glDisable(3553);
-        GL11.glDisable(2929);
-        GL11.glDepthMask(false);
-        GL11.glEnable(2884);
-        GL11.glEnable(2848);
-        GL11.glHint(3154, 4354);
-        GL11.glHint(3155, 4354);
-        GL11.glLineWidth(width);
-    }
-
-    public static void disableSmoothLine() {
-        GL11.glEnable(3553);
-        GL11.glEnable(2929);
-        GL11.glDisable(3042);
-        GL11.glEnable(3008);
-        GL11.glDepthMask(true);
-        GL11.glCullFace(1029);
-        GL11.glDisable(2848);
-        GL11.glHint(3154, 4352);
-        GL11.glHint(3155, 4352);
-    }
 
     public static void setColor(int color) {
         GL11.glColor4ub((byte) (color >> 16 & 0xFF), (byte) (color >> 8 & 0xFF), (byte) (color & 0xFF), (byte) (color >> 24 & 0xFF));
@@ -275,83 +192,9 @@ public class DrawHelper{
         RenderUtil.drawRect((float) (x + 0.5f), (float) y1 - 0.5f, (float) x1 - 0.5f, (float) y1, insideC);
         RenderUtil.drawRect((float) x, (float) y + 0.5f,(float)  x1, (float) y1 - 0.5f, insideC);
     }
-    public static void drawGlow(final double x, final double y, final double x1, final double y1, final int color) {
-        GlStateManager.disableTexture2D();
-        GlStateManager.enableBlend();
-        GlStateManager.disableAlpha();
-        GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-        GlStateManager.shadeModel(7425);
-        drawVGradientRect((float) (int) x, (float) (int) y, (float) (int) x1, (float) (int) (y + (y1 - y) / 2.0), DrawHelper.setAlpha(new Color(color), 0).getRGB(), color);
-        drawVGradientRect((float) (int) x, (float) (int) (y + (y1 - y) / 2.0), (float) (int) x1, (float) (int) y1, color, DrawHelper.setAlpha(new Color(color), 0).getRGB());
-        final int radius = (int) ((y1 - y) / 2.0);
-        drawPolygonPart(x, y + (y1 - y) / 2.0, radius, 0, color, DrawHelper.setAlpha(new Color(color), 0).getRGB());
-        drawPolygonPart(x, y + (y1 - y) / 2.0, radius, 1, color, DrawHelper.setAlpha(new Color(color), 0).getRGB());
-        drawPolygonPart(x1, y + (y1 - y) / 2.0, radius, 2, color, DrawHelper.setAlpha(new Color(color), 0).getRGB());
-        drawPolygonPart(x1, y + (y1 - y) / 2.0, radius, 3, color, DrawHelper.setAlpha(new Color(color), 0).getRGB());
-        GlStateManager.shadeModel(7424);
-        GlStateManager.disableBlend();
-        GlStateManager.enableAlpha();
-        GlStateManager.enableTexture2D();
-    }
-    public static void drawPolygonPart(final double x, final double y, final int radius, final int part, final int color, final int endcolor) {
-        final float alpha = (color >> 24 & 0xFF) / 255.0f;
-        final float red = (color >> 16 & 0xFF) / 255.0f;
-        final float green = (color >> 8 & 0xFF) / 255.0f;
-        final float blue = (color & 0xFF) / 255.0f;
-        final float alpha2 = (endcolor >> 24 & 0xFF) / 255.0f;
-        final float red2 = (endcolor >> 16 & 0xFF) / 255.0f;
-        final float green2 = (endcolor >> 8 & 0xFF) / 255.0f;
-        final float blue2 = (endcolor & 0xFF) / 255.0f;
-        GlStateManager.disableTexture2D();
-        GlStateManager.enableBlend();
-        GlStateManager.disableAlpha();
-        GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-        GlStateManager.shadeModel(7425);
-        final Tessellator tessellator = Tessellator.getInstance();
-        final BufferBuilder bufferbuilder = tessellator.getBuffer();
-        bufferbuilder.begin(6, DefaultVertexFormats.POSITION_COLOR);
-        bufferbuilder.pos(x, y, 0.0).color(red, green, blue, alpha).endVertex();
-        final double TWICE_PI = 6.283185307179586;
-        for (int i = part * 90; i <= part * 90 + 90; ++i) {
-            final double angle = 6.283185307179586 * i / 360.0 + Math.toRadians(180.0);
-            bufferbuilder.pos(x + Math.sin(angle) * radius, y + Math.cos(angle) * radius, 0.0).color(red2, green2, blue2, alpha2).endVertex();
-        }
-        tessellator.draw();
-        GlStateManager.shadeModel(7424);
-        GlStateManager.disableBlend();
-        GlStateManager.enableAlpha();
-        GlStateManager.enableTexture2D();
-    }
-    public static void drawVGradientRect(final float left, final float top, final float right, final float bottom, final int startColor, final int endColor) {
-        final float f = (startColor >> 24 & 0xFF) / 255.0f;
-        final float f2 = (startColor >> 16 & 0xFF) / 255.0f;
-        final float f3 = (startColor >> 8 & 0xFF) / 255.0f;
-        final float f4 = (startColor & 0xFF) / 255.0f;
-        final float f5 = (endColor >> 24 & 0xFF) / 255.0f;
-        final float f6 = (endColor >> 16 & 0xFF) / 255.0f;
-        final float f7 = (endColor >> 8 & 0xFF) / 255.0f;
-        final float f8 = (endColor & 0xFF) / 255.0f;
-        GlStateManager.disableTexture2D();
-        GlStateManager.enableBlend();
-        GlStateManager.disableAlpha();
-        GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-        GlStateManager.shadeModel(7425);
-        final Tessellator tessellator = Tessellator.getInstance();
-        final BufferBuilder bufferbuilder = tessellator.getBuffer();
-        bufferbuilder.begin(7, DefaultVertexFormats.POSITION_COLOR);
-        bufferbuilder.pos((double) right, (double) top, 0.0).color(f2, f3, f4, f).endVertex();
-        bufferbuilder.pos((double) left, (double) top, 0.0).color(f2, f3, f4, f).endVertex();
-        bufferbuilder.pos((double) left, (double) bottom, 0.0).color(f6, f7, f8, f5).endVertex();
-        bufferbuilder.pos((double) right, (double) bottom, 0.0).color(f6, f7, f8, f5).endVertex();
-        tessellator.draw();
-        GlStateManager.shadeModel(7424);
-        GlStateManager.disableBlend();
-        GlStateManager.enableAlpha();
-        GlStateManager.enableTexture2D();
-    }
 
 
-    public static final void color(double red, double green, double blue, double alpha) {
+    public static void color(double red, double green, double blue, double alpha) {
         GL11.glColor4d(red, green, blue, alpha);
     }
 
@@ -367,11 +210,6 @@ public class DrawHelper{
         DrawHelper.drawRect(left * 2.0f, bottom * 2.0f - 1.0f, right * 2.0f, bottom * 2.0f, color);
         GL11.glDisable(3042);
         GL11.glScalef(2.0f, 2.0f, 2.0f);
-    }
-
-    public static Color setAlpha(Color color, int alpha) {
-        alpha = (int) MathHelper.clamp(alpha, 0, 255);
-        return new Color(color.getRed(), color.getGreen(), color.getBlue(), alpha);
     }
 
 

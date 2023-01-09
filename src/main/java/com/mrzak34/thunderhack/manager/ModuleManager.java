@@ -42,14 +42,16 @@ public class ModuleManager
         this.modules.add(new GuiMove());
         this.modules.add(new AutoSoup());
         this.modules.add(new AimAssist());
+        this.modules.add(new AutoBuy());
         this.modules.add(new AutoTotem());
         this.modules.add(new Offhand());
+        this.modules.add(new Strafe());
         this.modules.add(new ClanInvite());
         this.modules.add(new AntiBadEffects());
         this.modules.add(new Dismemberment());
         this.modules.add(new Reach());
+        this.modules.add(new PasswordHider());
         this.modules.add(new LowHPScreen());
-        this.modules.add(new Optimization());
         this.modules.add(new AutoCrystal());
         this.modules.add(new AutoMine());
         this.modules.add(new PvPResources());
@@ -60,12 +62,13 @@ public class ModuleManager
         this.modules.add(new PearlBait());
         this.modules.add(new AutoSheep());
         this.modules.add(new BoatFly());
-        this.modules.add(new BoatFly2());
+        this.modules.add(new TargetHud());
         this.modules.add(new Aura());
         this.modules.add(new NoSlow());
         this.modules.add(new HitParticles2());
         this.modules.add(new Spider());
-        this.modules.add(new KillauraAddon());
+        this.modules.add(new AutoExplosion());
+        this.modules.add(new AutoAmericano());
         this.modules.add(new BlockHighlight());
         this.modules.add(new TickShift());
         this.modules.add(new StorageEsp());
@@ -82,7 +85,6 @@ public class ModuleManager
         this.modules.add(new NoCom());
         this.modules.add(new DMGFly());
         this.modules.add(new Sprint());
-        this.modules.add(new TargetHud());
         this.modules.add(new FreeLook());
         this.modules.add(new Quiver());
         this.modules.add(new NoFall());
@@ -98,16 +100,13 @@ public class ModuleManager
         this.modules.add(new TpsSync());
         this.modules.add(new ItemShaders());
         this.modules.add(new ThunderHackGui());
-        //01.03.2022
         this.modules.add(new ElytraSwap());
         this.modules.add(new VisualRange());
         this.modules.add(new StashFinder());
         this.modules.add(new PearlESP());
         this.modules.add(new EntityESP());
-        //02.03.2022
         this.modules.add(new AutoFish());
         this.modules.add(new PlayerTrails());
-        //04.03.2022
         this.modules.add(new CrystalChams());
         this.modules.add(new FreeCam());
         this.modules.add(new PacketFly());
@@ -134,7 +133,6 @@ public class ModuleManager
         this.modules.add(new AutoRegear());
         this.modules.add(new ShiftInterp());
         this.modules.add(new Particles());
-        this.modules.add(new Trails());
         this.modules.add(new ElytraFlight());
         this.modules.add(new RusherScaffold());
         this.modules.add(new PortalGodMode());
@@ -146,12 +144,15 @@ public class ModuleManager
         this.modules.add(new WaterMark());
         this.modules.add(new PrinterBypass());
         this.modules.add(new Player());
-        this.modules.add(new com.mrzak34.thunderhack.gui.hud.Speed());
+        this.modules.add(new Speedometer());
         this.modules.add(new ArmorHud());
         this.modules.add(new HighJump());
         this.modules.add(new Surround());
         this.modules.add(new LogoutSpots());
         this.modules.add(new LegitStrafe());
+        this.modules.add(new BackTrack());
+        this.modules.add(new NameProtect());
+        this.modules.add(new FogColor());
         this.modules.add(new LegitScaff());
         this.modules.add(new PopChams());
         this.modules.add(new ContainerPreviewModule());
@@ -174,9 +175,7 @@ public class ModuleManager
         this.modules.add(new ChorusESP());
         this.modules.add(new GroundBoost());
         this.modules.add(new BeakonESP());
-        this.modules.add(new MatrixJump());
         this.modules.add(new FGTotem());
-        this.modules.add(new LongJumpGlide());
         this.modules.add(new Speed());
         this.modules.add(new Burrow());
         this.modules.add(new AntiHunger());
@@ -195,6 +194,9 @@ public class ModuleManager
         this.modules.add(new Coords());
         this.modules.add(new DiscordWebhook());
         this.modules.add(new KillEffect());
+        this.modules.add(new PacketFly2());
+        this.modules.add(new RWKTLeave());
+        this.modules.add(new AutoTool());
         this.modules.add(new TargetStrafe());
         this.modules.add(new EZbowPOP());
         this.modules.add(new BowSpam());
@@ -202,13 +204,15 @@ public class ModuleManager
         this.modules.add(new DMGParticles());
         this.modules.add(new AutoRespawn());
         this.modules.add(new PhotoMath());
-        this.modules.add(new MatrixZoom());
         this.modules.add(new KDShop());
         this.modules.add(new AntiBowBomb());
         this.modules.add(new EffectsRemover());
         this.modules.add(new TrueDurability());
+        this.modules.add(new ItemPhysics());
         this.modules.add(new Potions());
         this.modules.add(new CevBreaker());
+        this.modules.add(new AntiBot());
+        this.modules.add(new PlaceBypass());
         this.modules.add(new AntiTittle());
         this.modules.add(new CoolCrosshair());
         this.modules.add(new AutoCappRegear());

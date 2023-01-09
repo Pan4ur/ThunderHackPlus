@@ -16,7 +16,7 @@ public class HighJump extends Module {
     public Setting<Boolean> c = register(new Setting<>("Only damage", true));
 
     public enum rotmod {
-        Matrix, Default, NexusGrief;
+        Matrix, Default, Jump;
     }
 
     boolean abobka = false;
@@ -31,7 +31,7 @@ public class HighJump extends Module {
             }
             new HJThread(this, entityPlayerSP).start();
         }
-        if (a.getValue() == rotmod.NexusGrief) {
+        if (a.getValue() == rotmod.Jump) {
             EntityPlayerSP entityPlayerSP = mc.player;
             if (entityPlayerSP.onGround) {
                 entityPlayerSP.jump();
@@ -54,7 +54,7 @@ public class HighJump extends Module {
         if(ticks == 5){
             abobka = true;
         }
-        if (a.getValue() == rotmod.NexusGrief) {
+        if (a.getValue() == rotmod.Jump) {
             if(abobka) {
                 new HJThread(this, mc.player).start();
                 toggle();
@@ -74,7 +74,26 @@ public class HighJump extends Module {
                 return;
             }
             entityPlayerSP.motionY = this.b.getValue();
-          //  KeyBinding.setKeyBindState((int)keyBinding.getKeyCode(), (boolean)false);
+        }
+    }
+
+    public class HJThread extends Thread {
+        public EntityPlayerSP a;
+        public HighJump b;
+
+        public HJThread(HighJump highJump, EntityPlayerSP entityPlayerSP) {
+            this.b = highJump;
+            this.a = entityPlayerSP;
+        }
+
+        @Override
+        public void run() {
+            this.a.motionY = 9.0;
+            try {
+                HJThread.sleep(240L);
+            }  catch (Exception ignored) {}
+            this.a.motionY = 8.742f;
+            super.run();
         }
     }
 }

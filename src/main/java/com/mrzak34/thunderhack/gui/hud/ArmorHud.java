@@ -30,13 +30,11 @@ public class ArmorHud extends Module{
 
     @SubscribeEvent
     public void onRender2D(Render2DEvent e){
-        ScaledResolution sr = new ScaledResolution(mc);
-
-        y1 = sr.getScaledHeight() * pos.getValue().getY();
-        x1 = sr.getScaledWidth() * pos.getValue().getX();
+        y1 = e.scaledResolution.getScaledHeight() * pos.getValue().getY();
+        x1 = e.scaledResolution.getScaledWidth() * pos.getValue().getX();
         renderArmorHUD(true);
-
     }
+
     public void renderArmorHUD(boolean percent) {
         ScaledResolution sr = new ScaledResolution(mc);
 
@@ -45,7 +43,7 @@ public class ArmorHud extends Module{
         GlStateManager.enableTexture2D();
 
         int iteration = 0;
-        int y = (int) (y1 - 55 - ((mc.player.isInWater() && mc.playerController.gameIsSurvivalOrAdventure()) ? 10 : 0));
+        int y = (int) (y1 - 55);
 
 
 

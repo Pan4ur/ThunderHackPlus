@@ -10,6 +10,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 public class AntiHunger extends Module {
     public  Setting<Boolean> sprint = this.register(new Setting<>("Sprint", true));
     public  Setting<Boolean> noGround = this.register(new Setting<>("Ground", true));
+    public  Setting<Boolean> grPacket = this.register(new Setting<>("GroundPacket", true));
 
     private boolean isOnGround = false;
 
@@ -42,7 +43,11 @@ public class AntiHunger extends Module {
             CPacketPlayer player = (CPacketPlayer) event.getPacket();
             boolean ground = mc.player.onGround;
             if (noGround.getValue() && isOnGround && ground && player.getY(0.0) == (!mc.player.isSprinting() ? 0.0 : mc.player.posY)) {
-                 mc.player.onGround = false;
+                if(grPacket.getValue()){
+                    player.onGround = false;
+                } else {
+                    mc.player.onGround = false;
+                }
             }
             isOnGround = ground;
         }

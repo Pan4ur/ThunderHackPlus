@@ -1,9 +1,11 @@
 package com.mrzak34.thunderhack.modules.misc;
 
 
+import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.event.events.PacketEvent;
 import com.mrzak34.thunderhack.event.events.PushEvent;
 import com.mrzak34.thunderhack.modules.Module;
+import com.mrzak34.thunderhack.modules.combat.Aura;
 import com.mrzak34.thunderhack.setting.Setting;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.projectile.EntityFishHook;
@@ -16,6 +18,9 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 public class Velocity
         extends Module {
     private static Velocity INSTANCE = new Velocity();
+
+    public Setting<Boolean> onlyAura = register(new Setting<>("OnlyAura", true));
+
     public Setting<Boolean> knockBack = this.register(new Setting<Boolean>("KnockBack", true));
     public Setting<Boolean> noPush = this.register(new Setting<Boolean>("NoPush", true));
     public Setting<Float> horizontal = this.register(new Setting<Float>("Horizontal", 0.0f, 0.0f, 100.0f));
@@ -28,19 +33,8 @@ public class Velocity
 
     public Velocity() {
         super("Velocity", "акэбэшка", Module.Category.MOVEMENT, true, false, false);
-        this.setInstance();
     }
 
-    public static Velocity getINSTANCE() {
-        if (INSTANCE == null) {
-            INSTANCE = new Velocity();
-        }
-        return INSTANCE;
-    }
-
-    private void setInstance() {
-        INSTANCE = this;
-    }
 
     @Override
     public void onUpdate() {
@@ -65,6 +59,10 @@ public class Velocity
             SPacketEntityStatus packet;
             SPacketEntityVelocity velocity;
             if (this.knockBack.getValue() && event.getPacket() instanceof SPacketEntityVelocity && (velocity = event.getPacket()).getEntityID() == Velocity.mc.player.entityId) {
+                if(onlyAura.getValue() && Thunderhack.moduleManager.getModuleByClass(Aura.class).isDisabled()){
+                    return;
+                }
+
                 if (this.horizontal.getValue() == 0.0f && this.vertical.getValue() == 0.0f) {
                     event.setCanceled(true);
                     return;

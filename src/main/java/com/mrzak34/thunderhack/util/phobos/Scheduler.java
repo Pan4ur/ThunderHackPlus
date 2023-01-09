@@ -10,7 +10,6 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import static com.mrzak34.thunderhack.util.ItemUtil.mc;
 
 /**
  * Helps with scheduling Tasks.

@@ -7,6 +7,7 @@ import com.mrzak34.thunderhack.gui.thundergui.components.items.buttons.TModuleBu
 import com.mrzak34.thunderhack.gui.thundergui.fontstuff.FontRender;
 import com.mrzak34.thunderhack.modules.client.DiscordWebhook;
 import com.mrzak34.thunderhack.modules.client.ThunderHackGui;
+import com.mrzak34.thunderhack.modules.misc.NameProtect;
 import com.mrzak34.thunderhack.util.PaletteHelper;
 import com.mrzak34.thunderhack.manager.FriendManager;
 import com.mrzak34.thunderhack.util.*;
@@ -186,7 +187,11 @@ public class ThunderGui extends GuiScreen {
             retryLoadHead();
         }
 
-        FontRender.drawString2(mc.player.getName(),thunderguiX + 182,thunderguiY + 9, new Color(0x2A2A2A).getRGB());
+        if(Thunderhack.moduleManager.getModuleByClass(NameProtect.class).isDisabled()) {
+            FontRender.drawString2(mc.player.getName(),thunderguiX + 182,thunderguiY + 9, new Color(0x2A2A2A).getRGB());
+        } else {
+            FontRender.drawString2("Protected",thunderguiX + 182,thunderguiY + 9, new Color(0x2A2A2A).getRGB());
+        }
         FontRender.drawString3("current cfg: " + Thunderhack.configManager.currentcfg,thunderguiX + 182,thunderguiY + 28, new Color(0x0A0A0A).getRGB());
 
 

@@ -37,8 +37,8 @@ public class NoVoid
         if (event.getPacket() instanceof SPacketPlayerPosLook) {
             if (!(mc.currentScreen instanceof GuiDownloadTerrain)) {
                 SPacketPlayerPosLook packet = event.getPacket();
-                ((ISPacketPlayerPosLook) packet).setYaw(mc.player.rotationYaw); //под вопросом
-                ((ISPacketPlayerPosLook) packet).setPitch(mc.player.rotationPitch); //под вопросом
+                ((ISPacketPlayerPosLook) packet).setYaw(mc.player.rotationYaw);
+                ((ISPacketPlayerPosLook) packet).setPitch(mc.player.rotationPitch);
                 packet.getFlags().remove(SPacketPlayerPosLook.EnumFlags.X_ROT);
                 packet.getFlags().remove(SPacketPlayerPosLook.EnumFlags.Y_ROT);
             }

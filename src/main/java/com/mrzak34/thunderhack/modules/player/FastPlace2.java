@@ -40,6 +40,7 @@ public class FastPlace2
     public Setting<SubBind> aboba = this.register(new Setting<>("Butt", new SubBind(Keyboard.KEY_LMENU)));
 
     public Setting<Boolean> afast = this.register ( new Setting <> ( "AlwaysFast", false));
+    private  Setting<Integer> rcdtimer = this.register (new Setting<>("click delay", 1, 0, 4));
 
 
 
@@ -57,18 +58,8 @@ public class FastPlace2
     int totalarmor;
 
 
-
-
-    private float yawi;
     int startingItem ;
-    public void setYaw(float yawi) {
-        this.yawi = yawi;
-        Util.mc.getMinecraft();
-        Util.mc.player.rotationYawHead = yawi;
-        Util.mc.getMinecraft();
-        Util.mc.player.renderYawOffset = yawi;
-        Util.mc.player.rotationYawHead = yawi;
-    }
+
     @SubscribeEvent
     public void onUpdateWalkingPlayer(EventPreMotion e) {
         if (mc.player == null || mc.world == null) return;
@@ -208,23 +199,10 @@ public class FastPlace2
         target = null;
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
     @Override
     public void onUpdate() {
         if(afast.getValue())
-            mc.rightClickDelayTimer = 0;
+            mc.rightClickDelayTimer = rcdtimer.getValue();
     }
 
 
@@ -243,19 +221,12 @@ public class FastPlace2
         ItemStack stack41 = armorStacks21[2];
         ItemStack stack51 = armorStacks21[3];
         if (PlayerUtils.isKeyDown(aboba.getValue().getKey()) && (ArmorUtils.calculatePercentage(stack21) < threshold.getValue() || ArmorUtils.calculatePercentage(stack31) < threshold.getValue() || ArmorUtils.calculatePercentage(stack41) < threshold.getValue() || ArmorUtils.calculatePercentage(stack51) < threshold.getValue())) {
-            ScaledResolution sr = new ScaledResolution(mc);
-            //sr.getScaledWidth() / 2f
-            //sr.getScaledHeight() / 2f
+
 
             int color;
 
-
-
-
             RenderUtil.drawSmoothRect(waterMarkZ2.getValue(), waterMarkZ1.getValue(), 106 + waterMarkZ2.getValue(), 35 + waterMarkZ1.getValue(), new Color(35, 35, 40, 230).getRGB());
             RenderUtil.drawSmoothRect(waterMarkZ2.getValue() + 3, waterMarkZ1.getValue() + 12, 103 + waterMarkZ2.getValue(), 15 + waterMarkZ1.getValue(), new Color(51, 51, 58, 230).getRGB());
-
-
 
 
             ItemStack[] armorStacks = new ItemStack[]{
@@ -265,14 +236,11 @@ public class FastPlace2
                     mc.player.inventory.getStackInSlot(36)
             };
 
-
             ItemStack stack = armorStacks[0];
             ItemStack stack1 = armorStacks[1];
             ItemStack stack2 = armorStacks[2];
             ItemStack stack3 = armorStacks[3];
 
-
-            // Command.sendMessage(String.valueOf(ArmorUtils.calculatePercentage(stack)) + " " + String.valueOf(ArmorUtils.calculatePercentage(stack1)) + " " + String.valueOf(ArmorUtils.calculatePercentage(stack2)) + " " + String.valueOf(ArmorUtils.calculatePercentage(stack3)) );
 
             if (!((int) ArmorUtils.calculatePercentage(stack) < arm1)) {
                 arm1 = (int) ArmorUtils.calculatePercentage(stack);
@@ -292,10 +260,7 @@ public class FastPlace2
             float progress;
             progress = (float) (arm1 + arm3 + arm4 + arm2) / 400;
 
-          //  color = new Color(25, 255, 0, 255);
             color = PaletteHelper.fade(new Color(255, 0, 0, 255).getRGB(),new Color(0, 255, 0, 255).getRGB(), progress);
-
-
 
 
             final int expCount = this.getExpCount();
@@ -335,15 +300,6 @@ public class FastPlace2
             }
             GlStateManager.enableDepth();
             GlStateManager.disableLighting();
-
-
-
-
-
-
-
-
-
         }
     }
     private int getExpCount() {
@@ -358,8 +314,6 @@ public class FastPlace2
         }
         return expCount;
     }
-
-
 
 
     public boolean rotate = true;

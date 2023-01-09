@@ -39,8 +39,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static com.mrzak34.thunderhack.modules.combat.Burrow.getEyePos;
-import static com.mrzak34.thunderhack.util.ItemUtil.mc;
 
 public class C4Aura extends Module {
 
@@ -56,8 +54,6 @@ public class C4Aura extends Module {
 
 
     Timer placeTimer = new Timer();
-    Timer breakTimer = new Timer();
-
     Timer getpostim = new Timer();
     List<BlockPos> positions = null;
     BlockPos renderblockpos;

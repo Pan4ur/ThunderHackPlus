@@ -55,7 +55,7 @@ public class SpecialTagCompound extends NBTTagCompound {
 
 
     /*
-    public boolean hasNoTags() { // do not clear me
+    public boolean hasNoTags() { // do not clear me иди нахуй
         if(super.hasNoTags()) {
             this.empty = true;
         }

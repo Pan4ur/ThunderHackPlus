@@ -2,9 +2,12 @@ package com.mrzak34.thunderhack.modules.combat;
 
 import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.event.events.AttackEvent;
+import com.mrzak34.thunderhack.mixin.mixins.ICPacketPlayer;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.event.events.PacketEvent;
 import com.mrzak34.thunderhack.setting.Setting;
+import com.mrzak34.thunderhack.util.MathUtil;
+import com.mrzak34.thunderhack.util.MovementUtil;
 import com.mrzak34.thunderhack.util.Timer;
 import com.mrzak34.thunderhack.util.dV;
 import net.minecraft.entity.Entity;
@@ -27,7 +30,7 @@ public class Criticals
     public Setting<Mode> mode = this.register(new Setting<>("Mode", Mode.FunnyGame));
 
     private enum Mode {
-        OldNCP, Strict, Matrix, FunnyGame,Deadcode
+        OldNCP, Strict, Nurik, FunnyGame,Deadcode
     }
 
 
@@ -56,7 +59,13 @@ public class Criticals
             mc.player.connection.sendPacket(new CPacketPlayer.Position(mc.player.posX, mc.player.posY, mc.player.posZ, false));
             mc.player.onCriticalHit(e.getEntity());
         }
+        if(mode.getValue() == Mode.Nurik){
+            mc.player.connection.sendPacket(new CPacketPlayer.Position(mc.player.posX, mc.player.posY + 0.010826975107192, mc.player.posZ, false));
+            mc.player.connection.sendPacket(new CPacketPlayer.Position(mc.player.posX, mc.player.posY + 0.000919209350040, mc.player.posZ,true));
+            mc.player.onCriticalHit(e.getEntity());
+        }
     }
+
     
     @SubscribeEvent
     public void onAttackEntity(PacketEvent.SendPost f4h2) {

@@ -12,11 +12,10 @@ import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.notification.NotificationManager;
 import com.mrzak34.thunderhack.notification.NotificationType;
-import com.mrzak34.thunderhack.util.AstolfoAnimation;
+import com.mrzak34.thunderhack.util.*;
 import com.mrzak34.thunderhack.util.DeadCodeUtils.RotateCalculator;
 import com.mrzak34.thunderhack.util.DeadCodeUtils.cy_0;
-import com.mrzak34.thunderhack.util.ExplosionBuilder;
-import com.mrzak34.thunderhack.util.RotationHelper;
+import com.mrzak34.thunderhack.util.Timer;
 import com.mrzak34.thunderhack.util.rotations.AdvancedCast;
 import com.mrzak34.thunderhack.util.rotations.CastHelper;
 import com.mrzak34.thunderhack.util.rotations.RaycastHelper;
@@ -25,17 +24,16 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityOtherPlayerMP;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.enchantment.Enchantment;
+import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityEnderCrystal;
 import net.minecraft.entity.monster.EntitySlime;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Items;
 import net.minecraft.init.MobEffects;
-import net.minecraft.item.EnumAction;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemAxe;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemSword;
+import net.minecraft.item.*;
 import net.minecraft.network.play.client.*;
 import net.minecraft.network.play.client.CPacketEntityAction.Action;
 import net.minecraft.network.play.server.SPacketEntityStatus;
@@ -48,7 +46,6 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
-import com.mrzak34.thunderhack.util.Timer;
 
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -58,14 +55,18 @@ import javax.vecmath.Vector2f;
 import java.util.*;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 
 import static com.mrzak34.thunderhack.modules.funnygame.EffectsRemover.jboost;
 import static com.mrzak34.thunderhack.modules.funnygame.EffectsRemover.nig;
 
 public class Aura extends Module {
 
+
+
+
     public Aura() {
-        super("Aura", "AuraAura", Category.COMBAT, true, false, false);
+        super("Aura", "Запомните блядь-киллка тх не мисает-а дает шанс убежать", Category.COMBAT, true, false, false);
     }
 
 
@@ -75,10 +76,14 @@ public class Aura extends Module {
         Matrix, Nexus, FunnyGame,DeadCode;
 
     }
-
+    public enum CritMode {
+        WexSide, Simple;
+    }
+    public enum AutoSwitch {
+        None, Default/*, Silent*/;
+    }
 
     /*-------------   AntiCheat  ----------*/
-  //  public  Setting<Parent> antiCheat = this.register(new Setting<>("AntiCheat", new Parent(false)));
     private Setting<rotmod> rotation = register(new Setting("Rotation", rotmod.Matrix));//(antiCheat);
     public Setting<Boolean> fullpower = register(new Setting<>("fullpower", false));//(antiCheat);
     public Setting<Boolean> betterCrits = register(new Setting<>("BetterCrits", true));//(antiCheat);
@@ -86,36 +91,35 @@ public class Aura extends Module {
     public Setting<Boolean> ignoreWalls = register(new Setting<>("Ignore Walls", true));//(antiCheat);
     public Setting<Float> distance = register(new Setting("Distance", 3.6f, 0.0f, 7.0f));//(antiCheat);
     public Setting<Integer> fov = register(new Setting("FOV", 180, 5, 180));//(antiCheat);
-    public Setting<Boolean> backtrack = register(new Setting<>("BackTrack", false));//(antiCheat);
-    public Setting<Integer> btticks = register(new Setting("TrackTicks", 5, 1, 15));//(antiCheat);
-    public Setting<Boolean> btkick = register(new Setting<>("BTAntiKick", false));//(antiCheat);
-    public Setting<Integer> btkicksetting = register(new Setting("AntiKickFOV", 20, 0, 60));//(antiCheat);
-
-    public Setting<Boolean> gappleFix = register(new Setting<>("GappleFix", true));//(antiCheat);
+    public Setting<Boolean> backTrack = register(new Setting<>("RotateToBackTrack", true));//(antiCheat);
     /*-------------------------------------*/
 
 
     /*-------------   Misc  ---------------*/
-  //  public  Setting<Parent> misc = this.register(new Setting<>("Misc", new Parent(false)));
-    public Setting<Boolean> criticals_autojump = register(new Setting<>("Auto Jump", true));//(misc);
-    public Setting<Boolean> nointer = register(new Setting<>("NoInteract", true));//(misc);
-    public Setting<Boolean> criticals = register(new Setting<>("Criticals", true));//(misc);
-    public Setting<Boolean> weaponOnly = register(new Setting<>("WeaponOnly", true));//(misc);
-    public Setting<Boolean> shieldDesyncOnlyOnAura = register(new Setting<>("Wait Target", true));//(misc);
-    public Setting<Boolean> shieldDesync = register(new Setting<>("Shield Desync", true));//(misc);
-    public Setting<Boolean> clientLook = register(new Setting<>("ClientLook", true));//(misc);
-    public Setting<Boolean> shieldBreaker = register(new Setting<>("ShieldBreaker", true));//(misc);
-    public Setting<Boolean> offhand = register(new Setting<>("OffHandAttack", false));//(misc);
-    public Setting<Boolean> Debug = register(new Setting<>("HitsDebug", false));//(misc);
-
+    public Setting<Boolean> criticals = register(new Setting<>("Criticals", true));
+    public Setting<CritMode> critMode = register(new Setting("CritMode", CritMode.WexSide,v -> criticals.getValue()));
+    public Setting<Float> critdist = register(new Setting("FallDistance", 0.15f, 0.0f, 1.0f,v -> criticals.getValue() && critMode.getValue() == CritMode.Simple));;
+    public Setting<Boolean> criticals_autojump = register(new Setting<>("Auto Jump", true,v-> criticals.getValue()));
+    public Setting<Boolean> smartCrit = register(new Setting<>("SmartCrit", true));
+    public Setting<Boolean> nointer = register(new Setting<>("NoInteract", true));
+    public Setting<Boolean> weaponOnly = register(new Setting<>("WeaponOnly", true));
+    public Setting<AutoSwitch> autoswitch = register(new Setting("AutoSwitch", AutoSwitch.None));
+    public Setting<Boolean> firstAxe = register(new Setting<>("FirstAxe", false,v -> autoswitch.getValue() != AutoSwitch.None));
+    public Setting<Boolean> shieldDesyncOnlyOnAura = register(new Setting<>("Wait Target", true));
+    public Setting<Boolean> shieldDesync = register(new Setting<>("Shield Desync", true));
+    public Setting<Boolean> clientLook = register(new Setting<>("ClientLook", false));
+    public Setting<Boolean> snap = register(new Setting<>("Snap", false));
+    public Setting<Boolean> shieldBreaker = register(new Setting<>("ShieldBreaker", true));
+    public Setting<Boolean> offhand = register(new Setting<>("OffHandAttack", false));
+    public Setting<Boolean> teleport = register(new Setting<>("TP", false));
+    public Setting<Float> tpY = register(new Setting("TPY", 3f, -5.0f, 5.0f));
+    public Setting<Boolean> Debug = register(new Setting<>("HitsDebug", false));
     /*-------------------------------------*/
 
 
 
     /*-------------   Targets  ------------*/
-   // public  Setting<Parent> targets = this.register(new Setting<>("Targets", new Parent(false)));
-
-    public Setting<Boolean> Playersss = register(new Setting<>("Players", true));//(targets);
+    public Setting<Boolean> Playersss = register(new Setting<>("Players", true));
     public Setting<Boolean> Mobsss = register(new Setting<>("Mobs", true));//(targets);
     public Setting<Boolean> Animalsss = register(new Setting<>("Animals", true));//(targets);
     public Setting<Boolean> Villagersss = register(new Setting<>("Villagers", true));//(targets);
@@ -123,16 +127,13 @@ public class Aura extends Module {
     public Setting<Boolean> Crystalsss = register(new Setting<>("Crystals", true));//(targets);
     public Setting<Boolean> ignoreNaked = register(new Setting<>("IgnoreNaked", true));//(targets);
     public Setting<Boolean> ignoreInvisible = register(new Setting<>("IgnoreInvis", true));//(targets);
-
     /*-------------------------------------*/
 
 
     /*-------------   Visual  -------------*/
-   // public  Setting<Parent> visual = this.register(new Setting<>("Visual", new Parent(false)));
     public Setting<Boolean> targetesp = register(new Setting<>("Target Esp", true));//(visual);
     public Setting<Boolean> btvisual = register(new Setting<>("BTVisual", true));//(visual);
     public final Setting<ColorSetting> shitcollor = this.register(new Setting<>("TargetColor", new ColorSetting(-2009289807)));
-
     /*-------------------------------------*/
 
 
@@ -146,21 +147,16 @@ public class Aura extends Module {
     public float prevAdditionYaw;
     public static int minCPS;
     public static Aura instance;
-    boolean btprofit = false;
     int killz = 0;
     public static boolean stopAuraRotate = false;
-    private boolean isGapping = false;
     private Timer inhibit = new Timer();
     private Timer hitttimer = new Timer();
     public static double targetMaxSpeed;
     public static int misshits;
     public static int hits;
-    public static int backtracketHits;
-    public static int backtracketMisses;
-    public static float backtrackedMaxDist;
-
-    private Queue<Vec3d> btPositions = new LinkedList<>();
-
+    private int prevSlot = -1;
+    private boolean needAxeSwap = false;
+    public static BackTrack.Box bestBtBox;
 
 
     @Override
@@ -170,9 +166,6 @@ public class Aura extends Module {
                 if(target != prevtarget){
                     hits = 0;
                     misshits = 0;
-                    backtracketHits = 0;
-                    backtracketMisses = 0;
-                    backtrackedMaxDist = 0;
                     targetMaxSpeed = 0;
                 }
             }
@@ -183,7 +176,7 @@ public class Aura extends Module {
                 if (target instanceof EntityPlayer) {
                     if (Thunderhack.moduleManager.getModuleByClass(DiscordWebhook.class).isEnabled()) {
                         ++killz;
-                        DiscordWebhook.sendAuraMsg((EntityPlayer)target,killz,hits,misshits,targetMaxSpeed,backtrack.getValue(),backtracketHits,backtracketMisses,backtrackedMaxDist);
+                        DiscordWebhook.sendAuraMsg((EntityPlayer)target,killz,hits,misshits,targetMaxSpeed,false,0,0,0); //TODO
                     }
                 }
             } else {
@@ -199,6 +192,12 @@ public class Aura extends Module {
                 }
             }
 
+            if(snap.getValue()){
+                if(hitttimer.getPassedTimeMs() < 50){
+                    mc.player.rotationPitch = serverRotation.y;
+                    mc.player.rotationYaw = serverRotation.x;
+                }
+            }
         }
         if (mc.player.onGround && !isInLiquid() && !mc.player.isOnLadder() && !mc.player.isInWeb && !mc.player.isPotionActive(MobEffects.SLOWNESS) && target != null && criticals_autojump.getValue()) {
             mc.player.jump();
@@ -225,14 +224,11 @@ public class Aura extends Module {
                 circleStep += 0.15;
             }
             if (target != null) {
-                if (!(isGapping && gappleFix.getValue())) {
-                    mc.player.rotationYaw = serverRotation.x;
-                    mc.player.rotationPitch = serverRotation.y;
-                    mc.player.renderYawOffset = serverRotation.x;
-                }
-            } else {
-                btPositions.clear();
-                isGapping = false;
+
+                mc.player.rotationYaw = serverRotation.x;
+                mc.player.rotationPitch = serverRotation.y;
+                mc.player.renderYawOffset = serverRotation.x;
+
             }
     }
 
@@ -245,39 +241,6 @@ public class Aura extends Module {
 
     @SubscribeEvent
     public void onRender3D(Render3DEvent e){
-        if(btvisual.getValue() && btprofit && target != null && getBacktrackPos() != null){
-            if(!(target instanceof EntityPlayer)) return;
-
-            EntityPlayer ghost = (EntityPlayer) target;
-            ghost.prevLimbSwingAmount = target.prevLimbSwingAmount;
-            ghost.limbSwing = target.limbSwing;
-            ghost.limbSwingAmount = target.limbSwingAmount;
-            ghost.hurtTime = target.hurtTime;
-            GlStateManager.pushMatrix();
-
-            boolean lighting = GL11.glIsEnabled(GL11.GL_LIGHTING);
-            boolean blend = GL11.glIsEnabled(GL11.GL_BLEND);
-            boolean depthtest = GL11.glIsEnabled(GL11.GL_DEPTH_TEST);
-
-            GlStateManager.enableLighting();
-            GlStateManager.enableBlend();
-            GlStateManager.enableDepth();
-            GlStateManager.color(1, 1, 1, 1);
-
-            try {
-                mc.getRenderManager().renderEntity(ghost, getBacktrackPos().x - mc.getRenderManager().renderPosX, getBacktrackPos().y - mc.getRenderManager().renderPosY, getBacktrackPos().z - mc.getRenderManager().renderPosZ, target.rotationYaw, mc.getRenderPartialTicks(), false);
-            } catch (Exception ignored){}
-
-            if(!depthtest)
-                GlStateManager.disableDepth();
-            if(!lighting)
-                GlStateManager.disableLighting();
-            if(!blend)
-                GlStateManager.disableBlend();
-
-
-            GlStateManager.popMatrix();
-        }
         if (targetesp.getValue()) {
             EntityLivingBase entity = Aura.target;
             if (entity != null) {
@@ -290,12 +253,22 @@ public class Aura extends Module {
                 double nextY = entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * mc.getRenderPartialTicks() - mc.getRenderManager().renderPosY + sinAnim * 1.4f;
 
                 GL11.glPushMatrix();
+
+                boolean cullface = GL11.glIsEnabled(GL11.GL_CULL_FACE);
+                boolean texture = GL11.glIsEnabled(GL11.GL_TEXTURE_2D);
+                boolean blend = GL11.glIsEnabled(GL11.GL_BLEND);
+                boolean depth = GL11.glIsEnabled(GL11.GL_DEPTH_TEST);
+                boolean alpha = GL11.glIsEnabled(GL11.GL_ALPHA_TEST);
+
+
                 GL11.glDisable(GL11.GL_CULL_FACE);
                 GL11.glDisable(GL11.GL_TEXTURE_2D);
                 GL11.glEnable(GL11.GL_BLEND);
                 GL11.glDisable(GL11.GL_DEPTH_TEST);
                 GL11.glDisable(GL11.GL_ALPHA_TEST);
+
                 GL11.glShadeModel(GL11.GL_SMOOTH);
+
                 GL11.glBegin(GL11.GL_QUAD_STRIP);
                 for (int i = 0; i <= 360; i++) {
                     int clr = astolfo.getColor((i + 90) / 360);
@@ -319,13 +292,26 @@ public class Aura extends Module {
                     GL11.glVertex3d(x + Math.cos(Math.toRadians(i)) * entity.width * 0.8, nextY, z + Math.sin(Math.toRadians(i)) * entity.width * 0.8);
                 }
                 GL11.glEnd();
-                GL11.glDisable(GL11.GL_LINE_SMOOTH);
-                GL11.glEnable(GL11.GL_TEXTURE_2D);
-                GL11.glEnable(GL11.GL_ALPHA_TEST);
-                GL11.glEnable(GL11.GL_DEPTH_TEST);
+
+                if(!cullface)
+                    GL11.glDisable(GL11.GL_LINE_SMOOTH);
+
+                if(texture)
+                    GL11.glEnable(GL11.GL_TEXTURE_2D);
+
+                if(alpha)
+                    GL11.glEnable(GL11.GL_ALPHA_TEST);
+
+                if(depth)
+                    GL11.glEnable(GL11.GL_DEPTH_TEST);
+
                 GL11.glShadeModel(GL11.GL_FLAT);
-                GL11.glDisable(GL11.GL_BLEND);
-                GL11.glEnable(GL11.GL_CULL_FACE);
+
+                if(!blend)
+                    GL11.glDisable(GL11.GL_BLEND);
+                if(cullface)
+                    GL11.glEnable(GL11.GL_CULL_FACE);
+
                 GL11.glPopMatrix();
                 GlStateManager.resetColor();
             }
@@ -363,7 +349,6 @@ public class Aura extends Module {
 
     @Override
     public void onDisable(){
-        btprofit = false;
         target = null;
         serverRotation.x = mc.player.rotationYaw;
         serverRotation.y = mc.player.rotationPitch;
@@ -374,6 +359,22 @@ public class Aura extends Module {
     }
 
     public void aura() {
+
+        if(firstAxe.getValue() && hitttimer.passedMs(1000) && getBestAxe() != -1){
+            if(autoswitch.getValue() == AutoSwitch.Default){
+                mc.player.inventory.currentItem = getAxe();
+                needAxeSwap = true;
+            }
+        } else {
+            if(autoswitch.getValue() == AutoSwitch.Default){
+                if(getBestSword() != -1){
+                    mc.player.inventory.currentItem = getBestSword();
+                } else if(getBestAxe() != -1){
+                    mc.player.inventory.currentItem = getBestAxe();
+                }
+            }
+        }
+
         boolean shieldDesyncActive = shieldDesync.getValue();
         if (shieldDesyncOnlyOnAura.getValue() && target == null) {
             shieldDesyncActive = false;
@@ -404,6 +405,10 @@ public class Aura extends Module {
         }
         if (target == null) {
             target = findTarget();
+            if(prevSlot != -1){
+                mc.player.connection.sendPacket(new CPacketHeldItemChange(prevSlot));
+                prevSlot = -1;
+            }
         }
         if (target == null) {
             serverRotation.x = mc.player.rotationYaw;
@@ -412,9 +417,6 @@ public class Aura extends Module {
         }
         if (!weaponOnly()) {
             return;
-        }
-        if(backtrack.getValue()){
-            addPos(target.getPositionVector());
         }
         attack(target);
         prevtarget = target;
@@ -430,10 +432,13 @@ public class Aura extends Module {
 
                 if (
                         !rtx.getValue()
-                        || btprofit
                         || (AdvancedCast.instance.getMouseOver(base, serverRotation.x, serverRotation.y, distance.getValue(), ignoreWalls(base)) == base)
                         || (crystal && mc.player.getDistance(base) <= 4.5)
+                        || (backTrack.getValue() && bestBtBox != null)
                 ) {
+                    if(teleport.getValue()){
+                        mc.player.setPosition(base.posX, base.posY + tpY.getValue(), base.posZ);
+                    }
 
                     boolean blocking = mc.player.isHandActive() && mc.player.getActiveItemStack().getItem().getItemUseAction(mc.player.getActiveItemStack()) == EnumAction.BLOCK;
                     if (blocking) {
@@ -457,8 +462,9 @@ public class Aura extends Module {
 
                     if(Debug.getValue()){
                         Command.sendMessage("Attacked with delay: " + hitttimer.getPassedTimeMs());
-                        hitttimer.reset();
                     }
+                    hitttimer.reset();
+
 
                     if(!offhand.getValue()) {
                         mc.player.swingArm(EnumHand.MAIN_HAND);
@@ -480,6 +486,14 @@ public class Aura extends Module {
                     if(betterCrits.getValue()){
                         mc.gameSettings.keyBindSneak.pressed = false;
                     }
+
+
+                    if(firstAxe.getValue() && getBestSword() != -1 && needAxeSwap){
+                        if(autoswitch.getValue() == AutoSwitch.Default){
+                            mc.player.inventory.currentItem = getBestSword();
+                            needAxeSwap = false;
+                        }
+                    }
                 }
             }
         }
@@ -491,6 +505,19 @@ public class Aura extends Module {
             return rotation.getValue()  == rotmod.Matrix ? 4.5 : dstValue;
         }
         return dstValue;
+    }
+
+    public float getDistanceBT(BackTrack.Box box) {
+        float f = (float)(mc.player.posX - box.getPosition().x);
+        float f1 = (float)(mc.player.getPositionEyes(1).y - box.getPosition().y);
+        float f2 = (float)(mc.player.posZ - box.getPosition().z);
+        return (f * f + f1 * f1 + f2 * f2);
+    }
+    public float getDistanceBTPoint(Vec3d point) {
+        float f = (float)(mc.player.posX - point.x);
+        float f1 = (float)(mc.player.getPositionEyes(1).y - point.y);
+        float f2 = (float)(mc.player.posZ - point.z);
+        return (f * f + f1 * f1 + f2 * f2);
     }
 
     public void shieldBreaker(EntityPlayer base) {
@@ -530,26 +557,49 @@ public class Aura extends Module {
     }
 
     public boolean canAttack() {
-        boolean reasonForCancelCritical = mc.player.isPotionActive(MobEffects.SLOWNESS) || mc.player.isOnLadder() || isInLiquid() || mc.player.isInWeb;
-        if(!fullpower.getValue()) {
-            if (mc.player.getCooledAttackStrength(1.5f) < 0.93) {
-                return false;
+        boolean reasonForCancelCritical = mc.player.isPotionActive(MobEffects.SLOWNESS) || mc.player.isOnLadder() || isInLiquid() || mc.player.isInWeb || (smartCrit.getValue() && (isCrystalNear() || (!criticals_autojump.getValue() && !mc.gameSettings.keyBindJump.isKeyDown())));
+            if (!fullpower.getValue()) {
+                if (mc.player.getCooledAttackStrength(1.5f) < 0.93) {
+                    return false;
+                }
+            } else {
+                if (mc.player.getCooledAttackStrength(0) < 1f) {
+                    return false;
+                }
             }
-        } else {
-            if (mc.player.getCooledAttackStrength(0) < 1f) {
-                return false;
+
+
+        if(criticals.getValue() && !reasonForCancelCritical) {
+            if(critMode.getValue() == CritMode.WexSide) {
+                if ((int) mc.player.posY != (int) Math.ceil(mc.player.posY) && mc.player.onGround && isBlockAboveHead()) {
+                    return true;
+                }
+                return !mc.player.onGround && mc.player.fallDistance > 0;
+
+            } else
+            if(critMode.getValue() == CritMode.Simple) {
+                boolean onFall = isBlockAboveHead() ? mc.player.fallDistance > 0 : mc.player.fallDistance >= critdist.getValue();
+                return onFall && !mc.player.onGround;
             }
         }
-        if (!reasonForCancelCritical && criticals.getValue()) {
-            int r = (int) mc.player.posY;
-            int c = (int) Math.ceil(mc.player.posY);
-            if (r != c && mc.player.onGround && isBlockAboveHead()) {
-                return true;
-            }
-            return !mc.player.onGround && mc.player.fallDistance > 0;
-        }
+
+
         return true;
     }
+
+    private boolean isCrystalNear() {
+        EntityEnderCrystal crystal = (EntityEnderCrystal) mc.world.loadedEntityList.stream()
+                .filter(e -> (e instanceof EntityEnderCrystal && mc.player.getDistance(e) <= 6))
+                .min(Comparator.comparing(c -> mc.player.getDistance(c)))
+                .orElse(null);
+        if (crystal != null) {
+            return true;
+        }
+        return false;
+    }
+
+
+
 
     public static boolean isBlockAboveHead() {
         AxisAlignedBB axisAlignedBB = new AxisAlignedBB(mc.player.posX - 0.3, mc.player.posY + mc.player.getEyeHeight(),
@@ -596,6 +646,9 @@ public class Aura extends Module {
         if (entity.getHealth() <= 0) {
             return false;
         }
+        if (AntiBot.bots.contains(entity)) {
+            return false;
+        }
         if (!targetsCheck(entity)) {
             return false;
         }
@@ -609,26 +662,70 @@ public class Aura extends Module {
         if (mc.player.getDistance(target) >= 7) {
             return null;
         }
-        Vec3d head = findHitboxCoord(Hitbox.HEAD, target);
-        Vec3d chest = findHitboxCoord(Hitbox.CHEST, target);
-        Vec3d legs = findHitboxCoord(Hitbox.LEGS, target);
-        ArrayList<Vec3d> points = new ArrayList<>(Arrays.asList(head, chest, legs));
+        BackTrack bt = Thunderhack.moduleManager.getModuleByClass(BackTrack.class);
 
-        if(!backtrack.getValue()) {
-            points.removeIf(point -> !isHitBoxVisible(target, point, rotateDistance));
-        }
+        if(!backTrack.getValue()
+                || (mc.player.getDistanceSq(target) <= distance.getValue()*distance.getValue())
+                || bt.isOff()
+                || !(target instanceof EntityPlayer)
+                || (backTrack.getValue() && bt.entAndTrail.get(target) == null)
+                ||(backTrack.getValue() && bt.entAndTrail.get(target) != null  && bt.entAndTrail.get(target).size() == 0) ) {
 
-        if (points.isEmpty()) {
-            return null;
+            Vec3d head = findHitboxCoord(Hitbox.HEAD, target,false,null);
+            Vec3d chest = findHitboxCoord(Hitbox.CHEST, target,false,null);
+            Vec3d legs = findHitboxCoord(Hitbox.LEGS, target,false,null);
+            ArrayList<Vec3d> points = new ArrayList<>(Arrays.asList(head, chest, legs));
+
+
+            points.removeIf(point -> !isHitBoxVisible(target, point, rotateDistance)); //TODO  if(!backtrack.getValue()) {
+
+
+            if (points.isEmpty()) {
+                return null;
+            }
+            points.sort((d1, d2) -> {
+                Vector2f r1 = getDeltaForCoord(serverRotation, d1);
+                Vector2f r2 = getDeltaForCoord(serverRotation, d2);
+                float y1 = Math.abs(r1.y);
+                float y2 = Math.abs(r2.y);
+                return (int) ((y1 - y2) * 1000);
+            });
+            return points.get(0);
+        } else {
+            bestBtBox = null;
+            float best_distance = 25;
+            BackTrack.Box best_box = null;
+            for(BackTrack.Box boxes : bt.entAndTrail.get(target)){
+                if(getDistanceBT(boxes) < best_distance){
+                    best_box = boxes;
+                    best_distance = getDistanceBT(boxes);
+                }
+            }
+            if(best_box != null){
+                bestBtBox = best_box;
+                Vec3d head = findHitboxCoord(Hitbox.HEAD, target,true,best_box);
+                Vec3d chest = findHitboxCoord(Hitbox.CHEST, target,true,best_box);
+                Vec3d legs = findHitboxCoord(Hitbox.LEGS, target,true,best_box);
+                ArrayList<Vec3d> points = new ArrayList<>(Arrays.asList(head, chest, legs));
+
+
+                points.removeIf(point -> getDistanceBTPoint(point) > distance.getValue()*distance.getValue());
+
+
+                if (points.isEmpty()) {
+                    return null;
+                }
+                points.sort((d1, d2) -> {
+                    Vector2f r1 = getDeltaForCoord(serverRotation, d1);
+                    Vector2f r2 = getDeltaForCoord(serverRotation, d2);
+                    float y1 = Math.abs(r1.y);
+                    float y2 = Math.abs(r2.y);
+                    return (int) ((y1 - y2) * 1000);
+                });
+                return points.get(0);
+            }
         }
-        points.sort((d1, d2) -> {
-            Vector2f r1 = getDeltaForCoord(serverRotation, d1);
-            Vector2f r2 = getDeltaForCoord(serverRotation, d2);
-            float y1 = Math.abs(r1.y);
-            float y2 = Math.abs(r2.y);
-            return (int) ((y1 - y2) * 1000);
-        });
-        return points.get(0);
+        return null;
     }
 
     public boolean targetsCheck(EntityLivingBase entity) {
@@ -738,7 +835,10 @@ public class Aura extends Module {
                 case Matrix: {
                     float pitchDeltaAbs = Math.abs(pitchDelta);
                     float additionYaw = Math.min(Math.max(yawDeltaAbs, 1), 80);
+
                     float additionPitch = Math.max(attackContext ? pitchDeltaAbs : 1, 2);
+
+
                     if (Math.abs(additionYaw - this.prevAdditionYaw) <= 3.0f) {
                         additionYaw = this.prevAdditionYaw + 3.1f;
                     }
@@ -750,12 +850,7 @@ public class Aura extends Module {
                     break;
                 }
                 case FunnyGame: {
-                    float[] ncp;
-                    if(!backtrack.getValue() || !btprofit || getBestHitbox(base,getAttackdistance()) == null) {
-                        ncp = RotationHelper.getNCPRotations(base, false);
-                    } else {
-                        ncp = RotationHelper.getNCPRotationsBT(getBestHitbox(base,getAttackdistance()));
-                    }
+                    float[] ncp = RotationUtil.getNCPRotations(base, false);
                     serverRotation.x = ncp[0];
                     serverRotation.y = ncp[1];
                     break;
@@ -802,115 +897,84 @@ public class Aura extends Module {
             if(mc.player.getDistance(bp1.x,bp1.y,bp1.z) < 1.5){
                 if(pac.sound.getSoundName().toString().contains("nodamage")){
                     misshits++;
-                    if(btprofit){
-                        backtracketHits++;
-                        backtracketMisses++;
-                        Command.sendMessage("BackTrack FAILED!");
-                    }
                 } else if(pac.sound.getSoundName().toString().contains("crit")){
-                    if(btprofit){
-                        backtracketHits++;
-                        if(target != null){
-                            backtrackedMaxDist = mc.player.getDistance(target);
-                        }
-                        Command.sendMessage("BackTracked! distance: " +  target != null ? mc.player.getDistance(target) +"" : "(target is dead or null)");
-                    }
 
                 }
             }
         }
     }
 
-    @SubscribeEvent
-    public void onPacketSend(PacketEvent.Send action) {
-        if(action.getPacket() instanceof CPacketPlayerDigging){
-            CPacketPlayerDigging pac = action.getPacket();
-            if(pac.getAction() == CPacketPlayerDigging.Action.RELEASE_USE_ITEM){
-                isGapping = false;
-            }
-        }
-        if(action.getPacket() instanceof CPacketPlayerTryUseItem){
-            isGapping = true;
-        }
-        if(action.getPacket() instanceof CPacketPlayerTryUseItemOnBlock){
-            isGapping = true;
-        }
-    }
 
-
-    public Vec3d findHitboxCoord(Hitbox box, Entity target) {
+    public Vec3d findHitboxCoord(Hitbox box, Entity target,boolean backtrack, BackTrack.Box box2) {
         double yCoord = 0;
-        switch (box) {
-            case HEAD:
-                yCoord = target.getEyeHeight();
-                break;
-            case CHEST:
-                yCoord = target.getEyeHeight() / 2;
-                break;
-            case LEGS:
-                yCoord = 0.05;
-                break;
-        }
-        if(!backtrack.getValue()){
-            btprofit = false;
+        if(!backtrack) {
+            switch (box) {
+                case HEAD:
+                    yCoord = target.getEyeHeight();
+                    break;
+                case CHEST:
+                    yCoord = target.getEyeHeight() / 2;
+                    break;
+                case LEGS:
+                    yCoord = 0.05;
+                    break;
+            }
             return target.getPositionVector().add(0, yCoord, 0);
         } else {
-            if(getBacktrackPos() != null) {
-                if((getDistanceBT(getBacktrackPos().add(0, yCoord, 0)) < getDistanceBT(target.getPositionVector().add(0, yCoord, 0))) && (getDistanceBT(target.getPositionVector().add(0, yCoord, 0)) > (distance.getValue()*distance.getValue()))){
-
-                    if(btkick.getValue() && canKick(target.getPositionVector().add(0, yCoord, 0),getBacktrackPos().add(0, yCoord, 0))){
-                        btprofit = false;
-                        return target.getPositionVector().add(0, yCoord, 0);
-                    } else {
-                        btprofit = true;
-                        return getBacktrackPos().add(0, yCoord, 0);
-                    }
-                } else{
-                    btprofit = false;
-                    return target.getPositionVector().add(0, yCoord, 0);
-                }
-            } else {
-                btprofit = false;
-                return target.getPositionVector().add(0, yCoord, 0);
+            switch (box) {
+                case HEAD:
+                    yCoord = box2.getPosition().y + 1.8f;
+                    break;
+                case CHEST:
+                    yCoord = box2.getPosition().y + 1.8f / 2;
+                    break;
+                case LEGS:
+                    yCoord = 0.05;
+                    break;
             }
+            return box2.getPosition().add(0, yCoord, 0);
         }
-    }
-
-
-    public boolean canKick(Vec3d real , Vec3d fake){
-        float fakeAngle = RotationHelper.getNCPRotationsBT(fake)[0];
-        float realAngle = RotationHelper.getNCPRotationsBT(real)[0];
-        if(Math.abs((realAngle - fakeAngle)) > btkicksetting.getValue()){
-            return true;
-        }
-        return false;
-    }
-
-    public float getDistanceBT(Vec3d vector) {
-        float f = (float)(mc.player.posX - vector.x);
-        float f1 = (float)(mc.player.getPositionEyes(1).y - vector.y);
-        float f2 = (float)(mc.player.posZ - vector.z);
-        return (f * f + f1 * f1 + f2 * f2);
     }
 
     private float getAttackdistance(){
-        if(!btprofit){
-            return distance.getValue();
-        } else {
-            return distance.getValue() + 10;
+        if(backTrack.getValue() && Thunderhack.moduleManager.getModuleByClass(BackTrack.class).isOn() && bestBtBox != null){
+            return 8;
         }
+        return distance.getValue();
     }
 
-    private void addPos(Vec3d pos) {
-        while (btPositions.size() > btticks.getValue()) {
-            btPositions.remove();
+    public int getBestSword() {
+        int b = -1;
+        float f = 1.0F;
+        for (int b1 = 0; b1 < 9; b1++) {
+            ItemStack itemStack =  Util.mc.player.inventory.getStackInSlot(b1);
+            if (itemStack != null && itemStack.getItem() instanceof ItemSword) {
+                ItemSword itemSword = (ItemSword)itemStack.getItem();
+                float f1 = itemSword.getMaxDamage();
+                f1 += EnchantmentHelper.getEnchantmentLevel(Enchantment.getEnchantmentByID(20), itemStack);
+                if (f1 > f) {
+                    f = f1;
+                    b = b1;
+                }
+            }
         }
-        btPositions.add(pos);
+        return b;
     }
-
-    private Vec3d getBacktrackPos() {
-        if (btPositions.isEmpty()) return null;
-        return btPositions.peek();
+    public int getBestAxe() {
+        int b = -1;
+        float f = 1.0F;
+        for (int b1 = 0; b1 < 9; b1++) {
+            ItemStack itemStack =  Util.mc.player.inventory.getStackInSlot(b1);
+            if (itemStack != null && itemStack.getItem() instanceof ItemAxe) {
+                ItemAxe axe = (ItemAxe)itemStack.getItem();
+                float f1 = axe.getMaxDamage();
+                f1 += EnchantmentHelper.getEnchantmentLevel(Enchantment.getEnchantmentByID(20), itemStack);
+                if (f1 > f) {
+                    f = f1;
+                    b = b1;
+                }
+            }
+        }
+        return b;
     }
-
 }

@@ -5,6 +5,7 @@ import com.mrzak34.thunderhack.modules.combat.AutoCrystal;
 import com.mrzak34.thunderhack.util.EntityUtil;
 import com.mrzak34.thunderhack.util.InventoryUtil;
 import com.mrzak34.thunderhack.util.Timer;
+import com.mrzak34.thunderhack.util.Util;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityEnderCrystal;
 import net.minecraft.init.Blocks;
@@ -21,7 +22,6 @@ import net.minecraft.util.math.Vec3d;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.mrzak34.thunderhack.modules.combat.Burrow.rotation;
-import static com.mrzak34.thunderhack.util.ItemUtil.mc;
 import static com.mrzak34.thunderhack.util.phobos.CalculationMotion.isLegit;
 import static com.mrzak34.thunderhack.util.phobos.CalculationMotion.rayTraceTo;
 import static com.mrzak34.thunderhack.util.phobos.RotationSmoother.getRotations;
@@ -53,7 +53,7 @@ public class HelperRotation
             boolean breaking = false;
             float[] rotations = null;
             if (hasPlaced.get()
-                    || mc.player.getDistanceSq(pos) > 64
+                    || Util.mc.player.getDistanceSq(pos) > 64
                     && pos.distanceSq(x, y, z) > 64
                     || (module.autoSwitch.getValue() != AutoCrystal.AutoSwitch.Always
                     && !module.switching
@@ -84,7 +84,7 @@ public class HelperRotation
                                 pos.getY() + 1 + height,
                                 pos.getZ() + 0.5f,
                                 x, y, z,
-                                mc.player.getEyeHeight());
+                                Util.mc.player.getEyeHeight());
             }
             else
             {
@@ -94,10 +94,10 @@ public class HelperRotation
                     for (EnumFacing facing : EnumFacing.values())
                     {
                         Ray ray = RayTraceFactory.rayTrace(
-                                mc.player,
+                                Util.mc.player,
                                 pos,
                                 facing,
-                                mc.world,
+                                Util.mc.world,
                                 Blocks.OBSIDIAN.getDefaultState(),
                                 module.traceWidth.getValue());
                         if (ray.isLegit())
@@ -117,7 +117,7 @@ public class HelperRotation
                                 pos.getY() + 1.0,
                                 pos.getZ() + 0.5,
                                 x, y, z,
-                                mc.player.getEyeHeight());
+                                Util.mc.player.getEyeHeight());
                     }
                     else
                     {
@@ -126,7 +126,7 @@ public class HelperRotation
                                 pos.getY() + height,
                                 pos.getZ() + 0.5,
                                 x, y, z,
-                                mc.player.getEyeHeight());
+                                Util.mc.player.getEyeHeight());
                     }
                 }
             }
@@ -145,7 +145,7 @@ public class HelperRotation
         MutableWrapper<Boolean> ended = new MutableWrapper<>(false);
         return (x, y, z, yaw, pitch) ->
         {
-            if (mc.player.getDistanceSq(entity) > 64)
+            if (Util.mc.player.getDistanceSq(entity) > 64)
             {
                 attacked.set(true);
             }
@@ -176,7 +176,7 @@ public class HelperRotation
             }
 
             return smoother.getRotations(entity, x, y, z,
-                    mc.player.getEyeHeight(),
+                    Util.mc.player.getEyeHeight(),
                     module.height.getValue(),
                     module.angle.getValue());
         };
@@ -192,7 +192,7 @@ public class HelperRotation
             }
 
             Ray ray = data.getPath()[0];
-            ray.updateRotations(mc.player);
+            ray.updateRotations(Util.mc.player);
             return ray.getRotations();
         };
     }
@@ -277,7 +277,7 @@ public class HelperRotation
                 }
             }
 
-            RayTraceResult ray = rayTraceTo(pos, mc.world);
+            RayTraceResult ray = rayTraceTo(pos, Util.mc.world);
             if (ray == null || !pos.equals(ray.getBlockPos()))
             {
                 if (!module.noRotateNigga(AutoCrystal.ACRotate.Place) && !module.isNotCheckingRotations())
@@ -288,7 +288,7 @@ public class HelperRotation
                 ray = new RayTraceResult(new Vec3d(0.5, 1.0, 0.5), EnumFacing.UP);
             }
             else if (module.fallbackTrace.getValue()
-                    && mc.world.getBlockState(ray.getBlockPos().offset(ray.sideHit))
+                    && Util.mc.world.getBlockState(ray.getBlockPos().offset(ray.sideHit))
                     .getMaterial()
                     .isSolid())
             {
@@ -301,7 +301,7 @@ public class HelperRotation
             float[] f = RayTraceUtil.hitVecToPlaceVec(pos, ray.hitVec);
             boolean noGodded = false;
             // we need to check this here since we switch
-            if (module.idHelper.isDangerous(mc.player,
+            if (module.idHelper.isDangerous(Util.mc.player,
                     module.holdingCheck.getValue(),
                     module.toolCheck.getValue()))
             {
@@ -315,7 +315,7 @@ public class HelperRotation
             boolean finalNoGodded = noGodded;
             acquire( () ->
             {
-                int lastSlot = mc.player.inventory.currentItem;
+                int lastSlot = Util.mc.player.inventory.currentItem;
                 if (finalSlot != -1 && finalSlot != -2){
                         switch (module.cooldownBypass.getValue()) {
                             case None:
@@ -339,7 +339,7 @@ public class HelperRotation
                     swing(finalHand, false);
                 }
 
-                mc.player.connection.sendPacket(
+                Util.mc.player.connection.sendPacket(
                         new CPacketPlayerTryUseItemOnBlock(
                                 pos, finalRay.sideHit, finalHand, f[0], f[1], f[2]));
                 module.sequentialHelper.setExpecting(pos);
@@ -383,7 +383,7 @@ public class HelperRotation
             if (module.simulatePlace.getValue() != 0)
             {
                 module.crystalRender.addFakeCrystal(
-                        new EntityEnderCrystal(mc.world, pos.getX() + 0.5f,
+                        new EntityEnderCrystal(Util.mc.world, pos.getX() + 0.5f,
                                 pos.getY() + 1,
                                 pos.getZ() + 0.5f));
             }
@@ -408,7 +408,7 @@ public class HelperRotation
             AutoCrystal.SwingTime swingTime = module.breakSwing.getValue();
             Runnable runnable = () ->
             {
-                int lastSlot = mc.player.inventory.currentItem;
+                int lastSlot = Util.mc.player.inventory.currentItem;
                 if (w.getSlot() != -1)
                 {
                     switch (module.antiWeaknessBypass.getValue()) {
@@ -432,7 +432,7 @@ public class HelperRotation
                     swing(EnumHand.MAIN_HAND, true);
                 }
 
-                mc.player.connection.sendPacket(packet);
+                Util.mc.player.connection.sendPacket(packet);
                 attacked.set(true);
 
                 if (swingTime == AutoCrystal.SwingTime.Post)
@@ -511,7 +511,7 @@ public class HelperRotation
 
             acquire(() ->
             {
-                int lastSlot = mc.player.inventory.currentItem;
+                int lastSlot = Util.mc.player.inventory.currentItem;
                 if (switchBack != null)
                 {
                     switchBack.set(lastSlot);
@@ -539,14 +539,14 @@ public class HelperRotation
                     {
                         Thunderhack.rotationManager.setBlocking(true);
                         float[] r = ray.getRotations();
-                        mc.player.connection.sendPacket(rotation(r[0], r[1], mc.player.onGround));
+                        Util.mc.player.connection.sendPacket(rotation(r[0], r[1], Util.mc.player.onGround));
                         Thunderhack.rotationManager.setBlocking(false);
                     }
 
                     float[] f = RayTraceUtil.hitVecToPlaceVec(
                             ray.getPos(), ray.getResult().hitVec);
 
-                    mc.player.connection.sendPacket(
+                    Util.mc.player.connection.sendPacket(
                             new CPacketPlayerTryUseItemOnBlock(
                                     ray.getPos(),
                                     ray.getFacing(),
@@ -557,11 +557,11 @@ public class HelperRotation
 
                     if (module.setState.getValue() && preSlot == -1)
                     {
-                        mc.addScheduledTask(() ->
+                        Util.mc.addScheduledTask(() ->
                         {
-                            if (mc.world != null)
+                            if (Util.mc.world != null)
                             {
-                                mc.world.setBlockState(
+                                Util.mc.world.setBlockState(
                                         ray.getPos().offset(ray.getFacing()),
                                         Blocks.OBSIDIAN.getDefaultState());
                             }
@@ -684,13 +684,13 @@ public class HelperRotation
 
     public static void startDigging(BlockPos pos, EnumFacing facing)
     {
-        mc.player.connection.sendPacket(new CPacketPlayerDigging(
+        Util.mc.player.connection.sendPacket(new CPacketPlayerDigging(
                 CPacketPlayerDigging.Action.START_DESTROY_BLOCK, pos, facing));
     }
 
     public static void stopDigging(BlockPos pos, EnumFacing facing)
     {
-        mc.player.connection.sendPacket(new CPacketPlayerDigging(
+        Util.mc.player.connection.sendPacket(new CPacketPlayerDigging(
                 CPacketPlayerDigging.Action.STOP_DESTROY_BLOCK, pos, facing));
     }
 

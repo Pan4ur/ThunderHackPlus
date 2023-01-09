@@ -3,7 +3,7 @@ package com.mrzak34.thunderhack.util;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.Entity;
 
-import static com.mrzak34.thunderhack.util.ItemUtil.mc;
+import static com.mrzak34.thunderhack.util.Util.mc;
 
 public class dV {
     public static boolean a(Entity entity) {
@@ -19,8 +19,7 @@ public class dV {
     }
 
     public static float b() {
-        EntityPlayerSP entityPlayerSP = mc.player;
-        return (float)Math.sqrt(entityPlayerSP.motionX * entityPlayerSP.motionX + entityPlayerSP.motionZ * entityPlayerSP.motionZ);
+        return (float)Math.sqrt(mc.player.motionX * mc.player.motionX + mc.player.motionZ * mc.player.motionZ);
     }
 
     public static void c() {
@@ -29,10 +28,9 @@ public class dV {
 
     public static void a(float f2) {
         float f3 = 0;
-        EntityPlayerSP entityPlayerSP = mc.player;
-        float f4 = entityPlayerSP.moveForward > 0.0f ? 1.0f : (f3 = entityPlayerSP.moveForward < 0.0f ? -1.0f : 0.0f);
-        float f5 = entityPlayerSP.moveStrafing > 0.0f ? 1.0f : (entityPlayerSP.moveStrafing < 0.0f ? -1.0f : 0.0f);
-        float f6 = entityPlayerSP.rotationYaw;
+        float f4 = mc.player.moveForward > 0.0f ? 1.0f : (f3 = mc.player.moveForward < 0.0f ? -1.0f : 0.0f);
+        float f5 = mc.player.moveStrafing > 0.0f ? 1.0f : (mc.player.moveStrafing < 0.0f ? -1.0f : 0.0f);
+        float f6 = mc.player.rotationYaw;
         float f7 = 90.0f * f5;
         float f8 = f6 - (f7 *= f3 != 0.0f ? f3 * 0.5f : 1.0f);
         f8 -= (float)(f3 < 0.0f ? 180 : 0);
@@ -43,8 +41,8 @@ public class dV {
         f8 -= f8 % f11;
         double d2 = -Math.sin(f8) * (double)f2;
         double d3 = Math.cos(f8) * (double)f2;
-        entityPlayerSP.motionX = d2;
-        entityPlayerSP.motionZ = d3;
+        mc.player.motionX = d2;
+        mc.player.motionZ = d3;
     }
 
     public static void a(float f2, double d2) {

@@ -58,13 +58,13 @@ public class AntiBowBomb extends Module {
         if (target == null) {
             if (b) {
                 ((AccessorKeyBinding) mc.gameSettings.keyBindUseItem).setPressed(false);
-                if (old != -1) ItemUtil.swapToHotbarSlot(old, false);
+                if (old != -1) InventoryUtil.swapToHotbarSlot(old, false);
                 target = null;
                 b = false;
             }
         } else {
             old = mc.player.inventory.currentItem;
-            int shield = ItemUtil.findItem(ItemShield.class);
+            int shield = InventoryUtil.findItem(ItemShield.class);
             if (shield == -1){ target = null; return; }
             if (Thunderhack.friendManager.isFriend(target.getName())) return;
             if (target.getItemInUseMaxCount() <= maxUse.getValue()) return;
@@ -85,7 +85,7 @@ public class AntiBowBomb extends Module {
 
             if (mc.player.getHeldItemMainhand().getItem() instanceof ItemShield) {
                 ((AccessorKeyBinding) mc.gameSettings.keyBindUseItem).setPressed(true);
-                ItemUtil.swapToHotbarSlot(shield, false);
+                InventoryUtil.swapToHotbarSlot(shield, false);
 
 
                 SilentRotaionUtil.lookAtEntity(target);

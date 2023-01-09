@@ -1,6 +1,7 @@
 package com.mrzak34.thunderhack.mixin.mixins;
 
 import com.mrzak34.thunderhack.Thunderhack;
+import com.mrzak34.thunderhack.event.events.MatrixMove;
 import com.mrzak34.thunderhack.event.events.PushEvent;
 import com.mrzak34.thunderhack.event.events.TurnEvent;
 import com.mrzak34.thunderhack.modules.combat.HitBoxes;
@@ -9,6 +10,12 @@ import com.mrzak34.thunderhack.util.phobos.EntityType;
 import com.mrzak34.thunderhack.util.phobos.IEntity;
 import com.mrzak34.thunderhack.util.phobos.IEntityNoInterp;
 import com.mrzak34.thunderhack.util.rotations.CastHelper;
+import net.minecraft.block.material.Material;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.world.*;
 import net.minecraft.block.state.*;
@@ -29,7 +36,7 @@ import org.spongepowered.asm.mixin.injection.*;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import static com.mrzak34.thunderhack.util.ItemUtil.mc;
+import static com.mrzak34.thunderhack.util.Util.mc;
 
 
 @Mixin({ Entity.class })
@@ -85,6 +92,15 @@ public abstract class MixinEntity implements IEntity
             ci.cancel();
         }
     }
+
+    //749
+
+
+
+
+
+
+
 
 
     @Redirect(method = { "applyEntityCollision" },  at = @At(value = "INVOKE",  target = "Lnet/minecraft/entity/Entity;addVelocity(DDD)V"))
@@ -170,6 +186,8 @@ public abstract class MixinEntity implements IEntity
                               double z);
     @Shadow
     public abstract String getName();
+
+    @Shadow public abstract void moveRelative(float strafe, float up, float forward, float friction);
 
     @Override
     @Accessor(value = "isInWeb")
@@ -262,21 +280,9 @@ public abstract class MixinEntity implements IEntity
     @Inject(method = "<init>", at = @At("RETURN"))
     public void ctrHook(CallbackInfo info)
     {
-        this.type = EntityType.getEntityType(Entity.class.cast(this));
+        this.type = EntityType.getEntityType(Entity.class.cast(mc.player));
         this.stamp = System.currentTimeMillis();
     }
-
-
-
-
-
-
-
-
-
-
-
-
 
     @Inject(method = "setPositionAndRotation", at = @At("RETURN"))
     public void setPositionAndRotationHook(double x,
@@ -288,9 +294,13 @@ public abstract class MixinEntity implements IEntity
     {
         if (this instanceof IEntityNoInterp)
         {
-            ((IEntityNoInterp) this).setNoInterpX(x);
-            ((IEntityNoInterp) this).setNoInterpY(y);
-            ((IEntityNoInterp) this).setNoInterpZ(z);
+            ((IEntityNoInterp) mc.player).setNoInterpX(x);
+            ((IEntityNoInterp) mc.player).setNoInterpY(y);
+            ((IEntityNoInterp) mc.player).setNoInterpZ(z);
         }
     }
+
+
+
+
 }

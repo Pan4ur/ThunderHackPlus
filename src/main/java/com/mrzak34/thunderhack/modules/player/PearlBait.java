@@ -15,6 +15,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class PearlBait extends Module {
 
+
+    // на самом деле хуйня
     public PearlBait() {
         super("PearlBait", "кидаешь перл и-не тепаешься", Category.PLAYER, true, false, false);
     }

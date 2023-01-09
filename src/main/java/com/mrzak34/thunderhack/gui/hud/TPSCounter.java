@@ -4,6 +4,7 @@ import com.mojang.realmsclient.gui.ChatFormatting;
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.event.events.PacketEvent;
 import com.mrzak34.thunderhack.event.events.Render2DEvent;
+import com.mrzak34.thunderhack.gui.thundergui.fontstuff.FontRender;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.setting.PositionSetting;
@@ -46,7 +47,6 @@ public class TPSCounter extends Module{
 
     @SubscribeEvent
     public void onRender2D(Render2DEvent e){
-        ScaledResolution sr = new ScaledResolution(mc);
         String str;
         if(Mode.getValue() == mode.Old) {
             str = "TPS " + ChatFormatting.WHITE + String.valueOf(Double.parseDouble(String.valueOf(Thunderhack.serverManager.getTPS())));
@@ -56,25 +56,23 @@ public class TPSCounter extends Module{
             str = "TPS " + ChatFormatting.WHITE + df.format( 20f / ((float) abobka / 50f));
         }
 
-        y1 = sr.getScaledHeight() * pos.getValue().getY();
-        x1 = sr.getScaledWidth() * pos.getValue().getX();
+        y1 = e.scaledResolution.getScaledHeight() * pos.getValue().getY();
+        x1 = e.scaledResolution.getScaledWidth() * pos.getValue().getX();
 
-        Util.fr.drawStringWithShadow(str,x1,y1, color.getValue().getRawColor());
+        FontRender.drawString6(str,x1,y1, color.getValue().getRawColor(),false);
         if(mc.currentScreen instanceof GuiChat || mc.currentScreen instanceof HudEditorGui){
             if(isHovering()){
                 if(Mouse.isButtonDown(0) && mousestate){
-                    pos.getValue().setX( (float) (normaliseX() - dragX) /  sr.getScaledWidth());
-                    pos.getValue().setY( (float) (normaliseY() - dragY) / sr.getScaledHeight());
+                    pos.getValue().setX( (float) (normaliseX() - dragX) /  e.scaledResolution.getScaledWidth());
+                    pos.getValue().setY( (float) (normaliseY() - dragY) / e.scaledResolution.getScaledHeight());
                 }
-
-                RenderUtil.drawRect2(x1 - 10,y1 ,x1 + 50,y1 + 10,new Color(0x73A9A9A9, true).getRGB());
             }
         }
 
         if(Mouse.isButtonDown(0) && isHovering()){
             if(!mousestate){
-                dragX = (int) (normaliseX() - (pos.getValue().getX() * sr.getScaledWidth()));
-                dragY = (int) (normaliseY() - (pos.getValue().getY() * sr.getScaledHeight()));
+                dragX = (int) (normaliseX() - (pos.getValue().getX() * e.scaledResolution.getScaledWidth()));
+                dragY = (int) (normaliseY() - (pos.getValue().getY() * e.scaledResolution.getScaledHeight()));
             }
             mousestate = true;
         } else {

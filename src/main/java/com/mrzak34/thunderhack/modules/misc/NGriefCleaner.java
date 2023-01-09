@@ -7,6 +7,7 @@ import com.mrzak34.thunderhack.util.Timer;
 import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.ClickType;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
 public class NGriefCleaner extends Module {
@@ -50,6 +51,33 @@ public class NGriefCleaner extends Module {
             return true;
         }
         if (stack.getItem() == Items.WOODEN_SHOVEL ) {
+            return true;
+        }
+        if (stack.getItem() == Items.STICK ) {
+            return true;
+        }
+        if (stack.getItem() == Items.PAPER ) {
+            return true;
+        }
+        if (stack.getItem() == Items.FLINT_AND_STEEL ) {
+            return true;
+        }
+        if (stack.getItem() == Items.ROTTEN_FLESH ) {
+            return true;
+        }
+        if (stack.getItem() == Items.WHEAT_SEEDS ) {
+            return true;
+        }
+        if (stack.getItem() == Items.BUCKET ) {
+            return true;
+        }
+        if (stack.getItem() == Items.KNOWLEDGE_BOOK ) {
+            return true;
+        }
+        if (stack.getItem() == Item.getItemById(6) ) { //саженцы блять
+            return true;
+        }
+        if (stack.getItem() == Item.getItemById(50) ) { //факела в рот они еблись
             return true;
         }
         if(stack.getItem() == Items.WOODEN_AXE){

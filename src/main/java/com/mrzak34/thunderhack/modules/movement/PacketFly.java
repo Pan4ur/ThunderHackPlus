@@ -111,10 +111,8 @@ public class PacketFly extends Module{
         }
 
         if (boost.getValue()) {
-            // KonasGlobals.INSTANCE.timerManager.updateTimer(this, 9, 1.088f);
             Thunderhack.TICK_TIMER = 1.088f;
         } else {
-            //  KonasGlobals.INSTANCE.timerManager.resetTimer(this);
             Thunderhack.TICK_TIMER = 1.0f;
         }
     }
@@ -130,8 +128,6 @@ public class PacketFly extends Module{
         if (mc.player.ticksExisted % 20 == 0) {
             cleanPosLooks();
         }
-
-        //  setExtraInfo(type.getValue().name());
 
         mc.player.setVelocity(0.0D, 0.0D, 0.0D);
 

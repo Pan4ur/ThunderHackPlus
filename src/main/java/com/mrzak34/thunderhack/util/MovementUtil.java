@@ -30,6 +30,11 @@ public class MovementUtil implements Util
             event.set_z(0.0);
         }
     }
+
+    public static double getSpeed() {
+        return Math.hypot(mc.player.motionX, mc.player.motionZ);
+    }
+
     public static double[] strafe(double speed)
     {
         return strafe(mc.player, speed);

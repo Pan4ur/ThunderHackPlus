@@ -38,8 +38,5 @@ public class LunatriusCore {
         proxy.postInit(event);
     }
 
-    @Mod.EventHandler
-    public void processIMC(final FMLInterModComms.IMCEvent event) {
-        proxy.processIMC(event);
-    }
+
 }

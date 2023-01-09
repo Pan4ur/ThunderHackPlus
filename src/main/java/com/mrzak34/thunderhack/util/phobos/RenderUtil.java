@@ -24,7 +24,7 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
 import static com.mrzak34.thunderhack.modules.combat.AutoCrystal.interpolatePos;
-import static com.mrzak34.thunderhack.util.ItemUtil.mc;
+import static com.mrzak34.thunderhack.util.Util.mc;
 import static org.lwjgl.opengl.GL11.*;
 
 

@@ -8,12 +8,12 @@ import com.mrzak34.thunderhack.modules.movement.PacketFly;
 import com.mrzak34.thunderhack.modules.render.Rotation;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.Timer;
+import com.mrzak34.thunderhack.util.Util;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import static com.mrzak34.thunderhack.modules.combat.Burrow.rotation;
-import static com.mrzak34.thunderhack.util.ItemUtil.mc;
 
 public class RotationCanceller
 {
@@ -134,7 +134,7 @@ public class RotationCanceller
      */
     public void reset()
     {
-        if (last != null && mc.player != null)
+        if (last != null && Util.mc.player != null)
         {
             sendLast();
         }
@@ -151,9 +151,9 @@ public class RotationCanceller
     private synchronized void sendLast()
     {
         CPacketPlayer packet = last;
-        if (packet != null && mc.player != null)
+        if (packet != null && Util.mc.player != null)
         {
-            mc.player.connection.sendPacket(packet);
+            Util.mc.player.connection.sendPacket(packet);
             module.runPost();
         }
 

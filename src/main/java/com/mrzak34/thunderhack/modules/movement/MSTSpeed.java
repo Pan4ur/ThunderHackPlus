@@ -13,7 +13,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 public class MSTSpeed extends Module {
 
     public MSTSpeed() {
-        super("MatrixSpeed", "MatrixSpeed", Category.MOVEMENT, true, false, false);
+        super("DMGSpeed", "Matrix moment", Category.MOVEMENT, true, false, false);
     }
 
     public Setting<Integer> maxticks  = this.register(new Setting<>("Ticks", 20, 1, 100));

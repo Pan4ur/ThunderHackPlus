@@ -18,6 +18,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
+import java.awt.*;
 import java.util.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -150,7 +151,28 @@ public class Indicators extends Module {
 
     @SubscribeEvent
     public void onRender2D(Render2DEvent e){
-        draw();
+        posX = e.scaledResolution.getScaledWidth() * pos.getValue().getX();
+        posY  = e.scaledResolution.getScaledHeight() * pos.getValue().getY();
+        if(mc.currentScreen instanceof GuiChat || mc.currentScreen instanceof HudEditorGui){
+            if(isHovering(e.scaledResolution)){
+                if(Mouse.isButtonDown(0) && mousestate){
+                    pos.getValue().setX( (float) (normaliseX() - dragX) /  e.scaledResolution.getScaledWidth());
+                    pos.getValue().setY( (float) (normaliseY(e.scaledResolution) - dragY) / e.scaledResolution.getScaledHeight());
+                }
+            }
+        }
+
+        if(Mouse.isButtonDown(0) && isHovering(e.scaledResolution)){
+            if(!mousestate){
+                dragX = (int) (normaliseX() - (pos.getValue().getX() * e.scaledResolution.getScaledWidth()));
+                dragY = (int) (normaliseY(e.scaledResolution) - (pos.getValue().getY() * e.scaledResolution.getScaledHeight()));
+            }
+            mousestate = true;
+        } else {
+            mousestate = false;
+        }
+
+        draw(e.scaledResolution);
     }
 
 
@@ -160,44 +182,19 @@ public class Indicators extends Module {
     public int normaliseX(){
         return (int) ((Mouse.getX()/2f));
     }
-    public int normaliseY(){
-        ScaledResolution sr = new ScaledResolution(mc);
+
+    public int normaliseY(ScaledResolution sr){
         return (((-Mouse.getY() + sr.getScaledHeight()) + sr.getScaledHeight())/2);
     }
 
-    public boolean isHovering(){
-        return normaliseX() > posX && normaliseX()< posX + 150 && normaliseY() > posY &&  normaliseY() < posY + 50;
+    public boolean isHovering(ScaledResolution sr){
+        return normaliseX() > posX && normaliseX()< posX + 150 && normaliseY(sr) > posY &&  normaliseY(sr) < posY + 50;
     }
 
     float posX,posY = 0;
 
     @Override
     public void onUpdate() {
-
-        ScaledResolution sr = new ScaledResolution(mc);
-        posX = sr.getScaledWidth() * pos.getValue().getX();
-        posY  = sr.getScaledHeight() * pos.getValue().getY();
-        if(mc.currentScreen instanceof GuiChat || mc.currentScreen instanceof HudEditorGui){
-            if(isHovering()){
-                if(Mouse.isButtonDown(0) && mousestate){
-                    pos.getValue().setX( (float) (normaliseX() - dragX) /  sr.getScaledWidth());
-                    pos.getValue().setY( (float) (normaliseY() - dragY) / sr.getScaledHeight());
-                }
-            }
-        }
-
-        if(Mouse.isButtonDown(0) && isHovering()){
-            if(!mousestate){
-                dragX = (int) (normaliseX() - (pos.getValue().getX() * sr.getScaledWidth()));
-                dragY = (int) (normaliseY() - (pos.getValue().getY() * sr.getScaledHeight()));
-            }
-            mousestate = true;
-        } else {
-            mousestate = false;
-        }
-
-
-
         if(!once){
             once();
             once = true;
@@ -207,8 +204,7 @@ public class Indicators extends Module {
         indicators.forEach(indicator -> indicator.update());
     }
 
-    public void draw() {
-        ScaledResolution sr = new ScaledResolution(mc);
+    public void draw(ScaledResolution sr) {
         GL11.glPushMatrix();
         GL11.glTranslated(pos.getValue().x * sr.getScaledWidth(), pos.getValue().y * sr.getScaledHeight(), 0);
 
@@ -225,7 +221,7 @@ public class Indicators extends Module {
                 Indicator ind = enabledIndicators.get(i);
              //   renderShadow(0, 0, 40, 40, ColorShell.rgba(25, 25, 25, 180), 3);
                 if(!blur.getValue()) {
-                    RenderUtil.drawSmoothRect(0, 0, 44, 44, ColorShell.rgba(25, 25, 25, 180));
+                    RenderUtil.drawSmoothRect(0, 0, 44, 44,new Color(25, 25, 25, 180).getRGB());
                 } else {
                     DrawHelper.drawRectWithGlow(0, 0, 44, 44,grange.getValue(),gmult.getValue(),cs.getValue().getColorObject());
                 }
@@ -287,11 +283,11 @@ public class Indicators extends Module {
       //  GL11.glShadeModel(GL11.GL_FLAT);
         GL11.glColor4f(1, 1, 1, 1);
         if(!Objects.equals(name, "TPS")) {
-            FontRender.drawCentString6((int) (offset * 100) + "%", 0.3f, -0.8f, ColorShell.rgba(200, 200, 200, 255));
-            FontRender.drawCentString6(name, 0, -20f, ColorShell.rgba(200, 200, 200, 255));
+            FontRender.drawCentString6((int) (offset * 100) + "%", 0.3f, -0.8f, new Color(200, 200, 200, 255).getRGB());
+            FontRender.drawCentString6(name, 0, -20f, new Color(200, 200, 200, 255).getRGB());
         } else {
-            FontRender.drawCentString6(String.valueOf((int) (offset * 20)), 0f, -0.8f, ColorShell.rgba(200, 200, 200, 255));
-            FontRender.drawCentString6(name, 0f, -20f, ColorShell.rgba(200, 200, 200, 255));
+            FontRender.drawCentString6(String.valueOf((int) (offset * 20)), 0f, -0.8f,new Color(200, 200, 200, 255).getRGB());
+            FontRender.drawCentString6(name, 0f, -20f,new Color(200, 200, 200, 255).getRGB());
         }
     }
 

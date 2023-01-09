@@ -17,7 +17,7 @@ import net.minecraft.util.math.BlockPos;
 import java.lang.reflect.Field;
 import java.util.Set;
 
-import static com.mrzak34.thunderhack.util.ItemUtil.mc;
+import static com.mrzak34.thunderhack.util.Util.mc;
 import static net.minecraft.init.Enchantments.EFFICIENCY;
 
 public class MineUtil

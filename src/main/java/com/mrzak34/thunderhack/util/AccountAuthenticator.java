@@ -12,7 +12,6 @@ import java.net.Proxy;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.Session;
 
-import static com.mrzak34.thunderhack.util.ItemUtil.mc;
 
 public class AccountAuthenticator {
     public static String a(String string, String string2) {
@@ -29,8 +28,8 @@ public class AccountAuthenticator {
                 Field field2 = Field.class.getDeclaredField("modifiers");
                 field2.setAccessible(true);
                 field2.setInt(field, field.getModifiers() & 0xFFFFFFEF);
-                field.set(mc, new Session(yggdrasilUserAuthentication.getSelectedProfile().getName(), yggdrasilUserAuthentication.getSelectedProfile().getId().toString(), yggdrasilUserAuthentication.getAuthenticatedToken(), "mojang"));
-                string3 = "Logged [License]: " + mc.getSession().getUsername();
+                field.set(Util.mc, new Session(yggdrasilUserAuthentication.getSelectedProfile().getName(), yggdrasilUserAuthentication.getSelectedProfile().getId().toString(), yggdrasilUserAuthentication.getAuthenticatedToken(), "mojang"));
+                string3 = "Logged [License]: " + Util.mc.getSession().getUsername();
             }
             catch (Exception exception) {
                 string3 = "Unknown error.";
@@ -70,7 +69,7 @@ public class AccountAuthenticator {
             Field field2 = Field.class.getDeclaredField("modifiers");
             field2.setAccessible(true);
             field2.setInt(field, field.getModifiers() & 0xFFFFFFEF);
-            field.set(mc, new Session(string, "", "", "mojang"));
+            field.set(Util.mc, new Session(string, "", "", "mojang"));
         }
         catch (Exception exception) {
             Command.sendMessage("AuthUtils: changeCrackedName " + exception);

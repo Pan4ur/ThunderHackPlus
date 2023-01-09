@@ -35,9 +35,6 @@ public class ArrayList extends Module {
     private   Setting<Boolean> shadoiw = register(new Setting<>("shadow", true));
 
 
-    private enum bMode {
-        Flat, Shader
-    }
     public static ArrayList getInstance() {
         if (INSTANCE == null)
             INSTANCE = new ArrayList();
@@ -78,15 +75,14 @@ public class ArrayList extends Module {
     @SubscribeEvent
     public void onRender2D(Render2DEvent e){
         int stringWidth;
-        ScaledResolution rs = new ScaledResolution(mc);
-        int width = calc(rs.getScaledWidth());
-        int height = calc(rs.getScaledHeight());
 
-        y1 = rs.getScaledHeight() * pos.getValue().getY();
-        x1 = rs.getScaledWidth() * pos.getValue().getX();
+        int width = calc(e.scaledResolution.getScaledWidth());
+        int height = calc(e.scaledResolution.getScaledHeight());
+
+        y1 = e.scaledResolution.getScaledHeight() * pos.getValue().getY();
+        x1 = e.scaledResolution.getScaledWidth() * pos.getValue().getX();
 
         reverse = x1 > (float)(width / 2);
-        boolean reverseY = y1 > (float)(height / 2);
         int offset = 0;
         int yTotal = 0;
         for (int i = 0; i < Thunderhack.moduleManager.sortedModules.size(); ++i) {
@@ -130,8 +126,8 @@ public class ArrayList extends Module {
         if(mc.currentScreen instanceof GuiChat || mc.currentScreen instanceof HudEditorGui){
             if(isHovering()){
                 if(Mouse.isButtonDown(0) && mousestate){
-                    pos.getValue().setX( (float) (normaliseX() - dragX) /  rs.getScaledWidth());
-                    pos.getValue().setY( (float) (normaliseY() - dragY) / rs.getScaledHeight());
+                    pos.getValue().setX( (float) (normaliseX() - dragX) /  e.scaledResolution.getScaledWidth());
+                    pos.getValue().setY( (float) (normaliseY() - dragY) / e.scaledResolution.getScaledHeight());
                 }
 
             }
@@ -139,8 +135,8 @@ public class ArrayList extends Module {
 
         if(Mouse.isButtonDown(0) && isHovering()){
             if(!mousestate){
-                dragX = (int) (normaliseX() - (pos.getValue().getX() * rs.getScaledWidth()));
-                dragY = (int) (normaliseY() - (pos.getValue().getY() * rs.getScaledHeight()));
+                dragX = (int) (normaliseX() - (pos.getValue().getX() * e.scaledResolution.getScaledWidth()));
+                dragY = (int) (normaliseY() - (pos.getValue().getY() * e.scaledResolution.getScaledHeight()));
             }
             mousestate = true;
         } else {

@@ -23,7 +23,7 @@ import java.util.Objects;
 @Mod(
         modid = "thunderhack",
         name = "ThunderHack",
-        version = "2.37")
+        version = "2.38")
 
 
 public class Thunderhack {
@@ -41,7 +41,8 @@ public class Thunderhack {
     public static CFontRenderer4 fontRenderer4;
     public static CFontRenderer5 fontRenderer5;
     public static CFontRenderer6 fontRenderer6;
-    public static PotionManager potionManager;
+    public static CFontRenderer7 fontRenderer7;
+
     public static SpeedManager speedManager;
     public static ReloadManager reloadManager;
     public static FileManager fileManager;
@@ -72,6 +73,8 @@ public class Thunderhack {
         unloaded = false;
     }
     public static float TICK_TIMER = 1;
+
+
     public static void load() {
         unloaded = false;
         if (reloadManager != null) {
@@ -104,6 +107,11 @@ public class Thunderhack {
             Font verdanapro6 = Font.createFont( Font.TRUETYPE_FONT, Objects.requireNonNull(Thunderhack.class.getResourceAsStream("/fonts/Monsterrat.ttf")));
             verdanapro6 = verdanapro6.deriveFont( 14.f );
             fontRenderer6 = new CFontRenderer6( verdanapro6, true, true );
+
+
+            Font verdanapro7 = Font.createFont( Font.TRUETYPE_FONT, Objects.requireNonNull(Thunderhack.class.getResourceAsStream("/fonts/Monsterrat.ttf")));
+            verdanapro7 = verdanapro7.deriveFont( 10.f );
+            fontRenderer7 = new CFontRenderer7( verdanapro7, true, true );
         } catch ( Exception e ) {
             e.printStackTrace( );
             return;
@@ -129,7 +137,6 @@ public class Thunderhack {
         networkHandler = new NetworkHandler();
         setDeadManager = new SetDeadManager();
         speedManager = new SpeedManager();
-        potionManager = new PotionManager();
         serverManager = new ServerManager();
         fileManager = new FileManager();
         configManager = new ConfigManager();
@@ -171,7 +178,7 @@ public class Thunderhack {
         commandManager = null;
         serverManager = null;
         fileManager = null;
-        potionManager = null;
+        servtickManager = null;
     }
 
     public static void reload() {

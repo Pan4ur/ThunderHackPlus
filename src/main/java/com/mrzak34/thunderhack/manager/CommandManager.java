@@ -38,7 +38,7 @@ public class CommandManager extends Feature {
         this.commands.add(new VClipCommand());
         this.commands.add(new WebHookSetCommand());
         this.commands.add(new DrawCommand());
-        this.commands.add(new RamClearCommand());
+        this.commands.add(new AutoBuyCommand());
     }
 
     public static String[] removeElement(String[] input, int indexToDelete) {

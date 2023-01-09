@@ -4,6 +4,7 @@ import com.mrzak34.thunderhack.modules.combat.AutoCrystal;
 import com.mrzak34.thunderhack.util.BlockUtils;
 import com.mrzak34.thunderhack.util.EntityUtil;
 import com.mrzak34.thunderhack.util.MathUtil;
+import com.mrzak34.thunderhack.util.Util;
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -16,7 +17,6 @@ import net.minecraft.world.IBlockAccess;
 
 import java.util.List;
 
-import static com.mrzak34.thunderhack.util.ItemUtil.mc;
 
 public class HelperLiquids
 {
@@ -102,7 +102,7 @@ public class HelperLiquids
         float maxSpeed = 0.0f;
         for (int i = 8; i > -1; i--)
         {
-            ItemStack stack = mc.player.inventory.getStackInSlot(i);
+            ItemStack stack = Util.mc.player.inventory.getStackInSlot(i);
             if (stack.getItem() instanceof ItemBlock)
             {
                 Block block = ((ItemBlock) stack.getItem()).getBlock();
@@ -110,10 +110,10 @@ public class HelperLiquids
                         block.getDefaultState());
                 float damage = MineUtil.getDamage(
                         block.getDefaultState(),
-                        mc.player.inventory.getStackInSlot(tool),
+                        Util.mc.player.inventory.getStackInSlot(tool),
                         BlockPos.ORIGIN,
                         !onGroundCheck
-                                || mc.player.onGround);
+                                || Util.mc.player.onGround);
 
                 if (damage > maxSpeed)
                 {

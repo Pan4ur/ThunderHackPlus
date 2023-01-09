@@ -20,16 +20,12 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiChat;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.network.play.client.CPacketChatMessage;
 import net.minecraft.network.play.server.SPacketChat;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.*;
 import net.minecraft.util.text.event.HoverEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import org.apache.commons.io.IOUtils;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
-import org.json.simple.parser.ParseException;
 import org.lwjgl.input.Mouse;
 
 import javax.imageio.ImageIO;

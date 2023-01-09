@@ -9,8 +9,17 @@ import net.minecraftforge.fml.common.eventhandler.Cancelable;
 @Cancelable
 public class ProcessRightClickBlockEvent
         extends EventStage {
+    public BlockPos getPos() {
+        return pos;
+    }
+
     public BlockPos pos;
     public EnumHand hand;
+
+    public ItemStack getStack() {
+        return stack;
+    }
+
     public ItemStack stack;
 
     public ProcessRightClickBlockEvent(BlockPos pos, EnumHand hand, ItemStack stack) {
@@ -18,5 +27,8 @@ public class ProcessRightClickBlockEvent
         this.hand = hand;
         this.stack = stack;
     }
+
+
+
 }
 
