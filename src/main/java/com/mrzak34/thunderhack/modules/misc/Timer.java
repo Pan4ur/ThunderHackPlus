@@ -23,7 +23,6 @@ public class Timer extends Module {
         super("Timer", "Timer", Category.MOVEMENT, true, false, false);
     }
 
-    public DynamicAnimation violation = new DynamicAnimation();
     public static long lastUpdateTime;
     public static double value;
 
@@ -36,7 +35,7 @@ public class Timer extends Module {
 
     public final Setting<ColorSetting> color = this.register(new Setting<>("Color1", new ColorSetting(-2013233153)));
     public final Setting<ColorSetting> color2 = this.register(new Setting<>("Color2", new ColorSetting(-2001657727)));
-    
+
     public final Setting<Integer> slices = this.register( new Setting<>("colorOffset1", 125, 10, 500));
     public final Setting<Integer> slices1 = this.register( new Setting<>("colorOffset2", 211, 10, 500));
     public final Setting<Integer> slices2 = this.register( new Setting<>("colorOffset3", 162, 10, 500));

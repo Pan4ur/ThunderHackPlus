@@ -22,12 +22,10 @@ public abstract class MixinFontRenderer {
 
     @Redirect(method = {"renderString(Ljava/lang/String;FFIZ)I"}, at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/FontRenderer;renderStringAtPos(Ljava/lang/String;Z)V"))
     public void renderStringAtPosHook(FontRenderer fontRenderer, String string, boolean bl) {
-
         if(Thunderhack.moduleManager == null){
             renderStringAtPos(string, bl);
             return;
         }
-        //
         if(Thunderhack.moduleManager.getModuleByClass(PasswordHider.class).isEnabled()) {
             if(string.contains("/l") || string.contains("/login") || string.contains("/reg") || string.contains("/register") && mc.currentScreen instanceof GuiChat) {
                 StringBuilder final_string = new StringBuilder("");

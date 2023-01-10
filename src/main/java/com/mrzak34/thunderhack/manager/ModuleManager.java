@@ -31,8 +31,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class ModuleManager
-        extends Feature {
+public class ModuleManager extends Feature {
     public ArrayList<Module> modules = new ArrayList();
     public List<Module> sortedModules = new ArrayList<Module>();
 
@@ -212,7 +211,6 @@ public class ModuleManager
         this.modules.add(new Potions());
         this.modules.add(new CevBreaker());
         this.modules.add(new AntiBot());
-        this.modules.add(new PlaceBypass());
         this.modules.add(new AntiTittle());
         this.modules.add(new CoolCrosshair());
         this.modules.add(new AutoCappRegear());

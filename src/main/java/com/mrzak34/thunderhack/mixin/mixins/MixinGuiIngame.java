@@ -22,7 +22,7 @@ public class MixinGuiIngame extends Gui
         }
     }
 
-    /*
+
     @Inject(method = { "renderScoreboard" },  at = { @At("HEAD") },  cancellable = true)
     protected void renderScoreboardHook(ScoreObjective objective, ScaledResolution scaledRes, CallbackInfo ci) {
         if (Thunderhack.moduleManager.getModuleByClass(AntiTittle.class).scoreBoard.getValue()) {
@@ -30,7 +30,7 @@ public class MixinGuiIngame extends Gui
         }
     }
 
-     */
+
 
 
     @Inject(method = "renderAttackIndicator", at = @At("HEAD"), cancellable = true)
