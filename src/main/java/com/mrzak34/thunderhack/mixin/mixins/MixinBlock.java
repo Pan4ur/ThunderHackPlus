@@ -40,26 +40,26 @@ public abstract class MixinBlock
                 info.setReturnValue(Thunderhack.moduleManager.getModuleByClass(XRay.class).shouldRender(Block.class.cast(this)));
             }
     }
-        catch (Exception ex) {}
+        catch (Exception ignored) {}
     }
 
 
 
-
-
+/*
     @Inject(method = "getPlayerRelativeBlockHardness", at = @At("HEAD"), cancellable = true)
     public void getPlayerRelativeBlockHardness(IBlockState state, EntityPlayer player, World worldIn, BlockPos pos, CallbackInfoReturnable<Float> ci) {
-        float f = state.getBlockHardness(worldIn, pos);
-        if (f < 0.0F)
-        {
-            ci.setReturnValue(0.0f);;
-        }
-        else
-        {
-            AutoTool autoTool = Thunderhack.moduleManager.getModuleByClass(AutoTool.class);
-            ci.setReturnValue(!player.canHarvestBlock(state) ? getDigSpeed(state, (autoTool.isEnabled() && autoTool.silent.getValue()) ? player.inventory.getStackInSlot(autoTool.itemIndex) : player.getHeldItemMainhand()) / f / 100.0F : getDigSpeed(state,(autoTool.isEnabled() && autoTool.silent.getValue()) ? player.inventory.getStackInSlot(autoTool.itemIndex) : player.getHeldItemMainhand()) / f / 30.0F);
+        AutoTool autoTool = Thunderhack.moduleManager.getModuleByClass(AutoTool.class);
+        if(autoTool.isEnabled()) {
+            float f = state.getBlockHardness(worldIn, pos);
+            if (f < 0.0F) {
+                ci.setReturnValue(0.0f);
+            } else {
+                ci.setReturnValue(!player.canHarvestBlock(state) ? getDigSpeed(state, (autoTool.isEnabled() && autoTool.silent.getValue()) ? player.inventory.getStackInSlot(autoTool.itemIndex) : player.getHeldItemMainhand()) / f / 100.0F : getDigSpeed(state, (autoTool.isEnabled() && autoTool.silent.getValue()) ? player.inventory.getStackInSlot(autoTool.itemIndex) : player.getHeldItemMainhand()) / f / 30.0F);
+            }
         }
     }
+
+
 
 
 
@@ -71,6 +71,6 @@ public abstract class MixinBlock
         }
         return f;
     }
-
+ */
 
 }

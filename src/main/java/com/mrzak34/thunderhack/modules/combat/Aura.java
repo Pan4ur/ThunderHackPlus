@@ -576,6 +576,7 @@ public class Aura extends Module {
                 }
                 return !mc.player.onGround && mc.player.fallDistance > 0;
 
+
             } else
             if(critMode.getValue() == CritMode.Simple) {
                 boolean onFall = isBlockAboveHead() ? mc.player.fallDistance > 0 : mc.player.fallDistance >= critdist.getValue();

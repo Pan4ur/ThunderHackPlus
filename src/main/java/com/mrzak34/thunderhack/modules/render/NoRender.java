@@ -50,7 +50,6 @@ class NoRender
     public Setting < Float > scale = this.register ( new Setting <> ( "Scale" , 0.5f , 0.5f , 1.0f , v -> this.boss.getValue ( ) == Boss.MINIMIZE || this.boss.getValue ( ) == Boss.STACK ) );
     public Setting < Boolean > bats = this.register ( new Setting <> ( "Bats" , false  ) );
     public Setting < NoArmor > noArmor = this.register ( new Setting <> ( "NoArmor" , NoArmor.NONE ) );
-    public Setting < Boolean > barriers = this.register ( new Setting <> ( "Barriers" , false ) );
     public Setting < Boolean > blocks = this.register ( new Setting <> ( "Blocks" , false  ) );
     public Setting < Boolean > advancements = this.register ( new Setting <> ( "Advancements" , false ) );
     public Setting < Boolean > timeChange = this.register ( new Setting <> ( "TimeChange" , false ) );

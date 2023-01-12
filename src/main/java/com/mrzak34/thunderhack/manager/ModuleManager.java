@@ -32,7 +32,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class ModuleManager extends Feature {
-    public ArrayList<Module> modules = new ArrayList();
+    public ArrayList<Module> modules = new ArrayList<>();
     public List<Module> sortedModules = new ArrayList<Module>();
 
     public void init() {
@@ -44,6 +44,8 @@ public class ModuleManager extends Feature {
         this.modules.add(new AutoBuy());
         this.modules.add(new AutoTotem());
         this.modules.add(new Offhand());
+        this.modules.add(new AutoBuff());
+
         this.modules.add(new Strafe());
         this.modules.add(new ClanInvite());
         this.modules.add(new AntiBadEffects());

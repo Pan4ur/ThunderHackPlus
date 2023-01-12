@@ -354,7 +354,7 @@ public class Speedmine
                         mc.playerController.curBlockDamageMP = 0.17f;
 
                     if (mc.playerController.curBlockDamageMP >= 0.83) {
-                        mc.playerController.curBlockDamageMP = 0.83f;
+                        mc.playerController.curBlockDamageMP = 1f;
                     }
                 } else if(mc.player.getHeldItemMainhand().getItem() instanceof ItemAxe){
                     if (mc.playerController.curBlockDamageMP < 0.17f)

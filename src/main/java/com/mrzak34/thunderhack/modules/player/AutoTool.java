@@ -21,7 +21,7 @@ public class AutoTool extends Module {
 
     public Setting<Boolean> swapBack = register(new Setting<>("SwapBack", true));
     public Setting<Boolean> saveItem = register(new Setting<>("SaveItem", true));
-    public Setting<Boolean> silent = register(new Setting<>("Silent", false));
+   // public Setting<Boolean> silent = register(new Setting<>("Silent", false)); //TODO later
     public Setting<Boolean> echestSilk = register(new Setting<>("EchestSilk", true));
 
     public int itemIndex;
@@ -38,9 +38,9 @@ public class AutoTool extends Module {
             if (mc.player.inventory.getCurrentItem() != swapedItem) {
                 lastItem.add(mc.player.inventory.currentItem);
 
-                if (silent.getValue())
-                    mc.player.connection.sendPacket(new CPacketHeldItemChange(getTool(mc.objectMouseOver.getBlockPos())));
-                else
+              //  if (silent.getValue())
+             //       mc.player.connection.sendPacket(new CPacketHeldItemChange(getTool(mc.objectMouseOver.getBlockPos())));
+             //   else
                     mc.player.inventory.currentItem = getTool(mc.objectMouseOver.getBlockPos());
 
                 itemIndex = getTool(mc.objectMouseOver.getBlockPos());
@@ -50,9 +50,9 @@ public class AutoTool extends Module {
 
         } else if (swap && !lastItem.isEmpty() && System.currentTimeMillis() >= swapDelay + 300 && swapBack.getValue()) {
 
-            if (silent.getValue())
-                mc.player.connection.sendPacket(new CPacketHeldItemChange(lastItem.get(0)));
-            else
+         //   if (silent.getValue())
+          //      mc.player.connection.sendPacket(new CPacketHeldItemChange(lastItem.get(0)));
+         //   else
                 mc.player.inventory.currentItem = lastItem.get(0);
 
             itemIndex = lastItem.get(0);

@@ -79,13 +79,6 @@ public class PlayerUtils {
         return aboveVoid;
     }
 
-    public static float[] calcAngle(Vec3d from, Vec3d to) {
-        double difX = to.x - from.x;
-        double difY = (to.y - from.y) * -1.0D;
-        double difZ = to.z - from.z;
-        double dist = MathHelper.sqrt(difX * difX + difZ * difZ);
-        return new float[]{(float) MathHelper.wrapDegrees(Math.toDegrees(Math.atan2(difZ, difX)) - 90.0D), (float) MathHelper.wrapDegrees(Math.toDegrees(Math.atan2(difY, dist)))};
-    }
 
     public static double[] calculateLookAt(double px, double py, double pz, EntityPlayer me) {
         double dirx = me.posX - px;

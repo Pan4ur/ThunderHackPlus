@@ -427,7 +427,6 @@ public class InventoryUtil
         for (int i = 0; i < 9; ++i) {
             ItemStack itemStack = Util.mc.player.inventory.getStackInSlot(i);
             if (!(itemStack.getItem() == Items.POTIONITEM)) continue;
-            Item maybepot = itemStack.getItem();
             if (!(itemStack.getDisplayName().contains("Каппучино"))) continue;
             return i;
         }
@@ -438,19 +437,20 @@ public class InventoryUtil
         for (int i = 0; i < 9; ++i) {
             ItemStack itemStack = Util.mc.player.inventory.getStackInSlot(i);
             if (!(itemStack.getItem() == Items.POTIONITEM)) continue;
-            Item maybepot = itemStack.getItem();
             if (!(itemStack.getDisplayName().contains("Американо"))) continue;
             return i;
         }
         return -1;
     }
 
-    private static Map<Integer, ItemStack> getInventorySlots(int currentI, int last) {
-        HashMap<Integer, ItemStack> fullInventorySlots = new HashMap<Integer, ItemStack>();
-        for (int current = currentI; current <= last; ++current) {
-            fullInventorySlots.put(current, mc.player.inventoryContainer.getInventory().get(current));
+    public static ItemStack getPotionItemStack() {
+        for (int i = 0; i < 9; ++i) {
+            ItemStack itemStack = Util.mc.player.inventory.getStackInSlot(i);
+            if (!(itemStack.getItem() == Items.POTIONITEM)) continue;
+            if (!(itemStack.getDisplayName().contains("Каппучино"))) continue;
+            return itemStack;
         }
-        return fullInventorySlots;
+        return null;
     }
 
 

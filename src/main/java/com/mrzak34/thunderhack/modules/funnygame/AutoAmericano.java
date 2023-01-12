@@ -1,18 +1,23 @@
 package com.mrzak34.thunderhack.modules.funnygame;
 
+
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.util.InventoryUtil;
 import com.mrzak34.thunderhack.util.Timer;
+
 import net.minecraft.init.MobEffects;
 import net.minecraft.network.play.client.CPacketHeldItemChange;
 import net.minecraft.network.play.client.CPacketPlayerTryUseItem;
 import net.minecraft.util.EnumHand;
 
+
+
+
 public class AutoAmericano extends Module {
+
     public AutoAmericano() {
         super("AutoAmericano", "AutoAmericano", Category.FUNNYGAME, true, false, false);
     }
-
 
 
 
@@ -28,5 +33,6 @@ public class AutoAmericano extends Module {
             timer.reset();
         }
     }
+
 
 }
