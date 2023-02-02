@@ -66,12 +66,12 @@ public class TriggerBot extends Module {
 
         if(timingMode.getValue() == TimingMode.Default) {
             if(!randomDelay.getValue()) {
-                if (getCooledAttackStrength() < 0.9) {
+                if (getCooledAttackStrength() <= 0.93) {
                     return false;
                 }
             } else {
-                float delay = MathUtil.random(0.85f,1f);
-                if (getCooledAttackStrength() < delay) {
+                float delay = MathUtil.random(0.85f,0.1f);
+                if (getCooledAttackStrength() <= delay) {
                     return false;
                 }
             }
@@ -98,7 +98,7 @@ public class TriggerBot extends Module {
 
 
     private float getCooledAttackStrength() {
-        return clamp(((float)  ((IEntityLivingBase) mc.player).getTicksSinceLastSwing()) / getCooldownPeriod(), 0.0F, 1.0F);
+        return clamp(((float)  ((IEntityLivingBase) mc.player).getTicksSinceLastSwing()  + 1.5f ) / getCooldownPeriod(), 0.0F, 1.0F);
     }
     public float getCooldownPeriod() {
         return (float)(1.0 / mc.player.getEntityAttribute(SharedMonsterAttributes.ATTACK_SPEED).getAttributeValue() * ( Thunderhack.moduleManager.getModuleByClass(com.mrzak34.thunderhack.modules.misc.Timer.class).isOn() ? 20f * Thunderhack.moduleManager.getModuleByClass(com.mrzak34.thunderhack.modules.misc.Timer.class).speed.getValue() : 20.0) );
