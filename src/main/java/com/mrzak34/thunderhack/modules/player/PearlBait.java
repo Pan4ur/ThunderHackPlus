@@ -1,6 +1,6 @@
 package com.mrzak34.thunderhack.modules.player;
 
-import com.mrzak34.thunderhack.event.events.PacketEvent;
+import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import net.minecraft.entity.Entity;
@@ -18,7 +18,7 @@ public class PearlBait extends Module {
 
     // на самом деле хуйня
     public PearlBait() {
-        super("PearlBait", "кидаешь перл и-не тепаешься", Category.PLAYER, true, false, false);
+        super("PearlBait", "кидаешь перл и-не тепаешься", Category.PLAYER);
     }
 
     public Setting<Boolean> guarantee = this.register ( new Setting <> ( "Forced Strafe", true));

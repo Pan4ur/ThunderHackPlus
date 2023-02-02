@@ -3,9 +3,7 @@ package com.mrzak34.thunderhack.gui.hud;
 
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.command.Command;
-import com.mrzak34.thunderhack.event.events.*;
-import com.mrzak34.thunderhack.gui.hud.HudEditorGui;
-import com.mrzak34.thunderhack.gui.hud.Particles;
+import com.mrzak34.thunderhack.events.Render2DEvent;
 import com.mrzak34.thunderhack.gui.thundergui.fontstuff.FontRender;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.modules.combat.Aura;
@@ -15,10 +13,9 @@ import com.mrzak34.thunderhack.modules.misc.NameProtect;
 import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.setting.PositionSetting;
 import com.mrzak34.thunderhack.setting.Setting;
-import com.mrzak34.thunderhack.util.PNGtoResourceLocation;
-import com.mrzak34.thunderhack.util.RoundedShader;
-import com.mrzak34.thunderhack.util.Stencil;
-import com.mrzak34.thunderhack.util.Timer;
+import com.mrzak34.thunderhack.util.*;
+import com.mrzak34.thunderhack.util.render.RenderUtil;
+import com.mrzak34.thunderhack.util.render.Stencil;
 import com.mrzak34.thunderhack.util.shaders.BetterAnimation;
 import com.mrzak34.thunderhack.util.shaders.BetterDynamicAnimation;
 import net.minecraft.client.Minecraft;
@@ -45,13 +42,12 @@ import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
-import static com.mrzak34.thunderhack.manager.EventManager.drawBlurredShadow;
 import static org.lwjgl.opengl.GL11.*;
 
 public class TargetHud extends Module {
 
     public TargetHud() {
-        super("TargetHud", "ПИЗДАТЕЙШИЙ", Category.HUD, true, false, false);
+        super("TargetHud", "ПИЗДАТЕЙШИЙ", Category.HUD);
     }
 
 
@@ -203,7 +199,7 @@ public class TargetHud extends Module {
                 Stencil.dispose();
                 GL11.glPopMatrix();
                 GlStateManager.resetColor();
-                GL11.glColor4f(1F, 1F, 1F, 1F);
+              //  GL11.glColor4f(1F, 1F, 1F, 1F);
             }
             //
 
@@ -244,7 +240,7 @@ public class TargetHud extends Module {
                 sentParticles = true;
             }
 
-            if (((EntityPlayer) target).hurtTime == 8) sentParticles = false;
+            if (target.hurtTime == 8) sentParticles = false;
             //
 
 
@@ -279,7 +275,7 @@ public class TargetHud extends Module {
             Stencil.dispose();
             GL11.glPopMatrix();
             GlStateManager.resetColor();
-            GL11.glColor4f(1F, 1F, 1F, 1F);
+            // GL11.glColor4f(1F, 1F, 1F, 1F);
             //
 
             // Баллон
@@ -291,7 +287,7 @@ public class TargetHud extends Module {
             Color c = TwoColoreffect(color.getValue().getColorObject(), color2.getValue().getColorObject(), Math.abs(System.currentTimeMillis() / 10) / 100.0 + 3.0F * (slices2.getValue() * 2.55) / 60);
             Color d = TwoColoreffect(color.getValue().getColorObject(), color2.getValue().getColorObject(), Math.abs(System.currentTimeMillis() / 10) / 100.0 + 3.0F * (slices3.getValue() * 2.55) / 60);
 
-            drawBlurredShadow(xPos + 53, yPos + 33 - 12, 94, 11,blurRadius.getValue(),a);
+            RenderUtil.drawBlurredShadow(xPos + 53, yPos + 33 - 12, 94, 11,blurRadius.getValue(),a);
 
             RoundedShader.drawGradientRound(xPos + 55, yPos + 35 - 12, 90, 8, 2f, a.darker().darker(), b.darker().darker().darker().darker(), c.darker().darker().darker().darker(), d.darker().darker().darker().darker());
             RoundedShader.drawGradientRound(xPos + 55, yPos + 35 - 12, 90 * (health / 20), 8, 2f, a, b, c, d);

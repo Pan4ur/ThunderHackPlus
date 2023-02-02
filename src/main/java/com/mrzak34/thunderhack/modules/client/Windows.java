@@ -11,7 +11,7 @@ public class Windows extends Module {
 
 
     public Windows() {
-        super("Windows", "окна", Module.Category.CLIENT, true, false, false);
+        super("Windows", "окна", Module.Category.CLIENT);
         this.setInstance();
     }
 

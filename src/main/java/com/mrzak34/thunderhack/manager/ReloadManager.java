@@ -2,7 +2,7 @@ package com.mrzak34.thunderhack.manager;
 
 import com.mojang.realmsclient.gui.ChatFormatting;
 import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.event.events.PacketEvent;
+import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.modules.Feature;
 import com.mrzak34.thunderhack.command.Command;
 import net.minecraft.network.play.client.CPacketChatMessage;

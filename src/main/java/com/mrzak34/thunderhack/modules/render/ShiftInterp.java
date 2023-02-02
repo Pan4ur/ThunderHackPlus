@@ -1,21 +1,14 @@
 package com.mrzak34.thunderhack.modules.render;
 
-import com.mrzak34.thunderhack.command.Command;
-import com.mrzak34.thunderhack.event.events.PacketEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
-import com.mrzak34.thunderhack.util.Timer;
-import net.minecraft.network.play.server.SPacketEntity;
-import net.minecraft.network.play.server.SPacketEntityMetadata;
-import net.minecraft.network.play.server.SPacketSoundEffect;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class ShiftInterp extends Module {
 
     private static ShiftInterp INSTANCE = new ShiftInterp();
 
     public ShiftInterp() {
-        super("ShiftInterp", "ShiftInterp", Category.RENDER, true, false, false);
+        super("ShiftInterp", "ShiftInterp", Category.RENDER);
         this.setInstance();
     }
 
@@ -32,6 +25,7 @@ public class ShiftInterp extends Module {
     }
     public Setting<Boolean> sleep = this.register ( new Setting <> ( "Sleep", false ) );
 
+    public Setting<Boolean> aboba = this.register ( new Setting <> ( "aboba", false ) );
 
 
 

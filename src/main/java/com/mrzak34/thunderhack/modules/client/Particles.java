@@ -1,10 +1,10 @@
 package com.mrzak34.thunderhack.modules.client;
 
-import com.mrzak34.thunderhack.event.events.Render2DEvent;
+import com.mrzak34.thunderhack.events.Render2DEvent;
 import com.mrzak34.thunderhack.gui.particles.Particle;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
-import com.mrzak34.thunderhack.util.RenderHelper;
+import com.mrzak34.thunderhack.util.render.RenderHelper;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
@@ -21,7 +21,7 @@ import static org.lwjgl.opengl.GL11.*;
 
 public class Particles extends Module{
     public Particles() {
-        super("Particles", "рисует партиклы в гуи", Module.Category.CLIENT, true, false, false);
+        super("Particles", "рисует партиклы в гуи", Module.Category.CLIENT);
         setInstance();
     }
 

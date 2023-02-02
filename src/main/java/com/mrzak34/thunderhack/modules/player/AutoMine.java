@@ -1,10 +1,9 @@
 package com.mrzak34.thunderhack.modules.player;
 
 import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.event.events.EventPreMotion;
+import com.mrzak34.thunderhack.events.EventPreMotion;
 import com.mrzak34.thunderhack.mixin.mixins.AccessorMinecraft;
 import com.mrzak34.thunderhack.modules.Module;
-import com.mrzak34.thunderhack.modules.render.CrystalChams;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.InventoryUtil;
 import net.minecraft.block.Block;
@@ -30,7 +29,7 @@ import java.util.stream.Collectors;
 public class AutoMine extends Module {
 
     public AutoMine() {
-        super("AutoMine", "AutoMine", Category.PLAYER, true, false, false);
+        super("AutoMine", "AutoMine", Category.PLAYER);
     }
 
 

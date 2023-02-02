@@ -1,12 +1,12 @@
 package com.mrzak34.thunderhack.modules.misc;
 
-import com.mrzak34.thunderhack.event.events.Render3DEvent;
+import com.mrzak34.thunderhack.events.Render3DEvent;
 import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.notification.NotificationManager;
 import com.mrzak34.thunderhack.notification.NotificationType;
-import com.mrzak34.thunderhack.util.RenderUtil;
+import com.mrzak34.thunderhack.util.render.RenderUtil;
 import com.mrzak34.thunderhack.util.Timer;
 import com.mrzak34.thunderhack.util.seedoverlay.WorldLoader;
 import net.minecraft.block.*;
@@ -16,7 +16,6 @@ import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -24,12 +23,13 @@ import java.util.concurrent.Executors;
 
 public class SeedOverlay extends Module{
     public SeedOverlay() {
-    super("SeedOverlay", "рендерит фейковый мир-для поиска несоответсвий", Module.Category.MISC, false, false, false);
+    super("SeedOverlay", "рендерит фейковый мир-для поиска несоответсвий", Module.Category.MISC);
     }
 
 
     public Setting <Integer> BlockLimit = this.register ( new Setting <> ( "Chance", 200, 0, 5000 ) );
     public Setting <Integer> Distance = this.register ( new Setting <> ( "Distance", 6, 0, 15 ) );
+    public Setting <Integer> renderDistance = this.register ( new Setting <> ( "RenderDistance", 120, 0, 256 ) );
 
 
 
@@ -100,7 +100,6 @@ public class SeedOverlay extends Module{
         executor = Executors.newSingleThreadExecutor();
         executor2 = Executors.newSingleThreadExecutor();
         WorldLoader.setup();
-        //Command.sendMessage("Still Working on this.");
         chunks = new ArrayList<>();
         searchViewDistance();
     }
@@ -296,20 +295,18 @@ public class SeedOverlay extends Module{
     @SubscribeEvent
     public void onRender3D(Render3DEvent event) {
         try {
-            int blocklimit = 0;
             ArrayList<ChunkData> Remove = new ArrayList<>();
             for (ChunkData chunk : chunks) {
                 if (chunk.Searched) {
                     if (mc.player.getDistance(chunk.chunkPos.getXEnd(), 100, chunk.chunkPos.getZEnd()) > 2000)
                         Remove.add(chunk);
                     for (BlockPos block : chunk.blocks) {
-                        if (blocklimit > BlockLimit.getValue())
-                            break;
-                       // RenderBlock(Mode.getValString(), Standardbb(new BlockPos(block.x, block.y, block.z)), OverlayColor.getcolor(), LineWidth.getValue());
 
-                        RenderUtil.blockEsp(new BlockPos(block.x, block.y, block.z), new Color(8, 253, 0, 255), 1.0, 1.0);
 
-                        blocklimit++;
+                        if(mc.player.getDistanceSq(new BlockPos(block.x, block.y, block.z)) < renderDistance.getValue() * renderDistance.getValue()) {
+                            RenderUtil.blockEspFrame(new BlockPos(block.x, block.y, block.z), 0.0, 255.0, 255.0);
+                        }
+
                     }
 
                 }

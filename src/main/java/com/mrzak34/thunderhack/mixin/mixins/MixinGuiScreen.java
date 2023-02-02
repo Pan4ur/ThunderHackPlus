@@ -1,6 +1,6 @@
 package com.mrzak34.thunderhack.mixin.mixins;
 
-import com.mrzak34.thunderhack.modules.misc.ChatTweaks;
+import com.mrzak34.thunderhack.modules.misc.DiscordEmbeds;
 import com.mrzak34.thunderhack.modules.misc.ToolTips;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiScreen;
@@ -27,9 +27,9 @@ public class MixinGuiScreen
     private void handleComponentHoverHook(ITextComponent component, int x, int y, CallbackInfo info)
     {
         if(component != null ){
-            ChatTweaks.getInstance().saveDickPick(component.getStyle().getHoverEvent().getValue().getUnformattedText(),"png");
-            ChatTweaks.getInstance().nado = true;
-            ChatTweaks.getInstance().timer.reset();
+            DiscordEmbeds.saveDickPick(component.getStyle().getHoverEvent().getValue().getUnformattedText(),"png");
+            DiscordEmbeds.nado = true;
+            DiscordEmbeds.timer.reset();
         }
     }
 

@@ -1,6 +1,6 @@
 package com.mrzak34.thunderhack.modules.render;
 
-import com.mrzak34.thunderhack.event.events.DeathEvent;
+import com.mrzak34.thunderhack.events.DeathEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.Timer;
@@ -12,7 +12,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class KillEffect extends Module {
     public KillEffect() {
-        super("KillEffect", "KillEffect", Module.Category.RENDER, true, false, false);
+        super("KillEffect", "KillEffect", Module.Category.RENDER);
 
     }
     private final Setting<Boolean> sound = this.register(new Setting<Boolean>("Sound", false));

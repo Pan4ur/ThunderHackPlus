@@ -1,6 +1,6 @@
 package com.mrzak34.thunderhack.modules.movement;
 
-import com.mrzak34.thunderhack.event.events.*;
+import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import net.minecraft.network.play.server.SPacketEntityVelocity;
@@ -13,7 +13,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 public class MSTSpeed extends Module {
 
     public MSTSpeed() {
-        super("DMGSpeed", "Matrix moment", Category.MOVEMENT, true, false, false);
+        super("DMGSpeed", "Matrix moment", Category.MOVEMENT);
     }
 
     public Setting<Integer> maxticks  = this.register(new Setting<>("Ticks", 20, 1, 100));

@@ -1,7 +1,6 @@
 package com.mrzak34.thunderhack.util.phobos;
 
-import com.mrzak34.thunderhack.event.events.DeathEvent;
-import com.mrzak34.thunderhack.event.events.PacketEvent;
+import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.modules.Feature;
 import com.mrzak34.thunderhack.util.Timer;
 import net.minecraft.entity.Entity;
@@ -22,28 +21,13 @@ public class CombatManager extends Feature
     public void init() {
         MinecraftForge.EVENT_BUS.register(this);
     }
+    public void unload() {
+        MinecraftForge.EVENT_BUS.unregister(this);
+    }
 
 
     public CombatManager() {
-        /*
-        this.listeners.add(
-                new EventListener<DeathEvent>(DeathEvent.class, Integer.MIN_VALUE) {
-                    @Override
-                    public void invoke(DeathEvent event) {
-                        onDeath(event.getEntity());
-                    }
-                });
-
-         */
-
     }
-    /*
-    @SubscribeEvent
-    public void onDeath(DeathEvent e){
-        if e.ge
-    }
-
-     */
 
     @SubscribeEvent
     public void onPacketReceive(PacketEvent.Receive e){
@@ -64,7 +48,7 @@ public class CombatManager extends Feature
         }
     }
 
-    public void reset() {
+    public void resetCombatManager() {
         pops.clear();
     }
 

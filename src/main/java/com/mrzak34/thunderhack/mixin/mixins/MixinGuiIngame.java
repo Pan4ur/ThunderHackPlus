@@ -1,6 +1,6 @@
 package com.mrzak34.thunderhack.mixin.mixins;
 
-import com.mrzak34.thunderhack.event.events.RenderAttackIndicatorEvent;
+import com.mrzak34.thunderhack.events.RenderAttackIndicatorEvent;
 import com.mrzak34.thunderhack.gui.hud.Potions;
 import com.mrzak34.thunderhack.modules.funnygame.AntiTittle;
 import net.minecraft.scoreboard.ScoreObjective;

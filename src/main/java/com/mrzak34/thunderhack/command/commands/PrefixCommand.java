@@ -7,7 +7,7 @@ import com.mrzak34.thunderhack.command.Command;
 public class PrefixCommand
         extends Command {
     public PrefixCommand() {
-        super("prefix", new String[]{"<char>"});
+        super("prefix");
     }
 
     @Override

@@ -1,16 +1,16 @@
 package com.mrzak34.thunderhack.gui.windows.window.parts;
 
-import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.command.Command;
-import com.mrzak34.thunderhack.gui.classic.components.items.buttons.ModuleButton;
 import com.mrzak34.thunderhack.gui.thundergui.fontstuff.FontRender;
-import com.mrzak34.thunderhack.util.RenderUtil;
+import com.mrzak34.thunderhack.manager.ConfigManager;
+import com.mrzak34.thunderhack.util.render.RenderUtil;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
 
 import java.awt.*;
 
 import static com.mrzak34.thunderhack.gui.thundergui.components.items.buttons.TFriendComponent.drawImage;
+import static com.mrzak34.thunderhack.modules.player.ElytraSwap.drawCompleteImage;
 import static com.mrzak34.thunderhack.util.Util.mc;
 
 public class ConfigPart {
@@ -44,10 +44,9 @@ public class ConfigPart {
         RenderUtil.drawSmoothRect(posX + width - 20 - 23, posY + 25 + 23 * id + dwheel, posX + width - 10 - 23, posY + 35 + 23 * id + dwheel, isHoveringLoadButton(x,y) ? new Color(0xD5177700, true).getRGB(): new Color(0x99308101, true).getRGB());
         drawImage(loadpng, posX + width - 18 - 23, posY + 27 + 23*id + dwheel, 6, 6,isHoveringLoadButton(x,y) ?new Color(0xFFFFFFFF, true)  : new Color(0xB3FFFFFF, true));
 
-
         GlStateManager.color(1f,1f,1f,1f);
         mc.getTextureManager().bindTexture(configpng);
-        ModuleButton.drawCompleteImage(posX + 7,posY + 20 + 23*id + dwheel,18, 18);
+        drawCompleteImage(posX + 7,posY + 20 + 23*id + dwheel,18, 18);
         FontRender.drawString(name,posX + 7 + 22, posY + 20 + 23*id + dwheel, new Color(0x343434).getRGB());
 
     }
@@ -55,10 +54,13 @@ public class ConfigPart {
 
     public void mouseClicked(int mouseX, int mouseY, int mouseButton) {
         if(isHoveringDelButton(mouseX,mouseY)){
-            Thunderhack.configManager.deleteConfig(name);
+            boolean a = ConfigManager.delete(name);
+            if(a){
+                Command.sendMessage("Удален конфиг " + name);
+            }
         }
         if(isHoveringLoadButton(mouseX,mouseY)){
-            Command.sendMessage("loaded " + name);
+            ConfigManager.load(name);
         }
     }
 

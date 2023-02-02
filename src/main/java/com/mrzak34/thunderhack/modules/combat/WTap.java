@@ -1,6 +1,6 @@
 package com.mrzak34.thunderhack.modules.combat;
 
-import com.mrzak34.thunderhack.event.events.PacketEvent;
+import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import net.minecraft.network.play.client.CPacketEntityAction;
 import net.minecraft.network.play.client.CPacketUseEntity;
@@ -8,7 +8,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class WTap extends Module {
     public WTap() {
-        super("WTap", "Прожимает W-после удара", Category.COMBAT, true, false, false);
+        super("WTap", "Прожимает W-после удара", Category.COMBAT);
     }
 
 

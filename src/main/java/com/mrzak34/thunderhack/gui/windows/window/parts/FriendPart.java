@@ -1,17 +1,17 @@
 package com.mrzak34.thunderhack.gui.windows.window.parts;
 
 import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.gui.classic.components.items.buttons.ModuleButton;
 import com.mrzak34.thunderhack.gui.thundergui.fontstuff.FontRender;
 import com.mrzak34.thunderhack.util.ChatColor;
 import com.mrzak34.thunderhack.util.PNGtoResourceLocation;
-import com.mrzak34.thunderhack.util.RenderUtil;
+import com.mrzak34.thunderhack.util.render.RenderUtil;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
 
 import java.awt.*;
 
 import static com.mrzak34.thunderhack.gui.thundergui.components.items.buttons.TFriendComponent.drawImage;
+import static com.mrzak34.thunderhack.modules.player.ElytraSwap.drawCompleteImage;
 import static com.mrzak34.thunderhack.util.Util.mc;
 
 public class FriendPart{
@@ -48,11 +48,11 @@ public class FriendPart{
         if(head != null){
             GlStateManager.color(1f,1f,1f,1f);
             mc.getTextureManager().bindTexture(head);
-            ModuleButton.drawCompleteImage(posX + 7,posY + 20 + 23*id + dwheel,18, 18);
+            drawCompleteImage(posX + 7,posY + 20 + 23*id + dwheel,18, 18);
         } else {
             GlStateManager.color(1f,1f,1f,1f);
             mc.getTextureManager().bindTexture(crackedSkin);
-            ModuleButton.drawCompleteImage(posX + 7,posY + 20 + 23*id + dwheel,18, 18);
+            drawCompleteImage(posX + 7,posY + 20 + 23*id + dwheel,18, 18);
         }
         FontRender.drawString(name + "   " + (checkOnline(name) ? ChatColor.GREEN + "Online" : ChatColor.GRAY + "Offline"),posX + 7 + 22, posY + 20 + 23*id + dwheel, new Color(0x343434).getRGB());
 

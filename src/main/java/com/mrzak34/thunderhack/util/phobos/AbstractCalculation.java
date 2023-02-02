@@ -5,7 +5,7 @@ import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.modules.combat.AutoCrystal;
 import com.mrzak34.thunderhack.util.EntityUtil;
 import com.mrzak34.thunderhack.util.InventoryUtil;
-import com.mrzak34.thunderhack.util.MathUtil;
+import com.mrzak34.thunderhack.util.math.MathUtil;
 import com.mrzak34.thunderhack.util.RotationUtil;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
@@ -22,10 +22,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 
 import java.util.*;
-import com.mrzak34.thunderhack.util.Timer;
 
-import static com.mrzak34.thunderhack.modules.combat.AutoCrystal.timercheckerfg;
-import static com.mrzak34.thunderhack.modules.combat.AutoCrystal.timercheckerwfg;
 import static com.mrzak34.thunderhack.util.Util.mc;
 import static com.mrzak34.thunderhack.util.phobos.CalculationMotion.rayTraceTo;
 import static com.mrzak34.thunderhack.util.phobos.RotationUtil.getRotationsToTopMiddle;
@@ -205,21 +202,10 @@ public abstract class AbstractCalculation<T extends CrystalData> extends Finisha
                         return;
                     }
 
-                    PlaceData liquidData = module.liquidHelper
-                            .calculate(module.placeHelper,
-                                    placeData,
-                                    friends,
-                                    all,
-                                    module.minDamage
-                                            .getValue());
-
+                    PlaceData liquidData = module.liquidHelper.calculate(module.placeHelper, placeData, friends, all, module.minDamage.getValue());
 
                     boolean attackingBefore = attacking;
-                    if (placeNoAntiTotem(liquidData, mineSlots)
-                            && attackingBefore == attacking
-                            && module.liquidObby.getValue()
-                            && obbyCheck()
-                            && passed)
+                    if (placeNoAntiTotem(liquidData, mineSlots) && attackingBefore == attacking && module.liquidObby.getValue() && obbyCheck() && passed)
                     {
                         placeObby(placeData, mineSlots);
                     }
@@ -372,9 +358,7 @@ public abstract class AbstractCalculation<T extends CrystalData> extends Finisha
 
     protected boolean obbyCheck()
     {
-        return preSpecialCheck()
-                && module.obsidian.getValue()
-                && module.obbyTimer.passedMs(module.obbyDelay.getValue());
+        return preSpecialCheck() && module.obsidian.getValue() && module.obbyTimer.passedMs(module.obbyDelay.getValue());
     }
 
     protected boolean preSpecialCheck()
@@ -428,14 +412,10 @@ public abstract class AbstractCalculation<T extends CrystalData> extends Finisha
             return;
         }
 
-        List<List<EntityPlayer>> split = CollectionUtil.split(raw,
-                p -> p == null
+        List<List<EntityPlayer>> split = CollectionUtil.split(raw, p -> p == null
                         || (EntityUtil.isDead(p))
                         || p.equals(mc.player)
-                        || p.getDistanceSq(mc.player) >
-                        MathUtil.square(module.targetRange.getValue()),
-                Thunderhack.friendManager::isFriend,
-                Thunderhack.enemyManager::isEnemy);
+                        || p.getDistanceSq(mc.player) > MathUtil.square(module.targetRange.getValue()), Thunderhack.friendManager::isFriend,Thunderhack.friendManager::isEnemy);
         // split.get(0) are the invalid players.
         this.friends = split.get(1);
         this.enemies = split.get(2);

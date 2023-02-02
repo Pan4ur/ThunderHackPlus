@@ -2,7 +2,7 @@ package com.mrzak34.thunderhack.modules.misc;
 
 import com.mrzak34.thunderhack.modules.Module;
 import io.netty.buffer.Unpooled;
-import com.mrzak34.thunderhack.event.events.PacketEvent;
+import com.mrzak34.thunderhack.events.PacketEvent;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.network.play.client.CPacketCustomPayload;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -11,7 +11,7 @@ import net.minecraftforge.fml.common.network.internal.FMLProxyPacket;
 public class NoHandShake
         extends Module {
     public NoHandShake() {
-        super("NoHandshake", "не отправляет модлист-серверу", Module.Category.MISC, true, false, false);
+        super("NoHandshake", "не отправляет модлист-серверу", Module.Category.MISC);
     }
 
     @SubscribeEvent

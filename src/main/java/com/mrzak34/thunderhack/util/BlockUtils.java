@@ -1,6 +1,7 @@
 package com.mrzak34.thunderhack.util;
 
-import com.mrzak34.thunderhack.event.events.EventPreMotion;
+import com.mrzak34.thunderhack.events.EventPreMotion;
+import com.mrzak34.thunderhack.util.math.MathUtil;
 import net.minecraft.block.*;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;

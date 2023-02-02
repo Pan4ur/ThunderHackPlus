@@ -18,7 +18,7 @@ import org.apache.commons.lang3.math.NumberUtils;
 
 public class EclipCommand extends Command {
     public EclipCommand() {
-        super("eclip", new String[]{"<up/down/bedrock>", "<name>"});
+        super("eclip");
     }
 
 

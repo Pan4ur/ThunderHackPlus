@@ -3,7 +3,6 @@ package com.mrzak34.thunderhack.mixin.mixins;
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.modules.render.Models;
 import com.mrzak34.thunderhack.modules.render.Skeleton;
-import com.mrzak34.thunderhack.util.ColorUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelBox;
@@ -22,6 +21,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.awt.*;
+
+import static com.mrzak34.thunderhack.util.render.RenderUtil.glColor;
 
 @Mixin({ModelPlayer.class})
 public class MixinModelPlayer extends ModelBiped{
@@ -583,12 +584,12 @@ public class MixinModelPlayer extends ModelBiped{
                 } else {
                     GlStateManager.translate(0.0D, -0.8D, 0.0D);
                     GlStateManager.scale(1.8D, 1.6D, 1.6D);
-                    ColorUtil.glColor(bodyColor);
+                    glColor(bodyColor);
                     GlStateManager.translate(0.0D, 0.15D, 0.0D);
                     body.render(scale);
-                    ColorUtil.glColor(eyeColor);
+                    glColor(eyeColor);
                     eye.render(scale);
-                    ColorUtil.glColor(legsColor);
+                    glColor(legsColor);
                     GlStateManager.translate(0.0D, -0.15D, 0.0D);
                     left_leg.render(scale);
                     right_leg.render(scale);

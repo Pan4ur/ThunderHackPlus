@@ -4,6 +4,7 @@ import com.github.lunatrius.schematica.api.ISchematic;
 import com.github.lunatrius.schematica.api.event.PostSchematicCaptureEvent;
 import com.github.lunatrius.schematica.reference.Names;
 import com.github.lunatrius.schematica.reference.Reference;
+import com.mrzak34.thunderhack.command.Command;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
@@ -129,8 +130,7 @@ public abstract class SchematicFormat {
      */
     public static void writeToFileAndNotify(final File file, @Nullable final String format, final ISchematic schematic, final EntityPlayer player) {
         final boolean success = writeToFile(file, format, schematic);
-        final String message = success ? Names.Command.Save.Message.SAVE_SUCCESSFUL : Names.Command.Save.Message.SAVE_FAILED;
-        player.sendMessage(new TextComponentTranslation(message, file.getName()));
+        Command.sendMessage(success ? "Схема успешно сохранена в " + file.getName() : "Ошибка сохранения схемы!" );
     }
 
     /**

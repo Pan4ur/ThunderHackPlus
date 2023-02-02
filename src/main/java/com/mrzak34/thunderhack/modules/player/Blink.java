@@ -1,7 +1,7 @@
 package com.mrzak34.thunderhack.modules.player;
 
-import com.mrzak34.thunderhack.event.events.PacketEvent;
-import com.mrzak34.thunderhack.event.events.Render3DEvent;
+import com.mrzak34.thunderhack.events.PacketEvent;
+import com.mrzak34.thunderhack.events.Render3DEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.setting.Setting;
@@ -22,7 +22,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Blink extends Module {
     public Blink() {
-        super("Blink", "Отменяет пакеты движения", Category.MISC, true, false, false);
+        super("Blink", "Отменяет пакеты движения", Category.MISC);
     }
 
     private Setting<Boolean> pulse = this.register(new Setting<>("Pulse", false));

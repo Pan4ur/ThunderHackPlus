@@ -2,242 +2,324 @@ package com.mrzak34.thunderhack.manager;
 
 import com.google.gson.*;
 import com.mrzak34.thunderhack.Thunderhack;
+import com.mrzak34.thunderhack.command.Command;
+import com.mrzak34.thunderhack.gui.mainmenu.GuiAltManager;
+import com.mrzak34.thunderhack.macro.Macro;
+import com.mrzak34.thunderhack.modules.render.Search;
 import com.mrzak34.thunderhack.setting.*;
 import com.mrzak34.thunderhack.util.Util;
-import com.mrzak34.thunderhack.modules.Feature;
 import com.mrzak34.thunderhack.modules.Module;
+import net.minecraft.block.Block;
+import net.minecraft.init.Blocks;
+import net.minecraft.util.ResourceLocation;
+
 
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
 
 public class ConfigManager implements Util {
-    public ArrayList<Feature> features = new ArrayList<>();
-    public String currentcfg;
-    public String config = "ThunderHack/config/";
 
-    /*----------------- WRITE ---------------*/
-
-    public JsonObject writeSettings(Feature feature) {
-        JsonObject object = new JsonObject();
-        JsonParser jp = new JsonParser();
-
-        for (Setting setting : feature.getSettings()) {
-            if (setting.isEnumSetting()) {
-                EnumConverter converter = new EnumConverter(((Enum) setting.getValue()).getClass());
-                object.add(setting.getName(), converter.doForward((Enum) setting.getValue()));
-                continue;
-            }
-            if (setting.isStringSetting()) {
-                String str = (String) setting.getValue();
-                setting.setValue(str.replace(" ", "_"));
-            }
-            if(setting.isColorSetting()){
-                JsonArray array = new JsonArray();
-                array.add(new JsonPrimitive(((ColorSetting) setting.getValue()).getRawColor()));
-                array.add(new JsonPrimitive(((ColorSetting) setting.getValue()).isCycle()));
-                array.add(new JsonPrimitive(((ColorSetting) setting.getValue()).getGlobalOffset()));
+        public static  File MainFolder = new File(mc.gameDir, "ThunderHack");
+        public static  File ConfigsFolder = new File(MainFolder, "configs");
+        public static  File CustomImages = new File(MainFolder, "images");
+        public static  File TempFolder = new File(MainFolder, "temp");
+            public static  File SkinsFolder = new File(TempFolder, "skins");
+            public static  File CapesFolder = new File(TempFolder, "capes");
+            public static  File HeadsFolder = new File(TempFolder, "heads");
+            public static  File DiscordEmbeds = new File(TempFolder, "embeds");
+        public static  File MiscFolder = new File(MainFolder, "misc");
+            public static  File KitsFolder = new File(MiscFolder, "kits");
+            //friends
+            //enemies
+            //webhook
+            //rpc
+            //autoEz
+            //currentcfg
+            //macro
+            //search
+            //alts
 
 
-                object.add(setting.getName(), array);
-                continue;
-            }
-            if(setting.isPositionSetting()){
-                JsonArray array = new JsonArray();
-                float num2 = ((PositionSetting) setting.getValue()).getX();
-                float num1 = ((PositionSetting) setting.getValue()).getY();
-                array.add(new JsonPrimitive(num2));
-                array.add(new JsonPrimitive(num1));
 
-                object.add(setting.getName(), array);
-                continue;
-            }
-            if(setting.isBindSetting()){
-                JsonArray array = new JsonArray();
-                String key = setting.getValueAsString();
-                boolean hold = ((Bind) setting.getValue()).isHold();
-                array.add(new JsonPrimitive(key));
-                array.add(new JsonPrimitive(hold));
+    public static void init(){
+        if (!MainFolder.exists()) MainFolder.mkdirs();
+        if (!ConfigsFolder.exists()) ConfigsFolder.mkdirs();
+        if (!CustomImages.exists()) CustomImages.mkdirs();
+        if (!TempFolder.exists()) TempFolder.mkdirs();
+        if (!SkinsFolder.exists()) SkinsFolder.mkdirs();
+        if (!CapesFolder.exists()) CapesFolder.mkdirs();
+        if (!HeadsFolder.exists()) HeadsFolder.mkdirs();
+        if (!MiscFolder.exists()) MiscFolder.mkdirs();
+        if (!KitsFolder.exists()) KitsFolder.mkdirs();
+        if (!DiscordEmbeds.exists()) DiscordEmbeds.mkdirs();
 
-                object.add(setting.getName(), array);
-                continue;
-            }
-
-            try {
-                object.add(setting.getName(), jp.parse(setting.getValueAsString()));
-            } catch (Exception e) {
-            }
-        }
-        return object;
-    }
-    /*----------------- LOAD ---------------*/
-
-    public static void setValueFromJson(Feature feature, Setting setting, JsonElement element) {
-        String str;
-        switch (setting.getType()) {
-            case "Parent":
-                return;
-            case "Boolean":
-                setting.setValue(Boolean.valueOf(element.getAsBoolean()));
-                return;
-            case "Double":
-                setting.setValue(Double.valueOf(element.getAsDouble()));
-                return;
-            case "Float":
-                setting.setValue(Float.valueOf(element.getAsFloat()));
-                return;
-            case "Integer":
-                setting.setValue(Integer.valueOf(element.getAsInt()));
-                return;
-            case "String":
-                str = element.getAsString();
-                setting.setValue(str.replace("_", " "));
-                return;
-            case "Bind":
-                JsonArray array4 = element.getAsJsonArray();
-                setting.setValue((new Bind.BindConverter()).doBackward(array4.get(0)));
-                ((Bind) setting.getValue()).setHold(array4.get(1).getAsBoolean());
-                return;
-            case "BlockListSetting":
-                JsonArray array2 = element.getAsJsonArray();
-                array2.forEach(jsonElement -> {
-                    String str2 = jsonElement.getAsString();
-                    ((BlockListSetting) setting.getValue()).addBlock(str2);
-                });
-                ((BlockListSetting) setting.getValue()).refreshBlocks();
-                return;
-            case "ColorSetting":
-                JsonArray array = element.getAsJsonArray();
-                ((ColorSetting) setting.getValue()).setColor(array.get(0).getAsInt());
-                ((ColorSetting) setting.getValue()).setCycle(array.get(1).getAsBoolean());
-                ((ColorSetting) setting.getValue()).setGlobalOffset(array.get(2).getAsInt());
-                return;
-            case "PositionSetting":
-                JsonArray array3 = element.getAsJsonArray();
-                ((PositionSetting) setting.getValue()).setX(array3.get(0).getAsFloat());
-                ((PositionSetting) setting.getValue()).setY(array3.get(1).getAsFloat());
-                return;
-            case "SubBind":
-                setting.setValue((new SubBind.SubBindConverter()).doBackward(element));
-                return;
-            case "Enum":
-                try {
-                    EnumConverter converter = new EnumConverter(((Enum) setting.getValue()).getClass());
-                    Enum value = converter.doBackward(element);
-                    setting.setValue((value == null) ? setting.getDefaultValue() : value);
-                } catch (Exception ignored) {
-                }
-        }
     }
 
-    private static void loadFile(JsonObject input, Feature feature) {
-        for (Map.Entry<String, JsonElement> entry : input.entrySet()) {
-            String settingName = entry.getKey();
-            JsonElement element = entry.getValue();
-            if (feature instanceof FriendManager) {
-                try {
-                    Thunderhack.friendManager.addFriend(new FriendManager.Friend(element.getAsString(), UUID.fromString(settingName),""));
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                continue;
-            }
-            if (feature instanceof EnemyManager) {
-                try {
-                    Thunderhack.enemyManager.addEnemy(new EnemyManager.Enemy(element.getAsString(), UUID.fromString(settingName)));
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                continue;
-            }
-            for (Setting setting : feature.getSettings()) {
-                if (settingName.equals(setting.getName())) {
-                    try {
-                        setValueFromJson(feature, setting, element);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        }
-    }
+    public static File currentConfig = null;
 
-    public void loadConfig(String name,boolean firstrun) {
-        if(!firstrun)
-            saveConfig(currentcfg);
+
+    public static void load(String name) {
+        File file = new File(ConfigsFolder, name + ".th");
+        if (!file.exists()) {
+            Command.sendMessage("Конфига " + name + " не существует!");
+            return;
+        }
+
+        if(currentConfig != null){
+            save(currentConfig);
+        }
+
         Thunderhack.moduleManager.onUnload();
         Thunderhack.moduleManager.onUnloadPost();
-
-        currentcfg = name;
-        final List<File> files = Arrays.stream(Objects.requireNonNull(new File("ThunderHack").listFiles())).filter(File::isDirectory).collect(Collectors.toList());
-        if (files.contains(new File("ThunderHack/" + name + "/"))) {
-            this.config = "ThunderHack/" + name + "/";
-        } else {
-            this.config = "ThunderHack/config/";
-        }
-        Thunderhack.friendManager.onLoad();
-        Thunderhack.enemyManager.onLoad();
-        MacroManager.onLoad();
-        for (Feature feature : this.features) {
-            try {
-                loadSettings(feature);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
+        load(file);
         Thunderhack.moduleManager.onLoad();
+
+    }
+
+    public static void load(File config) {
+        if (!config.exists()) save(config);
+        try {
+            FileReader reader = new FileReader(config);
+            JsonParser parser = new JsonParser();
+
+            JsonArray array = null;
+            try {
+                array = (JsonArray) parser.parse(reader);
+            } catch (ClassCastException e) {
+                save(config);
+            }
+
+            JsonArray modules = null;
+            try {
+                JsonObject modulesObject = (JsonObject) array.get(0);
+                modules = modulesObject.getAsJsonArray("Modules");
+            } catch (Exception e) {
+                System.err.println("Module Array not found, skipping!");
+            }
+            if (modules != null) {
+                modules.forEach(m -> {
+                    try {
+                        parseModule(m.getAsJsonObject());
+                    } catch (NullPointerException e) {
+                        System.err.println(e.getMessage());
+                    }
+                });
+            }
+            Command.sendMessage("Загружен конфиг " + config.getName());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        currentConfig = config;
         saveCurrentConfig();
     }
 
-    public boolean configExists(String name) {
-        final List<File> files = Arrays.stream(Objects.requireNonNull(new File("ThunderHack").listFiles())).filter(File::isDirectory).collect(Collectors.toList());
-        return files.contains(new File("ThunderHack/" + name + "/"));
+
+    public static void save(String name) {
+        File file = new File(ConfigsFolder, name + ".th");
+
+        if (file.exists()) {
+            Command.sendMessage("Конфиг " + name + " уже существует");
+            return;
+        }
+
+        save(file);
+        Command.sendMessage("Конфиг " + name + " успешно сохранен!");
+
     }
 
 
-    public void deleteConfig(String name){
-        this.config = "ThunderHack/" + name;
-        File path = new File(this.config);
-        path.renameTo(new File("ThunderHack/oldcfg" + Math.random()*1000));
+    public static void save(File config) {
+        try {
+            if (!config.exists()) {
+                config.createNewFile();
+            }
+            JsonArray array = new JsonArray();
+
+            JsonObject modulesObj = new JsonObject();
+            modulesObj.add("Modules", getModuleArray());
+            array.add(modulesObj);
+
+
+            FileWriter writer = new FileWriter(config);
+            Gson gson = new GsonBuilder().setPrettyPrinting().create();
+
+            gson.toJson(array, writer);
+            writer.close();
+        } catch (IOException e) {
+            Command.sendMessage("Cant write to config file!");
+        }
+
     }
 
 
-    public void saveConfig(String name) {
-        this.config = "ThunderHack/" + name + "/";
-        File path = new File(this.config);
-        if (!path.exists())
-            path.mkdir();
-        Thunderhack.friendManager.saveFriends();
-        Thunderhack.enemyManager.saveEnemies();
-        Thunderhack.macromanager.saveMacro();
-        for (Feature feature : this.features) {
+
+    private static void parseModule(JsonObject object) throws NullPointerException {
+
+        Module module = Thunderhack.moduleManager.modules.stream()
+                .filter(m -> object.getAsJsonObject(m.getName()) != null)
+                .findFirst().orElse(null);
+
+        if (module != null) {
+            JsonObject mobject = object.getAsJsonObject(module.getName());
+
+            for(Setting setting2 : module.getSettings()){
                 try {
-                    saveSettings(feature);
-                } catch (IOException e) {
+                    switch (setting2.getType()) {
+                        case "Parent":
+                            continue;
+                        case "Boolean":
+                            setting2.setValue(mobject.getAsJsonPrimitive(setting2.getName()).getAsBoolean());
+                            continue;
+                        case "Double":
+                            setting2.setValue(mobject.getAsJsonPrimitive(setting2.getName()).getAsDouble());
+                            continue;
+                        case "Float":
+                            setting2.setValue(mobject.getAsJsonPrimitive(setting2.getName()).getAsFloat());
+                            continue;
+                        case "Integer":
+                            setting2.setValue(mobject.getAsJsonPrimitive(setting2.getName()).getAsInt());
+                            continue;
+                        case "String":
+                            setting2.setValue(mobject.getAsJsonPrimitive(setting2.getName()).getAsString().replace("_", " "));
+                            continue;
+                        case "Bind":
+                            JsonArray array4 = mobject.getAsJsonArray("Keybind");
+                            setting2.setValue((new Bind.BindConverter()).doBackward(array4.get(0)));
+                            ((Bind) setting2.getValue()).setHold(array4.get(1).getAsBoolean());
+                            continue;
+                        case "ColorSetting":
+                            JsonArray array = mobject.getAsJsonArray(setting2.getName());
+                            ((ColorSetting) setting2.getValue()).setColor(array.get(0).getAsInt());
+                            ((ColorSetting) setting2.getValue()).setCycle(array.get(1).getAsBoolean());
+                            ((ColorSetting) setting2.getValue()).setGlobalOffset(array.get(2).getAsInt());
+                            continue;
+                        case "PositionSetting":
+                            JsonArray array3 = mobject.getAsJsonArray(setting2.getName());
+                            ((PositionSetting) setting2.getValue()).setX(array3.get(0).getAsFloat());
+                            ((PositionSetting) setting2.getValue()).setY(array3.get(1).getAsFloat());
+                            continue;
+                        case "SubBind":
+                            setting2.setValue((new SubBind.SubBindConverter()).doBackward(mobject.getAsJsonPrimitive(setting2.getName())));
+                            continue;
+                        case "Enum":
+                            try {
+                                EnumConverter converter = new EnumConverter(((Enum) setting2.getValue()).getClass());
+                                Enum value = converter.doBackward(mobject.getAsJsonPrimitive(setting2.getName()));
+                                setting2.setValue((value == null) ? setting2.getDefaultValue() : value);
+                            } catch (Exception ignored) {
+                            }
+                    }
+                } catch (Exception e){
+                    System.out.println(module.getName());
+                    System.out.println(setting2);
                     e.printStackTrace();
                 }
+            }
         }
-      //  if(savecurrent)
-       //     saveCurrentConfig();
     }
 
-    public void saveCurrentConfig() {
-        File currentConfig = new File("ThunderHack/currentconfig.txt");
+    private static JsonArray getModuleArray() {
+        JsonArray modulesArray = new JsonArray();
+        for (Module m : Thunderhack.moduleManager.modules) {
+            modulesArray.add(getModuleObject(m));
+        }
+        return modulesArray;
+    }
+
+    public static JsonObject getModuleObject(Module m) {
+        JsonObject attribs = new JsonObject();
+        JsonParser jp = new JsonParser();
+
+            for (Setting setting : m.getSettings()) {
+                if (setting.isEnumSetting()) {
+                    EnumConverter converter = new EnumConverter(((Enum) setting.getValue()).getClass());
+                    attribs.add(setting.getName(), converter.doForward((Enum) setting.getValue()));
+                    continue;
+                }
+                if (setting.isStringSetting()) {
+                    String str = (String) setting.getValue();
+                    setting.setValue(str.replace(" ", "_"));
+                }
+                if(setting.isColorSetting()){
+                    JsonArray array = new JsonArray();
+                    array.add(new JsonPrimitive(((ColorSetting) setting.getValue()).getRawColor()));
+                    array.add(new JsonPrimitive(((ColorSetting) setting.getValue()).isCycle()));
+                    array.add(new JsonPrimitive(((ColorSetting) setting.getValue()).getGlobalOffset()));
+                    attribs.add(setting.getName(), array);
+                    continue;
+                }
+                if(setting.isPositionSetting()){
+                    JsonArray array = new JsonArray();
+                    float num2 = ((PositionSetting) setting.getValue()).getX();
+                    float num1 = ((PositionSetting) setting.getValue()).getY();
+                    array.add(new JsonPrimitive(num2));
+                    array.add(new JsonPrimitive(num1));
+
+                    attribs.add(setting.getName(), array);
+                    continue;
+                }
+                if(setting.isBindSetting()){
+                    JsonArray array = new JsonArray();
+                    String key = setting.getValueAsString();
+                    boolean hold = ((Bind) setting.getValue()).isHold();
+                    array.add(new JsonPrimitive(key));
+                    array.add(new JsonPrimitive(hold));
+
+                    attribs.add(setting.getName(), array);
+                    continue;
+                }
+                try {
+                    attribs.add(setting.getName(), jp.parse(setting.getValueAsString()));
+                } catch (Exception ignored) {
+                }
+            }
+
+        JsonObject moduleObject = new JsonObject();
+        moduleObject.add(m.getName(), attribs);
+        return moduleObject;
+    }
+
+    public static boolean delete(File file) {
+        return file.delete();
+    }
+
+
+    public static boolean delete(String name) {
+        File file = new File(ConfigsFolder, name + ".th");
+        if (!file.exists()) {
+            return false;
+        }
+        return delete(file);
+    }
+
+    public static List<String> getConfigList() {
+        if (!MainFolder.exists() || MainFolder.listFiles() == null) return null;
+
+        List<String> list = new ArrayList<>();
+
+        if (ConfigsFolder.listFiles() != null) {
+            for(File file : Arrays.stream(ConfigsFolder.listFiles()).filter(f -> f.getName().endsWith(".th")).collect(Collectors.toList())){
+                list.add(file.getName().replace(".th",""));
+            }
+        }
+        return list;
+    }
+
+
+    public static void saveCurrentConfig() {
+        File file = new File("ThunderHack/misc/currentcfg.txt");
         try {
-            if (currentConfig.exists()) {
-                FileWriter writer = new FileWriter(currentConfig);
-                String tempConfig = this.config.replaceAll("/", "");
-                writer.write(tempConfig.replaceAll("ThunderHack", ""));
+            if (file.exists()) {
+                FileWriter writer = new FileWriter(file);
+                writer.write(currentConfig.getName().replace(".th",""));
                 writer.close();
             } else {
-                currentConfig.createNewFile();
-                FileWriter writer = new FileWriter(currentConfig);
-                String tempConfig = this.config.replaceAll("/", "");
-                writer.write(tempConfig.replaceAll("ThunderHack", ""));
+                file.createNewFile();
+                FileWriter writer = new FileWriter(file);
+                writer.write(currentConfig.getName().replace(".th",""));
                 writer.close();
             }
         } catch (Exception e) {
@@ -245,12 +327,12 @@ public class ConfigManager implements Util {
         }
     }
 
-    public String loadCurrentConfig() {
-        File currentConfig = new File("ThunderHack/currentconfig.txt");
+    public static File  getCurrentConfig() {
+        File file = new File("ThunderHack/misc/currentcfg.txt");
         String name = "config";
         try {
-            if (currentConfig.exists()) {
-                Scanner reader = new Scanner(currentConfig);
+            if (file.exists()) {
+                Scanner reader = new Scanner(file);
                 while (reader.hasNextLine())
                     name = reader.nextLine();
                 reader.close();
@@ -258,65 +340,76 @@ public class ConfigManager implements Util {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        currentcfg = name;
-        return name;
+        currentConfig = new File(ConfigsFolder,name + ".th");
+        return currentConfig;
     }
 
-    public void resetConfig(boolean saveConfig, String name) {
-        for (Feature feature : this.features)
-            feature.reset();
-        if (saveConfig)
-            saveConfig(name);
-    }
 
-    public void saveSettings(Feature feature) throws IOException {
-        JsonObject object = new JsonObject();
-        File directory = new File(this.config + getDirectory(feature));
-        if (!directory.exists())
-            directory.mkdir();
-        String featureName = this.config + getDirectory(feature) + feature.getName() + ".json";
-        Path outputFile = Paths.get(featureName);
-        if (!Files.exists(outputFile))
-            Files.createFile(outputFile);
-        Gson gson = (new GsonBuilder()).setPrettyPrinting().create();
-        String json = gson.toJson(writeSettings(feature));
-        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(Files.newOutputStream(outputFile)));
-        writer.write(json);
-        writer.close();
-    }
 
-    public void init() {
-        this.features.addAll(Thunderhack.moduleManager.modules);
-        this.features.add(Thunderhack.friendManager);
-        this.features.add(Thunderhack.enemyManager);
-        String name = loadCurrentConfig();
-        loadConfig(name,true);
-    }
-
-    private void loadSettings(Feature feature) throws IOException {
-        String featureName = this.config + getDirectory(feature) + feature.getName() + ".json";
-        Path featurePath = Paths.get(featureName);
-        if (!Files.exists(featurePath))
-            return;
-        loadPath(featurePath, feature);
-    }
-
-    private void loadPath(Path path, Feature feature) throws IOException {
-        InputStream stream = Files.newInputStream(path);
+    public static void loadAlts(){
         try {
-            loadFile((new JsonParser()).parse(new InputStreamReader(stream)).getAsJsonObject(), feature);
-        } catch (IllegalStateException e) {
-            loadFile(new JsonObject(), feature);
+            File file = new File("ThunderHack/misc/alts.txt");
+
+            if (file.exists()) {
+                try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+                    while (reader.ready()) {
+                        String name = reader.readLine();
+                        Thunderhack.alts.add(name);
+                    }
+
+                }
+            }
+        } catch (Exception ignored) {}
+    }
+
+    public static void saveAlts() {
+        File file = new File("ThunderHack/misc/alts.txt");
+        try {
+            new File("ThunderHack").mkdirs();
+            file.createNewFile();
+        } catch (Exception e){
+
         }
-        stream.close();
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+            for (String name : Thunderhack.alts) {
+                writer.write(name + "\n");
+            }
+        } catch (Exception ignored){}
     }
 
 
-    public String getDirectory(Feature feature) {
-        String directory = "";
-        if (feature instanceof Module)
-            directory = directory + ((Module) feature).getCategory().getName() + "/";
-        return directory;
+    public static void loadSearch(){
+        try {
+            File file = new File("ThunderHack/misc/search.txt");
+
+            if (file.exists()) {
+                try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+                    while (reader.ready()) {
+                        String name = reader.readLine();
+                        Search.defaultBlocks.add(getRegisteredBlock(name));
+                    }
+
+                }
+            }
+        } catch (Exception ignored) {}
     }
 
+    public static void saveSearch() {
+        File file = new File("ThunderHack/misc/search.txt");
+        try {
+            new File("ThunderHack").mkdirs();
+            file.createNewFile();
+        } catch (Exception e){
+
+        }
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+            for (Block name :  Search.defaultBlocks) {
+                writer.write(name.getRegistryName() + "\n");
+            }
+        } catch (Exception ignored){}
+    }
+
+    private static Block getRegisteredBlock(String blockName) {
+        return (Block)Block.REGISTRY.getObject(new ResourceLocation(blockName));
+    }
 }

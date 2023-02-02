@@ -1,9 +1,7 @@
 package com.mrzak34.thunderhack.modules.combat;
 
 import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.event.events.EventPreMotion;
-import com.mrzak34.thunderhack.event.events.PacketEvent;
-import com.mrzak34.thunderhack.event.events.ProcessRightClickBlockEvent;
+import com.mrzak34.thunderhack.events.EventPreMotion;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.setting.SubBind;
@@ -13,8 +11,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityEnderCrystal;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
-import net.minecraft.item.ItemBlock;
-import net.minecraft.network.play.client.CPacketPlayerTryUseItemOnBlock;
 import net.minecraft.network.play.client.CPacketUseEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
@@ -28,12 +24,12 @@ import org.lwjgl.input.Mouse;
 
 import java.util.ArrayList;
 
-import static com.mrzak34.thunderhack.modules.combat.Aura.calcAngle;
+import static com.mrzak34.thunderhack.util.RotationUtil.calcAngle;
 
 public class AutoExplosion extends Module {
 
     public AutoExplosion() {
-        super("AutoExplosion", "более тупая кристалка-для кринж серверов", Category.COMBAT, true, false, false);
+        super("AutoExplosion", "более тупая кристалка-для кринж серверов", Category.COMBAT);
     }
 
     private Setting<Mode> mode = register(new Setting("Mode", Mode.FullAuto));
@@ -89,8 +85,6 @@ public class AutoExplosion extends Module {
             if(offAura.getValue() && Thunderhack.moduleManager.getModuleByClass(Aura.class).isEnabled()){
                 Thunderhack.moduleManager.getModuleByClass(Aura.class).disable();
             }
-            Aura.stopAuraRotate = true;
-
             RayTraceResult ray = mc.player.rayTrace(4.5, mc.getRenderPartialTicks());
             BlockPos pos = null;
             if (ray != null) {
@@ -134,7 +128,6 @@ public class AutoExplosion extends Module {
                     }
                 }
             }
-            Aura.stopAuraRotate = false;
         }
     }
 
@@ -145,7 +138,6 @@ public class AutoExplosion extends Module {
                     if (ent.ticksExisted >= delay.getValue()) {
                         if (breakDelay.passedMs(156)) {
                             if(CrystalUtils.calculateDamage((EntityEnderCrystal) ent, mc.player) < maxself.getValue()) {
-                                Aura.stopAuraRotate = true;
                                 if(offAura.getValue()){
                                     Thunderhack.moduleManager.getModuleByClass(Aura.class).disable();
                                 }
@@ -155,7 +147,6 @@ public class AutoExplosion extends Module {
                                 mc.player.rotationPitch =(angle[1]);
                                 mc.player.connection.sendPacket(new CPacketUseEntity(ent));
                                 mc.player.swingArm(EnumHand.MAIN_HAND);
-                                Aura.stopAuraRotate = false;
                                 breakDelay.reset();
                             }
                         }
@@ -205,7 +196,6 @@ public class AutoExplosion extends Module {
                 if(crysslot == -1){
                     return;
                 }
-                Aura.stopAuraRotate = true;
                 if(offAura.getValue()){
                     Thunderhack.moduleManager.getModuleByClass(Aura.class).disable();
                 }
@@ -213,19 +203,16 @@ public class AutoExplosion extends Module {
                 BlockUtils.placeBlockSmartRotate(CoolPosition.add(0,1,0),EnumHand.MAIN_HAND,true,packetplace.getValue(),mc.player.isSneaking(),e);
                 placeDelay.reset();
             } else {
-                Aura.stopAuraRotate = true;
                 if(offAura.getValue()){
                     Thunderhack.moduleManager.getModuleByClass(Aura.class).disable();
                 }
                 int obbyslot = InventoryUtil.findHotbarBlock(BlockObsidian.class);
                 if(obbyslot == -1){
-                    Aura.stopAuraRotate = false;
                     return;
                 }
                 InventoryUtil.switchToHotbarSlot(InventoryUtil.findHotbarBlock(BlockObsidian.class), false);
                 BlockUtils.placeBlockSmartRotate(CoolPosition,EnumHand.MAIN_HAND,true,packetplace.getValue(),mc.player.isSneaking(),e);
             }
-            Aura.stopAuraRotate = false;
         }
     }
 
@@ -237,14 +224,12 @@ public class AutoExplosion extends Module {
                     if (ent.ticksExisted >= delay.getValue()) {
                         if (breakDelay.passedMs(156)) {
                             if(CrystalUtils.calculateDamage((EntityEnderCrystal) ent, mc.player) < maxself.getValue()) {
-                                Aura.stopAuraRotate = true;
                                 mc.player.setSprinting(false);
                                 float[] angle = calcAngle(mc.player.getPositionEyes(mc.getRenderPartialTicks()), ent.getPositionEyes(mc.getRenderPartialTicks()));
                                 mc.player.rotationYaw =(angle[0]);
                                 mc.player.rotationPitch =(angle[1]);
                                 mc.player.connection.sendPacket(new CPacketUseEntity(ent));
                                 mc.player.swingArm(EnumHand.MAIN_HAND);
-                                Aura.stopAuraRotate = false;
                                 breakDelay.reset();
                             }
                         }
@@ -289,7 +274,6 @@ public class AutoExplosion extends Module {
                 if(crysslot == -1){
                     return;
                 }
-                Aura.stopAuraRotate = true;
                 if(offAura.getValue()){
                     Thunderhack.moduleManager.getModuleByClass(Aura.class).disable();
                 }
@@ -297,19 +281,16 @@ public class AutoExplosion extends Module {
                 BlockUtils.placeBlockSmartRotate(CoolPosition.add(0,1,0),EnumHand.MAIN_HAND,true,packetplace.getValue(),mc.player.isSneaking(),e);
                 placeDelay.reset();
             } else {
-                Aura.stopAuraRotate = true;
                 if(offAura.getValue()){
                     Thunderhack.moduleManager.getModuleByClass(Aura.class).disable();
                 }
                 int obbyslot = InventoryUtil.findHotbarBlock(BlockObsidian.class);
                 if(obbyslot == -1){
-                    Aura.stopAuraRotate = false;
                     return;
                 }
                 InventoryUtil.switchToHotbarSlot(InventoryUtil.findHotbarBlock(BlockObsidian.class), false);
                 BlockUtils.placeBlockSmartRotate(CoolPosition,EnumHand.MAIN_HAND,true,packetplace.getValue(),mc.player.isSneaking(),e);
             }
-            Aura.stopAuraRotate = false;
         }
     }
 

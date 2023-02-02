@@ -1,6 +1,7 @@
 package com.mrzak34.thunderhack.util;
 
 import com.mrzak34.thunderhack.gui.clickui.ColorUtil;
+import com.mrzak34.thunderhack.util.render.ShaderUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
@@ -16,6 +17,7 @@ public class RoundedShader {
     private static final ShaderUtil roundedTexturedShader = new ShaderUtil("textures/roundrecttextured.frag");
 
     private static final ShaderUtil roundedGradientShader = new ShaderUtil("roundedRectGradient");
+
 
     public static void drawRound(float x, float y, float width, float height, float radius, Color color) {
         drawRound(x, y, width, height, radius, false, color);
@@ -70,6 +72,8 @@ public class RoundedShader {
         roundedGradientShader.unload();
         GlStateManager.disableBlend();
     }
+
+
 
 
     public static void drawRound(float x, float y, float width, float height, float radius, boolean blur, Color color) {

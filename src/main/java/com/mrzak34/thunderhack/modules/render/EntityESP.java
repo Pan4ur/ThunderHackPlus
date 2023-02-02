@@ -1,12 +1,12 @@
 package com.mrzak34.thunderhack.modules.render;
 
-import com.mrzak34.thunderhack.event.events.Render2DEvent;
-import com.mrzak34.thunderhack.event.events.Render3DEvent;
+import com.mrzak34.thunderhack.events.Render2DEvent;
+import com.mrzak34.thunderhack.events.Render3DEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.setting.Setting;
-import com.mrzak34.thunderhack.util.DrawHelper;
-import com.mrzak34.thunderhack.util.MathematicHelper;
+import com.mrzak34.thunderhack.util.render.DrawHelper;
+import com.mrzak34.thunderhack.util.math.MathematicHelper;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GLAllocation;
 import net.minecraft.client.renderer.GlStateManager;
@@ -37,7 +37,7 @@ import java.util.List;
 public class EntityESP extends Module {
 
     public EntityESP() {
-        super("EntityESP", "Ренднрит есп-сущностей", Category.RENDER, true, false, false);
+        super("EntityESP", "Ренднрит есп-сущностей", Category.RENDER);
     }
 
     private final int black = Color.BLACK.getRGB();

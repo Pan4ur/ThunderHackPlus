@@ -1,7 +1,7 @@
 package com.mrzak34.thunderhack.modules.client;
 
-import com.mrzak34.thunderhack.event.events.ConnectToServerEvent;
-import com.mrzak34.thunderhack.event.events.TotemPopEvent;
+import com.mrzak34.thunderhack.events.ConnectToServerEvent;
+import com.mrzak34.thunderhack.events.TotemPopEvent;
 import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.modules.combat.Aura;
@@ -29,35 +29,45 @@ import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.Base64;
 import java.util.Date;
-import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import javax.imageio.ImageIO;
 
 import net.minecraft.client.gui.GuiChat;
-import net.minecraft.client.gui.GuiScreen;
 import org.apache.commons.lang3.RandomUtils;
 
 public class DiscordWebhook extends Module {
 
     public DiscordWebhook() {
-        super("DiscordWebhook", "DiscordWebhook", Category.CLIENT, true, false, false);
+        super("DiscordWebhook", "DiscordWebhook", Category.CLIENT);
     }
 
     public Setting<Boolean> ochat = register(new Setting<>("OpenChat", false));
     public Setting<Boolean> sendToDiscord = register(new Setting<>("SendToDiscord", true));
-    public Setting<String> whook = this.register(new Setting<String>("WHookURL", "."));
     public Setting<Boolean> SDescr = register(new Setting<>("ScreenDescription", true));
 
     public ByteArrayOutputStream a;
     public ExecutorService b;
 
 
+    @Override
+    public void onEnable(){
+
+        Command.sendMessage("Использовние: ");
+        Command.sendMessage("1. Введи ссылку на вебхук (со своего дискорд сервера) с помощью команды .whook <ссылка> ");
+        Command.sendMessage("2. Выбери действия в настройках модуля (по умолчанию отправляет скрины, килы ауры, килы лука, заходы на сервера) ");
+
+
+        Command.sendMessage("Using: ");
+        Command.sendMessage("1. Enter the link to the webhook (from your discord server) using the command .whook <link>");
+        Command.sendMessage("2. Choose actions in the module settings (by default sends screenshots, aura kills, bow kills, server joins)");
+    }
+
 
     public static String readurl(){
         try {
-            File file = new File("ThunderHack/WHOOK.txt");
+            File file = new File("ThunderHack/misc/WHOOK.txt");
 
             if (file.exists()) {
                 try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
@@ -76,7 +86,7 @@ public class DiscordWebhook extends Module {
 
 
     public static void saveurl(String rat) {
-        File file = new File("ThunderHack/WHOOK.txt");
+        File file = new File("ThunderHack/misc/WHOOK.txt");
         try {
             new File("ThunderHack").mkdirs();
             file.createNewFile();
@@ -275,20 +285,13 @@ public class DiscordWebhook extends Module {
 
 
 
-    public static void sendAuraMsg(EntityPlayer name,int killz, int hids,int missfuck, double speeed, boolean isBT,int bthits,int btmisses, float maxDist){
+    public static void sendAuraMsg(EntityPlayer name,int killz){
         int caps = AutoPot.neededCap;
         (new Thread(() -> {
             sendMsg("```" + mc.player.getName() + getAuraWord() + name.getName() + " c помощью " + mc.player.getHeldItemMainhand().getDisplayName() +
                             "\n" + "Убийств за сегодня: " + killz +
-                            "\n" + "Ударов потребовалось: " + hids + "( промахов: " + missfuck + ")" + "процент попаданий: " + calculatePercentage(hids - missfuck,hids) + "%" +
-                            "\n" + "BackTrack " + (isBT ? ("Включен  Ударов: " + bthits + " Промахов: " + btmisses  + " Макс.Дистанция "+ maxDist ) : "Выключен") +
-                            "\n" + "Каппучино потребовалось: " + caps +
-                            "\n" + "Макс. скорость цели: " + speeed + " км/ч" + "```", readurl());
+                            "\n" + "Каппучино потребовалось: " + caps + "```", readurl());
         })).start();
-
-        Aura.targetMaxSpeed = 0;
-        Aura.misshits = 0;
-        Aura.hits = 0;
         AutoPot.neededCap = 0;
     }
 
@@ -321,9 +324,5 @@ public class DiscordWebhook extends Module {
 
         }
         return "";
-    }
-
-    public static double calculatePercentage(double obtained, double total) {
-        return obtained * 100 / total;
     }
 }

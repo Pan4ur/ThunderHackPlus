@@ -1,8 +1,8 @@
 package com.mrzak34.thunderhack.modules.movement;
 
-import com.mrzak34.thunderhack.event.events.EventMove;
-import com.mrzak34.thunderhack.event.events.EventPreMotion;
-import com.mrzak34.thunderhack.event.events.PacketEvent;
+import com.mrzak34.thunderhack.events.EventMove;
+import com.mrzak34.thunderhack.events.EventPreMotion;
+import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import net.minecraft.network.play.server.SPacketEntityVelocity;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -10,7 +10,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 public class DMGFly extends Module {
 
     public DMGFly() {
-        super("DMGFly", "DMGFly", Category.MOVEMENT, true, false, false);
+        super("DMGFly", "DMGFly", Category.MOVEMENT);
     }
 
     public static long lastVelocityTime;

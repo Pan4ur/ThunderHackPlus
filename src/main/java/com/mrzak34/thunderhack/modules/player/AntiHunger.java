@@ -1,6 +1,6 @@
 package com.mrzak34.thunderhack.modules.player;
 
-import com.mrzak34.thunderhack.event.events.PacketEvent;
+import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import net.minecraft.network.play.client.CPacketEntityAction;
@@ -15,7 +15,7 @@ public class AntiHunger extends Module {
     private boolean isOnGround = false;
 
     public AntiHunger() {
-        super("AntiHunger", "уменьшает потребление-голода", Category.PLAYER, true,false,false);
+        super("AntiHunger", "уменьшает потребление-голода", Category.PLAYER);
     }
 
     public void onEnable() {

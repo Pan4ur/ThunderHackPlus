@@ -9,7 +9,7 @@ import com.mrzak34.thunderhack.util.Timer;
 
 public class AutoRespawn extends Module {
     public AutoRespawn() {
-        super("AutoRespawn", "автореспавн с автокитом", Category.PLAYER, true, false, false);
+        super("AutoRespawn", "автореспавн с автокитом", Category.PLAYER);
         this.timer = new Timer();
     }
     public Setting<Boolean> deathcoords = this.register ( new Setting <> ( "deathcoords", true ) );

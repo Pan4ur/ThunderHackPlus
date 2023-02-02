@@ -1,11 +1,11 @@
 package com.mrzak34.thunderhack.modules.funnygame;
 
-import com.mrzak34.thunderhack.event.events.EventPreMotion;
-import com.mrzak34.thunderhack.event.events.PacketEvent;
-import com.mrzak34.thunderhack.event.events.Render3DEvent;
+import com.mrzak34.thunderhack.events.EventPreMotion;
+import com.mrzak34.thunderhack.events.PacketEvent;
+import com.mrzak34.thunderhack.events.Render3DEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
-import com.mrzak34.thunderhack.util.RenderUtil;
+import com.mrzak34.thunderhack.util.render.RenderUtil;
 import com.mrzak34.thunderhack.util.SilentRotaionUtil;
 import com.mrzak34.thunderhack.util.Timer;
 import net.minecraft.network.play.client.CPacketPlayerTryUseItemOnBlock;
@@ -22,7 +22,7 @@ public class FunnyClicker extends Module {
 
 
     public FunnyClicker() {
-        super("FunnyClicker", "FunnyClicker", Category.FUNNYGAME, true, false, false);
+        super("FunnyClicker", "FunnyClicker", Category.FUNNYGAME);
     }
     public Setting<Integer> chanceval = this.register ( new Setting <> ( "Chance", 100, 1, 1000) );
 
@@ -58,7 +58,7 @@ public class FunnyClicker extends Module {
     public void onRender3D(Render3DEvent e){
         if(bp != null){
             try {
-                RenderUtil.drawBlockOutline(bp, new Color(0x0AF886), 3f, true);
+                RenderUtil.drawBlockOutline(bp, new Color(0x0AF886), 3f, true,0);
             } catch (Exception ee){
 
             }

@@ -1,29 +1,39 @@
 package com.mrzak34.thunderhack.gui.hud;
 
 import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.event.events.Render2DEvent;
+import com.mrzak34.thunderhack.events.Render2DEvent;
+import com.mrzak34.thunderhack.gui.thundergui.fontstuff.FontRender;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.setting.PositionSetting;
 import com.mrzak34.thunderhack.setting.Setting;
-import com.mrzak34.thunderhack.util.ChatColor;
-import com.mrzak34.thunderhack.util.RenderUtil;
+import com.mrzak34.thunderhack.util.render.RenderUtil;
+import com.mrzak34.thunderhack.util.RoundedShader;
 import net.minecraft.client.gui.GuiChat;
 import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.input.Mouse;
+import org.lwjgl.opengl.GL11;
 
-import java.awt.*;
 import java.util.Objects;
 
 public class KeyBinds extends Module{
 
     public KeyBinds() {
-        super("KeyBinds", "KeyBinds", Module.Category.HUD,true,true,false);
+        super("KeyBinds", "KeyBinds", Module.Category.HUD);
     }
 
-    public final Setting<ColorSetting> color = this.register(new Setting<>("Color", new ColorSetting(0x8800FF00)));
     private final Setting<PositionSetting> pos = this.register(new Setting<>("Position", new PositionSetting(0.5f,0.5f)));
+
+    public final Setting<ColorSetting> shadowColor = this.register(new Setting<>("ShadowColor", new ColorSetting(0xFF101010)));
+    public final Setting<ColorSetting> color2 = this.register(new Setting<>("Color", new ColorSetting(0xFF101010)));
+    public final Setting<ColorSetting> color3 = this.register(new Setting<>("Color2",  new ColorSetting(0xC59B9B9B)));
+    public final Setting<ColorSetting> textColor = this.register(new Setting<>("TextColor", new ColorSetting(0xBEBEBE)));
+    public final Setting<ColorSetting> oncolor = this.register(new Setting<>("OnColor", new ColorSetting(0xBEBEBE)));
+    public final Setting<ColorSetting> offcolor = this.register(new Setting<>("OffColor", new ColorSetting(0x646464)));
+
+    private Setting<Float> psize = this.register( new Setting<>("Size", 1f, 0.1f, 2f));
 
 
     float x1 =0;
@@ -35,26 +45,36 @@ public class KeyBinds extends Module{
         x1 = e.scaledResolution.getScaledWidth() * pos.getValue().getX();
 
 
-
-
-
-
-        float y = y1 -7;
-
+        int y_offset1 = 0;
         for (Module feature : Thunderhack.moduleManager.modules) {
             if (!Objects.equals(feature.getBind().toString(), "None") && !feature.getName().equalsIgnoreCase("clickgui") && !feature.getName().equalsIgnoreCase("thundergui")) {
-                RenderUtil.drawRect(x1, y1, x1 + 105, 13 + y1, new Color(61, 58, 58).getRGB());
-                RenderUtil.drawRect(x1, y1 - 10, 105 + x1, 2 + y1, new Color(123, 0, 255).getRGB());
-                RenderUtil.drawRect(x1, y1 - 8, 105 + x1, 12 + y1, new Color(61, 58, 58).getRGB());
-                fr.drawStringWithShadow("keybinds", 10 + fr.getStringWidth("keybinds") + x1, y1 - 5, -1);
-                String toggled = feature.isOn() ? ChatColor.GREEN +  " [enabled]" : ChatColor.GRAY +  " [disabled]";
-                fr.drawStringWithShadow(feature.getName(), 10 + x1, y + 4, -1);
-                fr.drawStringWithShadow(toggled, 75  + x1 , y + 4, -1);
-                y += 12;
+                y_offset1 += 10;
             }
         }
 
+        GlStateManager.pushMatrix();
+        size(x1 + 50, y1 + (20 + y_offset1) / 2f, psize.getValue());
 
+        RenderUtil.drawBlurredShadow(x1,y1,100,20 + y_offset1, 20, shadowColor.getValue().getColorObject());
+
+
+        RoundedShader.drawRound(x1,y1,100,20 + y_offset1, 7f, color2.getValue().getColorObject());
+        FontRender.drawCentString6("KeyBinds", x1 + 50, y1 + 5, textColor.getValue().getColor());
+        RoundedShader.drawRound(x1 + 2,y1 + 13,96,1, 0.5f, color3.getValue().getColorObject());
+
+        int y_offset = 0;
+        for (Module feature : Thunderhack.moduleManager.modules) {
+            if (!Objects.equals(feature.getBind().toString(), "None") && !feature.getName().equalsIgnoreCase("clickgui") && !feature.getName().equalsIgnoreCase("thundergui")) {
+                GlStateManager.pushMatrix();
+                GlStateManager.resetColor();
+                FontRender.drawString6("[" + feature.getBind().toString() + "]  " + feature.getName(), x1 + 5, y1 + 18 + y_offset, feature.isOn() ? oncolor.getValue().getColor() : offcolor.getValue().getColor(),false );
+                GlStateManager.resetColor();
+                GlStateManager.popMatrix();
+                y_offset+= 10;
+            }
+        }
+
+        GlStateManager.popMatrix();
 
         if(mc.currentScreen instanceof GuiChat || mc.currentScreen instanceof HudEditorGui){
             if(isHovering()){
@@ -88,5 +108,12 @@ public class KeyBinds extends Module{
 
     public boolean isHovering(){
         return normaliseX() > x1 - 10 && normaliseX()< x1 + 100 && normaliseY() > y1 &&  normaliseY() < y1 + 100;
+    }
+
+
+    public static void size( double width, double height ,double animation) {
+        GL11.glTranslated(width , height , 0);
+        GL11.glScaled(animation, animation, 1);
+        GL11.glTranslated(-width, -height , 0);
     }
 }

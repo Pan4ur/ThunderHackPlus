@@ -5,6 +5,7 @@ import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.mixin.mixins.AccessorKeyBinding;
 import com.mrzak34.thunderhack.util.*;
+import com.mrzak34.thunderhack.util.math.MathUtil;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemBow;
@@ -14,11 +15,10 @@ import net.minecraft.util.EnumHand;
 public class AntiBowBomb extends Module {
 
     public AntiBowBomb() {
-        super("AntiBowBomb", "Ставит щит если-в тебя целится-игрок", Category.COMBAT, true, false, false);
+        super("AntiBowBomb", "Ставит щит если-в тебя целится-игрок", Category.COMBAT);
     }
 
     public final Setting<Boolean> stopa = this.register(new Setting<Boolean>("StopAura", true));
-    public final Setting<Boolean> el = this.register(new Setting<Boolean>("EnemyList", false));
     EntityPlayer target;
     public Setting<Integer> range = this.register(new Setting<Object>("Range", 40, 0, 60));
     public Setting<Integer> maxUse = this.register(new Setting<Object>("MaxUse", 0, 0, 20));
@@ -76,11 +76,6 @@ public class AntiBowBomb extends Module {
                     Thunderhack.moduleManager.getModuleByClass(TargetStrafe.class).toggle();
                 }
             }
-            if (stopa.getValue()){
-                if(Thunderhack.moduleManager.getModuleByClass(DeadCodeAura.class).isEnabled()) {
-                    Thunderhack.moduleManager.getModuleByClass(DeadCodeAura.class).toggle();
-                }
-            }
             InventoryUtil.switchToHotbarSlot(shield,false);
 
             if (mc.player.getHeldItemMainhand().getItem() instanceof ItemShield) {
@@ -97,6 +92,6 @@ public class AntiBowBomb extends Module {
     }
 
     public boolean isntValid(Entity entity, double range) {
-        return entity == null || EntityUtil.isDead(entity) || entity.equals(mc.player) || entity instanceof EntityPlayer && Thunderhack.friendManager.isFriend(entity.getName()) || mc.player.getDistanceSq(entity) > MathUtil.square(range) || (el.getValue() && !Thunderhack.enemyManager.isEnemy(entity.getName()));
+        return entity == null || EntityUtil.isDead(entity) || entity.equals(mc.player) || entity instanceof EntityPlayer && Thunderhack.friendManager.isFriend(entity.getName()) || mc.player.getDistanceSq(entity) > MathUtil.square(range);
     }
 }

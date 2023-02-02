@@ -2,7 +2,7 @@ package com.mrzak34.thunderhack.notification;
 
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.gui.thundergui.fontstuff.FontRender;
-import com.mrzak34.thunderhack.util.RenderUtil;
+import com.mrzak34.thunderhack.util.render.RenderUtil;
 import com.mrzak34.thunderhack.util.Timer;
 import net.minecraft.client.gui.ScaledResolution;
 

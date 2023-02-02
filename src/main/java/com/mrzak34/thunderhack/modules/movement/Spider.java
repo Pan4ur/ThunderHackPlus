@@ -1,14 +1,8 @@
 package com.mrzak34.thunderhack.modules.movement;
 
-import com.mrzak34.thunderhack.event.events.EventPreMotion;
+import com.mrzak34.thunderhack.events.EventPreMotion;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
-import net.minecraft.block.Block;
-import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.init.Blocks;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import static com.mrzak34.thunderhack.util.MovementUtil.isMoving;
@@ -16,7 +10,7 @@ import static com.mrzak34.thunderhack.util.MovementUtil.isMoving;
 public class Spider extends Module {
 
     public Spider() {
-        super("Spider", "Spider", Category.MOVEMENT, true, false, false);
+        super("Spider", "Spider", Category.MOVEMENT);
     }
 
 

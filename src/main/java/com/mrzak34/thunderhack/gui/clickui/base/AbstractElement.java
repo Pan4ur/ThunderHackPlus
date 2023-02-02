@@ -3,7 +3,7 @@ package com.mrzak34.thunderhack.gui.clickui.base;
 import java.awt.Color;
 import java.io.IOException;
 
-import com.mrzak34.thunderhack.util.Drawable;
+import com.mrzak34.thunderhack.util.render.Drawable;
 import com.mrzak34.thunderhack.setting.Setting;
 
 

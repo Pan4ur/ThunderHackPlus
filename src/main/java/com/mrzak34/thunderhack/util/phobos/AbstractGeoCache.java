@@ -1,6 +1,6 @@
 package com.mrzak34.thunderhack.util.phobos;
 
-import com.mrzak34.thunderhack.util.MathUtil;
+import com.mrzak34.thunderhack.util.math.MathUtil;
 import net.minecraft.util.math.Vec3i;
 
 public abstract class AbstractGeoCache implements GeoCache

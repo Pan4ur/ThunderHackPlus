@@ -1,12 +1,12 @@
 package com.mrzak34.thunderhack.modules.combat;
 
 import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.event.events.EventPreMotion;
-import com.mrzak34.thunderhack.event.events.PacketEvent;
-import com.mrzak34.thunderhack.event.events.Render3DEvent;
+import com.mrzak34.thunderhack.events.EventPreMotion;
+import com.mrzak34.thunderhack.events.PacketEvent;
+import com.mrzak34.thunderhack.events.Render3DEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
-import com.mrzak34.thunderhack.util.PaletteHelper;
+import com.mrzak34.thunderhack.util.render.PaletteHelper;
 import com.mrzak34.thunderhack.util.EntityUtil;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.EntityLivingBase;
@@ -23,28 +23,29 @@ import org.lwjgl.opengl.GL11;
 import java.util.Objects;
 
 public class TargetStrafe extends Module {
-    public TargetStrafe() { super("TargetStrafe", "Вращаться вокруг цели", Category.COMBAT, true, false, false); }
+    public TargetStrafe() { super("TargetStrafe", "Вращаться вокруг цели", Category.COMBAT); }
 
 
     private float wrap = 0F;
     private boolean switchDir = true;
-    public final Setting<Float> reversedDistance = this.register(new Setting<Float>("Reversed Distance", 3.0f, 1.0f, 6.0f));
-    public final Setting<Float> speedIfUsing = this.register(new Setting<Float>("Speed if using", 0.1f, 0.1f, 2.0f));
-    public final Setting<Float> range = this.register(new Setting<Float>("Strafe Distance", 2.4f, 0.1f, 6.0f));
-    public final Setting<Float> spd = this.register(new Setting<Float>("Strafe Speed", 0.23f, 0.1f, 2.0f));
+    public Setting<Float> reversedDistance = this.register(new Setting<>("Reversed Distance", 3.0f, 1.0f, 6.0f));
+    public Setting<Float> speedIfUsing = this.register(new Setting<>("Speed if using", 0.1f, 0.1f, 2.0f));
+    public Setting<Float> range = this.register(new Setting<>("Strafe Distance", 2.4f, 0.1f, 6.0f));
+    public Setting<Float> spd = this.register(new Setting<>("Strafe Speed", 0.23f, 0.1f, 2.0f));
     public Setting <Boolean> reversed = this.register ( new Setting <> ( "Reversed", false));
     public Setting <Boolean> autoJump  = this.register ( new Setting <> ( "AutoJump", true));
     public Setting <Boolean> smartStrafe = this.register ( new Setting <> ( "Smart Strafe", true));
-    public Setting <Boolean> usingItemCheck = this.register ( new Setting <> ( "Speed if using", false));
+    public Setting <Boolean> usingItemCheck = this.register ( new Setting <> ( "EatingSlowDown", false));
     public Setting <Boolean> speedpot = this.register ( new Setting <> ( "Speed if Potion ", true));
-    public final Setting<Float> spdd = this.register(new Setting<Float>("PotionSpeed", 0.45f, 0.1f, 2.0f,v -> speedpot.getValue()));
+    public Setting<Float> spdd = this.register(new Setting<>("PotionSpeed", 0.45f, 0.1f, 2.0f,v -> speedpot.getValue()));
     public Setting<Boolean> SwitchIfMiss = register(new Setting("SwitchIfMiss", true));
     public Setting<Boolean> autoThirdPerson = register(new Setting("AutoThirdPers", Boolean.TRUE));
     public Setting<Float> trgrange = register(new Setting("TrgtRange", 3.8F, 0.1F, 7.0F));
     public Setting <Boolean> drawradius = this.register ( new Setting <> ( "drawradius", true));
     public Setting <Boolean> strafeBoost = this.register ( new Setting <> ( "StrafeBoost", false));
     public Setting <Boolean> addddd = this.register ( new Setting <> ( "add", false));
-
+    public Setting<Float> reduction  = this.register(new Setting<>("reduction ", 2f, 1f, 5f));
+    public Setting<Float> velocityUse  = this.register(new Setting<>("velocityUse ", 50000f, 0.1f, 100000f));
     EntityPlayer strafeTarget = null;
     public Setting<Integer> bticks = register(new Setting("BoostTicks", 5, 0, 60));
     public Setting<Integer> velocitydecrement = register(new Setting("BoostDecr", 5, 0, 5000));
@@ -98,10 +99,6 @@ public class TargetStrafe extends Module {
 
             strafeTarget = (EntityPlayer) Aura.target;
 
-        } else if(DeadCodeAura.target != null){
-            if(DeadCodeAura.target instanceof EntityPlayer) {
-                strafeTarget = (EntityPlayer) DeadCodeAura.target;
-            }
         } else {
             strafeTarget = null;
         }
@@ -271,9 +268,6 @@ public class TargetStrafe extends Module {
             }
         }
     }
-
-    public Setting<Float> reduction  = this.register(new Setting<>("reduction ", 2f, 1f, 5f));
-    public Setting<Float> velocityUse  = this.register(new Setting<>("velocityUse ", 50000f, 0.1f, 100000f));
 
     int velocity = 0;
 

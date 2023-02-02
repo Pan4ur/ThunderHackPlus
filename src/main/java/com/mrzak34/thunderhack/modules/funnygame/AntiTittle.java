@@ -1,19 +1,16 @@
 package com.mrzak34.thunderhack.modules.funnygame;
 
-import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.event.events.PacketEvent;
-import com.mrzak34.thunderhack.event.events.Render2DEvent;
+import com.mrzak34.thunderhack.events.PacketEvent;
+import com.mrzak34.thunderhack.events.Render2DEvent;
 import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.modules.Module;
-import com.mrzak34.thunderhack.modules.misc.ChatTweaks;
 import com.mrzak34.thunderhack.setting.Setting;
-import com.mrzak34.thunderhack.util.PaletteHelper;
-import com.mrzak34.thunderhack.util.RenderUtil;
+import com.mrzak34.thunderhack.util.render.PaletteHelper;
+import com.mrzak34.thunderhack.util.render.RenderUtil;
 import com.mrzak34.thunderhack.util.Util;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.network.play.server.SPacketChat;
 import net.minecraft.network.play.server.SPacketTitle;
-import net.minecraft.util.text.ChatType;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.awt.*;
@@ -21,17 +18,20 @@ import java.awt.*;
 public class AntiTittle extends Module {
 
     public AntiTittle() {
-        super("Adblock", "Адблок для ебучего-фанигейма", Category.FUNNYGAME, true, false, false);
+        super("Adblock", "Адблок для ебучего-фанигейма", Category.FUNNYGAME);
     }
 
 
-    public Setting<Boolean> tittle  = this.register(new Setting<Boolean>("AntiTitle", true));
-    public Setting<Boolean> armorstands  = this.register(new Setting<Boolean>("AntiSpawnLag", true));
-    public Setting<Boolean> scoreBoard  = this.register(new Setting<Boolean>("ScoreBoard", true));
-    public Setting<Boolean> chat  = this.register(new Setting<Boolean>("ChatAds", true));
-    public Setting<Integer> waterMarkZ1 = register(new Setting("Y", 10, 0, 524));
-    public Setting<Integer> waterMarkZ2 = register(new Setting("X", 20, 0, 862));
-    public Setting<Boolean> counter  = this.register(new Setting<Boolean>("Counter", false));
+    public Setting<Boolean> tittle  = this.register(new Setting<>("AntiTitle", true));
+    public Setting<Boolean> armorstands  = this.register(new Setting<>("AntiSpawnLag", true));
+    public Setting<Boolean> scoreBoard  = this.register(new Setting<>("ScoreBoard", true));
+    public Setting<Integer> waterMarkZ1 = register(new Setting<>("Y", 10, 0, 524));
+    public Setting<Integer> waterMarkZ2 = register(new Setting<>("X", 20, 0, 862));
+    public Setting<Boolean> counter  = this.register(new Setting<>("Counter", false));
+    public Setting<Boolean> chat  = this.register(new Setting<>("ChatAds", true));
+    public Setting<Boolean>  donators  = this.register(new Setting<>("Donators", true));
+
+
 
     int count = 0;
     int y1 =0;
@@ -59,102 +59,75 @@ public class AntiTittle extends Module {
                 e.setCanceled(true);
             }
         }
-        if(chat.getValue() && !Thunderhack.moduleManager.getModuleByClass(ChatTweaks.class).isOn()) {
-            if (e.getPacket() instanceof SPacketChat) {
-                final SPacketChat packet = (SPacketChat) e.getPacket();
-                if (packet.getType() != ChatType.GAME_INFO && this.tryProcessChat(packet.getChatComponent().getFormattedText(), packet.getChatComponent().getUnformattedText())) {
-                    e.setCanceled(true);
-                }
+        if(chat.getValue() && e.getPacket() instanceof SPacketChat) {
+            final SPacketChat packet = e.getPacket();
+            if (shouldCancel(packet.getChatComponent().getFormattedText())) {
+                e.setCanceled(true);
             }
         }
     }
 
+    private boolean shouldCancel(String message){
+        if(message.contains("Все очистится через"))
+            return true;
+        if(message.contains("Предметы на карте успешно"))
+            return true;
+        if(message.contains("Обычный чат работает на")) // 99999 блоков, ведь можно донатить, поэтому передавай инфу в дс
+            return true;
+        if(message.contains("Хочешь выделиться на сервере?")) // крашни его, нахуя донатить?
+            return true;
+        if(message.contains("Успей использовать промо-код")) //дженро хуесос для получения бана навсегда!
+            return true;
+        if(message.contains("В данный момент действуют большие")) //заталкивания хуев вам в задницу, дорогие игроки серверов дженро!
+            return true;
+        if(message.contains("есть любые способы оплаты"))
+            return true;
+        if(message.contains("Открыть купленные ключи"))
+            return true;
+        if(message.contains("Группа сервера ВКонтакте"))
+            return true;
+        if(message.contains("чем больше ключей вы покупаете")) // тем меньше у вас iq
+            return true;
+        if(message.contains("Не хватает денег на привилегию"))
+            return true;
+        if(message.contains("Продавать что-либо за реальную валюту"))
+            return true;
+        if(message.contains("Сейчас действуют большие скидки"))
+            return true;
+        if(message.contains("/donate"))
+            return true;
+        if(message.contains("Чтобы избежать взлома"))
+            return true;
+        if(message.contains("Оскорбление администрации строго")) //разрешено!
+            return true;
+        if(message.contains("Включить пвп в своем регионе"))
+            return true;
+        if(message.contains("/trade"))
+            return true;
+        if(message.contains("После вайпа остается пароль+привилегия"))
+            return true;
+        if(message.contains("FunnyGame.su"))
+            return true;
 
-    private boolean tryProcessChat(String message, final String unformatted) {
-        String out = message;
-        final String[] parts = out.split(" ");
-        final String[] partsUnformatted = unformatted.split(" ");
+        if (donators.getValue()) {
+            String premessage = message;
+            message = message.replace("§r§6§l[§r§b§lПРЕЗИДЕНТ§r§6§l]§r", "§r");
+            message = message.replace("§r§d§l[§r§5§lАдмин§r§d§l]§r", "§r");
+            message = message.replace("§r§b§l[§r§3§lГл.Админ§r§b§l]§r", "§r");
+            message = message.replace("§8[§r§6Игрок§r§8]§r", "§r");
+            message = message.replace("§r§5§l[§r§e§lБОГ§r§5§l]§r", "§r");
+            message = message.replace("§r§a§l[§r§2§lКреатив§r§a§l]", "§r");
+            message = message.replace("§r§4§l[§r§c§lВладелец§r§4§l]", "§r");
+            message = message.replace("§r§5§l[§r§d§lОснователь§r§5§l]", "§r");
+            message = message.replace("§r§b§l[§r§e§l?§r§d§lСПОНСОР§r§e§l?§r§b§l]", "§r");
+            message = message.replace("§r§6§l[§r§e§lЛорд§r§6§l]", "§r");
+            message = message.replace("§r§4§l[§r§2§lВЛАДЫКА§r§4§l]", "§r");
+            if(!message.equals(premessage)){
+                Command.sendMessageWithoutTH(message);
+                return true;
+            }
 
-
-        out = message;
-
-
-        if(   out.contains("донат")){
-            ++count;
-            out = "";
         }
-        if(   out.contains("оплаты")){
-            ++count;
-            out = "";
-        }
-        if(   out.contains("Купить ключ")){
-            ++count;
-            out = "";
-        }
-        if(   out.contains("После вайпа")){
-            ++count;
-            out = "";
-        }
-        if(   out.contains("Открыть купленные")){
-            ++count;
-            out = "";
-        }
-        if(   out.contains("§7[§r§e§l+§r§7]")){
-            ++count;
-            out = "";
-        }
-        if(   out.contains("/prize")){
-            ++count;
-            out = "";
-        }
-      //  if( &&  out.contains("*")){
-       //     out = "";
-       // }
-        if(   out.contains("награда")){
-            ++count;
-            out = "";
-        }
-
-        if(   out.contains("§a§l§m")){
-            ++count;
-            out = "";
-        }
-        if(   out.contains("§a§l[!]")){
-            ++count;
-            out = "";
-        }
-        if(   out.contains("выбил из бесплатного")){
-            ++count;
-            out = "";
-        }
-        if(   out.contains("выделиться на сервере")){
-            ++count;
-            out = "";
-        }
-        if(   out.contains("большие скидки")){
-            ++count;
-            out = "";
-        }
-        if(   out.contains("руб")){
-            ++count;
-            out = "";
-        }
-        if(   out.contains("привяжите свой")){
-            ++count;
-            out = "";
-        }
-        if(   out.contains("сайте")){
-            ++count;
-            out = "";
-        }
-
-        try {
-                if(!out.equals("")){
-                    Command.sendMessageWithoutTH(out);
-                }
-        } catch (Exception exception){}
-        return true;
+        return false;
     }
-
-
 }

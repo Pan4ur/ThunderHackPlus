@@ -1,7 +1,7 @@
 package com.mrzak34.thunderhack.util.phobos;
 
 import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.event.events.UpdateEntitiesEvent;
+import com.mrzak34.thunderhack.events.UpdateEntitiesEvent;
 import com.mrzak34.thunderhack.mixin.ducks.IEntityPlayer;
 import com.mrzak34.thunderhack.modules.Feature;
 import com.mrzak34.thunderhack.modules.combat.AutoCrystal;

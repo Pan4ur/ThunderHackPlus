@@ -12,18 +12,15 @@ import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 
 public class ReloadSoundCommand extends Command {
     public ReloadSoundCommand() {
-        super("sound", new String[0]);
+        super("sound");
     }
 
     @Override
     public void execute(final String[] commands) {
         try {
-            final SoundManager sndManager = (SoundManager) ObfuscationReflectionHelper.getPrivateValue(SoundHandler.class, ReloadSoundCommand.mc.getSoundHandler(), new String[]{"sndManager", "sndManager"});
-            sndManager.reloadSoundSystem();
+            mc.getSoundHandler().sndManager.reloadSoundSystem();
             Command.sendMessage(ChatFormatting.GREEN + "Reloaded Sound System.");
         } catch (Exception e) {
-            System.out.println(ChatFormatting.RED + "Could not restart sound manager: " + e.toString());
-            e.printStackTrace();
             Command.sendMessage(ChatFormatting.RED + "Couldnt Reload Sound System!");
         }
     }

@@ -1,6 +1,6 @@
 package com.mrzak34.thunderhack.modules.combat;
 
-import com.mrzak34.thunderhack.event.events.PacketEvent;
+import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.util.Timer;
 import net.minecraft.client.gui.inventory.GuiContainer;
@@ -16,7 +16,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class AutoTotem extends Module {
     public AutoTotem() {
-        super("AutoTotem", "AutoTotem", Category.COMBAT, true, false, false);
+        super("AutoTotem", "AutoTotem", Category.COMBAT);
     }
 
 
@@ -62,12 +62,22 @@ public class AutoTotem extends Module {
                     return i;
                 }
             } else {
-                if (item == itemStackInSlot.getItem() && !item.getRarity(itemStackInSlot).equals(EnumRarity.RARE)) {
+                if (item == itemStackInSlot.getItem() && (!item.getRarity(itemStackInSlot).equals(EnumRarity.RARE) || (noGapples()))) {
                     if (i < 9) i += 36;
                     return i;
                 }
             }
         }
         return -1;
+    }
+
+    private static boolean noGapples() {
+        for (int i = 0; i < 36; ++i) {
+            ItemStack itemStackInSlot = mc.player.inventory.getStackInSlot(i);
+            if (Items.GOLDEN_APPLE == itemStackInSlot.getItem() && !Items.GOLDEN_APPLE.getRarity(itemStackInSlot).equals(EnumRarity.RARE)) {
+                return false;
+            }
+        }
+        return true;
     }
 }

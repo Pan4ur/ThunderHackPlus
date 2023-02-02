@@ -1,7 +1,7 @@
 package com.mrzak34.thunderhack.mixin.mixins;
 
-import com.mrzak34.thunderhack.event.events.EventBlockCollisionBoundingBox;
-import com.mrzak34.thunderhack.event.events.JesusEvent;
+import com.mrzak34.thunderhack.events.EventBlockCollisionBoundingBox;
+import com.mrzak34.thunderhack.events.JesusEvent;
 import com.mrzak34.thunderhack.modules.player.LiquidInteract;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockLiquid;
@@ -29,7 +29,7 @@ public class MixinBlockLiquid extends Block {
     }
     @Inject(method = { "getCollisionBoundingBox" },  at = { @At("HEAD") },  cancellable = true)
     public void getCollisionBoundingBoxHook(final IBlockState blockState,  final IBlockAccess worldIn,  final BlockPos pos,  final CallbackInfoReturnable<AxisAlignedBB> info) {
-        final JesusEvent event = new JesusEvent(0,  pos);
+        final JesusEvent event = new JesusEvent( pos);
         MinecraftForge.EVENT_BUS.post(event);
         if (event.isCanceled()) {
             info.setReturnValue(event.getBoundingBox());

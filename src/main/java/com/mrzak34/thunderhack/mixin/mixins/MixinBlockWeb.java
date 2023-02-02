@@ -21,9 +21,9 @@ public class MixinBlockWeb extends Block {
     }
 
     /**
-     * @author pan4ur
+     * @author
+     * @reason
      */
-
     @Nullable
     @Overwrite
     public AxisAlignedBB getCollisionBoundingBox(IBlockState blockState, IBlockAccess worldIn, BlockPos pos) {

@@ -1,26 +1,20 @@
 package com.mrzak34.thunderhack.modules.movement;
 
-import com.mrzak34.thunderhack.event.events.EventPreMotion;
-import com.mrzak34.thunderhack.event.events.PacketEvent;
+import com.mrzak34.thunderhack.events.EventPreMotion;
+import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
-import com.mrzak34.thunderhack.util.MathUtil;
+import com.mrzak34.thunderhack.util.math.MathUtil;
 import com.mrzak34.thunderhack.util.MovementUtil;
-import net.minecraft.block.Block;
-import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.init.Blocks;
 import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraft.network.play.server.SPacketPlayerPosLook;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 
 
 public class Flight extends Module {
     public Flight() {
-        super("Flight",  "Makes you fly.",  Module.Category.MOVEMENT,  true,  false,  false);
+        super("Flight",  "Makes you fly.",  Module.Category.MOVEMENT);
     }
 
 
@@ -34,7 +28,6 @@ public class Flight extends Module {
     public Setting<Float> vspeedValue = this.register(new Setting<Float>("Vertical", 0.78F, 0.0F, 5F,v-> mode.getValue() == Mode.MatrixJump));
     public Setting<Boolean> spoofValue = register(new Setting<>("Ground", false,v-> mode.getValue() == Mode.MatrixJump));
     public Setting<Boolean> aboba = register(new Setting<>("AutoToggle", false,v-> mode.getValue() == Mode.MatrixJump));
-    public Setting<Float> xxx = register(new Setting("xHitBoxExpand", 1f, 0, 2f,v-> mode.getValue() == Mode.AirJump));
 
 
     @SubscribeEvent
@@ -52,18 +45,13 @@ public class Flight extends Module {
                 Flight.mc.player.motionZ = 0.0;
             }
             if (Flight.mc.gameSettings.keyBindJump.isKeyDown()) {
-                final EntityPlayerSP player3 = Flight.mc.player;
-                double motionY;
-                final EntityPlayerSP player4 = Flight.mc.player;
-                motionY = (player4.motionY += this.speed.getValue());
-                player3.motionY = motionY;
+                mc.player.motionY += this.speed.getValue();
             }
             if (Flight.mc.gameSettings.keyBindSneak.isKeyDown()) {
-                final EntityPlayerSP player5 = Flight.mc.player;
-                player5.motionY -= this.speed.getValue();
+                mc.player.motionY -= this.speed.getValue();
             }
         } else if(mode.getValue() == Mode.AirJump){
-            if(MovementUtil.isMoving() && checkHorizontal() && mc.gameSettings.keyBindJump.isKeyDown()){
+            if(MovementUtil.isMoving() && !mc.world.getCollisionBoxes(mc.player, mc.player.getEntityBoundingBox().expand(0.5, 0.0, 0.5).offset(0.0, -1.0, 0.0)).isEmpty()){
                 mc.player.onGround = true;  //ахуеть, 2 строчки байпасят матрикс
                 mc.player.jump();
             }
@@ -143,23 +131,4 @@ public class Flight extends Module {
             }
         }
     }
-
-    //когда лезем всегда онграунд и моушн 0.42 пон
-
-    public boolean checkHorizontal() {
-        final AxisAlignedBB bb = mc.player.getEntityBoundingBox().grow(xxx.getValue(), 0, xxx.getValue());
-        boolean flag = false;
-        int y = (int) bb.minY;
-        for (int x = MathHelper.floor(bb.minX); x < MathHelper.floor(bb.maxX + 1.0D); x++) {
-            for (int z = MathHelper.floor(bb.minZ); z < MathHelper.floor(bb.maxZ + 1.0D); z++) {
-                final Block block = mc.world.getBlockState(new BlockPos(x, y, z)).getBlock();
-                if (block != Blocks.AIR) {
-                    flag = true;
-                }
-            }
-        }
-        return flag;
-
-    }
-
 }

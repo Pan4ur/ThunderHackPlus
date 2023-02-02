@@ -1,11 +1,10 @@
 package com.mrzak34.thunderhack.modules.render;
 
-import com.mrzak34.thunderhack.command.Command;
+import com.mrzak34.thunderhack.events.PreRenderEvent;
 import com.mrzak34.thunderhack.gui.thundergui.fontstuff.FontRender;
 import com.mrzak34.thunderhack.modules.*;
 import com.mrzak34.thunderhack.setting.*;
-import com.mrzak34.thunderhack.event.events.*;
-import com.mrzak34.thunderhack.util.PaletteHelper;
+import com.mrzak34.thunderhack.util.render.PaletteHelper;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.entity.player.*;
 import net.minecraft.entity.*;
@@ -25,7 +24,7 @@ import com.mrzak34.thunderhack.util.*;
 import java.util.*;
 import com.mrzak34.thunderhack.*;
 
-import static com.mrzak34.thunderhack.util.RenderUtil.drawRect;
+import static com.mrzak34.thunderhack.util.render.RenderUtil.drawRect;
 
 public class NameTags extends Module
 {
@@ -57,7 +56,7 @@ public class NameTags extends Module
     private final Setting<Boolean> smartScale;
 
     public NameTags() {
-        super("NameTags",  "Better Nametags.",  Module.Category.RENDER,  true,  false,  false);
+        super("NameTags",  "Better Nametags.",  Module.Category.RENDER);
         this.health = (Setting<Boolean>)this.register(new Setting("Health", true));
         this.armor = (Setting<Boolean>)this.register(new Setting("Armor", true));
         this.mode = (Setting<Mode>)this.register(new Setting("Mode", Mode.MINIMAL));
@@ -101,11 +100,11 @@ public class NameTags extends Module
     }
 
     @SubscribeEvent
-    public void onNigga(PostRenderEvent event) {
+    public void onNigga(PreRenderEvent event) {
         if (!fullNullCheck()) {
             for (final EntityPlayer player : NameTags.mc.world.playerEntities) {
                 if (player != null && !player.equals((Object)NameTags.mc.player) && player.isEntityAlive() && (!player.isInvisible() || this.invisibles.getValue())) {
-                    if (this.onlyFov.getValue() && RotationUtil.isInFov((Entity)player)) {
+                    if (this.onlyFov.getValue() && !RotationUtil.isInFov((Entity)player)) {
                         continue;
                     }
                     final double x = this.interpolate(player.lastTickPosX,  player.posX,  event.getPartialTicks()) - NameTags.mc.getRenderManager().renderPosX;

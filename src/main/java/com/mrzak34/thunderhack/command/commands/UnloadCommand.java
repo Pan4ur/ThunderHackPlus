@@ -6,7 +6,7 @@ import com.mrzak34.thunderhack.command.Command;
 public class UnloadCommand
         extends Command {
     public UnloadCommand() {
-        super("unload", new String[0]);
+        super("unload");
     }
 
     @Override

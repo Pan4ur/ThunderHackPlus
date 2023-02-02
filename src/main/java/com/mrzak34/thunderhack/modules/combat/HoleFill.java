@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 
 public class HoleFill extends Module {
     public HoleFill() {
-        super("HoleFill", "HoleFill", Category.COMBAT, true, false, false);
+        super("HoleFill", "HoleFill", Category.COMBAT);
     }
 
     private  Setting<Mode> mode =register( new Setting<>("Mode", Mode.Web));

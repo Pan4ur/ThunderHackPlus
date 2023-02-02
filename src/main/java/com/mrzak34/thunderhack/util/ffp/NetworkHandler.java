@@ -113,30 +113,6 @@ public class NetworkHandler {
         }
     }
 
-    public void unregisterListener(EnumPacketDirection direction, PacketListener listener) {
-        List<PacketListener>[] listeners;
-        ReadWriteLock[] locks;
-
-        if(direction == EnumPacketDirection.CLIENTBOUND) {
-            listeners = this.inbound_listeners;
-            locks = this.inbound_lock;
-        } else {
-            listeners = this.outbound_listeners;
-            locks = this.outbound_lock;
-        }
-
-        for(int i = 0; i < listeners.length; i ++) {
-            try {
-                locks[i].writeLock().lock();
-                if(listeners[i] != null) {
-                    listeners[i].remove(listener);
-                    if(listeners[i].size() == 0) listeners[i] = null;
-                }
-            } finally {
-                locks[i].writeLock().unlock();
-            }
-        }
-    }
 
     public void unregisterListener(EnumPacketDirection direction, PacketListener listener, int ... ids) {
         List<PacketListener>[] listeners;
@@ -169,18 +145,6 @@ public class NetworkHandler {
         }
     }
 
-    public INetHandler getNetHandler() {
-        if(this.networkManager != null) {
-            return this.networkManager.getNetHandler();
-        }
-        return null;
-    }
-
-    public void disconnect() {
-        if(this.networkManager != null) {
-            this.networkManager.closeChannel(new TextComponentString("You have been successfully disconnected from server"));
-        }
-    }
 
     @SubscribeEvent
     public void onConnect(FMLNetworkEvent.ClientConnectedToServerEvent event) {
@@ -213,13 +177,6 @@ public class NetworkHandler {
     @SubscribeEvent
     public void onDisconnect(FMLNetworkEvent.ClientDisconnectionFromServerEvent event) {
         this.isConnected = false;
-       // FamilyFunPack.getModules().onDisconnect();
-       // FamilyFunPack.getMainGui().reset();
         this.networkManager = null;
     }
-
-    public boolean isConnected() {
-        return this.isConnected;
-    }
-
 }

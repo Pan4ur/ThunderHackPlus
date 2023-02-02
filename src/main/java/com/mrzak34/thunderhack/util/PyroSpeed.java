@@ -1,6 +1,6 @@
 package com.mrzak34.thunderhack.util;
 
-import com.mrzak34.thunderhack.event.events.EventMove;
+import com.mrzak34.thunderhack.events.EventMove;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.MovementInput;
 import net.minecraft.util.math.AxisAlignedBB;

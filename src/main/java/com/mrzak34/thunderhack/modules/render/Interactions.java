@@ -1,6 +1,6 @@
 package com.mrzak34.thunderhack.modules.render;
 
-import com.mrzak34.thunderhack.event.events.Render3DEvent;
+import com.mrzak34.thunderhack.events.Render3DEvent;
 import com.mrzak34.thunderhack.gui.thundergui.fontstuff.FontRender;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.ColorSetting;
@@ -9,8 +9,8 @@ import com.mrzak34.thunderhack.mixin.mixins.IEntityRenderer;
 import com.mrzak34.thunderhack.mixin.mixins.IPlayerControllerMP;
 import com.mrzak34.thunderhack.mixin.mixins.IRenderGlobal;
 import com.mrzak34.thunderhack.mixin.mixins.IRenderManager;
-import com.mrzak34.thunderhack.util.BlockRenderUtil;
-import com.mrzak34.thunderhack.util.RenderUtil;
+import com.mrzak34.thunderhack.util.render.BlockRenderUtil;
+import com.mrzak34.thunderhack.util.render.RenderUtil;
 import com.mrzak34.thunderhack.util.TessellatorUtil;
 import net.minecraft.client.renderer.DestroyBlockProgress;
 import net.minecraft.client.renderer.GlStateManager;
@@ -25,7 +25,7 @@ import org.lwjgl.opengl.GL11;
 public class Interactions extends Module {
 
     public Interactions() {
-        super("BreakHighLight", "рендерит ломания-блоков", Category.RENDER, true, false, false);
+        super("BreakHighLight", "рендерит ломания-блоков", Category.RENDER);
     }
 
     private  Setting<BreakRenderMode> bRenderMode = this.register(new Setting<>("BRenderMove", BreakRenderMode.GROW));

@@ -16,7 +16,7 @@ import java.util.List;
 public class MixinGuiPlayerTabOverlay extends Gui {
     @Redirect(method = {"renderPlayerlist"}, at = @At(value = "INVOKE", target = "Ljava/util/List;subList(II)Ljava/util/List;"))
     public List<NetworkPlayerInfo> subListHook(List<NetworkPlayerInfo> list, int fromIndex, int toIndex) {
-        return list.subList(fromIndex, ExtraTab.getINSTANCE().isEnabled() ? Math.min((ExtraTab.getINSTANCE()).size.getValue().intValue(), list.size()) : toIndex);
+        return list.subList(fromIndex, ExtraTab.getINSTANCE().isEnabled() ? Math.min((ExtraTab.getINSTANCE()).size.getValue(), list.size()) : toIndex);
     }
 
     @Inject(method = {"getPlayerName"}, at = {@At("HEAD")}, cancellable = true)

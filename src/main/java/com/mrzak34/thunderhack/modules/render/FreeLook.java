@@ -1,6 +1,6 @@
 package com.mrzak34.thunderhack.modules.render;
 
-import com.mrzak34.thunderhack.event.events.TurnEvent;
+import com.mrzak34.thunderhack.events.TurnEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import net.minecraft.util.math.MathHelper;
@@ -9,7 +9,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class FreeLook extends Module{
     public FreeLook() {
-        super("FreeLook", "FreeLook", Module.Category.RENDER, true, false, false);
+        super("FreeLook", "FreeLook", Module.Category.RENDER);
     }
 
     private float dYaw = 0F;

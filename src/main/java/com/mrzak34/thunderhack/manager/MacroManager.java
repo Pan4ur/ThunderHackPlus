@@ -1,7 +1,6 @@
 package com.mrzak34.thunderhack.manager;
 
 import com.mrzak34.thunderhack.macro.Macro;
-import org.lwjgl.input.Keyboard;
 
 import java.io.*;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -16,15 +15,15 @@ public class MacroManager  {
         }
     }
 
-    public static void removeMacro(Macro macro) {
+    public void removeMacro(Macro macro) {
         macros.remove(macro);
     }
 
-    public static CopyOnWriteArrayList<Macro> getMacros() {
+    public  CopyOnWriteArrayList<Macro> getMacros() {
         return macros;
     }
 
-    public static Macro getMacroByName(String name) {
+    public  Macro getMacroByName(String name) {
         for (Macro macro : getMacros()) {
             if (macro.getName().equalsIgnoreCase(name)) {
                 return macro;
@@ -36,7 +35,7 @@ public class MacroManager  {
     public static void onLoad(){
         macros = new CopyOnWriteArrayList<>();
         try {
-            File file = new File("ThunderHack/macro.txt");
+            File file = new File("ThunderHack/misc/macro.txt");
 
             if (file.exists()) {
                 try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
@@ -45,7 +44,7 @@ public class MacroManager  {
                         String name = nameandkey[0];
                         String key = nameandkey[1];
                         String command = nameandkey[2];
-                        MacroManager.addMacro(new Macro(name, command,Integer.parseInt(key)));
+                        addMacro(new Macro(name, command,Integer.parseInt(key)));
                     }
 
                 }
@@ -54,7 +53,7 @@ public class MacroManager  {
     }
 
     public static void saveMacro() {
-        File file = new File("ThunderHack/macro.txt");
+        File file = new File("ThunderHack/misc/macro.txt");
             try {
                 new File("ThunderHack").mkdirs();
                 file.createNewFile();

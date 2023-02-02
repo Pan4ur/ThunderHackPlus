@@ -1,10 +1,11 @@
 package com.mrzak34.thunderhack.gui.thundergui.components.items.buttons;
 
-import com.mrzak34.thunderhack.Thunderhack;
+import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.gui.thundergui.ThunderGui;
 import com.mrzak34.thunderhack.gui.thundergui.fontstuff.FontRender;
+import com.mrzak34.thunderhack.manager.ConfigManager;
 import com.mrzak34.thunderhack.modules.client.ThunderHackGui;
-import com.mrzak34.thunderhack.util.RenderUtil;
+import com.mrzak34.thunderhack.util.render.RenderUtil;
 import com.mrzak34.thunderhack.util.Util;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.GlStateManager;
@@ -81,10 +82,13 @@ public class TConfigComponent extends TItem{
             return;
         }
         if(isHoveringItem(this.x + 410, this.y + 5,this.x + 426,this.y + 21,mouseX,mouseY)){
-            Thunderhack.configManager.deleteConfig(configname);
+            boolean a =  ConfigManager.delete(configname);
+            if(a){
+                Command.sendMessage("Удален конфиг " + configname);
+            }
         }
         if(isHoveringItem(this.x + 380, this.y + 5, this.x + 396, this.y + 21,mouseX,mouseY)) {
-            Thunderhack.configManager.loadConfig(configname,false);
+            ConfigManager.load(configname);
         }
 
     }

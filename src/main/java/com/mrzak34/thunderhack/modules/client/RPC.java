@@ -1,7 +1,7 @@
 package com.mrzak34.thunderhack.modules.client;
 
 import com.mrzak34.thunderhack.Discord;
-import com.mrzak34.thunderhack.event.events.PacketEvent;
+import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import net.minecraft.network.play.server.SPacketChat;
@@ -9,8 +9,8 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.apache.commons.lang3.StringUtils;
 
 public
-class RPC
-        extends Module {
+class RPC extends Module {
+
     public static RPC INSTANCE;
     public Setting < Boolean > showIP = this.register ( new Setting <> ( "ShowIP" , true  ) );
     public Setting < Boolean > queue = this.register ( new Setting <> ( "Queue" , true  ) );
@@ -19,6 +19,8 @@ class RPC
 
     public static boolean inQ = false;
     public static String position = "";
+
+
 
     @SubscribeEvent
     public void onPacketReceive(PacketEvent.Receive e){
@@ -51,7 +53,7 @@ class RPC
     }
 
     public RPC( ) {
-        super ( "DiscordRPC" , "крутая рпс" , Category.CLIENT , true , false , false );
+        super ( "DiscordRPC" , "крутая рпс" , Category.CLIENT );
         INSTANCE = this;
     }
 
@@ -66,6 +68,7 @@ class RPC
         if(!Discord.started) {
             Discord.start();
         }
+
     } //§7§6Position in queue: §r§6§l45§r
 
 

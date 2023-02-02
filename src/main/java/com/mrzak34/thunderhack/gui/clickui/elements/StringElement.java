@@ -1,13 +1,13 @@
 package com.mrzak34.thunderhack.gui.clickui.elements;
 
 import com.mojang.realmsclient.gui.ChatFormatting;
-import com.mrzak34.thunderhack.gui.classic.ClassicGui;
-import com.mrzak34.thunderhack.gui.classic.components.items.buttons.StringButton;
 import com.mrzak34.thunderhack.gui.clickui.base.AbstractElement;
 import com.mrzak34.thunderhack.gui.thundergui.fontstuff.FontRender;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.setting.SubBind;
 import net.minecraft.util.ChatAllowedCharacters;
+
+import static com.mrzak34.thunderhack.gui.clickui.elements.SliderElement.removeLastChar;
 
 public class StringElement extends AbstractElement {
     public StringElement(Setting setting) {
@@ -15,7 +15,7 @@ public class StringElement extends AbstractElement {
     }
 
     public boolean isListening;
-    private StringButton.CurrentString currentString = new StringButton.CurrentString("");
+    private CurrentString currentString = new CurrentString("");
 
 
     @Override
@@ -53,7 +53,7 @@ public class StringElement extends AbstractElement {
                     this.enterString();
                 }
                 case 14: {
-                    this.setString(StringButton.removeLastChar(this.currentString.getString()));
+                    this.setString(removeLastChar(this.currentString.getString()));
                 }
             }
             if (ChatAllowedCharacters.isAllowedCharacter(chr)) {
@@ -75,7 +75,7 @@ public class StringElement extends AbstractElement {
 
 
     public void setString(String newString) {
-        this.currentString = new StringButton.CurrentString(newString);
+        this.currentString = new CurrentString(newString);
     }
 
     public static class CurrentString {

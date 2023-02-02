@@ -1,12 +1,12 @@
 package com.mrzak34.thunderhack.modules.player;
 
-import com.mrzak34.thunderhack.event.events.Render2DEvent;
+import com.mrzak34.thunderhack.events.Render2DEvent;
 import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.modules.Module;
 
 
 import com.mrzak34.thunderhack.setting.Setting;
-import com.mrzak34.thunderhack.util.RenderUtil;
+import com.mrzak34.thunderhack.util.render.RenderUtil;
 import com.mrzak34.thunderhack.util.Timer;
 import com.mrzak34.thunderhack.util.Util;
 import net.minecraft.init.Items;
@@ -21,7 +21,7 @@ import java.awt.*;
 import java.util.ArrayList;
 
 public class ElytraSwap extends Module{
-    public ElytraSwap() {super("ElytraSwap", "свап между нагрудником-и элитрой", Module.Category.PLAYER, true, false, false);}
+    public ElytraSwap() {super("ElytraSwap", "свап между нагрудником-и элитрой", Module.Category.PLAYER);}
 
     private final ResourceLocation toelytra= new ResourceLocation("textures/swapel.png");
     private final ResourceLocation tochest = new ResourceLocation("textures/swapch.png");

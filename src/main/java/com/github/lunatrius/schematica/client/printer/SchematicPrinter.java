@@ -15,8 +15,8 @@ import com.github.lunatrius.schematica.reference.Reference;
 
 
 import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.event.events.EventSchematicaPlaceBlock;
-import com.mrzak34.thunderhack.event.events.EventSchematicaPlaceBlockFull;
+import com.mrzak34.thunderhack.events.EventSchematicaPlaceBlock;
+import com.mrzak34.thunderhack.events.EventSchematicaPlaceBlockFull;
 import com.mrzak34.thunderhack.modules.client.PrinterBypass;
 import com.mrzak34.thunderhack.util.BlockInteractionHelper;
 import net.minecraft.block.Block;

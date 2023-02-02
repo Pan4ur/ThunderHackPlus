@@ -1,8 +1,7 @@
 package com.mrzak34.thunderhack.util.phobos;
 
 import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.command.Command;
-import com.mrzak34.thunderhack.event.events.PacketEvent;
+import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.modules.Feature;
 import com.mrzak34.thunderhack.modules.combat.AutoCrystal;
 import com.mrzak34.thunderhack.setting.Setting;
@@ -13,8 +12,6 @@ import net.minecraft.util.math.BlockPos;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import static com.mrzak34.thunderhack.util.Util.mc;
 
 
 public class ThreadHelper extends Feature
@@ -155,7 +152,7 @@ public class ThreadHelper extends Feature
         return currentCalc;
     }
 
-    public void reset()
+    public void resetThreadHelper()
     {
         currentCalc = null;
     }

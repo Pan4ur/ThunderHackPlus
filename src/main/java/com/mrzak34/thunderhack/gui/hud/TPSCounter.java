@@ -2,28 +2,23 @@ package com.mrzak34.thunderhack.gui.hud;
 
 import com.mojang.realmsclient.gui.ChatFormatting;
 import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.event.events.PacketEvent;
-import com.mrzak34.thunderhack.event.events.Render2DEvent;
+import com.mrzak34.thunderhack.events.PacketEvent;
+import com.mrzak34.thunderhack.events.Render2DEvent;
 import com.mrzak34.thunderhack.gui.thundergui.fontstuff.FontRender;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.setting.PositionSetting;
 import com.mrzak34.thunderhack.setting.Setting;
-import com.mrzak34.thunderhack.util.RenderUtil;
 import com.mrzak34.thunderhack.util.Timer;
-import com.mrzak34.thunderhack.util.Util;
 import net.minecraft.client.gui.GuiChat;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.network.play.server.SPacketTimeUpdate;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.input.Mouse;
 
-import java.awt.*;
-import java.text.DecimalFormat;
-
 public class TPSCounter extends Module{
     public TPSCounter() {
-        super("TPS", "trps", Module.Category.HUD, true, false, false);
+        super("TPS", "trps", Module.Category.HUD);
     }
 
     public final Setting<ColorSetting> color = this.register(new Setting<>("Color", new ColorSetting(0x8800FF00)));
@@ -35,26 +30,19 @@ public class TPSCounter extends Module{
 
 
     public enum mode{
-        Old, New,NewNew
+        Old, New
     }
 
     float x1 =0;
     float y1= 0;
 
-    private static final DecimalFormat df = new DecimalFormat("0.00");
 
 
 
     @SubscribeEvent
     public void onRender2D(Render2DEvent e){
-        String str;
-        if(Mode.getValue() == mode.Old) {
-            str = "TPS " + ChatFormatting.WHITE + String.valueOf(Double.parseDouble(String.valueOf(Thunderhack.serverManager.getTPS())));
-        }else if(Mode.getValue() == mode.New ) {
-            str = "TPS " + ChatFormatting.WHITE + df.format( 1000f / (timeDifference / 20));
-        } else {
-            str = "TPS " + ChatFormatting.WHITE + df.format( 20f / ((float) abobka / 50f));
-        }
+        String str = "TPS " + ChatFormatting.WHITE + String.valueOf(Double.parseDouble(String.valueOf(Thunderhack.serverManager.getTPS())));
+
 
         y1 = e.scaledResolution.getScaledHeight() * pos.getValue().getY();
         x1 = e.scaledResolution.getScaledWidth() * pos.getValue().getX();

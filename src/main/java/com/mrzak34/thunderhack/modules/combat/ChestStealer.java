@@ -11,7 +11,7 @@ import net.minecraft.item.Item;
 
 public class ChestStealer extends Module {
     public ChestStealer() {
-        super("ChestStealer", "Стилит предметы-из сундука", Module.Category.MISC, true, false, false);
+        super("ChestStealer", "Стилит предметы-из сундука", Module.Category.MISC);
     }
 
 

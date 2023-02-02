@@ -7,33 +7,17 @@ import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.Objects;
 
-public class ServerManager
-        extends Feature {
+public class ServerManager extends Feature {
     private final float[] tpsCounts = new float[10];
     private final DecimalFormat format = new DecimalFormat("##.00#");
     private final Timer timer = new Timer();
     private float TPS = 20.0f;
     private long lastUpdate = -1L;
-    private String serverBrand = "";
 
     public void onPacketReceived() {
         this.timer.reset();
     }
 
-
-    public boolean isServerNotResponding() {
-        return this.timer.passedMs(5000);
-    }
-
-
-
-    public long serverRespondingTime() {
-        return this.timer.getPassedTimeMs();
-    }
-
-    public long getTimeDif(){
-        return this.timeDiff;
-    }
 
 
     long timeDiff;
@@ -66,8 +50,8 @@ public class ServerManager
         this.lastUpdate = currentTime;
     }
 
-    @Override
-    public void reset() {
+
+    public void resetServerManager() {
         Arrays.fill(this.tpsCounts, 20.0f);
         this.TPS = 20.0f;
     }
@@ -79,22 +63,6 @@ public class ServerManager
     public float getTPS() {
         return this.TPS;
     }
-
-    public int getDoubleTPS(){
-        return (int) (this.TPS + 0.02f);
-    }
-
-    public String getServerBrand() {
-        return this.serverBrand;
-    }
-
-    public void setServerBrand(String brand) {
-        this.serverBrand = brand;
-    }
-
-
-
-
 
     public int getPing() {
         if (ServerManager.fullNullCheck()) {

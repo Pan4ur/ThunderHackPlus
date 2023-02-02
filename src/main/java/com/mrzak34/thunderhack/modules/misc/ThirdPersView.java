@@ -6,7 +6,7 @@ import com.mrzak34.thunderhack.setting.Setting;
 public class ThirdPersView extends Module {
 
     public ThirdPersView() {
-        super("ThirdPersView", "ThirdPersView", Category.MISC, true, false, false);
+        super("ThirdPersView", "ThirdPersView", Category.MISC);
     }
 
     public  Setting<Integer> x = this.register(new Setting<>("x", 0, -180, 180));

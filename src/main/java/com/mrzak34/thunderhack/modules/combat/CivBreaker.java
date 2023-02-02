@@ -1,11 +1,10 @@
 package com.mrzak34.thunderhack.modules.combat;
 
 import com.mrzak34.thunderhack.command.Command;
-import com.mrzak34.thunderhack.event.events.EventPreMotion;
-import com.mrzak34.thunderhack.event.events.PacketEvent;
+import com.mrzak34.thunderhack.events.EventPreMotion;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
-import com.mrzak34.thunderhack.util.MathUtil;
+import com.mrzak34.thunderhack.util.math.MathUtil;
 import com.mrzak34.thunderhack.util.RotationUtil;
 import com.mrzak34.thunderhack.util.Util;
 import net.minecraft.block.Block;
@@ -17,27 +16,24 @@ import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
-import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.CPacketPlayerDigging;
 import net.minecraft.network.play.client.CPacketPlayerTryUseItemOnBlock;
 import net.minecraft.network.play.client.CPacketUseEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3i;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import static com.mrzak34.thunderhack.util.PlacementUtil.getPlaceableSideExlude;
 import static com.mrzak34.thunderhack.util.PlacementUtil.placeBlock;
 
 public class CivBreaker extends Module {
 
     public CivBreaker() {
-        super("CivBreaker", "CivBreaker", Category.COMBAT, true, false, false);
+        super("CivBreaker", "CivBreaker", Category.COMBAT);
     }
 
 

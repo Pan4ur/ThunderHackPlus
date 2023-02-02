@@ -21,7 +21,7 @@ import java.util.Objects;
 
 public class InvManager extends Module{
     public InvManager() {
-        super("InvManager", "очищает инвентарь-от хлама", Category.FUNNYGAME, true, false, false);
+        super("InvManager", "очищает инвентарь-от хлама", Category.FUNNYGAME);
     }
 
     public static int weaponSlot = 36, pickaxeSlot = 37, axeSlot = 38, shovelSlot = 39;

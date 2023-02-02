@@ -5,8 +5,8 @@ package com.mrzak34.thunderhack.util.phobos;
  */
 public interface IEntityLivingBase
 {
-    /** @return the getArmSwingAnimationEnd field. */
-    int armSwingAnimationEnd();
+
+
 
     /** @return the ticksSinceLastSwing field. */
     int getTicksSinceLastSwing();

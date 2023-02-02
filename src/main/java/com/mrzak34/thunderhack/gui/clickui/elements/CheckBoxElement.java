@@ -38,7 +38,7 @@ public class CheckBoxElement extends AbstractElement {
 
         RoundedShader.drawRound((float) (x + width - 17 + paddingX), (float) (y + height / 2 - 3), 6, 6, 3, true, new Color(-1));
 
-        FontRender.drawString5(setting.getName(), (float) (x + 3), (float) (y + height / 2 - (FontRender.getFontHeight5() / 2f)), -1);
+        FontRender.drawString5(setting.getName(), (float) (x + 3), (float) (y + height / 2 - (FontRender.getFontHeight5() / 2f)) + 2, -1);
     }
 
     @Override

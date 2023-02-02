@@ -10,7 +10,7 @@ import java.util.List;
 public class MultiConnect extends Module {
 
     public MultiConnect() {
-        super("MultiConnect", "MultiConnect", Category.CLIENT, true, false, false);
+        super("MultiConnect", "MultiConnect", Category.CLIENT);
         this.setInstance();
     }
     private static MultiConnect INSTANCE = new MultiConnect();

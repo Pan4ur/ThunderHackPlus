@@ -1,6 +1,6 @@
 package com.mrzak34.thunderhack.modules.misc;
 
-import com.mrzak34.thunderhack.event.events.EventPreMotion;
+import com.mrzak34.thunderhack.events.EventPreMotion;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import net.minecraft.entity.Entity;
@@ -16,7 +16,7 @@ import java.util.Comparator;
 
 public class AutoSheep extends Module {
     public AutoSheep() {
-        super("AutoSheep", "AutoSheep", Category.MISC, true, false, false);
+        super("AutoSheep", "AutoSheep", Category.MISC);
     }
 
     public Setting<Boolean> Rotate = this.register(new Setting<>("Rotate", true));

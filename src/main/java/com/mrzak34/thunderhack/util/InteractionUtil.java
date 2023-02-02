@@ -1,6 +1,6 @@
 package com.mrzak34.thunderhack.util;
 
-import com.mrzak34.thunderhack.event.events.EventPreMotion;
+import com.mrzak34.thunderhack.events.EventPreMotion;
 import com.mrzak34.thunderhack.modules.combat.PistonAura;
 import com.mrzak34.thunderhack.mixin.mixins.IEntityPlayerSP;
 import net.minecraft.block.*;

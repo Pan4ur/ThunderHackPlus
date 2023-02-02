@@ -1,8 +1,8 @@
 package com.mrzak34.thunderhack.modules.client;
 
 import com.github.lunatrius.schematica.client.printer.SchematicPrinter;
-import com.mrzak34.thunderhack.event.events.EventPreMotion;
-import com.mrzak34.thunderhack.event.events.EventSchematicaPlaceBlockFull;
+import com.mrzak34.thunderhack.events.EventPreMotion;
+import com.mrzak34.thunderhack.events.EventSchematicaPlaceBlockFull;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.BlockInteractionHelper;
@@ -16,7 +16,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 public class PrinterBypass extends Module {
 
     public PrinterBypass() {
-        super("PrinterBypass", "PrinterBypass", Category.CLIENT, true, false, false);
+        super("PrinterBypass", "PrinterBypass", Category.CLIENT);
     }
 
 

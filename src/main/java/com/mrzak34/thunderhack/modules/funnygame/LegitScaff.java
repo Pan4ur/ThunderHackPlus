@@ -15,7 +15,7 @@ import net.minecraft.util.math.BlockPos;
 
 public class LegitScaff extends Module {
     public LegitScaff() {
-        super("LegitScaff", "можно и легитнее", Category.FUNNYGAME, true, false, false);
+        super("LegitScaff", "можно и легитнее", Category.FUNNYGAME);
     }
     
 

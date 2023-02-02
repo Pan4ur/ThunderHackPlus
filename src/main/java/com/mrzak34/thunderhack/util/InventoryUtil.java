@@ -1,36 +1,56 @@
 package com.mrzak34.thunderhack.util;
 
-import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.mixin.ducks.IPlayerControllerMP;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockObsidian;
-import net.minecraft.block.material.Material;
-import net.minecraft.client.Minecraft;
+import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
-import net.minecraft.init.Enchantments;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.ClickType;
-import net.minecraft.inventory.Container;
-import net.minecraft.inventory.EntityEquipmentSlot;
-import net.minecraft.inventory.Slot;
 import net.minecraft.item.*;
-import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.CPacketHeldItemChange;
 import net.minecraft.util.EnumHand;
 
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
-import java.util.function.Predicate;
 
 import static com.mrzak34.thunderhack.util.phobos.HelperRotation.acquire;
 
-public class InventoryUtil
-        implements Util {
+public class InventoryUtil implements Util {
 
+    public static int getBestSword() {
+        int b = -1;
+        float f = 1.0F;
+        for (int b1 = 0; b1 < 9; b1++) {
+            ItemStack itemStack =  Util.mc.player.inventory.getStackInSlot(b1);
+            if (itemStack != null && itemStack.getItem() instanceof ItemSword) {
+                ItemSword itemSword = (ItemSword)itemStack.getItem();
+                float f1 = itemSword.getMaxDamage();
+                f1 += EnchantmentHelper.getEnchantmentLevel(Enchantment.getEnchantmentByID(20), itemStack);
+                if (f1 > f) {
+                    f = f1;
+                    b = b1;
+                }
+            }
+        }
+        return b;
+    }
+    public static int getBestAxe() {
+        int b = -1;
+        float f = 1.0F;
+        for (int b1 = 0; b1 < 9; b1++) {
+            ItemStack itemStack =  Util.mc.player.inventory.getStackInSlot(b1);
+            if (itemStack != null && itemStack.getItem() instanceof ItemAxe) {
+                ItemAxe axe = (ItemAxe)itemStack.getItem();
+                float f1 = axe.getMaxDamage();
+                f1 += EnchantmentHelper.getEnchantmentLevel(Enchantment.getEnchantmentByID(20), itemStack);
+                if (f1 > f) {
+                    f = f1;
+                    b = b1;
+                }
+            }
+        }
+        return b;
+    }
 
     public static int hotbarToInventory(int slot)
     {
@@ -338,7 +358,14 @@ public class InventoryUtil
             InventoryUtil.switchToHotbarSlot(slot, silent);
         }
     }
-
+    public static int getBowAtHotbar() {
+        for (int i = 0; i < 9; ++i) {
+            ItemStack itemStack = Util.mc.player.inventory.getStackInSlot(i);
+            if (!(itemStack.getItem() instanceof ItemBow)) continue;
+            return i;
+        }
+        return -1;
+    }
 
     public static int getAxeAtHotbar() {
         for (int i = 0; i < 9; ++i) {
@@ -542,13 +569,6 @@ public class InventoryUtil
         return -1;
     }
 
-    public static void swapToOffhandSlot(int slot) {
-        if (slot == -1) return;
-        mc.playerController.windowClick(0, slot, 0, ClickType.PICKUP, mc.player);
-        mc.playerController.windowClick(0, 45, 0, ClickType.PICKUP, mc.player);
-        mc.playerController.windowClick(0, slot, 0, ClickType.PICKUP, mc.player);
-        mc.playerController.updateController();
-    }
 
     public static int swapToHotbarSlot(int slot, boolean silent){
         if (mc.player.inventory.currentItem == slot || slot < 0 || slot > 8) return slot;

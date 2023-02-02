@@ -1,6 +1,6 @@
 package com.mrzak34.thunderhack.modules.misc;
 
-import com.mrzak34.thunderhack.event.events.Render3DEvent;
+import com.mrzak34.thunderhack.events.Render3DEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import net.minecraft.client.renderer.GlStateManager;
@@ -11,7 +11,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
@@ -30,7 +29,7 @@ public class ItemPhysics extends Module {
 
 
     public ItemPhysics() {
-        super("ItemPhysics", "описание",Category.RENDER,true,false,false);
+        super("ItemPhysics", "описание",Category.RENDER);
     }
 
 

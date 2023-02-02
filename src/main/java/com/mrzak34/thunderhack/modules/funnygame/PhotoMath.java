@@ -1,7 +1,7 @@
 package com.mrzak34.thunderhack.modules.funnygame;
 
 import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.event.events.PacketEvent;
+import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.notification.NotificationManager;
@@ -16,10 +16,11 @@ import java.util.Objects;
 import java.util.regex.*;
 public class PhotoMath extends Module {
     public PhotoMath() {
-        super("PhotoMath", "Решает чат игру автоматом", Category.FUNNYGAME, true, false, false);
+        super("PhotoMath", "Решает чат игру автоматом", Category.FUNNYGAME);
     }
     //[Чат игра] Решите: 289 + 336 кто первый решит получит: 3000$
     public Setting<String> autoez = this.register(new Setting<String>("Custom", "EZZZZZZZZZ boosted by ThunderHack"));
+    public Setting<Boolean> spam = this.register(new Setting<>("Spam", false));
 
     public Timer delay = new Timer();
     int nigger = 0;
@@ -49,7 +50,15 @@ public class PhotoMath extends Module {
             Matcher matcher=pat.matcher(out);
             while (matcher.find()) {
                 if(Objects.equals(matcher.group(), "3000")){
-                    mc.player.sendChatMessage(String.valueOf(nigger));
+
+                    if(spam.getValue()) {
+                        for (int i = 0; i <= 8; i++) {
+                            mc.player.sendChatMessage(String.valueOf(nigger));
+                        }
+                    } else {
+                        mc.player.sendChatMessage(String.valueOf(nigger));
+                    }
+
                     check = true;
                     delay.reset();
                 } else {
@@ -69,6 +78,9 @@ public class PhotoMath extends Module {
 
         return true;
     }
+
+
+
 
 
     public void sendEZ(){

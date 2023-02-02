@@ -1,6 +1,6 @@
 package com.mrzak34.thunderhack.modules.misc;
 
-import com.mrzak34.thunderhack.event.events.PacketEvent;
+import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -15,7 +15,7 @@ public class FullBright
     private float previousSetting = 1.0f;
 
     public FullBright() {
-        super("Fullbright", "делает поярче", Module.Category.RENDER, true, false, false);
+        super("Fullbright", "делает поярче", Module.Category.RENDER);
     }
 
 
@@ -44,7 +44,7 @@ public class FullBright
 
     @SubscribeEvent
     public void onPacketReceive(final PacketEvent.Receive event) {
-        if (event.getStage() == 0 && event.getPacket() instanceof SPacketEntityEffect && this.effects.getValue()) {
+        if ( event.getPacket() instanceof SPacketEntityEffect && this.effects.getValue()) {
             final SPacketEntityEffect packet = event.getPacket();
             if (FullBright.mc.player != null && packet.getEntityId() == FullBright.mc.player.getEntityId() && (packet.getEffectId() == 9 || packet.getEffectId() == 15)) {
                 event.setCanceled(true);

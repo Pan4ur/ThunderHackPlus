@@ -41,13 +41,6 @@ public class WorldLoader {
 
     public static Chunk CreateChunk(int x, int z, int dis) {
 
-        // ok so I have spent about 30 hours trying to figure this out, I know I can start an integrated server but that should be no
-        // different. At one point I remade each and every generator for all the biomes to remove the forge check calls, but that did not work
-        // Most chunks work fine... Then there is roofed forest which kills itself, I think it may have to do with it being a mutated biome
-        // with a base biome under it. If you have any advice let me know.
-
-        // I left old code in if it may help.
-
 
         Chunk Testchunk;
         if (dis == -1) {
@@ -106,9 +99,6 @@ public class WorldLoader {
             testchunk.markDirty();
         }
     }
-
-
-    // Removed all forge calls
 
 
     public static void event(PopulateChunkEvent.Populate event) {

@@ -1,10 +1,10 @@
 package com.mrzak34.thunderhack.util.phobos;
 
-import com.mrzak34.thunderhack.event.events.ConnectToServerEvent;
-import com.mrzak34.thunderhack.event.events.EventPreMotion;
-import com.mrzak34.thunderhack.event.events.PacketEvent;
+import com.mrzak34.thunderhack.events.ConnectToServerEvent;
+import com.mrzak34.thunderhack.events.EventPreMotion;
+import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.modules.Feature;
-import com.mrzak34.thunderhack.util.MathUtil;
+import com.mrzak34.thunderhack.util.math.MathUtil;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityEnderCrystal;
 import net.minecraft.init.SoundEvents;
@@ -34,6 +34,9 @@ public class SetDeadManager extends Feature
 
     public void init() {
         MinecraftForge.EVENT_BUS.register(this);
+    }
+    public void unload() {
+        MinecraftForge.EVENT_BUS.unregister(this);
     }
 
     public SetDeadManager()

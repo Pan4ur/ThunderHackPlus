@@ -1,6 +1,6 @@
 package com.mrzak34.thunderhack.gui.hud;
 
-import com.mrzak34.thunderhack.event.events.Render2DEvent;
+import com.mrzak34.thunderhack.events.Render2DEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.PositionSetting;
 import com.mrzak34.thunderhack.setting.Setting;
@@ -17,7 +17,7 @@ import org.lwjgl.input.Mouse;
 
 public class Player extends Module {
     public Player() {
-        super("PlayerView", "Player", Category.HUD, true, false, false);
+        super("PlayerView", "Player", Category.HUD);
     }
 
 

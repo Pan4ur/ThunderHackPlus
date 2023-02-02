@@ -1,7 +1,7 @@
 package com.mrzak34.thunderhack.gui.clickui.base;
 
-import com.mrzak34.thunderhack.util.Drawable;
-import com.mrzak34.thunderhack.util.RenderUtil;
+import com.mrzak34.thunderhack.util.render.Drawable;
+import com.mrzak34.thunderhack.util.render.RenderUtil;
 
 import java.awt.*;
 import java.io.IOException;

@@ -1,19 +1,14 @@
 package com.mrzak34.thunderhack.util;
 
-import com.mrzak34.thunderhack.util.rotations.GCDFix;
+import com.mrzak34.thunderhack.util.math.MathUtil;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.*;
 import net.minecraft.world.IBlockAccess;
-import org.apache.commons.lang3.RandomUtils;
-
-import static com.mrzak34.thunderhack.util.CrystalUtils.mc;
 
 public class RotationUtil
         implements Util {
@@ -170,43 +165,58 @@ public class RotationUtil
         return MathHelper.floor((double) (RotationUtil.mc.player.rotationYaw * 4.0f / 360.0f) + 0.5) & 3;
     }
 
-    public static boolean isInFov(Entity player) {
-        return false;
+    public static boolean isInFov(final Entity entity) {
+        return entity != null && (RotationUtil.mc.player.getDistanceSq(entity) < 4.0 || isInFov(entity.getPositionVector(), RotationUtil.mc.player.getPositionVector()));
     }
 
 
-    public static float[] getNCPRotations(Entity entityIn, boolean interpolate) {
-        double diffX;
-        double diffZ;
-        if(interpolate){
-            diffX = entityIn.posX + (entityIn.posX - entityIn.prevPosX) * mc.getRenderPartialTicks() - mc.player.posX - mc.player.motionX *  mc.getRenderPartialTicks() ;
-            diffZ = entityIn.posZ + (entityIn.posZ - entityIn.prevPosZ) * mc.getRenderPartialTicks() - mc.player.posZ - mc.player.motionZ * mc.getRenderPartialTicks();
-        } else {
-            diffX = entityIn.posX - mc.player.posX;
-            diffZ = entityIn.posZ - mc.player.posZ;
+    public static boolean isInFov(final Vec3d vec3d, final Vec3d other) {
+        if (RotationUtil.mc.player.rotationPitch > 30.0f) {
+            if (other.y > RotationUtil.mc.player.posY) {
+                return true;
+            }
         }
-
-        double diffY;
-
-        if (entityIn instanceof EntityLivingBase) {
-            diffY = entityIn.posY + entityIn.getEyeHeight() - (mc.player.posY + mc.player.getEyeHeight()) - 0.2f;
-        } else {
-            diffY = (entityIn.getEntityBoundingBox().minY + entityIn.getEntityBoundingBox().maxY) / 2 - (mc.player.posY + mc.player.getEyeHeight());
+        else if (RotationUtil.mc.player.rotationPitch < -30.0f && other.y < RotationUtil.mc.player.posY) {
+            return true;
         }
-        if (!mc.player.canEntityBeSeen(entityIn)) {
-            diffY = entityIn.posY + entityIn.height - (mc.player.posY + mc.player.getEyeHeight());
+        final float angle = calcAngleNoY(vec3d, other)[0] - transformYaw();
+        if (angle < -270.0f) {
+            return true;
         }
-        final double diffXZ = MathHelper.sqrt(diffX * diffX + diffZ * diffZ);
-
-        float yaw = (float) ((Math.toDegrees(Math.atan2(diffZ, diffX)) - 90));
-        float pitch = (float) ((Math.toDegrees(-Math.atan2(diffY, diffXZ))));
-
-        yaw = (mc.player.rotationYaw + GCDFix.getFixedRotation(MathHelper.wrapDegrees(yaw - mc.player.rotationYaw)));
-        pitch = mc.player.rotationPitch + GCDFix.getFixedRotation(MathHelper.wrapDegrees(pitch - mc.player.rotationPitch));
-        pitch = MathHelper.clamp(pitch, -90F, 90F);
-
-        return new float[]{yaw, pitch};
+        final float fov = (RotationUtil.mc.gameSettings.fovSetting) / 2.0f;
+        return angle < fov + 10.0f && angle > -fov - 10.0f;
     }
 
+    public static float[] calcAngleNoY(final Vec3d from, final Vec3d to) {
+        final double difX = to.x - from.x;
+        final double difZ = to.z - from.z;
+        return new float[] { (float)MathHelper.wrapDegrees(Math.toDegrees(Math.atan2(difZ, difX)) - 90.0) };
+    }
+
+    public static float transformYaw() {
+        float yaw = RotationUtil.mc.player.rotationYaw % 360.0f;
+        if (RotationUtil.mc.player.rotationYaw > 0.0f) {
+            if (yaw > 180.0f) {
+                yaw = -180.0f + (yaw - 180.0f);
+            }
+        }
+        else if (yaw < -180.0f) {
+            yaw = 180.0f + (yaw + 180.0f);
+        }
+        if (yaw < 0.0f) {
+            return 180.0f + yaw;
+        }
+        return -180.0f + yaw;
+    }
+
+
+
+    public static float[] calcAngle(Vec3d from, Vec3d to) {
+        double difX = to.x - from.x;
+        double difY = (to.y - from.y) * -1.0;
+        double difZ = to.z - from.z;
+        double dist = MathHelper.sqrt(difX * difX + difZ * difZ);
+        return new float[]{(float) MathHelper.wrapDegrees(Math.toDegrees(Math.atan2(difZ, difX)) - 90.0), (float) MathHelper.wrapDegrees(Math.toDegrees(Math.atan2(difY, dist)))};
+    }
 }
 

@@ -16,7 +16,7 @@ import net.minecraft.util.EnumHand;
 public class AutoAmericano extends Module {
 
     public AutoAmericano() {
-        super("AutoAmericano", "AutoAmericano", Category.FUNNYGAME, true, false, false);
+        super("AutoAmericano", "AutoAmericano", Category.FUNNYGAME);
     }
 
 

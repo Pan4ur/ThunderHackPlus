@@ -1,6 +1,9 @@
 package com.mrzak34.thunderhack.modules.movement;
 
-import com.mrzak34.thunderhack.event.events.*;
+import com.mrzak34.thunderhack.events.EventPreMotion;
+import com.mrzak34.thunderhack.events.HandleLiquidJumpEvent;
+import com.mrzak34.thunderhack.events.JesusEvent;
+import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import net.minecraft.block.Block;
@@ -19,7 +22,7 @@ public class Jesus extends Module {
 
 
     public Jesus() {
-        super("Jesus", "Jesus", Category.MOVEMENT, true, false  , false);
+        super("Jesus", "Jesus", Category.MOVEMENT);
     }
 
 
@@ -35,14 +38,14 @@ public class Jesus extends Module {
     private float lastOffset;
 
     private enum Mode {
-        SOLID, TRAMPOLINE
+        SOLID, TRAMPOLINE,NexusCrit, NexusFast
     }
 
 
 
     @Override
     public void onUpdate() {
-        if (mode.getValue() == Mode.TRAMPOLINE) return;
+        if (mode.getValue() != Mode.SOLID) return;
         if (!mc.player.movementInput.sneak && !mc.player.movementInput.jump && isInLiquid()) {
             mc.player.motionY = 0.1D;
         }
@@ -87,6 +90,9 @@ public class Jesus extends Module {
 
     @SubscribeEvent
     public void onLiquidJump(HandleLiquidJumpEvent event) {
+        if(mode.getValue() == Mode.NexusCrit || mode.getValue() == Mode.NexusFast){
+            return;
+        }
         if ((mc.player.isInWater() || mc.player.isInLava()) && (mc.player.motionY == 0.1 || mc.player.motionY == 0.5)) {
             event.setCanceled(true);
         }
@@ -94,6 +100,40 @@ public class Jesus extends Module {
 
     @SubscribeEvent
     public void onWalkingPlayerUpdatePre(EventPreMotion event) {
+        if(mc.world.getBlockState(new BlockPos(mc.player.posX, mc.player.posY - 0.25, mc.player.posZ)).getBlock() instanceof BlockLiquid) {
+            if (mode.getValue() == Mode.NexusCrit) {
+                if (mc.player.isInWater()) {
+                    mc.player.jump();
+                    mc.player.motionY /= 1.56f;
+                    mc.player.motionX /= 2.88f;
+                    mc.player.motionZ /= 2.88f;
+                } else if (mc.player.fallDistance > 0.24f) {
+                    mc.player.motionY = -0.2f;
+                    mc.player.motionY /= 1.56f;
+                    mc.player.motionX /= 0.89f;
+                    mc.player.motionZ /= 0.89f;
+                }
+            }
+        }
+
+            if (mode.getValue() == Mode.NexusFast) {
+                if (mc.player.isInWater()) {
+                    mc.player.jump();
+                    mc.player.motionY /= 1.6f;
+                    mc.player.motionX /= 4.23f;
+                    mc.player.motionZ /= 4.23f;
+                } else if (mc.player.fallDistance > 0.0467f) {
+                    mc.player.motionY = -0.1844f;
+                    mc.player.motionY /= 0.46f;
+                    mc.player.motionX /= 0.23f;
+                    mc.player.motionZ /= 0.23f;
+                } else {
+                    mc.player.motionX /= 1.5;
+                    mc.player.motionZ /= 1.5;
+                }
+            }
+
+
         if (mode.getValue() == Mode.TRAMPOLINE) {
             int minY = MathHelper.floor(mc.player.getEntityBoundingBox().minY - 0.2D);
             boolean inLiquid = checkIfBlockInBB(BlockLiquid.class, minY) != null;
@@ -125,28 +165,13 @@ public class Jesus extends Module {
         }
     }
 
-    /*
-    @SubscribeEvent
-    public void onBoundingBox(CollisionBoxEvent event) {
-        if (((event.getBlock() instanceof BlockLiquid))
-                && event.getEntity() == mc.player
-                && event.getPos().getY() <= mc.player.posY
-                && checkIfBlockInBB(BlockLiquid.class, MathHelper.floor((mc.player.getEntityBoundingBox().minY + 0.01))) != null
-                && checkIfBlockInBB(BlockLiquid.class, MathHelper.floor((mc.player.getEntityBoundingBox().minY - 0.02))) != null
-                && (mc.player.fallDistance < 3.0F)
-                && (!mc.player.isSneaking())) {
-          //  event.setBoundingBox(Block.FULL_BLOCK_AABB);
-        }
-    }
-
-     */
 
     @SubscribeEvent
     public void onLiquidCollision(final JesusEvent event) {
         if (fullNullCheck()) {
             return;
         }
-        if (event.getStage() == 0 && (this.mode.getValue() == Mode.SOLID) && Jesus.mc.world != null && Jesus.mc.player != null && checkCollide() && Jesus.mc.player.motionY < 0.10000000149011612 && event.getPos().getY() < Jesus.mc.player.posY - 0.05000000074505806) {
+        if ((this.mode.getValue() == Mode.SOLID) && Jesus.mc.world != null && Jesus.mc.player != null && checkCollide() && Jesus.mc.player.motionY < 0.10000000149011612 && event.getPos().getY() < Jesus.mc.player.posY - 0.05000000074505806) {
             if (Jesus.mc.player.getRidingEntity() != null) {
                 event.setBoundingBox(new AxisAlignedBB(0.0,  0.0,  0.0,  1.0,  0.949999988079071,  1.0));
             }
@@ -184,6 +209,7 @@ public class Jesus extends Module {
             }
         }
     }
+
 
     public static IBlockState checkIfBlockInBB(Class<? extends Block> blockClass, int minY) {
         for(int iX = MathHelper.floor(mc.player.getEntityBoundingBox().minX); iX < MathHelper.ceil(mc.player.getEntityBoundingBox().maxX); iX++) {

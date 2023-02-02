@@ -5,7 +5,7 @@
 package com.mrzak34.thunderhack.modules.render;
 
 import com.mrzak34.thunderhack.modules.Module;
-import com.mrzak34.thunderhack.event.events.Render3DEvent;
+import com.mrzak34.thunderhack.events.Render3DEvent;
 import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.mixin.mixins.IRenderManager;
@@ -36,7 +36,7 @@ import java.util.ArrayList;
 
 public class Trajectories extends Module {
     public Trajectories() {
-        super("Trajectories", "Draws trajectories.", Category.RENDER, true, false, false);
+        super("Trajectories", "Draws trajectories.", Category.RENDER);
     }
 
 

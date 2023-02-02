@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class AutoRegear extends Module {
-    public AutoRegear() { super("AutoRegear", "регирит тебя из-шалкера", Category.MISC, true, false, false);
+    public AutoRegear() { super("AutoRegear", "регирит тебя из-шалкера", Category.MISC);
     }
 
 

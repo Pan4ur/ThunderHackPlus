@@ -1,9 +1,9 @@
 package com.mrzak34.thunderhack.modules.misc;
 
 import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.event.events.EventMove;
-import com.mrzak34.thunderhack.event.events.PacketEvent;
-import com.mrzak34.thunderhack.event.events.Render2DEvent;
+import com.mrzak34.thunderhack.events.EventMove;
+import com.mrzak34.thunderhack.events.PacketEvent;
+import com.mrzak34.thunderhack.events.Render2DEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import net.minecraft.network.play.client.CPacketPlayer;
@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public class TickShift extends Module{
 
     public TickShift( ) {
-        super ( "TickShift" , "тикшифт эксплоит" , Category.MISC , true , false , false );
+        super ( "TickShift" , "тикшифт эксплоит" , Category.MISC);
     }
 
 

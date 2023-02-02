@@ -31,6 +31,7 @@ public class MixinBlockModelRenderer
             if (Thunderhack.moduleManager.getModuleByClass(XRay.class).isOn()) {
                 return false;
             }
+
         }
         catch (Exception ex) {}
         return input;
@@ -42,6 +43,7 @@ public class MixinBlockModelRenderer
             if (Thunderhack.moduleManager.getModuleByClass(XRay.class).isOn()) {
                 return false;
             }
+
         }
         catch (Exception ex) {}
         return input;

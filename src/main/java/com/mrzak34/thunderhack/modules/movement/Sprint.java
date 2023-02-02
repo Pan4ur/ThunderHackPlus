@@ -1,12 +1,10 @@
 package com.mrzak34.thunderhack.modules.movement;
 
 import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.event.events.EventMove;
-import com.mrzak34.thunderhack.event.events.EventSprint;
-import com.mrzak34.thunderhack.event.events.PacketEvent;
+import com.mrzak34.thunderhack.events.EventMove;
+import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
-import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.play.server.SPacketPlayerPosLook;
 import net.minecraft.util.math.BlockPos;
@@ -15,7 +13,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 public class Sprint extends Module {
 
     public Sprint() {
-        super("Sprint", "автоматически-спринтится", Category.MOVEMENT, true, false, false);
+        super("Sprint", "автоматически-спринтится", Category.MOVEMENT);
     }
 
     public Setting<Float> reduction  = this.register(new Setting<>("reduction ", 0.1f, 0f, 0.5f));
@@ -53,12 +51,12 @@ public class Sprint extends Module {
     @SubscribeEvent
     public void onMove(EventMove event){
         if(Mode.getValue() == mode.NexusGrief && Thunderhack.moduleManager.getModuleByClass(Speed.class).isDisabled()) {
-            if (event.getStage() == 1) {
+
                 double dX = mc.player.posX - mc.player.prevPosX;
                 double dZ = mc.player.posZ - mc.player.prevPosZ;
                 postMove(Math.sqrt(dX * dX + dZ * dZ));
-                return;
-            }
+               // return;
+
             if (strafes()) {
                 double forward = mc.player.movementInput.moveForward;
                 double strafe = mc.player.movementInput.moveStrafe;
@@ -87,9 +85,9 @@ public class Sprint extends Module {
             } else {
                 oldSpeed = 0;
             }
-            if (event.getStage() == 0) {
+           // if (event.getStage() == 0) {
                 event.setCanceled(true);
-            }
+          //  }
         }
     }
 

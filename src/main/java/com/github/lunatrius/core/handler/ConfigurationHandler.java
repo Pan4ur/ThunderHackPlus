@@ -17,7 +17,7 @@ public class ConfigurationHandler {
     public static class VersionCheck {
         @RequiresMcRestart
         @Comment(Names.Config.CHECK_FOR_UPDATES_DESC)
-        public static boolean checkForUpdates = true;
+        public static boolean checkForUpdates = false;
     }
 
     @SubscribeEvent

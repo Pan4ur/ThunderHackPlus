@@ -2,16 +2,15 @@ package com.mrzak34.thunderhack.gui.hud;
 
 import com.mojang.realmsclient.gui.ChatFormatting;
 import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.event.events.Render2DEvent;
+import com.mrzak34.thunderhack.events.Render2DEvent;
 import com.mrzak34.thunderhack.gui.thundergui.fontstuff.FontRender;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.setting.PositionSetting;
 import com.mrzak34.thunderhack.setting.Setting;
 
-import com.mrzak34.thunderhack.util.DrawHelper;
-import com.mrzak34.thunderhack.util.PaletteHelper;
-import com.mrzak34.thunderhack.util.RenderHelper;
+import com.mrzak34.thunderhack.util.render.PaletteHelper;
+import com.mrzak34.thunderhack.util.render.RenderHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiChat;
 import net.minecraft.client.gui.ScaledResolution;
@@ -27,7 +26,7 @@ import java.awt.*;
 public class ArrayList extends Module {
     private static ArrayList INSTANCE = new ArrayList();
     public ArrayList() {
-        super("ArrayList", "Autopot", Module.Category.HUD,true,false,false);
+        super("ArrayList", "Autopot", Module.Category.HUD);
         setInstance();
     }
     public final Setting<ColorSetting> color = register(new Setting<>("Color", new ColorSetting(0x8800FF00)));

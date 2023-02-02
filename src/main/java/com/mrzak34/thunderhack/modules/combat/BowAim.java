@@ -4,18 +4,14 @@ package com.mrzak34.thunderhack.modules.combat;
 
 
 import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.event.events.EventPostMotion;
-import com.mrzak34.thunderhack.event.events.EventPreMotion;
-import com.mrzak34.thunderhack.event.events.Render3DEvent;
+import com.mrzak34.thunderhack.events.EventPostMotion;
+import com.mrzak34.thunderhack.events.Render3DEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.EntityUtil;
-import com.mrzak34.thunderhack.util.PaletteHelper;
-import com.mrzak34.thunderhack.util.RenderHelper;
-import com.mrzak34.thunderhack.util.RotationUtil;
-import com.mrzak34.thunderhack.util.phobos.RayTraceUtil;
+import com.mrzak34.thunderhack.util.render.PaletteHelper;
+import com.mrzak34.thunderhack.util.render.RenderHelper;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemBow;
 import net.minecraft.util.math.MathHelper;
@@ -35,7 +31,7 @@ public class BowAim extends Module {
     private  final Setting<Float> fov = this.register( new Setting<>("fov", 60.0f, 0.0f, 180f));
 
     public BowAim() {
-        super("AimBot", "AimBot",Category.COMBAT, true, false, false);
+        super("AimBot", "AimBot",Category.COMBAT);
     }
 
 

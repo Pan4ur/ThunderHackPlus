@@ -3,8 +3,7 @@ package com.mrzak34.thunderhack.gui.misc;
 import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.gui.thundergui.fontstuff.FontRender;
 import com.mrzak34.thunderhack.modules.misc.NoCom;
-import com.mrzak34.thunderhack.util.GuiRenderHelper;
-import com.mrzak34.thunderhack.util.RenderUtil;
+import com.mrzak34.thunderhack.util.render.RenderUtil;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
 import org.lwjgl.input.Mouse;
@@ -15,7 +14,6 @@ import java.util.ArrayList;
 
 public class GuiScanner extends GuiScreen {
 
-    private static GuiScanner Scannergui;
     private static GuiScanner INSTANCE;
 
     public ArrayList<NoCom.cout> consoleout = new ArrayList<NoCom.cout>();
@@ -114,14 +112,14 @@ public class GuiScanner extends GuiScreen {
         consoley1 = radary1 - 50;
 
 
-        GuiRenderHelper.drawOutlineRect(consolex, consoley, consolex1 - consolex, consoley1 - consoley, 4f, new Color(0xCDA8A8A8, true).getRGB());
+        RenderUtil.drawOutlineRect(consolex, consoley, consolex1 - consolex, consoley1 - consoley, 4f, new Color(0xCDA8A8A8, true).getRGB());
         RenderUtil.drawRect2(consolex, consoley, consolex1, consoley1, new Color(0xF70C0C0C, true).getRGB());
 
-        GuiRenderHelper.drawOutlineRect(consolex, consoley1 + 3, consolex1 - consolex, 15, 4f, new Color(0xCDA8A8A8, true).getRGB());
+        RenderUtil.drawOutlineRect(consolex, consoley1 + 3, consolex1 - consolex, 15, 4f, new Color(0xCDA8A8A8, true).getRGB());
         RenderUtil.drawRect2(consolex, consoley1 + 3, consolex1, consoley1 + 17, new Color(0xF70C0C0C, true).getRGB());
         FontRender.drawString3("cursor pos: " + hoverx*64 + "x" + "  " + hovery*64 + "z",consolex + 4,consoley1 + 6 ,-1);
 
-        GuiRenderHelper.drawOutlineRect(consolex, consoley1 + 20, consolex1 - consolex, 15, 4f, new Color(0xCDA8A8A8, true).getRGB());
+        RenderUtil.drawOutlineRect(consolex, consoley1 + 20, consolex1 - consolex, 15, 4f, new Color(0xCDA8A8A8, true).getRGB());
 
         if(!track) {
            RenderUtil.drawRect2(consolex, consoley1 + 20, consolex1, consoley1 + 35, new Color(0xF70C0C0C, true).getRGB());
@@ -131,7 +129,7 @@ public class GuiScanner extends GuiScreen {
            FontRender.drawString3("tracker on", consolex + 4, consoley1 + 26, -1);
         }
 
-        GuiRenderHelper.drawOutlineRect(radarx, radary, radarx1 - radarx, radary1 - radary, 4f, new Color(0xCDA8A8A8, true).getRGB());
+        RenderUtil.drawOutlineRect(radarx, radary, radarx1 - radarx, radary1 - radary, 4f, new Color(0xCDA8A8A8, true).getRGB());
         RenderUtil.drawRect2(radarx, radary, radarx1, radary1, new Color(0xE0151515, true).getRGB());
         try {
             for (NoCom.Dot point : NoCom.dots) {

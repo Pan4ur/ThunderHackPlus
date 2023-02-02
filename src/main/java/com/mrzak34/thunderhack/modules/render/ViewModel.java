@@ -1,9 +1,8 @@
 package com.mrzak34.thunderhack.modules.render;
 
-import com.mrzak34.thunderhack.event.events.RenderItemEvent;
+import com.mrzak34.thunderhack.events.RenderItemEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.modules.combat.Aura;
-import com.mrzak34.thunderhack.modules.combat.DeadCodeAura;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.Timer;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -79,7 +78,7 @@ class ViewModel extends Module {
 
     public
     ViewModel ( ) {
-        super ( "ViewModel" , "Cool" , Category.RENDER , true , false , false );
+        super ( "ViewModel" , "Cool" , Category.RENDER );
         this.setInstance ( );
     }
 
@@ -137,7 +136,7 @@ class ViewModel extends Module {
         event.setOffHandScaleZ ( offScaleZ.getValue ( ) );
 
 
-        if(killauraattack.getValue() && (DeadCodeAura.target != null || Aura.target != null)){
+        if(killauraattack.getValue() && (Aura.target != null)){
             event.setMainHandScaleX ( kmainScaleX.getValue ( ) );
             event.setMainHandScaleY ( kmainScaleY.getValue ( ) );
             event.setMainHandScaleZ ( kmainScaleZ.getValue ( ) );
@@ -206,8 +205,7 @@ class ViewModel extends Module {
 
     }
 
-    private
-    enum Settings {
+    private enum Settings {
         TRANSLATE,
         ROTATE,
         SCALE,

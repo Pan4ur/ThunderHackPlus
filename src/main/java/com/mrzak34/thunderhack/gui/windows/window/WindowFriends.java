@@ -3,8 +3,7 @@ package com.mrzak34.thunderhack.gui.windows.window;
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.gui.thundergui.fontstuff.FontRender;
 import com.mrzak34.thunderhack.gui.windows.window.parts.FriendPart;
-import com.mrzak34.thunderhack.manager.FriendManager;
-import com.mrzak34.thunderhack.util.RenderUtil;
+import com.mrzak34.thunderhack.util.render.RenderUtil;
 import net.minecraft.client.gui.ScaledResolution;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
@@ -85,12 +84,12 @@ public class WindowFriends {
             FontRender.drawCentString5("ADD", ((posX + width - 7f - 40f) + (posX + width - 7f)) / 2f, posY + height - 18 + 5, new Color(0x69FFFFFF, true).getRGB());
         }
 
-        for (FriendManager.Friend friend : Thunderhack.friendManager.getFriends()) {
-            if(already.contains(friend.getUsername())){
+        for (String friend : Thunderhack.friendManager.getFriends()) {
+            if(already.contains(friend)){
                 continue;
             }
-            friends.add(new FriendPart(friend.getUsername(), posX, posY,width,friendPartId));
-            already.add(friend.getUsername());
+            friends.add(new FriendPart(friend, posX, posY,width,friendPartId));
+            already.add(friend);
             ++friendPartId;
         }
 

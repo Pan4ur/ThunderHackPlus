@@ -1,12 +1,14 @@
 package com.mrzak34.thunderhack.modules.render;
 
 import com.mojang.realmsclient.gui.ChatFormatting;
-import com.mrzak34.thunderhack.event.events.*;
+import com.mrzak34.thunderhack.events.EventPreMotion;
+import com.mrzak34.thunderhack.events.PacketEvent;
+import com.mrzak34.thunderhack.events.Render2DEvent;
+import com.mrzak34.thunderhack.events.Render3DEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.BlockUtils;
-import com.mrzak34.thunderhack.util.ColorUtil;
-import com.mrzak34.thunderhack.util.RenderUtil;
+import com.mrzak34.thunderhack.util.render.RenderUtil;
 import com.mrzak34.thunderhack.util.Util;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
@@ -26,7 +28,7 @@ import java.util.ArrayList;
 
 public class XRay extends Module {
     public XRay() {
-        super("XRay", "Искать алмазы на ezzzzz", Category.MISC, true, false, false);
+        super("XRay", "Искать алмазы на ezzzzz", Category.MISC);
     }
     ArrayList<BlockPos> ores = new ArrayList();
     ArrayList<BlockPos> toCheck = new ArrayList();
@@ -64,7 +66,7 @@ public class XRay extends Module {
         int radY = ry.getValue();
         ArrayList<BlockPos> blockPositions = this.getBlocks(radXZ, radY, radXZ);
         for (BlockPos pos : blockPositions) {
-            IBlockState state = BlockUtils.getState(pos); //TODO check or no..
+            IBlockState state = BlockUtils.getState(pos);
             if (!this.isCheckableOre(Block.getIdFromBlock(state.getBlock()))) continue;
             this.toCheck.add(pos);
         }
@@ -117,11 +119,8 @@ public class XRay extends Module {
     public void onRender3D(Render3DEvent e) {
         try {
             for (BlockPos pos : this.ores) {
-
                 IBlockState state = BlockUtils.getState(pos);
                 Block mat = state.getBlock();
-
-
                 if (Mode.getValue() == mode.FullBox) {
                     if (Block.getIdFromBlock(mat) != 0 && Block.getIdFromBlock(mat) == 56 && this.diamond.getValue() && Block.getIdFromBlock(mat) == 56) {
                         RenderUtil.blockEsp(pos, new Color(0, 255, 255, 50), 1.0, 1.0);
@@ -172,7 +171,7 @@ public class XRay extends Module {
 
             }
             if (verycute != null && (done != all) && wow.getValue()) {
-                RenderUtil.drawBlockOutline(verycute, new Color(255, 0, 30), 1, false);
+                RenderUtil.drawBlockOutline(verycute, new Color(255, 0, 30), 1, false,0);
             }
         } catch (Exception ignored){
 
@@ -189,8 +188,8 @@ public class XRay extends Module {
         float xOffset = (float)sr.getScaledWidth() / 2.0f - (float)size / 2.0f;
         float yOffset = 5.0f;
         float Y = 0.0f;
-        RenderUtil.rectangleBordered(xOffset + 2.0f, yOffset + 1.0f, xOffset + 10.0f + (float)size + (float)font.getStringWidth(g) + 1.0f, yOffset + (float)size / 6.0f + 3.0f + ((float)font.FONT_HEIGHT + 2.2f), 0.5, ColorUtil.getColor(90), ColorUtil.getColor(0));
-        RenderUtil.rectangleBordered(xOffset + 3.0f, yOffset + 2.0f, xOffset + 10.0f + (float)size + (float)font.getStringWidth(g), yOffset + (float)size / 6.0f + 2.0f + ((float)font.FONT_HEIGHT + 2.2f), 0.5, ColorUtil.getColor(27), ColorUtil.getColor(61));
+        RenderUtil.rectangleBordered(xOffset + 2.0f, yOffset + 1.0f, xOffset + 10.0f + (float)size + (float)font.getStringWidth(g) + 1.0f, yOffset + (float)size / 6.0f + 3.0f + ((float)font.FONT_HEIGHT + 2.2f), 0.5, 90, 0);
+        RenderUtil.rectangleBordered(xOffset + 3.0f, yOffset + 2.0f, xOffset + 10.0f + (float)size + (float)font.getStringWidth(g), yOffset + (float)size / 6.0f + 2.0f + ((float)font.FONT_HEIGHT + 2.2f), 0.5, 27, 61);
         font.drawStringWithShadow("" + ChatFormatting.GREEN + "Done: " + ChatFormatting.WHITE + done + " / " + ChatFormatting.RED + "All: " + ChatFormatting.WHITE + all, xOffset + 25.0f, yOffset + (float)font.FONT_HEIGHT + 4.0f, -1);
         GlStateManager.disableBlend();
     }

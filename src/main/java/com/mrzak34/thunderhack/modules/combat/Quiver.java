@@ -1,7 +1,8 @@
 package com.mrzak34.thunderhack.modules.combat;
 
-import com.mrzak34.thunderhack.event.events.EventPreMotion;
-import com.mrzak34.thunderhack.event.events.StopUsingItemEvent;
+import com.mrzak34.thunderhack.command.Command;
+import com.mrzak34.thunderhack.events.EventPreMotion;
+import com.mrzak34.thunderhack.events.StopUsingItemEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.mixin.mixins.IEntityPlayerSP;
@@ -9,6 +10,10 @@ import com.mrzak34.thunderhack.util.*;
 
 import net.minecraft.init.*;
 import net.minecraft.network.play.client.*;
+import net.minecraft.potion.Potion;
+import net.minecraft.potion.PotionEffect;
+import net.minecraft.potion.PotionType;
+import net.minecraft.potion.PotionUtils;
 import net.minecraft.util.EnumHand;
 import net.minecraft.inventory.*;
 import com.mrzak34.thunderhack.util.Timer;
@@ -16,12 +21,16 @@ import com.mrzak34.thunderhack.util.Timer;
 import net.minecraft.item.*;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+
 public class Quiver extends Module
 {
 
 
     public Quiver() {
-        super("Quiver",  "Накладывать эффекты-на себя с лука ",  Category.COMBAT,  true,  false,  false);
+        super("Quiver",  "Накладывать эффекты-на себя с лука ",  Category.COMBAT);
     }
 
     public  final Setting<Boolean> speed = this.register(new Setting<>("Swiftness", false));
@@ -32,18 +41,15 @@ public class Quiver extends Module
     public  final Setting<Boolean> noGapSwitch = this.register(new Setting<>("NoGapSwitch", false));
     public  final Setting<Integer> health = this.register(new Setting<>("MinHealth", 20, 0, 36));
 
-    public  final Setting<Boolean> fdf = this.register(new Setting<>("ForDmgFly", false));
-
 
     private Timer timer = new Timer();
 
     private boolean cancelStopUsingItem = false;
 
+
     @SubscribeEvent
     public void onUpdateWalkingPlayer(EventPreMotion event) {
         if (mc.player == null || mc.world == null) return;
-
-        if (event.isCanceled() || !InteractionUtil.canPlaceNormally()) return;
 
         if (!timer.passedMs(2500)) return;
 
@@ -51,21 +57,21 @@ public class Quiver extends Module
 
         if (noGapSwitch.getValue() && mc.player.getActiveItemStack().getItem() instanceof ItemFood) return;
 
-        if(fdf.getValue()){
-            shootBow(event);
-        }
-
         if (strength.getValue() && !mc.player.isPotionActive(MobEffects.STRENGTH)) {
-            if (isFirstAmmoValid("Arrow of Strength")) {
-                shootBow(event);
+            if (isFirstAmmoValid("Стрела силы")) {
+                shootBow();
+            }if (isFirstAmmoValid("Arrow of Strength")) {
+                shootBow();
             } else if (toggelable.getValue()) {
                 toggle();
             }
         }
 
         if (speed.getValue() && !mc.player.isPotionActive(MobEffects.SPEED)) {
-            if (isFirstAmmoValid("Arrow of Swiftness")) {
-                shootBow(event);
+            if (isFirstAmmoValid("Стрела стремительности")) {
+                shootBow();
+            } else if (isFirstAmmoValid("Arrow of Swiftness")) {
+                shootBow();
             } else if (toggelable.getValue()) {
                 toggle();
             }
@@ -76,7 +82,7 @@ public class Quiver extends Module
     public void onStopUsingItem(StopUsingItemEvent event) {
         if (cancelStopUsingItem) {
             event.setCanceled(true);
-       }
+        }
     }
 
     @Override
@@ -84,10 +90,7 @@ public class Quiver extends Module
         cancelStopUsingItem = false;
     }
 
-
-
-
-    private void shootBow(EventPreMotion event) {
+    private void shootBow() {
         if (mc.player.inventory.getCurrentItem().getItem() == Items.BOW) {
             mc.player.connection.sendPacket(new CPacketPlayer.Rotation(0, -90, mc.player.onGround));
             ((IEntityPlayerSP) mc.player).setLastReportedYaw(0);
@@ -163,4 +166,6 @@ public class Quiver extends Module
         }
         return false;
     }
+
 }
+

@@ -1,10 +1,11 @@
 package com.mrzak34.thunderhack.modules.player;
 
-import com.mrzak34.thunderhack.event.events.EventPreMotion;
-import com.mrzak34.thunderhack.event.events.PacketEvent;
-import com.mrzak34.thunderhack.event.events.TotemPopEvent;
+import com.mrzak34.thunderhack.events.EventPostMotion;
+import com.mrzak34.thunderhack.events.EventPreMotion;
+import com.mrzak34.thunderhack.events.PacketEvent;
+import com.mrzak34.thunderhack.events.TotemPopEvent;
 import com.mrzak34.thunderhack.modules.*;
-import com.mrzak34.thunderhack.util.DamageUtil;
+import com.mrzak34.thunderhack.util.math.DamageUtil;
 import com.mrzak34.thunderhack.util.PositionforFP;
 import net.minecraft.client.entity.*;
 import com.mrzak34.thunderhack.setting.*;
@@ -62,7 +63,7 @@ public class FakePlayer extends Module {
     }
 
     public FakePlayer() {
-        super("FakePlayer", "фейкплеер для тестов", Module.Category.PLAYER, true, false, false);
+        super("FakePlayer", "фейкплеер для тестов", Module.Category.PLAYER);
     }
 
 
@@ -244,22 +245,7 @@ public class FakePlayer extends Module {
 
     @SubscribeEvent
     public void onMotionUpdateEvent(EventPreMotion event){
-
-        /*
-        if (gapple.getValue() && module.timer.passed(module.gappleDelay.getValue()))
-        {
-            module.fakePlayer.setAbsorptionAmount(16.0f);
-            module.fakePlayer.addPotionEffect(new PotionEffect(MobEffects.REGENERATION, 400, 1));
-            module.fakePlayer.addPotionEffect(new PotionEffect(MobEffects.RESISTANCE, 6000, 0));
-            module.fakePlayer.addPotionEffect(new PotionEffect(MobEffects.FIRE_RESISTANCE, 6000, 0));
-            module.fakePlayer.addPotionEffect(new PotionEffect(MobEffects.ABSORPTION, 2400, 3));
-
-            module.timer.reset();
-        }
-
-         */
-
-        if (event.getStage() == 0 && !record2.getValue())
+        if ( !record2.getValue())
         {
             if (play.getValue())
             {
@@ -289,7 +275,13 @@ public class FakePlayer extends Module {
                 index = 0;
             }
         }
-        else if (record2.getValue())
+
+    }
+
+
+    @SubscribeEvent
+    public void onMotionUpdateEventPost(EventPostMotion event){
+        if (record2.getValue())
         {
             if (ticks++ % 2 == 0)
             {
@@ -297,7 +289,6 @@ public class FakePlayer extends Module {
             }
         }
     }
-
 
 
 

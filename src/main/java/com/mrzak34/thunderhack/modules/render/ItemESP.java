@@ -1,14 +1,15 @@
 package com.mrzak34.thunderhack.modules.render;
 
-import com.mrzak34.thunderhack.event.events.Render2DEvent;
-import com.mrzak34.thunderhack.event.events.Render3DEvent;
+import com.mrzak34.thunderhack.events.Render2DEvent;
+import com.mrzak34.thunderhack.events.Render3DEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.setting.Setting;
-import com.mrzak34.thunderhack.util.PaletteHelper;
-import com.mrzak34.thunderhack.util.RectHelper;
-import com.mrzak34.thunderhack.util.RenderHelper;
-import com.mrzak34.thunderhack.util.Util;
+import com.mrzak34.thunderhack.util.*;
+import com.mrzak34.thunderhack.util.math.AstolfoAnimation;
+import com.mrzak34.thunderhack.util.render.PaletteHelper;
+import com.mrzak34.thunderhack.util.render.RectHelper;
+import com.mrzak34.thunderhack.util.render.RenderHelper;
 import net.minecraft.client.renderer.GLAllocation;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
@@ -27,7 +28,7 @@ import java.nio.IntBuffer;
 
 public class ItemESP extends Module{
     public ItemESP() {
-        super("ItemESP", "ItemESP", Module.Category.RENDER, false, false, false);
+        super("ItemESP", "ItemESP", Module.Category.RENDER);
     }
     private final Setting<Boolean> entityName = (Setting<Boolean>)this.register(new Setting("Name", true));
     private final Setting<Boolean> fullBox = (Setting<Boolean>)this.register(new Setting("Full Box", true));
@@ -55,6 +56,7 @@ public class ItemESP extends Module{
         Custom, Rainbow, Astolfo;
     }
 
+    private final Setting<Boolean> astolfo = this.register(new Setting<>("Astolfo", true));
 
 
 
@@ -64,9 +66,6 @@ public class ItemESP extends Module{
         for (Entity item : mc.world.loadedEntityList) {
             if (item instanceof EntityItem) {
                 int color = 0;
-   //             if(Mode2.getValue() == mode2.Custom) {
-      //                  color = (ccr.getValue(),ccg.getValue(),ccb.getValue(),cca.getValue());
-       //         }
                 if(Mode2.getValue() == mode2.Astolfo) {
                         color = PaletteHelper.astolfo(false, (int) item.height).getRGB();
                 }
@@ -79,8 +78,11 @@ public class ItemESP extends Module{
                     GlStateManager.popMatrix();
                 }
                 if (Mode.getValue() == mode.Circle) {
-                    RenderHelper.drawCircle3D(item, rads.getValue(), event.getPartialTicks(), 32, 2, new Color(0, 255, 135).getRGB());
-                  //  RenderHelper.drawCircle3D2(item, rads.getValue(), event.getPartialTicks(), 32, 2, new Color(0, 255, 135).getRGB());
+                    if(!astolfo.getValue()) {
+                        RenderHelper.drawCircle3D(item, rads.getValue(), event.getPartialTicks(), 32, 2, new Color(0, 255, 135).getRGB(), false);
+                    } else {
+                        RenderHelper.drawCircle3D(item, rads.getValue(), event.getPartialTicks(), 32, 2, new Color(0, 255, 135).getRGB(), true);
+                    }
                 }
             }
         }
@@ -187,6 +189,12 @@ public class ItemESP extends Module{
 
 
 
+    public static AstolfoAnimation astolfo2 = new AstolfoAnimation();
+
+    @Override
+    public void onUpdate() {
+        astolfo2.update();
+    }
 
 
 

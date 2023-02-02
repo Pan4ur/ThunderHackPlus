@@ -1,13 +1,14 @@
 package com.mrzak34.thunderhack.util.phobos;
 
 import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.util.MathUtil;
+import com.mrzak34.thunderhack.manager.RotationManager;
+import com.mrzak34.thunderhack.util.math.MathUtil;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 
-import static com.mrzak34.thunderhack.util.PhobosRotationUtil.getVec3d;
-import static com.mrzak34.thunderhack.util.PhobosRotationUtil.updateRotation;
+import static com.mrzak34.thunderhack.util.math.PhobosRotationUtil.getVec3d;
+import static com.mrzak34.thunderhack.util.math.PhobosRotationUtil.updateRotation;
 
 // TODO: distinguish between yaw- and pitch speed?
 public class RotationSmoother

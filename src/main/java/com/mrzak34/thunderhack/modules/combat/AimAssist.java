@@ -1,8 +1,8 @@
 package com.mrzak34.thunderhack.modules.combat;
 
 import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.event.events.EventPreMotion;
-import com.mrzak34.thunderhack.event.events.Render3DEvent;
+import com.mrzak34.thunderhack.events.EventPreMotion;
+import com.mrzak34.thunderhack.events.Render3DEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.Timer;
@@ -21,7 +21,7 @@ import org.lwjgl.input.Mouse;
 public class AimAssist extends Module{
 
     public AimAssist() {
-        super("AimAssist", "AimAssist", Category.COMBAT, true, false, false);
+        super("AimAssist", "AimAssist", Category.COMBAT);
     }
 
 
@@ -100,12 +100,10 @@ public class AimAssist extends Module{
         if (vertical.getValue()) deltaY = Math.round(niggaPitch / gcd);
         else deltaY = 0;
     }
-    private final Timer leftTimer = new Timer();
-    private double leftDelay = 0;
+
     @SubscribeEvent
     public void onRender3D(Render3DEvent event) {
-        if(target != null){
-        } else {
+        if(target == null){
             return;
         }
 
@@ -206,9 +204,6 @@ public class AimAssist extends Module{
         return new float[]{yaw, pitch};
     }
 
-    public double randomBetween(final double min, final double max) {
-        return ((Math.random() * ((RandomUtils.nextDouble(max, max + 1)) - RandomUtils.nextDouble(min, min + 1)) + 1) + min);
-    }
 
     public float[] getFixedRotation(final float[] rotations, final float[] lastRotations) {
         final Minecraft mc = Minecraft.getMinecraft();

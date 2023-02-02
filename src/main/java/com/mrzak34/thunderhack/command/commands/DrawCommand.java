@@ -7,7 +7,7 @@ import com.mrzak34.thunderhack.modules.Module;
 
 public class DrawCommand extends Command {
     public DrawCommand() {
-        super("draw", new String[]{"<module>"});
+        super("draw");
     }
 
     @Override

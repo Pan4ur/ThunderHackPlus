@@ -40,7 +40,7 @@ minecraft {
     version = project.forgeVersion
     runDir = 'run'
     mappings = project.mcpVersion
-    coreMod = 'com.mrzak34.thunderhack.Thunderhack'
+    coreMod = 'com.mrzak34.thunderhack.THLoader'
     makeObfSourceJar = false
 }
 

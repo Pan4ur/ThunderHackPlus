@@ -1,5 +1,7 @@
 package com.mrzak34.thunderhack.util.phobos;
 
+import com.mrzak34.thunderhack.manager.PositionManager;
+import com.mrzak34.thunderhack.manager.RotationManager;
 import com.mrzak34.thunderhack.util.RotationUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;

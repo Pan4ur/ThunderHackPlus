@@ -7,7 +7,7 @@ import com.mrzak34.thunderhack.command.Command;
 
 public class FriendCommand extends Command {
     public FriendCommand() {
-        super("friend", new String[]{"<add/del/name/clear>", "<name>"});
+        super("friend");
     }
 
     @Override
@@ -17,9 +17,9 @@ public class FriendCommand extends Command {
                 FriendCommand.sendMessage("Friend list empty D:.");
             } else {
                 String f = "Friends: ";
-                for (FriendManager.Friend friend : Thunderhack.friendManager.getFriends()) {
+                for (String friend : Thunderhack.friendManager.getFriends()) {
                     try {
-                        f = f + friend.getUsername() + ", ";
+                        f = f + friend + ", ";
                     } catch (Exception exception) {
                     }
                 }
@@ -30,7 +30,7 @@ public class FriendCommand extends Command {
         if (commands.length == 2) {
             switch (commands[0]) {
                 case "reset": {
-                    Thunderhack.friendManager.onLoad();
+                    Thunderhack.friendManager.clear();
                     FriendCommand.sendMessage("Friends got reset.");
                     return;
                 }

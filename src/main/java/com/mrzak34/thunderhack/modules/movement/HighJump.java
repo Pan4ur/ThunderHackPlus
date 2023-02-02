@@ -8,7 +8,7 @@ public class HighJump extends Module {
 
 
     public HighJump() {
-        super("HighJump", "HighJump", Category.MOVEMENT, true, false, false);
+        super("HighJump", "HighJump", Category.MOVEMENT);
     }
 
     public Setting<Float> b = register(new Setting("Motion Y", 1.5f, 1.0f, 5.0f));

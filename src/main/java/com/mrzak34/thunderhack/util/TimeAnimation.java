@@ -1,5 +1,6 @@
 package com.mrzak34.thunderhack.util;
 
+import com.mrzak34.thunderhack.util.math.AnimationMode;
 import net.minecraft.util.math.MathHelper;
 
 

@@ -71,12 +71,8 @@ public final class Names {
             public static final class Message {
                 public static final String USAGE = "/schematicaSave <началоX> <началоY> <началоZ> <конецX> <конецY> <конецZ> <название> [формат]";
                 public static final String PLAYERS_ONLY = "Только игроки могут использовать данную команду.";
-                public static final String SAVE_STARTED = "Сохранение %d чанка(-ов) в файл «%s»...";
-                public static final String SAVE_SUCCESSFUL = "Схема «%s» сохранена.";
-                public static final String SAVE_FAILED = "Произошла ошибка при сохранении файла «%s».";
                 public static final String QUOTA_EXCEEDED = "Превышена квота сервера. Используйте /schematicaList и /schematicaRemove, чтобы удалить старые схемы.";
                 public static final String PLAYER_SCHEMATIC_DIR_UNAVAILABLE = "Произошла ошибка на сервере, из-за которой неудалось сохранить схему. Свяжитесь с администратором сервера.";
-                public static final String UNKNOWN_FORMAT = "Формат неизвестен: «%s»";
             }
 
             public static final String NAME = "schematicaSave";
@@ -85,10 +81,9 @@ public final class Names {
         public static final class List {
             public static final class Message {
                 public static final String USAGE = "/schematicaList [страница]";
-                public static final String LIST_NOT_AVAILABLE = "Произошла ошибка при получении списка схем.";
                 public static final String REMOVE = "Удалить";
                 public static final String DOWNLOAD = "Загрузить";
-                public static final String PAGE_HEADER = "--- Схемы, страница %d из %d ---";
+                public static final String PAGE_HEADER = "--- Schemes, page %d из %d ---";
                 public static final String NO_SUCH_PAGE = "Данной страницы не существует.";
                 public static final String NO_SCHEMATICS = "Нет доступных схем.";
             }
@@ -100,8 +95,8 @@ public final class Names {
             public static final class Message {
                 public static final String USAGE = "/schematicaRemove <название>";
                 public static final String PLAYERS_ONLY = "schematica.command.save.playersOnly";
-                public static final String SCHEMATIC_REMOVED = "Схема «%s» удалена.";
-                public static final String SCHEMATIC_NOT_FOUND = "Схема «%s» не найдена.";
+                public static final String SCHEMATIC_REMOVED = "Scheme «%s» succefully deleted.";
+                public static final String SCHEMATIC_NOT_FOUND = "Scheme «%s» not found.";
                 public static final String ARE_YOU_SURE_START = "Уверены?";
                 public static final String YES = "gui.yes";
             }
@@ -113,8 +108,8 @@ public final class Names {
             public static final class Message {
                 public static final String USAGE = "/schematicaDownload <название>";
                 public static final String PLAYERS_ONLY = "schematica.command.save.playersOnly";
-                public static final String DOWNLOAD_STARTED = "Загрузка файла «%s»...";
-                public static final String DOWNLOAD_SUCCEEDED = "Схема «%s» успешно загружена.";
+                public static final String DOWNLOAD_STARTED = "Downloading «%s»...";
+                public static final String DOWNLOAD_SUCCEEDED = "Scheme «%s» succesfully downloaded";
                 public static final String DOWNLOAD_FAILED = "Произошла ошибка во время загрузки.";
             }
 
@@ -125,7 +120,7 @@ public final class Names {
             public static final class Message {
                 public static final String USAGE = "/schematicaReplace <оригинал> <замена>";
                 public static final String NO_SCHEMATIC = "Нет загруженных схем.";
-                public static final String SUCCESS = "%s блоков заменено.";
+                public static final String SUCCESS = "%s blocks changed.";
             }
 
             public static final String NAME = "schematicaReplace";
@@ -133,11 +128,9 @@ public final class Names {
     }
 
     public static final class Messages {
-        public static final String TOGGLE_PRINTER = "Принтер: %s";
-
-        public static final String INVALID_BLOCK = "Блок «%s» не существует.";
-        public static final String INVALID_PROPERTY = "Свойтво «%s» не существует.";
-        public static final String INVALID_PROPERTY_FOR_BLOCK = "Свойтво «%s» не существует у блока «%s».";
+        public static final String INVALID_BLOCK = "Invalid block «%s»";
+        public static final String INVALID_PROPERTY = "Invalid property «%s»";
+        public static final String INVALID_PROPERTY_FOR_BLOCK = "Invalid property «%s» for block «%s».";
     }
 
     public static final class Gui {
@@ -153,13 +146,12 @@ public final class Names {
             public static final String POINT_BLUE = "Синяя точка";
             public static final String SAVE = "Сохранить";
             public static final String SAVE_SELECTION = "Сохранение схемы";
-            public static final String FORMAT = "Формат: %s";
+            public static final String FORMAT = "Format: %s";
         }
 
         public static final class Control {
             public static final String MOVE_SCHEMATIC = "Перемещение схемы";
             public static final String MATERIALS = "Материалы";
-            public static final String PRINTER = "Принтер";
             public static final String OPERATIONS = "Операции";
 
             public static final String UNLOAD = "Выгрузить";
@@ -190,10 +182,6 @@ public final class Names {
         public static final String DONE = "Готово";
     }
 
-    public static final class ModId {
-        public static final String MINECRAFT = "minecraft";
-    }
-
     public static final class Keys {
         public static final String CATEGORY = "Schematica";
         public static final String LOAD = "Загрузить схему";
@@ -203,19 +191,14 @@ public final class Names {
         public static final String LAYER_DEC = "Предыдущий слой";
         public static final String LAYER_TOGGLE = "Все/один слой";
         public static final String RENDER_TOGGLE = "Отображение";
-        public static final String PRINTER_TOGGLE = "ghb";
         public static final String MOVE_HERE = "Передвинуть сюда";
         public static final String PICK_BLOCK = "Выбор блока в схеме";
     }
 
     public static final class NBT {
-        public static final String ROOT = "Schematic";
-
         public static final String MATERIALS = "Materials";
-        public static final String FORMAT_CLASSIC = "Classic";
         public static final String FORMAT_ALPHA = "Alpha";
         public static final String FORMAT_STRUCTURE = "Structure";
-
         public static final String ICON = "Icon";
         public static final String BLOCKS = "Blocks";
         public static final String DATA = "Data";

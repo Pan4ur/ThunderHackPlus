@@ -1,12 +1,10 @@
 package com.mrzak34.thunderhack.modules.render;
 
-import com.mrzak34.thunderhack.command.Command;
-import com.mrzak34.thunderhack.event.events.CrystalRenderEvent;
+import com.mrzak34.thunderhack.events.CrystalRenderEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.setting.Setting;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.network.play.client.CPacketChatMessage;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
@@ -16,7 +14,7 @@ import static org.lwjgl.opengl.GL11.*;
 
 public class CrystalChams extends Module {
     public CrystalChams() {
-        super("CrystalChams", "CrystalChams", Category.MISC, true, false, false);
+        super("CrystalChams", "CrystalChams", Category.MISC);
     }
 
 

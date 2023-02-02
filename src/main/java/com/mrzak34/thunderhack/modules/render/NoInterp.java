@@ -6,7 +6,7 @@ import com.mrzak34.thunderhack.setting.Setting;
 public class NoInterp extends Module{
     private static NoInterp INSTANCE = new NoInterp();
     public NoInterp() {
-        super("NoInterp", "Renders when some1 nigger", Module.Category.RENDER, true, false, false);
+        super("NoInterp", "Renders when some1 nigger", Module.Category.RENDER);
         this.setInstance();
     }
 

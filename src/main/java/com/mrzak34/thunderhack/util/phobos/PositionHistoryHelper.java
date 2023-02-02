@@ -1,8 +1,8 @@
 package com.mrzak34.thunderhack.util.phobos;
 
 import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.event.events.ConnectToServerEvent;
-import com.mrzak34.thunderhack.event.events.PacketEvent;
+import com.mrzak34.thunderhack.events.ConnectToServerEvent;
+import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.modules.Feature;
 import com.mrzak34.thunderhack.util.RotationUtil;
 import net.minecraft.entity.Entity;
@@ -14,8 +14,6 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentLinkedDeque;
-
-import static com.mrzak34.thunderhack.util.Util.mc;
 
 public class PositionHistoryHelper extends Feature
 {

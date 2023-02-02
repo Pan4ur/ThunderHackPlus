@@ -1,13 +1,8 @@
 package com.mrzak34.thunderhack.mixin.mixins;
 
 import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.modules.player.AutoTool;
 import com.mrzak34.thunderhack.modules.render.XRay;
 import net.minecraft.block.state.*;
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Enchantments;
-import net.minecraft.item.ItemStack;
 import net.minecraft.world.*;
 import org.spongepowered.asm.mixin.*;
 import net.minecraft.util.math.*;
@@ -15,8 +10,6 @@ import net.minecraft.block.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-
-import static com.mrzak34.thunderhack.util.Util.mc;
 
 @Mixin({ Block.class })
 public abstract class MixinBlock
@@ -39,6 +32,9 @@ public abstract class MixinBlock
             if (Thunderhack.moduleManager.getModuleByClass(XRay.class).isOn() && Thunderhack.moduleManager.getModuleByClass(XRay.class).wh.getValue() ) {
                 info.setReturnValue(Thunderhack.moduleManager.getModuleByClass(XRay.class).shouldRender(Block.class.cast(this)));
             }
+   //     if (Thunderhack.moduleManager.getModuleByClass(PvPOptimization.class).isOn() ) {
+    //        info.setReturnValue(Thunderhack.moduleManager.getModuleByClass(PvPOptimization.class).shouldRender(pos));
+   //     }
     }
         catch (Exception ignored) {}
     }

@@ -1,13 +1,8 @@
 package com.mrzak34.thunderhack.setting;
 
-import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.modules.Feature;
-import com.mrzak34.thunderhack.event.events.ClientEvent;
 import net.minecraftforge.common.MinecraftForge;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.function.Predicate;
 
 public class Setting<T> {
@@ -85,13 +80,7 @@ public class Setting<T> {
                 this.setPlannedValue(this.max);
             }
         }
-        ClientEvent event = new ClientEvent(this);
-        MinecraftForge.EVENT_BUS.post(event);
-        if (!event.isCanceled()) {
-            this.value = this.plannedValue;
-        } else {
-            this.plannedValue = this.value;
-        }
+        this.value = this.plannedValue;
     }
 
     public T getPlannedValue() {
@@ -157,24 +146,12 @@ public class Setting<T> {
 
     public void increaseEnum() {
         this.plannedValue = (T) EnumConverter.increaseEnum((Enum) this.value);
-        ClientEvent event = new ClientEvent ( this );
-        MinecraftForge.EVENT_BUS.post ( event );
-        if ( ! event.isCanceled ( ) ) {
-            this.value = this.plannedValue;
-        } else {
-            this.plannedValue = this.value;
-        }
+        this.value = this.plannedValue;
     }
 
     public void setEnumByNumber(int id) {
         this.plannedValue = (T) EnumConverter.setEnumInt((Enum) this.value,id);
-        ClientEvent event = new ClientEvent ( this );
-        MinecraftForge.EVENT_BUS.post ( event );
-        if ( ! event.isCanceled ( ) ) {
-            this.value = this.plannedValue;
-        } else {
-            this.plannedValue = this.value;
-        }
+        this.value = this.plannedValue;
     }
 
     public void naoborotEnum() {
@@ -192,9 +169,7 @@ public class Setting<T> {
         if(this.isPositionSetting()){
             return "PositionSetting";
         }
-        if(this.isBlocklist()){
-            return "BlockListSetting";
-        }
+
         return this.getClassName(this.defaultValue);
     }
 
@@ -226,7 +201,7 @@ public class Setting<T> {
     }
 
     public boolean isEnumSetting() {
-        return !this.isPositionSetting()&& !this.isColorHeader()  && !this.isNumberSetting() &&!(this.value instanceof PositionSetting) && !(this.value instanceof String) && !(this.value instanceof BlockListSetting) && !(this.value instanceof ColorSetting) && !(this.value instanceof Parent) && !(this.value instanceof Bind) && !(this.value instanceof SubBind)&& !(this.value instanceof Character) && !(this.value instanceof Boolean);
+        return !this.isPositionSetting()&& !this.isColorHeader()  && !this.isNumberSetting() &&!(this.value instanceof PositionSetting) && !(this.value instanceof String)  && !(this.value instanceof ColorSetting) && !(this.value instanceof Parent) && !(this.value instanceof Bind) && !(this.value instanceof SubBind)&& !(this.value instanceof Character) && !(this.value instanceof Boolean);
     }
 
 
@@ -244,10 +219,6 @@ public class Setting<T> {
 
     public boolean  isPositionSetting() {
         return this.value instanceof PositionSetting;
-    }
-
-    public boolean isBlocklist() {
-        return this.value instanceof BlockListSetting;
     }
 
     public T getDefaultValue() {

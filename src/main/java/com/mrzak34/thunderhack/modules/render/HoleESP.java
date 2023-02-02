@@ -2,7 +2,7 @@ package com.mrzak34.thunderhack.modules.render;
 
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.modules.Module;
-import com.mrzak34.thunderhack.event.events.Render3DEvent;
+import com.mrzak34.thunderhack.events.Render3DEvent;
 import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.mixin.mixins.IRenderManager;
@@ -80,7 +80,7 @@ public class HoleESP
     }
 
     public HoleESP() {
-        super("HoleESP", "Surrounds you with Obsidian", Category.RENDER, true, false, false);
+        super("HoleESP", "Surrounds you with Obsidian", Category.RENDER);
     }
 
     private enum Mode {

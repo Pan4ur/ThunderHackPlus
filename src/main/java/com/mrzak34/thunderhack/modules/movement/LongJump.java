@@ -2,9 +2,9 @@ package com.mrzak34.thunderhack.modules.movement;
 
 
 import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.event.events.EventMove;
-import com.mrzak34.thunderhack.event.events.EventPostMotion;
-import com.mrzak34.thunderhack.event.events.PacketEvent;
+import com.mrzak34.thunderhack.events.EventMove;
+import com.mrzak34.thunderhack.events.EventPostMotion;
+import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.notification.NotificationManager;
 import com.mrzak34.thunderhack.notification.NotificationType;
@@ -21,7 +21,7 @@ import static com.mrzak34.thunderhack.util.MovementUtil.isMoving;
 
 public class LongJump extends Module{
     public LongJump() {
-        super("LongJump", "Догонять попусков-на ez", Category.MOVEMENT, true, false, false);
+        super("LongJump", "Догонять попусков-на ez", Category.MOVEMENT);
     }
 
     private Setting<ModeEn> Mode = register(new Setting("Mode", ModeEn.FunnyGame));
@@ -217,7 +217,6 @@ public class LongJump extends Module{
     }
 
     public void DefaultOnMove(EventMove f4p2){
-        if (f4p2.getStage() == 0) {
             if (!mc.player.collidedHorizontally  && this.Field1993 <= 0 && (mc.player.moveForward != 0.0f || mc.player.moveStrafing != 0.0f)) {
                 if (this.usetimer.getValue()) {
                     Thunderhack.TICK_TIMER = this.timr.getValue();
@@ -259,7 +258,7 @@ public class LongJump extends Module{
                 f4p2.set_x(0.0);
                 f4p2.setCanceled(true);
             }
-        }
+
     }
 
 
@@ -335,7 +334,6 @@ public class LongJump extends Module{
     public void FunnyGameOnMove(EventMove f4p2) {
         block22: {
             block23: {
-                if (f4p2.getStage() != 0) return;
                 if (mc.player.collidedHorizontally || !isMovingClient()) {
                     stage = 0;
                     ticks = 2;

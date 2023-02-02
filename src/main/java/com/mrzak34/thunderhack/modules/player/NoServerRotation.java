@@ -1,6 +1,6 @@
 package com.mrzak34.thunderhack.modules.player;
 
-import com.mrzak34.thunderhack.event.events.PacketEvent;
+import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import net.minecraft.network.play.server.SPacketPlayerPosLook;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
@@ -10,7 +10,7 @@ import static com.mrzak34.thunderhack.util.MovementUtil.isMoving;
 
 public class NoServerRotation extends Module {
     public NoServerRotation() {
-        super("NoServerRotation", "Тебе не вертит бошку", Category.PLAYER, true, false, false);
+        super("NoServerRotation", "Тебе не вертит бошку", Category.PLAYER);
     }
   //  public Setting<Float> ddd2 = this.register(new Setting<>("TrgtRange", 1.0f, 1f, 360.0f));
 

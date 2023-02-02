@@ -1,9 +1,9 @@
 package com.mrzak34.thunderhack.modules.combat;
 
 import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.event.events.EventPostMotion;
-import com.mrzak34.thunderhack.event.events.EventPreMotion;
-import com.mrzak34.thunderhack.event.events.Render3DEvent;
+import com.mrzak34.thunderhack.events.EventPostMotion;
+import com.mrzak34.thunderhack.events.EventPreMotion;
+import com.mrzak34.thunderhack.events.Render3DEvent;
 import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.modules.movement.PacketFly;
@@ -11,6 +11,7 @@ import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.mixin.mixins.IEntityPlayerSP;
 import com.mrzak34.thunderhack.util.*;
+import com.mrzak34.thunderhack.util.render.RenderUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
 import net.minecraft.block.BlockLiquid;
@@ -39,7 +40,7 @@ import java.util.stream.Stream;
 public class CevBreaker extends Module {
 
     public CevBreaker() {
-        super("CevBreaker", "CevBreaker", Category.COMBAT, true, false, false);
+        super("CevBreaker", "CevBreaker", Category.COMBAT);
     }
 
 
@@ -188,10 +189,10 @@ public class CevBreaker extends Module {
 
     public void onRender3D(Render3DEvent event) {
         if (renderPos != null && !renderTimer.passedMs(500)) {
-            RenderUtil.drawBlockOutline(renderPos, Color2.getValue().getColorObject(), 0.3f, true);
+            RenderUtil.drawBlockOutline(renderPos, Color2.getValue().getColorObject(), 0.3f, true,0);
         }
         if (lastBlock != null) {
-            RenderUtil.drawBlockOutline(lastBlock, new Color(175, 175, 255), 2f, false);
+            RenderUtil.drawBlockOutline(lastBlock, new Color(175, 175, 255), 2f, false,0);
 
             float prognum =  ((((float) tick / pickTickSwitch.getValue() * 100) / Blocks.OBSIDIAN.blockHardness) * mc.world.getBlockState(lastBlock).getBlock().blockHardness);
 
@@ -212,9 +213,9 @@ public class CevBreaker extends Module {
         if(toppos != null){
             EntityEnderCrystal ent = searchCrystal(toppos);
             if (ent != null && attackTimer.passedMs(atttt.getValue())) {
-                RenderUtil.drawBoxESP(toppos,  new Color(0x25BB02),  false,  new Color(0x2FFF00),  0.5f,  true,  true,  170,  false);
+                RenderUtil.drawBoxESP(toppos,  new Color(0x25BB02),  false,  new Color(0x2FFF00),  0.5f,  true,  true,  170,  false,0);
             } else {
-                RenderUtil.drawBoxESP(toppos,  new Color(0xBB0202),  false,  new Color(0xFF0000),  0.5f,  true,  true,  170,  false);
+                RenderUtil.drawBoxESP(toppos,  new Color(0xBB0202),  false,  new Color(0xFF0000),  0.5f,  true,  true,  170,  false,0);
             }
         }
     }

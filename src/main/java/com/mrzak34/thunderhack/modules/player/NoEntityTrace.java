@@ -17,7 +17,7 @@ public class NoEntityTrace extends Module
     public boolean noTrace;
 
     public NoEntityTrace() {
-        super("NoEntityTrace",  "копать сквозь игроков",  Module.Category.PLAYER,  false,  false,  false);
+        super("NoEntityTrace",  "копать сквозь игроков",  Module.Category.PLAYER);
         this.pick = (Setting<Boolean>)this.register(new Setting("Pick", true));
         this.gap = (Setting<Boolean>)this.register(new Setting("Gap", false));
         this.obby = (Setting<Boolean>)this.register(new Setting("Obby", false));

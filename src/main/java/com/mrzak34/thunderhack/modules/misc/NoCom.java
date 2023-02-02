@@ -2,7 +2,7 @@ package com.mrzak34.thunderhack.modules.misc;
 
 import com.mojang.realmsclient.gui.ChatFormatting;
 import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.event.events.PacketEvent;
+import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.gui.misc.GuiScanner;
 import com.mrzak34.thunderhack.modules.Module;
@@ -28,7 +28,7 @@ import java.util.List;
 public class NoCom extends Module {
 
     public NoCom() {
-        super("NoCom","эксплоит для поиска-игроков", Category.MISC,true,false,false);
+        super("NoCom","эксплоит для поиска-игроков", Category.MISC);
         this.setInstance();
     }
     private static NoCom INSTANCE;

@@ -1,6 +1,9 @@
 package com.mrzak34.thunderhack.mixin.mixins;
 
 import com.mrzak34.thunderhack.Thunderhack;
+import com.mrzak34.thunderhack.events.FreecamEvent;
+import com.mrzak34.thunderhack.events.PreRenderEvent;
+import com.mrzak34.thunderhack.events.RenderHand;
 import com.mrzak34.thunderhack.modules.combat.BackTrack;
 import com.mrzak34.thunderhack.modules.misc.ThirdPersView;
 import com.mrzak34.thunderhack.modules.misc.Weather;
@@ -20,7 +23,6 @@ import org.lwjgl.util.glu.Project;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.callback.*;
 import net.minecraft.client.entity.*;
-import com.mrzak34.thunderhack.event.events.*;
 import net.minecraftforge.common.*;
 import net.minecraft.world.*;
 import net.minecraft.entity.*;
@@ -43,27 +45,20 @@ import org.spongepowered.asm.mixin.injection.*;
 import javax.annotation.Nullable;
 import javax.vecmath.Vector3f;
 
+import static com.mrzak34.thunderhack.util.Util.mc;
+
 @Mixin({ EntityRenderer.class })
 public abstract class MixinEntityRenderer
 {
 
     @Shadow
     private ItemStack itemActivationItem;
-    @Shadow
-    @Final
-    private Minecraft mc;
-    private boolean injection;
-
-    public MixinEntityRenderer() {
-        this.injection = true;
-    }
-
 
 
     @Inject(method = "renderWorldPass", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GlStateManager;clear(I)V", ordinal = 1, shift = At.Shift.BEFORE))
     private void renderWorldPass(int pass, float partialTicks, long finishTimeNano, CallbackInfo ci) {
         if (Display.isActive() || Display.isVisible()) {
-            PostRenderEvent render3dEvent = new PostRenderEvent(partialTicks);
+            PreRenderEvent render3dEvent = new PreRenderEvent(partialTicks);
             MinecraftForge.EVENT_BUS.post(render3dEvent);
         }
     }
@@ -78,64 +73,14 @@ public abstract class MixinEntityRenderer
 
 
 
-    @Shadow
-    public int itemActivationTicks;
-
-    @Shadow
-    public float itemActivationOffX;
-
-    @Shadow
-    public float itemActivationOffY;
-
-    /**
-     * @awd
-     * @dawd
-     */
-    @Overwrite
-    public void renderItemActivation(int p_190563_1_, int p_190563_2_, float p_190563_3_) {
+    @Inject(method = { "renderItemActivation" },  at = { @At("HEAD") },  cancellable = true)
+    public void renderItemActivationHook(int p_190563_1_, int p_190563_2_, float p_190563_3_, CallbackInfo ci) {
         if (this.itemActivationItem != null && NoRender.getInstance().isOn() && (boolean)NoRender.getInstance().totemPops.getValue() && this.itemActivationItem.getItem() == Items.TOTEM_OF_UNDYING) {
-            return;
+            ci.cancel();
         }
-        if (this.itemActivationItem != null && this.itemActivationTicks > 0) {
-            int i = 40 - this.itemActivationTicks;
-            float f = ((float)i + p_190563_3_) / 40.0F;
-            float f1 = f * f;
-            float f2 = f * f1;
-            float f3 = 10.25F * f2 * f1 + -24.95F * f1 * f1 + 25.5F * f2 + -13.8F * f1 + 4.0F * f;
-            float f4 = f3 * 3.1415927F;
-            float f5 = this.itemActivationOffX * (float)(p_190563_1_ / 4);
-            float f6 = this.itemActivationOffY * (float)(p_190563_2_ / 4);
-            GlStateManager.enableAlpha();
-            GlStateManager.pushMatrix();
-            GlStateManager.pushAttrib();
-            GlStateManager.enableDepth();
-            GlStateManager.disableCull();
-            RenderHelper.enableStandardItemLighting();
-            GlStateManager.translate((float)(p_190563_1_ / 2) + f5 * MathHelper.abs(MathHelper.sin(f4 * 2.0F)), (float)(p_190563_2_ / 2) + f6 * MathHelper.abs(MathHelper.sin(f4 * 2.0F)), -50.0F);
-            float f7 = 50.0F + 175.0F * MathHelper.sin(f4);
-            GlStateManager.scale(f7, -f7, f7);
-            GlStateManager.rotate(900.0F * MathHelper.abs(MathHelper.sin(f4)), 0.0F, 1.0F, 0.0F);
-            GlStateManager.rotate(6.0F * MathHelper.cos(f * 8.0F), 1.0F, 0.0F, 0.0F);
-            GlStateManager.rotate(6.0F * MathHelper.cos(f * 8.0F), 0.0F, 0.0F, 1.0F);
-
-
-            mc.getRenderItem().renderItem(this.itemActivationItem, ItemCameraTransforms.TransformType.FIXED);
-
-
-
-            GlStateManager.popAttrib();
-            GlStateManager.popMatrix();
-            RenderHelper.disableStandardItemLighting();
-            GlStateManager.enableCull();
-            GlStateManager.disableDepth();
-        }
-
     }
-    @Inject(
-            method = "renderWorldPass",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/client/renderer/EntityRenderer;renderRainSnow(F)V"))
+
+    @Inject(method = "renderWorldPass", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/EntityRenderer;renderRainSnow(F)V"))
     public void weatherHook(int pass, float partialTicks, long finishTimeNano, CallbackInfo ci) {
         if (Thunderhack.moduleManager.getModuleByClass(Weather.class).isOn()) {
         //    GlStateManager.color(1f,0f,0f,1f);
@@ -209,6 +154,7 @@ public abstract class MixinEntityRenderer
             info.cancel();
         }
     }
+
     //3arthH4ck
     @Shadow public abstract FloatBuffer setFogColorBuffer(float red, float green, float blue, float alpha);
 
@@ -365,39 +311,39 @@ public abstract class MixinEntityRenderer
         Reach reach = Thunderhack.moduleManager.getModuleByClass(Reach.class);
         BackTrack bt = Thunderhack.moduleManager.getModuleByClass(BackTrack.class);
 
-        Entity entity = this.mc.getRenderViewEntity();
-        if (entity != null && this.mc.world != null) {
-            this.mc.profiler.startSection("pick");
-            this.mc.pointedEntity = null;
-            double d0 = (double) this.mc.playerController.getBlockReachDistance();
+        Entity entity = mc.getRenderViewEntity();
+        if (entity != null && mc.world != null) {
+            mc.profiler.startSection("pick");
+            mc.pointedEntity = null;
+            double d0 = (double) mc.playerController.getBlockReachDistance();
 
             if(reach.isOn()) {
                 d0 = d0 + reach.add.getValue();
             }
 
-                this.mc.objectMouseOver = entity.rayTrace(d0, partialTicks);
+                mc.objectMouseOver = entity.rayTrace(d0, partialTicks);
                 Vec3d vec3d = entity.getPositionEyes(partialTicks);
                 boolean flag = false;
                 double d1 = d0;
-                if (this.mc.playerController.extendedReach()) {
+                if (mc.playerController.extendedReach()) {
                     d1 = 6.0;
                     d0 = d1;
                 } else if (d0 > 3.0) {
                     flag = true;
                 }
 
-                if (this.mc.objectMouseOver != null) {
-                    d1 = this.mc.objectMouseOver.hitVec.distanceTo(vec3d);
+                if (mc.objectMouseOver != null) {
+                    d1 = mc.objectMouseOver.hitVec.distanceTo(vec3d);
                 }
 
                 Vec3d vec3d1 = entity.getLook(1.0F);
                 Vec3d vec3d2 = vec3d.add(vec3d1.x * d0, vec3d1.y * d0, vec3d1.z * d0);
-                this.pointedEntity = null;
+                pointedEntity = null;
                 Vec3d vec3d3 = null;
                 float f = 1.0F;
 
 
-                List<Entity> list = this.mc.world.getEntitiesInAABBexcluding(entity, entity.getEntityBoundingBox().expand(vec3d1.x * d0, vec3d1.y * d0, vec3d1.z * d0).grow(1.0, 1.0, 1.0), Predicates.and(EntitySelectors.NOT_SPECTATING, new Predicate<Entity>() {
+                List<Entity> list = mc.world.getEntitiesInAABBexcluding(entity, entity.getEntityBoundingBox().expand(vec3d1.x * d0, vec3d1.y * d0, vec3d1.z * d0).grow(1.0, 1.0, 1.0), Predicates.and(EntitySelectors.NOT_SPECTATING, new Predicate<Entity>() {
                     public boolean apply(@Nullable Entity p_apply_1_) {
                         return p_apply_1_ != null && p_apply_1_.canBeCollidedWith();
                     }
@@ -409,7 +355,7 @@ public abstract class MixinEntityRenderer
                     RayTraceResult raytraceresult = axisalignedbb.calculateIntercept(vec3d, vec3d2);
                     if (axisalignedbb.contains(vec3d)) {
                         if (d2 >= 0.0) {
-                            this.pointedEntity = value;
+                            pointedEntity = value;
                             vec3d3 = raytraceresult == null ? vec3d : raytraceresult.hitVec;
                             d2 = 0.0;
                         }
@@ -418,11 +364,11 @@ public abstract class MixinEntityRenderer
                         if (d3 < d2 || d2 == 0.0) {
                             if (value.getLowestRidingEntity() == entity.getLowestRidingEntity() && !value.canRiderInteract()) {
                                 if (d2 == 0.0) {
-                                    this.pointedEntity = value;
+                                    pointedEntity = value;
                                     vec3d3 = raytraceresult.hitVec;
                                 }
                             } else {
-                                this.pointedEntity = value;
+                                pointedEntity = value;
                                 vec3d3 = raytraceresult.hitVec;
                                 d2 = d3;
                             }
@@ -431,15 +377,15 @@ public abstract class MixinEntityRenderer
                 }
 
 
-                if (this.pointedEntity != null && flag && vec3d.distanceTo(vec3d3) > 3.0) {
-                    this.pointedEntity = null;
-                    this.mc.objectMouseOver = new RayTraceResult(RayTraceResult.Type.MISS, vec3d3, null, new BlockPos(vec3d3));
+                if (pointedEntity != null && flag && vec3d.distanceTo(vec3d3) > 3.0) {
+                    pointedEntity = null;
+                    mc.objectMouseOver = new RayTraceResult(RayTraceResult.Type.MISS, vec3d3, null, new BlockPos(vec3d3));
                 }
 
-                if (this.pointedEntity != null && (d2 < d1 || this.mc.objectMouseOver == null)) {
-                    this.mc.objectMouseOver = new RayTraceResult(this.pointedEntity, vec3d3);
-                    if (this.pointedEntity instanceof EntityLivingBase || this.pointedEntity instanceof EntityItemFrame) {
-                        this.mc.pointedEntity = this.pointedEntity;
+                if (pointedEntity != null && (d2 < d1 || mc.objectMouseOver == null)) {
+                    mc.objectMouseOver = new RayTraceResult(pointedEntity, vec3d3);
+                    if (pointedEntity instanceof EntityLivingBase || pointedEntity instanceof EntityItemFrame) {
+                        mc.pointedEntity = pointedEntity;
                     }
                 }
 
@@ -464,7 +410,7 @@ public abstract class MixinEntityRenderer
                                 RayTraceResult raytraceresult = axisalignedbb.calculateIntercept(vec3d, vec3d2);
                                 if (axisalignedbb.contains(vec3d)) {
                                     if (d2 >= 0.0) {
-                                        this.pointedEntity = pl_box;
+                                        pointedEntity = pl_box;
                                         vec3d3 = raytraceresult == null ? vec3d : raytraceresult.hitVec;
                                         d2 = 0.0;
                                         if (raytraceresult != null) {
@@ -476,10 +422,10 @@ public abstract class MixinEntityRenderer
                                     if (d3 < d2 || d2 == 0.0) {
                                         if (pl_box.getLowestRidingEntity() == entity.getLowestRidingEntity() && !pl_box.canRiderInteract()) {
                                             if (d2 == 0.0) {
-                                                this.pointedEntity = pl_box;
+                                                pointedEntity = pl_box;
                                             }
                                         } else {
-                                            this.pointedEntity = pl_box;
+                                            pointedEntity = pl_box;
                                             d2 = d3;
                                         }
                                     }
@@ -492,7 +438,7 @@ public abstract class MixinEntityRenderer
                     }
                 }
 
-            this.mc.profiler.endSection();
+            mc.profiler.endSection();
         }
 
     }
@@ -615,7 +561,7 @@ public abstract class MixinEntityRenderer
     public abstract void disableLightmap();
 
     void doRenderHand(float partialTicks, int pass, Minecraft mc) {
-        if (!this.debugView)
+        if (!debugView)
         {
             GlStateManager.matrixMode(5889);
             GlStateManager.loadIdentity();
@@ -626,7 +572,7 @@ public abstract class MixinEntityRenderer
                 GlStateManager.translate((float)(-(pass * 2 - 1)) * 0.07F, 0.0F, 0.0F);
             }
 
-            Project.gluPerspective(this.getFOVModifier(partialTicks, false), (float)mc.displayWidth / (float)mc.displayHeight, 0.05F, this.farPlaneDistance * 2.0F);
+            Project.gluPerspective(getFOVModifier(partialTicks, false), (float)mc.displayWidth / (float)mc.displayHeight, 0.05F, farPlaneDistance * 2.0F);
             GlStateManager.matrixMode(5888);
             GlStateManager.loadIdentity();
 
@@ -636,11 +582,11 @@ public abstract class MixinEntityRenderer
             }
 
             GlStateManager.pushMatrix();
-            this.hurtCameraEffect(partialTicks);
+            hurtCameraEffect(partialTicks);
 
             if (mc.gameSettings.viewBobbing)
             {
-                this.applyBobbing(partialTicks);
+                applyBobbing(partialTicks);
             }
 
             boolean flag = mc.getRenderViewEntity() instanceof EntityLivingBase && ((EntityLivingBase)mc.getRenderViewEntity()).isPlayerSleeping();
@@ -648,22 +594,22 @@ public abstract class MixinEntityRenderer
             if (!net.minecraftforge.client.ForgeHooksClient.renderFirstPersonHand(mc.renderGlobal, partialTicks, pass))
                 if (mc.gameSettings.thirdPersonView == 0 && !flag && !mc.gameSettings.hideGUI && !mc.playerController.isSpectator())
                 {
-                    this.enableLightmap();
-                    this.itemRenderer.renderItemInFirstPerson(partialTicks);
-                    this.disableLightmap();
+                    enableLightmap();
+                    itemRenderer.renderItemInFirstPerson(partialTicks);
+                    disableLightmap();
                 }
 
             GlStateManager.popMatrix();
 
             if (mc.gameSettings.thirdPersonView == 0 && !flag)
             {
-                this.itemRenderer.renderOverlays(partialTicks);
-                this.hurtCameraEffect(partialTicks);
+                itemRenderer.renderOverlays(partialTicks);
+                hurtCameraEffect(partialTicks);
             }
 
             if (mc.gameSettings.viewBobbing)
             {
-                this.applyBobbing(partialTicks);
+                applyBobbing(partialTicks);
             }
         }
     }
@@ -686,7 +632,7 @@ public abstract class MixinEntityRenderer
 
     @Overwrite
     public void orientCamera(float partialTicks) {
-        Entity entity = this.mc.getRenderViewEntity();
+        Entity entity = mc.getRenderViewEntity();
         float f = entity.getEyeHeight();
         double d0 = entity.prevPosX + (entity.posX - entity.prevPosX) * (double)partialTicks;
         double d1 = entity.prevPosY + (entity.posY - entity.prevPosY) * (double)partialTicks + (double)f;
@@ -695,16 +641,16 @@ public abstract class MixinEntityRenderer
         if (entity instanceof EntityLivingBase && ((EntityLivingBase)entity).isPlayerSleeping()) {
             f = (float)((double)f + 1.0D);
             GlStateManager.translate(0.0F, 0.3F, 0.0F);
-            if (!this.mc.gameSettings.debugCamEnable) {
+            if (!mc.gameSettings.debugCamEnable) {
                 BlockPos blockpos = new BlockPos(entity);
-                IBlockState iblockstate = this.mc.world.getBlockState(blockpos);
-                ForgeHooksClient.orientBedCamera(this.mc.world, blockpos, iblockstate, entity);
+                IBlockState iblockstate = mc.world.getBlockState(blockpos);
+                ForgeHooksClient.orientBedCamera(mc.world, blockpos, iblockstate, entity);
                 GlStateManager.rotate(entity.prevRotationYaw + (entity.rotationYaw - entity.prevRotationYaw) * partialTicks + 180.0F, 0.0F, -1.0F, 0.0F);
                 GlStateManager.rotate(entity.prevRotationPitch + (entity.rotationPitch - entity.prevRotationPitch) * partialTicks, -1.0F, 0.0F, 0.0F);
             }
-        } else if (this.mc.gameSettings.thirdPersonView > 0) {
-            double d3 = Thunderhack.moduleManager.getModuleByClass(ThirdPersView.class).isOn() ? Thunderhack.moduleManager.getModuleByClass(ThirdPersView.class).z.getValue() : (double)(this.thirdPersonDistancePrev + (4.0F - this.thirdPersonDistancePrev) * partialTicks);
-            if (this.mc.gameSettings.debugCamEnable) {
+        } else if (mc.gameSettings.thirdPersonView > 0) {
+            double d3 = Thunderhack.moduleManager.getModuleByClass(ThirdPersView.class).isOn() ? Thunderhack.moduleManager.getModuleByClass(ThirdPersView.class).z.getValue() : (double)(thirdPersonDistancePrev + (4.0F - thirdPersonDistancePrev) * partialTicks);
+            if (mc.gameSettings.debugCamEnable) {
                 GlStateManager.translate(0.0F, 0.0F, (float)(-d3));
             } else {
                 float f2;
@@ -716,7 +662,7 @@ public abstract class MixinEntityRenderer
                     f2 = entity.rotationPitch + Thunderhack.moduleManager.getModuleByClass(ThirdPersView.class).y.getValue();
                 }
 
-                if (this.mc.gameSettings.thirdPersonView == 2) {
+                if (mc.gameSettings.thirdPersonView == 2) {
                     f2 += 180.0F;
                 }
 
@@ -731,7 +677,7 @@ public abstract class MixinEntityRenderer
                     f3 *= 0.1F;
                     f4 *= 0.1F;
                     f5 *= 0.1F;
-                    RayTraceResult raytraceresult = this.mc.world.rayTraceBlocks(new Vec3d(d0 + (double)f3, d1 + (double)f4, d2 + (double)f5), new Vec3d(d0 - d4 + (double)f3 + (double)f5, d1 - d6 + (double)f4, d2 - d5 + (double)f5));
+                    RayTraceResult raytraceresult = mc.world.rayTraceBlocks(new Vec3d(d0 + (double)f3, d1 + (double)f4, d2 + (double)f5), new Vec3d(d0 - d4 + (double)f3 + (double)f5, d1 - d6 + (double)f4, d2 - d5 + (double)f5));
                     if (raytraceresult != null) {
                         double d7 = raytraceresult.hitVec.distanceTo(new Vec3d(d0, d1, d2));
                         if (d7 < d3) {
@@ -740,7 +686,7 @@ public abstract class MixinEntityRenderer
                     }
                 }
 
-                if (this.mc.gameSettings.thirdPersonView == 2) {
+                if (mc.gameSettings.thirdPersonView == 2) {
                     GlStateManager.rotate(180.0F, 0.0F, 1.0F, 0.0F);
                 }
 
@@ -754,7 +700,7 @@ public abstract class MixinEntityRenderer
             GlStateManager.translate(0.0F, 0.0F, 0.05F);
         }
 
-        if (!this.mc.gameSettings.debugCamEnable) {
+        if (!mc.gameSettings.debugCamEnable) {
             float yaw = entity.prevRotationYaw + (entity.rotationYaw - entity.prevRotationYaw) * partialTicks + 180.0F;
             float pitch = entity.prevRotationPitch + (entity.rotationPitch - entity.prevRotationPitch) * partialTicks;
             f1 = 0.0F;
@@ -763,7 +709,7 @@ public abstract class MixinEntityRenderer
                 yaw = entityanimal.prevRotationYawHead + (entityanimal.rotationYawHead - entityanimal.prevRotationYawHead) * partialTicks + 180.0F;
             }
 
-            IBlockState state = ActiveRenderInfo.getBlockStateAtEntityViewpoint(this.mc.world, entity, partialTicks);
+            IBlockState state = ActiveRenderInfo.getBlockStateAtEntityViewpoint(mc.world, entity, partialTicks);
             EntityViewRenderEvent.CameraSetup event = new EntityViewRenderEvent.CameraSetup(mc.entityRenderer, entity, state, (double)partialTicks, yaw, pitch, f1);
             MinecraftForge.EVENT_BUS.post(event);
             GlStateManager.rotate(event.getRoll(), 0.0F, 0.0F, 1.0F);
@@ -775,7 +721,7 @@ public abstract class MixinEntityRenderer
         d0 = entity.prevPosX + (entity.posX - entity.prevPosX) * (double)partialTicks;
         d1 = entity.prevPosY + (entity.posY - entity.prevPosY) * (double)partialTicks + (double)f;
         d2 = entity.prevPosZ + (entity.posZ - entity.prevPosZ) * (double)partialTicks;
-        cloudFog = this.mc.renderGlobal.hasCloudFog(d0, d1, d2, partialTicks);
+        cloudFog = mc.renderGlobal.hasCloudFog(d0, d1, d2, partialTicks);
     }
 
 

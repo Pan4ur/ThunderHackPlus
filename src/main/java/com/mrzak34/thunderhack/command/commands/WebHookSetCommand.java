@@ -7,7 +7,7 @@ import com.mrzak34.thunderhack.modules.client.DiscordWebhook;
 public class WebHookSetCommand extends Command{
 
     public WebHookSetCommand() {
-        super("webhook", new String[]{"<url>"});
+        super("webhook");
     }
 
     @Override
@@ -16,9 +16,7 @@ public class WebHookSetCommand extends Command{
             Command.sendMessage("Напиши URL вебхука");
             return;
         }
-
-        Thunderhack.moduleManager.getModuleByClass(DiscordWebhook.class).whook.setValue(commands[0]);
         DiscordWebhook.saveurl(commands[0]);
-        BindCommand.sendMessage("Успешно!");
+        sendMessage("Успешно!");
     }
 }
