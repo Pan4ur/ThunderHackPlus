@@ -2,6 +2,14 @@
 
 v2.39
 
+## Info:
+-> Default ClickGui keybind - "P"
+-> Default prefix  - "."
+-> MiddleClick on module to bind
+
+
+
+
 [![Discord](https://img.shields.io/discord/995440739125301338?color=5a08bf&label=Discord&logo=discord&logoColor=ffffff&style=for-the-badge)](https://discord.gg/uMqM8EhM34)
 
 
