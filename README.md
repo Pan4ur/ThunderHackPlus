@@ -3,9 +3,9 @@
 v2.39
 
 ## Info:
--> Default ClickGui keybind - "P"
--> Default prefix  - "."
--> MiddleClick on module to bind
+- Default ClickGui keybind - "P"
+- Default prefix  - "."
+- MiddleClick on module to bind
 
 
 
