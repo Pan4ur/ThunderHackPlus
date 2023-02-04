@@ -5,7 +5,7 @@ v2.39
 ## Info:
 - Default ClickGui keybind - "P"
 - Default prefix  - "."
-- MiddleClick on module to bind
+- Middle click on module to bind
 - ".module Timer set indicator false" - to turn off indicator
 
 
