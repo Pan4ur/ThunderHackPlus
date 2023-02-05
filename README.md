@@ -7,6 +7,7 @@ v2.39
 - Default prefix  - "."
 - Middle click on module to bind
 - ".module Timer set indicator false" - to turn off indicator
+- -> https://www.youtube.com/watch?v=yVtTL7taDDI
 
 
 
