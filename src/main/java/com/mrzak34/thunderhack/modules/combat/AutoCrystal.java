@@ -4,7 +4,9 @@ import com.mojang.realmsclient.gui.ChatFormatting;
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.events.*;
+import com.mrzak34.thunderhack.gui.thundergui.fontstuff.FontRender;
 import com.mrzak34.thunderhack.mixin.ducks.ISPacketSpawnObject;
+import com.mrzak34.thunderhack.mixin.mixins.IEntityRenderer;
 import com.mrzak34.thunderhack.mixin.mixins.ISPacketEntity;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.modules.movement.PacketFly;
@@ -37,12 +39,14 @@ import net.minecraft.util.MouseFilter;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
+import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
 import java.util.*;
@@ -55,8 +59,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.mrzak34.thunderhack.modules.render.Trajectories.*;
+import static com.mrzak34.thunderhack.util.EntityUtil.interpolateEntity;
 import static com.mrzak34.thunderhack.util.RotationUtil.getRotationPlayer;
 import static com.mrzak34.thunderhack.util.phobos.RotationUtil.getAngle;
+import static com.mrzak34.thunderhack.util.phobos.RotationUtil.inFov;
 import static com.mrzak34.thunderhack.util.phobos.ServerTimeHelper.*;
 
 import static net.minecraft.client.renderer.RenderHelper.enableStandardItemLighting;
@@ -2039,8 +2045,6 @@ public class AutoCrystal extends Module {
 
     @SubscribeEvent
     public void onRender3D(Render3DEvent event) {
-        RenderDamagePos mode = this.renderDamage.getValue();
-
         if (this.render.getValue() && this.box.getValue() && this.fade.getValue())
         {
             for (Map.Entry<BlockPos, Long> set : fadeList.entrySet()) {
@@ -2069,15 +2073,11 @@ public class AutoCrystal extends Module {
 
         BlockPos pos;
         if (this.render.getValue() && (pos = this.getRenderPos()) != null) {
-
-
             if (!this.fade.getValue()) {
-
                 if (this.box.getValue())
                     RenderUtil.renderBox(interpolatePos(pos, 1.0f), this.boxColor.getValue().getColorObject(), this.outLine.getValue().getColorObject(), 1.5f);
             }
-
-            if (mode != RenderDamagePos.None)
+            if (renderDamage.getValue() != RenderDamagePos.None)
                 renderDamage(pos);
 
             if (this.fade.getValue())
@@ -2088,7 +2088,7 @@ public class AutoCrystal extends Module {
                 e.getValue() + this.fadeTime.getValue()
                         < System.currentTimeMillis());
 
-        /*
+
         if (this.renderExtrapolation.getValue())
         {
             for (EntityPlayer player : mc.world.playerEntities)
@@ -2097,7 +2097,7 @@ public class AutoCrystal extends Module {
                 if (player == null
                         || EntityUtil.isDead(player)
                         || RenderUtil.getEntity().getDistanceSq(player) > 200
-                        || !RenderUtil.isInFrustum(player.getEntityBoundingBox())
+                        || !inFov(player)
                         || player.equals(mc.player)
                         || (tracker = this.extrapolationHelper
                         .getTrackerFromEntity(player)) == null
@@ -2106,10 +2106,10 @@ public class AutoCrystal extends Module {
                     continue;
                 }
 
-                Vec3d interpolation = interpolateEntity(player);
-                double x = interpolation.x;
-                double y = interpolation.y;
-                double z = interpolation.z;
+                Vec3d interpolation = interpolateEntity(player,mc.getRenderPartialTicks());
+                double x = interpolation.x - getRenderPosX();
+                double y = interpolation.y - getRenderPosY();
+                double z = interpolation.z - getRenderPosZ();
 
                 double tX = tracker.posX - getRenderPosX();
                 double tY = tracker.posY - getRenderPosY();
@@ -2121,7 +2121,7 @@ public class AutoCrystal extends Module {
                 GlStateManager.pushMatrix();
                 GlStateManager.loadIdentity();
 
-                if (Managers.FRIENDS.contains(player))
+                if (Thunderhack.friendManager.isFriend(player))
                 {
                     GL11.glColor4f(0.33333334f, 0.78431374f, 0.78431374f, 0.55f);
                 }
@@ -2132,8 +2132,7 @@ public class AutoCrystal extends Module {
 
                 boolean viewBobbing = mc.gameSettings.viewBobbing;
                 mc.gameSettings.viewBobbing = false;
-                ((IEntityRenderer) mc.entityRenderer)
-                        .invokeOrientCamera(event.getPartialTicks());
+                ((IEntityRenderer) mc.entityRenderer).orientCam(event.getPartialTicks());
                 mc.gameSettings.viewBobbing = viewBobbing;
 
                 GL11.glLineWidth(1.5f);
@@ -2149,7 +2148,7 @@ public class AutoCrystal extends Module {
             }
         }
 
-         */
+
     }
 
     private void renderDamage(BlockPos pos) {
@@ -2160,7 +2159,6 @@ public class AutoCrystal extends Module {
         GlStateManager.doPolygonOffset(1.0f, -1500000.0f);
         GlStateManager.disableLighting();
         GlStateManager.disableDepth();
-
         double x = pos.getX() + 0.5;
         double y = pos.getY() + (this.renderDamage.getValue() == RenderDamagePos.OnTop ? 1.35 : 0.5);
         double z = pos.getZ() + 0.5;
@@ -2190,19 +2188,9 @@ public class AutoCrystal extends Module {
         }
 
         GlStateManager.scale(scaleD, scaleD, scaleD);
-        GlStateManager.translate(-(mc.fontRenderer.getStringWidth(text) / 2.0), 0, 0);
-        if (this.renderMode.getValue() == RenderDamage.Indicator) {
-            Color clr = this.indicatorColor.getValue().getColorObject();
-           // Render2DUtil.drawUnfilledCircle(m.getStringWidth(text) / 2.0f, 0, 22.f, new Color(5, 5, 5, clr.getAlpha()).getRGB(), 5.f);
-           // Render2DUtil.drawCircle(m.getStringWidth(text) / 2.0f, 0, 22.f, clr.getRGB());
-            mc.fontRenderer.drawString(text, 0, 6, new Color(255, 255, 255).getRGB());
-          //  Minecraft.getMinecraft().getTextureManager().bindTexture(CRYSTAL_LOCATION);
-           // Gui.drawScaledCustomSizeModalRect((int) (m.getStringWidth(text) / 2.0f) - 10, -17, 0, 0, 12, 12, 22, 22, 12, 12);
-        } else {
-            mc.fontRenderer.drawStringWithShadow(text, 0, 0, new Color(255, 255, 255).getRGB());
-        }
+        GlStateManager.translate(-(FontRender.getStringWidth6(text) / 2.0), 0, 0);
+        FontRender.drawString6(text, 0, 0,-1,false);
         GlStateManager.enableDepth();
-        GlStateManager.disableBlend();
         GlStateManager.disablePolygonOffset();
         GlStateManager.doPolygonOffset(1.0f, 1500000.0f);
         GlStateManager.popMatrix();
