@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 
-@Mod(modid = "thunderhack", name = "ThunderHack", version = "2.38")
+@Mod(modid = "thunderhack", name = "ThunderHack", version = "2.39")
 public class Thunderhack {
 
 
