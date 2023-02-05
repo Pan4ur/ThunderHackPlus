@@ -15,8 +15,6 @@
 [![Discord](https://img.shields.io/discord/995440739125301338?color=5a08bf&label=Discord&logo=discord&logoColor=ffffff&style=for-the-badge)](https://discord.gg/uMqM8EhM34)
 
 
-![image](https://user-images.githubusercontent.com/82473048/207445457-ec45ddbe-8d84-41cd-a3d9-a97c1fe03f52.png)
-
 ## Code parts taken from:
 - [OyVey (base)](https://github.com/The-Gopro336-Archive/OyVey_Rewrite-BUILDABLE_SRC)
 - [WURST+3](https://github.com/WurstPlus/wurst-plus-three)
