@@ -1,11 +1,11 @@
 package com.mrzak34.thunderhack.modules.render;
 
-import com.mrzak34.thunderhack.event.events.Render2DEvent;
+import com.mrzak34.thunderhack.events.Render2DEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.setting.Setting;
-import com.mrzak34.thunderhack.util.MathUtil;
-import com.mrzak34.thunderhack.util.RenderUtil;
+import com.mrzak34.thunderhack.util.math.MathUtil;
+import com.mrzak34.thunderhack.util.render.RenderUtil;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
@@ -14,7 +14,7 @@ import java.awt.*;
 public class LowHPScreen extends Module {
 
     public LowHPScreen() {
-        super("LowHPScreen", "LowHPScreen", Category.RENDER, true, false, false);
+        super("LowHPScreen", "LowHPScreen", Category.RENDER);
     }
 
 

@@ -1,8 +1,8 @@
 package com.mrzak34.thunderhack.util.phobos;
 
 import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.event.events.ConnectToServerEvent;
-import com.mrzak34.thunderhack.event.events.PacketEvent;
+import com.mrzak34.thunderhack.events.ConnectToServerEvent;
+import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.modules.Feature;
 import com.mrzak34.thunderhack.util.Timer;
 import net.minecraft.network.play.server.SPacketSpawnObject;
@@ -27,6 +27,10 @@ public class ServerTickManager extends Feature
     public void init() {
         MinecraftForge.EVENT_BUS.register(this);
     }
+    public void unload() {
+        MinecraftForge.EVENT_BUS.unregister(this);
+    }
+
     private int serverTicks;
     private Map<BlockPos, Long> timeMap = new HashMap<>();
     private final Timer serverTickTimer = new Timer();
@@ -57,7 +61,7 @@ public class ServerTickManager extends Feature
     @SubscribeEvent
     public void onConnect(ConnectToServerEvent e){
         initialized = false;
-        reset();
+        resetTickManager();
     }
 
     @SubscribeEvent
@@ -67,7 +71,7 @@ public class ServerTickManager extends Feature
             if (mc.world != null
                     && mc.world.isRemote)
             {
-                reset();
+                resetTickManager();
             }
         }
         if(e.getPacket() instanceof SPacketSpawnObject) {
@@ -108,10 +112,9 @@ public class ServerTickManager extends Feature
         return time % getServerTickLengthMS();
     }
 
-    public void reset() {
+    public void resetTickManager() {
         serverTickTimer.reset();
         serverTickTimer.adjust(Thunderhack.serverManager.getPing() / 2);
-        // flag = true;
         initialized = true;
     }
 

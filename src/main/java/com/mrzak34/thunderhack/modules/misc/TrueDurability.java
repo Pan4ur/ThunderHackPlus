@@ -23,7 +23,7 @@ import java.io.IOException;
 import java.util.List;
 public class TrueDurability extends Module implements PacketListener  {
     public TrueDurability() {
-        super("TrueDurability", "реальная прочность-нелегальных предметов", Module.Category.PLAYER, true, false, false);
+        super("TrueDurability", "реальная прочность-нелегальных предметов", Module.Category.PLAYER);
     }
 
     @Override
@@ -129,7 +129,5 @@ public class TrueDurability extends Module implements PacketListener  {
             break;
         }
         return packet;
-
-
     }
 }

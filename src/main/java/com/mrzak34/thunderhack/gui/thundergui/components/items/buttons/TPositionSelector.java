@@ -5,12 +5,12 @@ import com.mrzak34.thunderhack.gui.thundergui.fontstuff.FontRender;
 import com.mrzak34.thunderhack.modules.client.ThunderHackGui;
 import com.mrzak34.thunderhack.setting.PositionSetting;
 import com.mrzak34.thunderhack.setting.Setting;
-import com.mrzak34.thunderhack.util.RenderUtil;
+import com.mrzak34.thunderhack.util.render.RenderUtil;
 import org.lwjgl.input.Mouse;
 
 import java.awt.*;
 
-import static com.mrzak34.thunderhack.gui.misc.GuiMiddleClickMenu.mouseWithinBounds;
+import static com.mrzak34.thunderhack.gui.thundergui.components.items.buttons.TColorPicker.mouseWithinBounds;
 
 public class TPositionSelector extends TItem{
     private final Setting setting;

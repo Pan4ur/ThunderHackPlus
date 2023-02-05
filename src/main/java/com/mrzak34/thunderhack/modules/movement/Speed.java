@@ -1,28 +1,21 @@
 package com.mrzak34.thunderhack.modules.movement;
 
 import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.command.Command;
-import com.mrzak34.thunderhack.event.events.*;
+import com.mrzak34.thunderhack.events.*;
 import com.mrzak34.thunderhack.modules.Module;
-import com.mrzak34.thunderhack.modules.combat.Aura;
 import com.mrzak34.thunderhack.setting.Setting;
-import com.mrzak34.thunderhack.util.MatrixStrafeMovement;
-import com.mrzak34.thunderhack.util.MovementUtil;
+import com.mrzak34.thunderhack.util.math.MatrixStrafeMovement;
 import com.mrzak34.thunderhack.util.PlayerUtils;
 import com.mrzak34.thunderhack.util.Timer;
-import net.minecraft.client.Minecraft;
-import net.minecraft.init.Blocks;
 import net.minecraft.init.MobEffects;
 import net.minecraft.network.play.client.CPacketEntityAction;
 import net.minecraft.network.play.server.SPacketEntityVelocity;
 import net.minecraft.network.play.server.SPacketExplosion;
 import net.minecraft.network.play.server.SPacketPlayerPosLook;
 import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -36,7 +29,7 @@ import static com.mrzak34.thunderhack.util.PyroSpeed.*;
 public class Speed extends Module {
 
     public Speed() {
-        super("Speed", "спиды", Category.MOVEMENT, true, false, false);
+        super("Speed", "спиды", Category.MOVEMENT);
     }
 
     private Setting<mode> Mode = register(new Setting("Mode", mode.Default));
@@ -45,7 +38,7 @@ public class Speed extends Module {
     public Setting<Integer> bticks  = this.register(new Setting<>("boostTicks", 10, 1, 40));
     public Setting<Boolean> strafeBoost = this.register(new Setting<>("StrafeBoost", false));
     public Setting<Float> reduction  = this.register(new Setting<>("reduction ", 2f, 1f, 10f));
-    public Setting<Boolean> usver = this.register ( new Setting <> ( "use", false));
+    public Setting<Boolean> usver = this.register ( new Setting <> ( "calcJumpBoost", false));
     private Setting<Boolean> autoWalk =this.register( new Setting<>("AutoWalk", false));
     private Setting<Boolean> uav =this.register( new Setting<>("UseAllVelocity", false));
     private Setting<Boolean> str2 =this.register( new Setting<>("Strafe", false, v -> Mode.getValue() == mode.Matrix));
@@ -212,7 +205,6 @@ public class Speed extends Module {
 
     @SubscribeEvent
     public void onMove(EventMove event) {
-        if(event.getStage() == 1)return;
         if (mc.player == null || mc.world == null) return;
         switch (Mode.getValue()) {
             case StrafeStrict: {
@@ -305,7 +297,6 @@ public class Speed extends Module {
             }
             case Default: {
                 double d;
-                if (event.getStage() != 0) return;
                 if (event.isCanceled()) {
                     return;
                 }
@@ -407,10 +398,6 @@ public class Speed extends Module {
     public void onSprint(EventSprint e){
         MatrixStrafeMovement.actionEvent(e);
         if (strafes()) {
-            if (Aura.hitTick) {
-                Aura.hitTick = false;
-                return;
-            }
             if (serversprint != needSprintState) {
                 e.setSprintState(!serversprint);
             }

@@ -1,41 +1,33 @@
 package com.mrzak34.thunderhack.gui.hud;
 
-import com.jhlabs.image.GaussianFilter;
-import com.mojang.realmsclient.gui.ChatFormatting;
 import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.event.events.Render2DEvent;
-import com.mrzak34.thunderhack.util.*;
+import com.mrzak34.thunderhack.events.Render2DEvent;
 import com.mrzak34.thunderhack.gui.thundergui.fontstuff.FontRender;
-import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.setting.Setting;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.Gui;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.client.renderer.texture.TextureUtil;
-import net.minecraft.client.shader.Framebuffer;
-import net.minecraft.util.ResourceLocation;
+import com.mrzak34.thunderhack.util.*;
+import com.mrzak34.thunderhack.modules.Module;
+import com.mrzak34.thunderhack.util.render.RenderUtil;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
-import java.awt.*;
-import java.awt.image.BufferedImage;
-import java.util.HashMap;
-
-import static org.lwjgl.opengl.GL11.*;
-
 public class WaterMark extends Module {
     public WaterMark() {
-        super("WaterMark", "WaterMark", Module.Category.HUD, true, false, false);
+        super("WaterMark", "WaterMark", Module.Category.HUD);
     }
 
     int i = 0;
     public Timer timer = new Timer();
 
+
+    public final Setting<ColorSetting> color2 = this.register(new Setting<>("Color", new ColorSetting(0xFF101010)));
+    public final Setting<ColorSetting> shadowColor = this.register(new Setting<>("ShadowColor", new ColorSetting(0xFF101010)));
+
     @SubscribeEvent
     public void onRender2D(Render2DEvent e){
-        RenderUtil.drawSmoothRect(4f, 4f, Util.fr.getStringWidth("ThunderHack") + 4 + Util.fr.getStringWidth(mc.player.getName()) + Util.fr.getStringWidth(" 9999 мс ") + 140, 18f, new Color(35, 35, 40, 230).getRGB());
+
+        RenderUtil.drawBlurredShadow(4,4,FontRender.getStringWidth6("ThunderHack" + "  |  " +  mc.player.getName() + "  |  " + Thunderhack.serverManager.getPing() + " ms  |  " + (mc.currentServerData == null ? "SinglePlayer" : mc.currentServerData.serverIP)) + 29,12, 10, shadowColor.getValue().getColorObject());
+        RoundedShader.drawRound(4,4,FontRender.getStringWidth6("ThunderHack" + "  |  " +  mc.player.getName() + "  |  " + Thunderhack.serverManager.getPing() + " ms  |  " + (mc.currentServerData == null ? "SinglePlayer" : mc.currentServerData.serverIP)) + 30,13, 2f, color2.getValue().getColorObject());
 
         if (timer.passedMs(350)) {
             ++i;
@@ -73,48 +65,16 @@ public class WaterMark extends Module {
         if (i == 23) {text = w25;}
 
 
-        Util.fr.drawStringWithShadow(text, 9f, 7, -1);
-        Util.fr.drawStringWithShadow("|  " + mc.player.getName(), Util.fr.getStringWidth(w13) + 20, 7, -1);
-        Util.fr.drawStringWithShadow("|  " + Thunderhack.serverManager.getPing() + " мс", Util.fr.getStringWidth(w13) + 35 + Util.fr.getStringWidth(mc.player.getName()), 7, -1);
-        try {
-            Util.fr.drawStringWithShadow("|  " + (Minecraft.getMinecraft().currentServerData.serverIP), Util.fr.getStringWidth(w13) + 38 + Util.fr.getStringWidth(mc.player.getName()) + Util.fr.getStringWidth(" 9999 мс "), 7, -1);
-        } catch (Exception ew) {
-            Util.fr.drawStringWithShadow("|  SinglePlayer", Util.fr.getStringWidth(w13) + 38 + Util.fr.getStringWidth(mc.player.getName()) + Util.fr.getStringWidth(" 9999 мс "), 7, -1);
-        }
+        FontRender.drawString6(text, 7,9,-1,false);
+        FontRender.drawString6( "  |  " +  mc.player.getName() + "  |  " + Thunderhack.serverManager.getPing() + " ms  |  " + (mc.currentServerData == null ? "SinglePlayer" : mc.currentServerData.serverIP), FontRender.getStringWidth6("ThunderHack") + 10,9,-1,false);
 
     }
 
-
-
-    public static Framebuffer createFrameBuffer(Framebuffer framebuffer) {
-        if (framebuffer == null || framebuffer.framebufferWidth != mc.displayWidth || framebuffer.framebufferHeight != mc.displayHeight) {
-            if (framebuffer != null) {
-                framebuffer.deleteFramebuffer();
-            }
-            return new Framebuffer(mc.displayWidth, mc.displayHeight, true);
-        }
-        return framebuffer;
-    }
 
 
     public static void setColor(int color) {
         GL11.glColor4ub((byte) (color >> 16 & 0xFF), (byte) (color >> 8 & 0xFF), (byte) (color & 0xFF), (byte) (color >> 24 & 0xFF));
     }
-    public static void drawImage(ResourceLocation resourceLocation, float x, float y, float width, float height, Color color) {
-        GL11.glDisable(GL11.GL_DEPTH_TEST);
-        GL11.glEnable(GL11.GL_BLEND);
-        GL11.glDepthMask(false);
-        OpenGlHelper.glBlendFunc(770, 771, 1, 0);
-        setColor(color.getRGB());
-        Minecraft.getMinecraft().getTextureManager().bindTexture(resourceLocation);
-        Gui.drawModalRectWithCustomSizedTexture((int)x, (int) y, 0, 0, (int)width, (int)height, width, height);
-        GL11.glDepthMask(true);
-        GL11.glDisable(GL11.GL_BLEND);
-        GL11.glEnable(GL11.GL_DEPTH_TEST);
-    }
-
-
-
 
 
 }

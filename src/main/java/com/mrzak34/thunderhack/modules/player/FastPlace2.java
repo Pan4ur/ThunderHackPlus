@@ -1,13 +1,13 @@
 package com.mrzak34.thunderhack.modules.player;
 
-import com.mrzak34.thunderhack.event.events.EventPreMotion;
-import com.mrzak34.thunderhack.event.events.Render2DEvent;
+import com.mrzak34.thunderhack.events.EventPreMotion;
+import com.mrzak34.thunderhack.events.Render2DEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.setting.SubBind;
-import com.mrzak34.thunderhack.util.PaletteHelper;
+import com.mrzak34.thunderhack.util.render.PaletteHelper;
 import com.mrzak34.thunderhack.util.*;
-import net.minecraft.client.gui.ScaledResolution;
+import com.mrzak34.thunderhack.util.render.RenderUtil;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.ClickType;
@@ -27,7 +27,7 @@ import java.awt.*;
 public class FastPlace2
         extends Module {
     public FastPlace2() {
-        super("FastPlace", "пайро автоменд", Module.Category.PLAYER, true, false, false);
+        super("FastPlace", "пайро автоменд", Module.Category.PLAYER);
     }
     public static BlockPos target;
 
@@ -70,11 +70,12 @@ public class FastPlace2
                 mc.player.inventory.getStackInSlot(36)
         };
 
+        startingItem = -1;
         ItemStack stack2 = armorStacks2[0];
         ItemStack stack3 = armorStacks2[1];
         ItemStack stack4 = armorStacks2[2];
         ItemStack stack5 = armorStacks2[3];
-        if (PlayerUtils.isKeyDown(aboba.getValue().getKey()) && (ArmorUtils.calculatePercentage(stack2) < threshold.getValue() || ArmorUtils.calculatePercentage(stack3) < threshold.getValue() || ArmorUtils.calculatePercentage(stack4) < threshold.getValue() || ArmorUtils.calculatePercentage(stack5) < threshold.getValue())) {
+        if (PlayerUtils.isKeyDown(aboba.getValue().getKey()) && (calculatePercentage(stack2) < threshold.getValue() || calculatePercentage(stack3) < threshold.getValue() || calculatePercentage(stack4) < threshold.getValue() || calculatePercentage(stack5) < threshold.getValue())) {
 
 
                 int itemSlot = getXpSlot();
@@ -91,7 +92,7 @@ public class FastPlace2
 
 
             if (mc.player.getHeldItem(EnumHand.MAIN_HAND).getItem() == Items.EXPERIENCE_BOTTLE || ( getXpSlot() != -1) && target != null) {
-                if (PlayerUtils.isKeyDown(aboba.getValue().getKey()) && (ArmorUtils.calculatePercentage(stack2) < threshold.getValue() || ArmorUtils.calculatePercentage(stack3) < threshold.getValue() || ArmorUtils.calculatePercentage(stack4) < threshold.getValue() || ArmorUtils.calculatePercentage(stack5) < threshold.getValue())) {
+                if (PlayerUtils.isKeyDown(aboba.getValue().getKey()) && (calculatePercentage(stack2) < threshold.getValue() || calculatePercentage(stack3) < threshold.getValue() || calculatePercentage(stack4) < threshold.getValue() || calculatePercentage(stack5) < threshold.getValue())) {
 
 
                     shouldMend = false;
@@ -115,7 +116,7 @@ public class FastPlace2
 
                         if (!(stack.getItem() instanceof ItemArmor)) continue;
 
-                        if (ArmorUtils.calculatePercentage(stack) < threshold.getValue()) continue;
+                        if (calculatePercentage(stack) < threshold.getValue()) continue;
 
                         for (int s = 0; s < 36; s++) {
 
@@ -141,7 +142,7 @@ public class FastPlace2
 
                         if (!(stack.getItem() instanceof ItemArmor)) continue;
 
-                        if (ArmorUtils.calculatePercentage(stack) >= threshold.getValue()) continue;
+                        if (calculatePercentage(stack) >= threshold.getValue()) continue;
 
                         shouldMend = true;
                     }
@@ -163,7 +164,7 @@ public class FastPlace2
                     }
 
                 }
-            } else {
+            } else if(startingItem != -1) {
                 isMending = false;
                 mc.player.connection.sendPacket(new CPacketHeldItemChange(startingItem));
                 arm2 = 0;
@@ -176,7 +177,10 @@ public class FastPlace2
     }
 
 
-
+    public static float calculatePercentage(ItemStack stack) {
+        float durability = stack.getMaxDamage() - stack.getItemDamage();
+        return (durability / (float) stack.getMaxDamage()) * 100F;
+    }
 
     private int getXpSlot() {
         ItemStack stack = mc.player.getHeldItemMainhand();
@@ -201,7 +205,7 @@ public class FastPlace2
 
     @Override
     public void onUpdate() {
-        if(afast.getValue())
+        if(afast.getValue() && mc.rightClickDelayTimer > rcdtimer.getValue())
             mc.rightClickDelayTimer = rcdtimer.getValue();
     }
 
@@ -220,7 +224,7 @@ public class FastPlace2
         ItemStack stack31 = armorStacks21[1];
         ItemStack stack41 = armorStacks21[2];
         ItemStack stack51 = armorStacks21[3];
-        if (PlayerUtils.isKeyDown(aboba.getValue().getKey()) && (ArmorUtils.calculatePercentage(stack21) < threshold.getValue() || ArmorUtils.calculatePercentage(stack31) < threshold.getValue() || ArmorUtils.calculatePercentage(stack41) < threshold.getValue() || ArmorUtils.calculatePercentage(stack51) < threshold.getValue())) {
+        if (PlayerUtils.isKeyDown(aboba.getValue().getKey()) && (calculatePercentage(stack21) < threshold.getValue() || calculatePercentage(stack31) < threshold.getValue() || calculatePercentage(stack41) < threshold.getValue() || calculatePercentage(stack51) < threshold.getValue())) {
 
 
             int color;
@@ -242,17 +246,17 @@ public class FastPlace2
             ItemStack stack3 = armorStacks[3];
 
 
-            if (!((int) ArmorUtils.calculatePercentage(stack) < arm1)) {
-                arm1 = (int) ArmorUtils.calculatePercentage(stack);
+            if (!((int) calculatePercentage(stack) < arm1)) {
+                arm1 = (int) calculatePercentage(stack);
             }
-            if (!((int) ArmorUtils.calculatePercentage(stack1) < arm2)) {
-                arm2 = (int) ArmorUtils.calculatePercentage(stack1);
+            if (!((int) calculatePercentage(stack1) < arm2)) {
+                arm2 = (int) calculatePercentage(stack1);
             }
-            if (!((int) ArmorUtils.calculatePercentage(stack2) < arm3)) {
-                arm3 = (int) ArmorUtils.calculatePercentage(stack2);
+            if (!((int) calculatePercentage(stack2) < arm3)) {
+                arm3 = (int) calculatePercentage(stack2);
             }
-            if (!((int) ArmorUtils.calculatePercentage(stack3) < arm4)) {
-                arm4 = (int) ArmorUtils.calculatePercentage(stack3);
+            if (!((int) calculatePercentage(stack3) < arm4)) {
+                arm4 = (int) calculatePercentage(stack3);
             }
 
             totalarmor = (arm1 + arm3 + arm4 + arm2) / 4;
@@ -265,9 +269,9 @@ public class FastPlace2
 
             final int expCount = this.getExpCount();
 
-            FastPlace2.mc.renderItem.renderItemIntoGUI(new ItemStack(Items.EXPERIENCE_BOTTLE), (int) (waterMarkZ2.getValue() + offset + 70 +11), waterMarkZ1.getValue() + 17);
+            FastPlace2.mc.renderItem.renderItemIntoGUI(new ItemStack(Items.EXPERIENCE_BOTTLE), waterMarkZ2.getValue()  + 70 +11, waterMarkZ1.getValue() + 17);
             final String s3 = String.valueOf(expCount);
-            Util.fr.drawStringWithShadow(s3, waterMarkZ2.getValue() + offset + 85 +11, waterMarkZ1.getValue() + 9 + offset + 17, 16777215);
+            Util.fr.drawStringWithShadow(s3, waterMarkZ2.getValue()  + 85 +11, waterMarkZ1.getValue() + 9  + 17, 16777215);
 
             RenderUtil.drawSmoothRect(waterMarkZ2.getValue() + 3, waterMarkZ1.getValue() + 12, totalarmor + waterMarkZ2.getValue() + 5, 15 + waterMarkZ1.getValue(), color);
 

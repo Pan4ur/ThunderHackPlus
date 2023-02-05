@@ -12,18 +12,11 @@ import java.util.regex.Pattern;
 
 public abstract class Command extends Feature {
     protected String name;
-    protected String[] commands;
+
 
     public Command(String name) {
         super(name);
         this.name = name;
-        this.commands = new String[]{""};
-    }
-
-    public Command(String name, String[] commands) {
-        super(name);
-        this.name = name;
-        this.commands = commands;
     }
 
     public static void sendMessage(String message) {
@@ -59,9 +52,7 @@ public abstract class Command extends Feature {
         return this.name;
     }
 
-    public String[] getCommands() {
-        return this.commands;
-    }
+
 
     public static class ChatMessage
             extends TextComponentBase {

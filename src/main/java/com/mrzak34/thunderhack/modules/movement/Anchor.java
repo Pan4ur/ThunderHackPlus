@@ -16,7 +16,7 @@ public class Anchor extends Module
     int holeblocks;
 
     public Anchor() {
-        super("Anchor",  "если над холкой-движение=0 так понятно?",  Module.Category.MOVEMENT,  false,  false,  false);
+        super("Anchor",  "если над холкой-движение=0 так понятно?",  Module.Category.MOVEMENT);
     }
 
     public boolean isBlockHole(final BlockPos blockPos) {

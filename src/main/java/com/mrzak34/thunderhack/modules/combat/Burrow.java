@@ -1,8 +1,8 @@
 package com.mrzak34.thunderhack.modules.combat;
 
 import com.google.common.collect.Sets;
-import com.mrzak34.thunderhack.event.events.*;
 import com.mrzak34.thunderhack.command.Command;
+import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.*;
@@ -31,15 +31,13 @@ import net.minecraft.entity.item.EntityEnderCrystal;
 import net.minecraft.network.play.client.CPacketEntityAction;
 import net.minecraft.util.math.BlockPos;
 
-import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class Burrow extends Module{
     public Burrow( ) {
-        super ( "Burrow" , "Ставит в тебя блок" , Category.COMBAT , true , false , false );
+        super ( "Burrow" , "Ставит в тебя блок" , Category.COMBAT );
     }
     private volatile double last_x;
     private volatile double last_y;
@@ -64,28 +62,6 @@ public class Burrow extends Module{
             Blocks.PURPLE_SHULKER_BOX, Blocks.BLUE_SHULKER_BOX,
             Blocks.BROWN_SHULKER_BOX, Blocks.GREEN_SHULKER_BOX,
             Blocks.RED_SHULKER_BOX, Blocks.BLACK_SHULKER_BOX);
-
-    private static class PopCounter {
-        private final Timer timer = new Timer();
-        private int pops;
-
-        public int getPops() {
-            return pops;
-        }
-
-        public void pop() {
-            timer.reset();
-            pops++;
-        }
-
-        public void reset() {
-            pops = 0;
-        }
-
-        public long lastPop() {
-            return timer.getPassedTimeMs();
-        }
-    }
 
 
 
@@ -196,7 +172,6 @@ public class Burrow extends Module{
 
     @SubscribeEvent
     public void onPacketReceive(PacketEvent.Receive event){
-        if (event.getStage() != 0) return;
         if (event.getPacket() instanceof SPacketExplosion) {
             if (scaleExplosion.getValue()) {
                 motionY = ((SPacketExplosion)event.getPacket()).getMotionY();

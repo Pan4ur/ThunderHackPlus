@@ -1,6 +1,6 @@
 package com.mrzak34.thunderhack.notification;
 
-import com.mrzak34.thunderhack.event.events.Render2DEvent;
+import com.mrzak34.thunderhack.events.Render2DEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import net.minecraft.client.gui.ScaledResolution;
@@ -10,7 +10,7 @@ import com.mrzak34.thunderhack.util.Util;
 import com.mrzak34.thunderhack.util.ScreenHelper;
 
 
-import com.mrzak34.thunderhack.util.RectHelper;
+import com.mrzak34.thunderhack.util.render.RectHelper;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.awt.*;
@@ -20,7 +20,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class NotificationManager extends Module {
     public NotificationManager() {
-super("Notifications", "aga", Category.CLIENT, true, false, false);
+super("Notifications", "aga", Category.CLIENT);
     }
 
     public Setting <Integer> fade = this.register ( new Setting <> ( "fade", 100, 0, 2048 ) );

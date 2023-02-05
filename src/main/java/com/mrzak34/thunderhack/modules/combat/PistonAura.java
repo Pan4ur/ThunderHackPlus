@@ -2,10 +2,10 @@ package com.mrzak34.thunderhack.modules.combat;
 
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.command.Command;
-import com.mrzak34.thunderhack.event.events.EventPostMotion;
-import com.mrzak34.thunderhack.event.events.EventPreMotion;
-import com.mrzak34.thunderhack.event.events.PacketEvent;
-import com.mrzak34.thunderhack.event.events.Render3DEvent;
+import com.mrzak34.thunderhack.events.EventPostMotion;
+import com.mrzak34.thunderhack.events.EventPreMotion;
+import com.mrzak34.thunderhack.events.PacketEvent;
+import com.mrzak34.thunderhack.events.Render3DEvent;
 
 
 import com.mrzak34.thunderhack.mixin.mixins.IEntityPlayerSP;
@@ -16,6 +16,8 @@ import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.*;
 import com.mrzak34.thunderhack.util.Timer;
 
+import com.mrzak34.thunderhack.util.math.MathUtil;
+import com.mrzak34.thunderhack.util.render.BlockRenderUtil;
 import net.minecraft.block.*;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityEnderCrystal;
@@ -78,7 +80,7 @@ public class PistonAura extends Module {
 
 
     public PistonAura() {
-        super("PistonAura", "Поршни вталкивают кристал-в чела (Охуенная хуйня)", Category.COMBAT,true,false,false);
+        super("PistonAura", "Поршни вталкивают кристал-в чела (Охуенная хуйня)", Category.COMBAT);
         this.setInstance();
     }
 

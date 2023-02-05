@@ -1,11 +1,10 @@
 package com.mrzak34.thunderhack.mixin.mixins;
 
 import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.event.events.FreecamEvent;
+import com.mrzak34.thunderhack.events.FreecamEvent;
 import com.mrzak34.thunderhack.command.commands.ChangeSkinCommand;
 import com.mrzak34.thunderhack.modules.player.PacketRender;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.common.MinecraftForge;
 import org.spongepowered.asm.mixin.*;
 import net.minecraft.client.renderer.entity.*;
@@ -17,8 +16,6 @@ import com.mrzak34.thunderhack.modules.render.*;
 import org.lwjgl.opengl.*;
 import net.minecraft.client.renderer.*;
 import com.mrzak34.thunderhack.util.*;
-
-import static com.mrzak34.thunderhack.util.Util.mc;
 
 @Mixin({ RenderPlayer.class })
 public class MixinRenderPlayer
@@ -59,13 +56,20 @@ public class MixinRenderPlayer
             renderPitch = entity.rotationPitch;
             renderYaw = entity.rotationYaw;
             renderHeadYaw = entity.rotationYawHead;
-            entity.rotationPitch = PacketRender.getPitch();
-            entity.prevRotationPitch = lastRenderPitch;
-            entity.rotationYaw = PacketRender.getYaw();
-            entity.rotationYawHead = PacketRender.getYaw();
-            entity.prevRotationYawHead = lastRenderHeadYaw;
+
+           // float interpYaw = PacketRender.getPrevyaw() + (PacketRender.getYaw()- PacketRender.getPrevyaw()) * mc.getRenderPartialTicks();
+          //  float interpPitch = PacketRender.getPrevpitch() + (PacketRender.getPitch()- PacketRender.getPrevpitch()) * mc.getRenderPartialTicks();
+
+
+                entity.rotationPitch = PacketRender.getPitch();
+                entity.prevRotationPitch = PacketRender.getPitch();
+                entity.rotationYaw = PacketRender.getYaw();
+                entity.rotationYawHead = PacketRender.getYaw();
+                entity.prevRotationYawHead = PacketRender.getYaw();
+
         }
     }
+
 
     @Inject(method = "doRender", at = @At("RETURN"))
     private void rotateEnd(AbstractClientPlayer entity, double x, double y, double z, float entityYaw, float partialTicks, CallbackInfo ci) {
@@ -79,6 +83,9 @@ public class MixinRenderPlayer
             entity.prevRotationPitch = prevRenderPitch;
         }
     }
+
+
+
 
 /*
 
@@ -113,17 +120,6 @@ public class MixinRenderPlayer
 
      */
 
-    @Inject(method = "renderLivingAt", at = @At("HEAD"))
-    protected void renderLivingAt(AbstractClientPlayer entityLivingBaseIn, double x, double y, double z, CallbackInfo callbackInfo) {
-      //  if (Thunderhack.moduleManager.getModuleByClass(EzingKids.class).isOn() && entityLivingBaseIn.equals(Minecraft.getMinecraft().player)) {
-        if (Thunderhack.moduleManager.getModuleByClass(EzingKids.class).isOn() ) {
-            if(EzingKids.INSTANCE.onlyme.getValue() && !(entityLivingBaseIn.equals(Minecraft.getMinecraft().player)) )
-                return;
-            GlStateManager.scale(EzingKids.INSTANCE.scale.getValue(), EzingKids.INSTANCE.scale.getValue(), EzingKids.INSTANCE.scale.getValue());
-            GlStateManager.translate(0f,EzingKids.INSTANCE.translatey.getValue(),0f);
-        }
-    }
-
 /*
     @Redirect(method = "renderLeftArm", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GlStateManager;color(FFF)V"))
     public void renderLeftArmHook(float colorRed, float colorGreen, float colorBlue) {
@@ -135,7 +131,6 @@ public class MixinRenderPlayer
  */
 
     private final ResourceLocation amogus = new ResourceLocation("textures/amogus.png");
-    private final ResourceLocation demon = new ResourceLocation("textures/demon.png");
     private final ResourceLocation rabbit = new ResourceLocation("textures/rabbit.png");
     private final ResourceLocation fred = new ResourceLocation("textures/freddy.png");
 

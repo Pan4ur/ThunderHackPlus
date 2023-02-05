@@ -1,6 +1,6 @@
 package com.mrzak34.thunderhack.mixin.mixins;
 
-import com.mrzak34.thunderhack.event.events.CrystalRenderEvent;
+import com.mrzak34.thunderhack.events.CrystalRenderEvent;
 
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.renderer.GlStateManager;

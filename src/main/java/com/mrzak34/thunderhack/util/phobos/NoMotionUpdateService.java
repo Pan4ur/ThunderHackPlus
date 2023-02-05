@@ -1,14 +1,13 @@
 package com.mrzak34.thunderhack.util.phobos;
 
-import com.mrzak34.thunderhack.event.events.EventPreMotion;
-import com.mrzak34.thunderhack.event.events.NoMotionUpdateEvent;
-import com.mrzak34.thunderhack.event.events.PacketEvent;
+import com.mrzak34.thunderhack.events.EventPostMotion;
+import com.mrzak34.thunderhack.events.EventPreMotion;
+import com.mrzak34.thunderhack.events.NoMotionUpdateEvent;
+import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.modules.Feature;
 import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-
-import static com.mrzak34.thunderhack.util.Util.mc;
 
 /**
  * Posts a {@link NoMotionUpdateEvent} Event,
@@ -26,6 +25,9 @@ public class NoMotionUpdateService extends Feature
 
     public void init() {
         MinecraftForge.EVENT_BUS.register(this);
+    }
+    public void unload() {
+        MinecraftForge.EVENT_BUS.unregister(this);
     }
 
     @SubscribeEvent
@@ -51,21 +53,26 @@ public class NoMotionUpdateService extends Feature
             return;
         }
 
-        if (e.getStage() == 0)
-        {
             setAwaiting(true);
-        }
-        else
+    }
+
+
+    @SubscribeEvent
+    public void onPost(EventPostMotion e){
+        if (e.isCanceled())
         {
+            return;
+        }
+
+
             if (isAwaiting())
             {
-                NoMotionUpdateEvent noMotionUpdate =
-                        new NoMotionUpdateEvent();
+                NoMotionUpdateEvent noMotionUpdate = new NoMotionUpdateEvent();
                 MinecraftForge.EVENT_BUS.post(noMotionUpdate);
             }
 
             setAwaiting(false);
-        }
+
     }
 
     public void setAwaiting(boolean awaiting)

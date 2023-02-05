@@ -1,6 +1,6 @@
 package com.mrzak34.thunderhack.modules.movement;
 
-import com.mrzak34.thunderhack.event.events.PacketEvent;
+import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.mixin.mixins.ISPacketPlayerPosLook;
 import com.mrzak34.thunderhack.util.PlayerUtils;
@@ -13,7 +13,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 public class NoVoid
         extends Module {
     public NoVoid() {
-        super("NoVoid", "рубербендит если ты-упал в пустоту", Module.Category.MOVEMENT, true, false, false);
+        super("NoVoid", "рубербендит если ты-упал в пустоту", Module.Category.MOVEMENT);
     }
 
     boolean aboveVoid = true;

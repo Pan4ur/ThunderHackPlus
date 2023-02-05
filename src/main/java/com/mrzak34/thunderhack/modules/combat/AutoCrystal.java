@@ -3,7 +3,7 @@ package com.mrzak34.thunderhack.modules.combat;
 import com.mojang.realmsclient.gui.ChatFormatting;
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.command.Command;
-import com.mrzak34.thunderhack.event.events.*;
+import com.mrzak34.thunderhack.events.*;
 import com.mrzak34.thunderhack.mixin.ducks.ISPacketSpawnObject;
 import com.mrzak34.thunderhack.mixin.mixins.ISPacketEntity;
 import com.mrzak34.thunderhack.modules.Module;
@@ -13,6 +13,7 @@ import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.setting.SubBind;
 import com.mrzak34.thunderhack.util.*;
 import com.mrzak34.thunderhack.util.Timer;
+import com.mrzak34.thunderhack.util.math.MathUtil;
 import com.mrzak34.thunderhack.util.phobos.*;
 import com.mrzak34.thunderhack.util.phobos.RenderUtil;
 import com.mrzak34.thunderhack.util.phobos.RotationUtil;
@@ -64,7 +65,7 @@ import static net.minecraft.util.EnumFacing.HORIZONTALS;
 
 public class AutoCrystal extends Module {
     public AutoCrystal() {
-        super("NewAutoCrystal", "AutoCrystal", Category.COMBAT, true, false, false);
+        super("AutoCrystal", "AutoCrystal", Category.COMBAT);
     }
 
 
@@ -520,14 +521,14 @@ public class AutoCrystal extends Module {
 
     @Override
     public void onEnable() {
-        reset();
+        resetModule();
         Thunderhack.setDeadManager.addObserver(this.soundObserver);
     }
 
     @Override
     public void onDisable() {
         Thunderhack.setDeadManager.removeObserver(this.soundObserver);
-        reset();
+        resetModule();
     }
 
     @Override
@@ -651,7 +652,7 @@ public class AutoCrystal extends Module {
     /**
      * Resets all fields and helpers.
      */
-    public void reset()
+    public void resetModule()
     {
         target = null;
         crystal = null;
@@ -666,7 +667,7 @@ public class AutoCrystal extends Module {
         try
         {
             placed.clear();
-            threadHelper.reset();
+            threadHelper.resetThreadHelper();
             rotationCanceller.reset();
             antiTotemHelper.setTarget(null);
             antiTotemHelper.setTargetPos(null);
@@ -1103,106 +1104,7 @@ public class AutoCrystal extends Module {
         Slot
     }
 
-    /*
 
-    public void switchTo78(int slot){
-        switch (cooldownBypass.getValue()){
-            case None:
-                InventoryUtil.switchTo(slot);
-                break;
-            case Pick:
-                InventoryUtil.bypassSwitch(slot);
-                break;
-            case Slot:
-                InventoryUtil.switchToBypass(InventoryUtil.hotbarToInventory(slot));
-                break;
-            case Swap:
-                InventoryUtil.switchToBypassAlt(InventoryUtil.hotbarToInventory(slot));
-                break;
-        }
-    }
-
-    public void switchBack78(int lastSlot, int from) {
-        switch (cooldownBypass.getValue()){
-            case None:
-                InventoryUtil.switchTo(from);
-                break;
-        }
-    }
-
-    public void switchTo782(int slot){
-        switch (antiWeaknessBypass.getValue()){
-            case None:
-                InventoryUtil.switchTo(slot);
-                break;
-            case Pick:
-                InventoryUtil.bypassSwitch(slot);
-                break;
-            case Slot:
-                InventoryUtil.switchToBypass(InventoryUtil.hotbarToInventory(slot));
-                break;
-            case Swap:
-                InventoryUtil.switchToBypassAlt(InventoryUtil.hotbarToInventory(slot));
-                break;
-        }
-    }
-
-    public void switchBack782(int lastSlot, int from) {
-        switch (antiWeaknessBypass.getValue()){
-            case None:
-                InventoryUtil.switchTo(from);
-                break;
-        }
-    }
-
-    public void switchTo7824(int slot){
-        switch (obsidianBypass.getValue()){
-            case None:
-                InventoryUtil.switchTo(slot);
-                break;
-            case Pick:
-                InventoryUtil.bypassSwitch(slot);
-                break;
-            case Slot:
-                InventoryUtil.switchToBypass(InventoryUtil.hotbarToInventory(slot));
-                break;
-            case Swap:
-                InventoryUtil.switchToBypassAlt(InventoryUtil.hotbarToInventory(slot));
-                break;
-        }
-    }
-    public void switchBack7824(int lastSlot, int from) {
-        switch (obsidianBypass.getValue()){
-            case None:
-                InventoryUtil.switchTo(from);
-                break;
-        }
-    }
-
-    public void switchTo78245(int slot){
-        switch (mineBypass.getValue()){
-            case None:
-                InventoryUtil.switchTo(slot);
-                break;
-            case Pick:
-                InventoryUtil.bypassSwitch(slot);
-                break;
-            case Slot:
-                InventoryUtil.switchToBypass(InventoryUtil.hotbarToInventory(slot));
-                break;
-            case Swap:
-                InventoryUtil.switchToBypassAlt(InventoryUtil.hotbarToInventory(slot));
-                break;
-        }
-    }
-    public void switchBack78245(int lastSlot, int from) {
-        switch (mineBypass.getValue()){
-            case None:
-                InventoryUtil.switchTo(from);
-                break;
-        }
-    }
-    */
 
 
     public enum RayTraceMode
@@ -1229,9 +1131,13 @@ public class AutoCrystal extends Module {
     public void onBoobs(UpdateEntitiesEvent e){
         ExtrapolationHelper.onUpdateEntity(e);
     }
-    @SubscribeEvent
-    public void onConnect(ConnectionEvent e){
-        this.reset();
+
+
+
+  //  @SubscribeEvent
+    @Override
+    public void onLogin(){
+        resetModule(); // TODO
     }
 
     @SubscribeEvent
@@ -1419,7 +1325,6 @@ public class AutoCrystal extends Module {
     public void onDestroyBlock(DestroyBlockEvent event)
     {
         if (blockDestroyThread.getValue()
-                && event.getStage() == 0
                 && multiThread.getValue()
                 && !event.isCanceled()
                 && HelperUtil.validChange(event.getBlockPos(), mc.world.playerEntities)) //TODO проверить
@@ -1655,7 +1560,6 @@ public class AutoCrystal extends Module {
                 < MathUtil.square(targetRange.getValue())
                 && !Thunderhack.friendManager.isFriend(player))
         {
-            boolean enemied = Thunderhack.enemyManager.isEnemy(player);
             // Scheduling is required since this event might get cancelled.
             Scheduler.getInstance().scheduleAsynchronously(() ->
             {
@@ -1665,15 +1569,10 @@ public class AutoCrystal extends Module {
                 }
 
                 List<EntityPlayer> enemies;
-                if (enemied)
-                {
-                    enemies = new ArrayList<>(1);
-                    enemies.add(player);
-                }
-                else
-                {
-                    enemies = Collections.emptyList();
-                }
+
+
+                enemies = Collections.emptyList();
+
 
                 EntityPlayer target = getTTRG(mc.world.playerEntities, enemies, targetRange.getValue());
 

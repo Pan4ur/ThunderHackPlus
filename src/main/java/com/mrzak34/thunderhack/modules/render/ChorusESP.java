@@ -1,11 +1,11 @@
 package com.mrzak34.thunderhack.modules.render;
 
-import com.mrzak34.thunderhack.event.events.ChorusEvent;
+import com.mrzak34.thunderhack.events.ChorusEvent;
 import com.mrzak34.thunderhack.modules.Module;
-import com.mrzak34.thunderhack.event.events.Render3DEvent;
+import com.mrzak34.thunderhack.events.Render3DEvent;
 import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.setting.Setting;
-import com.mrzak34.thunderhack.util.RenderUtil;
+import com.mrzak34.thunderhack.util.render.RenderUtil;
 import com.mrzak34.thunderhack.util.Timer;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraftforge.fml.common.eventhandler.*;
@@ -24,7 +24,7 @@ public class ChorusESP
 
 
     public ChorusESP() {
-        super("ChorusESP",  "рендерит звук хоруса",  Module.Category.RENDER,  true,  false,  false);
+        super("ChorusESP",  "рендерит звук хоруса",  Module.Category.RENDER);
     }
 
     private final Setting<ColorSetting> outlineColor = this.register(new Setting<>("OutlineColor", new ColorSetting(0x2250b4b4)));

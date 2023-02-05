@@ -1,8 +1,8 @@
 package com.mrzak34.thunderhack.modules.render;
 
 import com.mojang.authlib.GameProfile;
-import com.mrzak34.thunderhack.event.events.Render3DEvent;
-import com.mrzak34.thunderhack.event.events.TotemPopEvent;
+import com.mrzak34.thunderhack.events.Render3DEvent;
+import com.mrzak34.thunderhack.events.TotemPopEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.setting.Setting;
@@ -20,7 +20,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class PopChams extends Module {
 
     public PopChams() {
-        super("PopChams", "Renders when some1 pops", Category.RENDER, true, false, false);
+        super("PopChams", "Renders when some1 pops", Category.RENDER);
     }
 
 
@@ -60,6 +60,7 @@ public class PopChams extends Module {
 
     @SubscribeEvent
     public void onRender3D(Render3DEvent e) {
+        GlStateManager.pushMatrix();
         GL11.glBlendFunc( GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA );
         GlStateManager.tryBlendFuncSeparate( GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO );
         GlStateManager.glLineWidth( 1.5F );
@@ -96,6 +97,7 @@ public class PopChams extends Module {
         GlStateManager.enableTexture2D( );
         GlStateManager.enableBlend( );
         GlStateManager.enableDepth( );
+        GlStateManager.popMatrix();
     }
 
     public class Person {

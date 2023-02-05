@@ -1,6 +1,6 @@
 package com.mrzak34.thunderhack.util.phobos;
 import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.event.events.PacketEvent;
+import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.mixin.ducks.ISPacketSpawnObject;
 import com.mrzak34.thunderhack.modules.combat.AutoCrystal;
 import net.minecraft.entity.Entity;

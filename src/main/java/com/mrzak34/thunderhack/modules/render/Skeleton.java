@@ -2,7 +2,7 @@ package com.mrzak34.thunderhack.modules.render;
 
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.event.events.Render3DEvent;
+import com.mrzak34.thunderhack.events.Render3DEvent;
 import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.BlockUtils;
@@ -24,7 +24,7 @@ public class  Skeleton
     public final Setting<ColorSetting> Color3 = this.register(new Setting<>("FriendColor", new ColorSetting(0x8800FF00)));
 
     public Skeleton() {
-        super("Skeleton", "скелетон есп-на игроков", Module.Category.RENDER, false, false, false);
+        super("Skeleton", "скелетон есп-на игроков", Module.Category.RENDER);
     }
 
     public static void addEntity(EntityPlayer e, ModelPlayer model) {
@@ -64,11 +64,11 @@ public class  Skeleton
         if (entPos != null && e.isEntityAlive() && !e.isDead && e != Skeleton.mc.player && !e.isPlayerSleeping()) {
             GL11.glPushMatrix();
             GL11.glEnable(2848);
-            GL11.glLineWidth(this.lineWidth.getValue().floatValue());
+            GL11.glLineWidth(this.lineWidth.getValue());
             if (Thunderhack.friendManager.isFriend(e.getName())) {
-                GlStateManager.color(Color3.getValue().getRed()/255,Color3.getValue().getGreen()/255,Color3.getValue().getBlue()/255,Color3.getValue().getAlpha()/255);
+                GlStateManager.color(Color3.getValue().getRed()/255f,Color3.getValue().getGreen()/255f,Color3.getValue().getBlue()/255f,Color3.getValue().getAlpha()/255f);
             } else {
-                GlStateManager.color(Color3.getValue().getRed()/255,Color3.getValue().getGreen()/255,Color3.getValue().getBlue()/255,Color3.getValue().getAlpha()/255);
+                GlStateManager.color(Color3.getValue().getRed()/255f,Color3.getValue().getGreen()/255f,Color3.getValue().getBlue()/255f,Color3.getValue().getAlpha()/255f);
             }
             Vec3d vec = this.getVec3(event, e);
             double x = vec.x - Skeleton.mc.getRenderManager().renderPosX;

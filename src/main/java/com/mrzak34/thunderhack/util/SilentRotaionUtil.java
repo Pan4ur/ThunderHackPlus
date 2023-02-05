@@ -46,6 +46,17 @@ public class SilentRotaionUtil {
     }
 
 
+    public static float[] calcAngle(Vec3d to) {
+        if(to == null){
+            return null;
+        }
+        double difX = to.x - mc.player.getPositionEyes(1).x;
+        double difY = (to.y - mc.player.getPositionEyes(1).y) * -1.0;
+        double difZ = to.z - mc.player.getPositionEyes(1).z;
+        double dist = MathHelper.sqrt(difX * difX + difZ * difZ);
+        return new float[]{(float) MathHelper.wrapDegrees(Math.toDegrees(Math.atan2(difZ, difX)) - 90.0), (float) MathHelper.wrapDegrees(Math.toDegrees(Math.atan2(difY, dist)))};
+    }
+
     public static float[] calcAngle(Vec3d from, Vec3d to) {
         double difX = to.x - from.x;
         double difY = (to.y - from.y) * -1.0;

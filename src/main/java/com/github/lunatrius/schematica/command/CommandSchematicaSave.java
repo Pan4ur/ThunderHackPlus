@@ -6,6 +6,7 @@ import com.github.lunatrius.schematica.reference.Constants;
 import com.github.lunatrius.schematica.reference.Names;
 import com.github.lunatrius.schematica.reference.Reference;
 import com.github.lunatrius.schematica.world.schematic.SchematicFormat;
+import com.mrzak34.thunderhack.command.Command;
 import mcp.MethodsReturnNonnullByDefault;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommandSender;
@@ -60,9 +61,6 @@ public class CommandSchematicaSave extends CommandSchematicaBase {
             name = args[6];
             if (args.length >= 8) {
                 format = args[7];
-                if (!SchematicFormat.FORMATS.containsKey(format)) {
-                    throw new CommandException(Names.Command.Save.Message.UNKNOWN_FORMAT, format);
-                }
             } else {
                 format = null;
             }
@@ -88,9 +86,10 @@ public class CommandSchematicaSave extends CommandSchematicaBase {
 
         try {
             Schematica.proxy.saveSchematic(player, schematicDirectory, filename, player.getEntityWorld(), format, from, to);
-            sender.sendMessage(new TextComponentTranslation(Names.Command.Save.Message.SAVE_SUCCESSFUL, name));
+            Command.sendMessage("Схема успешно сохранена в " + name );
+
         } catch (final Exception e) {
-            throw new CommandException(Names.Command.Save.Message.SAVE_FAILED, name);
+            Command.sendMessage("Ошибка сохранения схемы!" );
         }
     }
 

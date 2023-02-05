@@ -18,11 +18,6 @@ public class LunatriusCore {
     @SidedProxy(serverSide = Reference.PROXY_SERVER, clientSide = Reference.PROXY_CLIENT)
     public static CommonProxy proxy;
 
-    @NetworkCheckHandler
-    public boolean checkModList(final Map<String, String> versions, final Side side) {
-        return true;
-    }
-
     @Mod.EventHandler
     public void preInit(final FMLPreInitializationEvent event) {
         proxy.preInit(event);

@@ -1,6 +1,16 @@
 # ThunderHack+ 
 
-v2.38
+v2.39
+
+## Info:
+- Default ClickGui keybind - "P"
+- Default prefix  - "."
+- Middle click on module to bind
+- ".module Timer set indicator false" - to turn off indicator
+- -> https://www.youtube.com/watch?v=yVtTL7taDDI
+
+
+
 
 [![Discord](https://img.shields.io/discord/995440739125301338?color=5a08bf&label=Discord&logo=discord&logoColor=ffffff&style=for-the-badge)](https://discord.gg/uMqM8EhM34)
 
@@ -22,4 +32,3 @@ v2.38
 ![image](https://cdn.discordapp.com/attachments/934396624111824900/1052471093597839380/2022-12-14_09.22.11.png)
 ![image](https://cdn.discordapp.com/attachments/934396624111824900/1052471111096488006/2022-12-14_09.22.53.png)
 ![image](https://cdn.discordapp.com/attachments/934396624111824900/1052471114330296320/2022-12-14_09.23.01.png)
-![image](https://cdn.discordapp.com/attachments/934396624111824900/1052471126523121696/2022-12-14_09.23.24.png)

@@ -1,9 +1,9 @@
 package com.mrzak34.thunderhack.modules.combat;
 
 import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.event.events.EventPostMotion;
-import com.mrzak34.thunderhack.event.events.EventPreMotion;
-import com.mrzak34.thunderhack.event.events.Render3DEvent;
+import com.mrzak34.thunderhack.events.EventPostMotion;
+import com.mrzak34.thunderhack.events.EventPreMotion;
+import com.mrzak34.thunderhack.events.Render3DEvent;
 import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.modules.movement.PacketFly;
@@ -11,6 +11,7 @@ import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.setting.SubBind;
 import com.mrzak34.thunderhack.util.*;
+import com.mrzak34.thunderhack.util.render.RenderUtil;
 import net.minecraft.block.BlockObsidian;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.EnumHand;
@@ -37,7 +38,7 @@ public class AutoTrap
 
 
     public AutoTrap() {
-        super("AutoTrap", "Трапит ньюфагов", Module.Category.COMBAT, true, false, false);
+        super("AutoTrap", "Трапит ньюфагов", Module.Category.COMBAT);
     }
     private  final Setting<Float> placeRange = this.register( new Setting<>("TargetRange", 4.5f, 1f, 16f));
     private  Setting<Integer> actionShift = this.register(new Setting<>("ActionShift", 3, 1, 8));
@@ -315,7 +316,7 @@ public class AutoTrap
         }
 
         if (renderPos != null && !renderTimer.passedMs(500)) {
-            RenderUtil.drawBlockOutline(renderPos, Color.getValue().getColorObject(), 0.3f, true);
+            RenderUtil.drawBlockOutline(renderPos, Color.getValue().getColorObject(), 0.3f, true,0);
         }
     }
 

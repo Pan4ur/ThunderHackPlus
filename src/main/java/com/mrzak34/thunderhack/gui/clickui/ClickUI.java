@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.util.List;
 
 import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.gui.classic.ClassicGui;
 import com.mrzak34.thunderhack.gui.clickui.base.AbstractWindow;
 import com.mrzak34.thunderhack.gui.clickui.window.ModuleWindow;
 import com.mrzak34.thunderhack.modules.Module;
@@ -13,10 +12,6 @@ import com.mrzak34.thunderhack.modules.client.ClickGui;
 import com.mrzak34.thunderhack.notification.Animation;
 import com.mrzak34.thunderhack.notification.DecelerateAnimation;
 import com.mrzak34.thunderhack.notification.Direction;
-import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.MathHelper;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
@@ -26,6 +21,7 @@ import com.google.common.collect.Lists;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
+
 
 /**
  * Created by sprayD on 06/09/2021. edited 15.05.2022

@@ -1,6 +1,6 @@
 package com.mrzak34.thunderhack.mixin.mixins;
 
-import com.mrzak34.thunderhack.event.events.RenderItemEvent;
+import com.mrzak34.thunderhack.events.RenderItemEvent;
 import com.mrzak34.thunderhack.modules.render.CustomEnchants;
 import com.mrzak34.thunderhack.modules.render.ViewModel;
 import net.minecraft.client.renderer.GlStateManager;

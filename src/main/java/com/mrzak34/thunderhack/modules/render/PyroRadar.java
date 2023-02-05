@@ -1,12 +1,13 @@
 package com.mrzak34.thunderhack.modules.render;
 
 import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.event.events.Render3DEvent;
+import com.mrzak34.thunderhack.events.Render3DEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 
 import com.mrzak34.thunderhack.mixin.mixins.IEntityRenderer;
-import com.mrzak34.thunderhack.util.RenderUtil;
+import com.mrzak34.thunderhack.util.Rotation;
+import com.mrzak34.thunderhack.util.render.RenderUtil;
 import com.mrzak34.thunderhack.util.Util;
 
 import net.minecraft.client.multiplayer.WorldClient;
@@ -29,7 +30,7 @@ import java.util.Objects;
 public class PyroRadar extends Module {
 
     public PyroRadar() {
-    super("Radar", "радар из пайро", Category.HUD, true, false, false);
+    super("Radar", "радар из пайро", Category.HUD);
 
     }
 
@@ -63,7 +64,7 @@ public class PyroRadar extends Module {
     public Setting<Integer> blueF = register(new Setting("Blue",0,0,255));
 
 
-    public Rotation getRotation( Vec3d vec3d,  Vec3d vec3d2) {
+    public Rotation getRotation(Vec3d vec3d, Vec3d vec3d2) {
         double d = vec3d2.x - vec3d.x;
         double d2 = vec3d2.y - vec3d.y;
         double d3 = vec3d2.z - vec3d.z;

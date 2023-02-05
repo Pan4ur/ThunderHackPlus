@@ -1,42 +1,43 @@
 package com.mrzak34.thunderhack.gui.hud;
 
+import com.google.common.collect.Lists;
 import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.modules.Feature;
-import com.mrzak34.thunderhack.gui.classic.components.Component;
-import com.mrzak34.thunderhack.gui.classic.components.items.Item;
-import com.mrzak34.thunderhack.gui.classic.components.items.buttons.ModuleButton;
+import com.mrzak34.thunderhack.gui.clickui.ClickUI;
+import com.mrzak34.thunderhack.gui.clickui.EaseBackIn;
+import com.mrzak34.thunderhack.gui.clickui.base.AbstractWindow;
+import com.mrzak34.thunderhack.gui.clickui.window.ModuleWindow;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.modules.client.ClickGui;
-import com.mrzak34.thunderhack.util.ColorUtil;
+import com.mrzak34.thunderhack.notification.Animation;
+import com.mrzak34.thunderhack.notification.DecelerateAnimation;
+import com.mrzak34.thunderhack.notification.Direction;
+import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.renderer.GlStateManager;
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Objects;
+import java.io.IOException;
+import java.util.List;
 
 public class HudEditorGui extends GuiScreen {
 
+    private Animation openAnimation, bgAnimation, rAnimation;
+    private final List<AbstractWindow> windows;
 
-    private static HudEditorGui hudGui;
-    private static HudEditorGui INSTANCE;
-
-    static {
-        INSTANCE = new HudEditorGui();
-    }
-
-
-
-    private final ArrayList<Component> components = new ArrayList();
-
-
-    public String search = "";
-
+    private double scrollSpeed;
+    private boolean firstOpen;
+    private double dWheel;
+    private double mamer;
 
     public HudEditorGui() {
+        windows = Lists.newArrayList();
+        firstOpen = true;
         this.setInstance();
-        this.load();
     }
+
+    private static HudEditorGui INSTANCE = new HudEditorGui();
 
     public static HudEditorGui getInstance() {
         if (INSTANCE == null) {
@@ -53,88 +54,140 @@ public class HudEditorGui extends GuiScreen {
         INSTANCE = this;
     }
 
-    private void load() {
-        for (final Module.Category category : Thunderhack.moduleManager.getCategories()) {
-            if(Objects.equals(category.getName(), "HUD")) {
-                this.components.add(new Component(category.getName(), 100, 40, true) {
-                    @Override
-                    public void setupItems() {
-                        counter1 = new int[]{1};
-                        Thunderhack.moduleManager.getModulesByCategory(category).forEach(module -> {
-                            if (!module.hidden) {
-                                this.addButton(new ModuleButton(module));
-                            }
-                        });
-                    }
-                });
+
+    @Override
+    public void initGui() {
+        openAnimation = new EaseBackIn(270, .4f, 1.13f);
+        rAnimation = new DecelerateAnimation(300, 1f);
+        bgAnimation = new DecelerateAnimation(300, 1f);
+        if (firstOpen) {
+            double x = 20, y = 20;
+            double offset = 0;
+            int windowHeight = 18;
+            ScaledResolution sr = new ScaledResolution(mc);
+            int i = 0;
+            for (final Module.Category category : Thunderhack.moduleManager.getCategories()) {
+                if(!category.getName().contains("HUD")) continue;
+                ModuleWindow window = new ModuleWindow(category.getName(), Thunderhack.moduleManager.getModulesByCategory(category), i, x + offset, y, 108, windowHeight);
+                window.setOpen(true);
+                windows.add(window);
+                offset += 110;
+
+                if (offset > sr.getScaledWidth()) {
+                    offset = 0;
+                }
+                i++;
             }
+            firstOpen = false;
         }
-        this.components.forEach(components -> components.getItems().sort(Comparator.comparing(Feature::getName)));
+
+        windows.forEach(AbstractWindow::init);
+
+        super.initGui();
     }
 
-    public void updateModule(Module module) {
-        for (Component component : this.components) {
-            for (Item item : component.getItems()) {
-                if (!(item instanceof ModuleButton)) continue;
-                ModuleButton button = (ModuleButton) item;
-                Module mod = button.getModule();
-                if (module == null || !module.equals(mod)) continue;
-                button.initSettings();
+
+    @Override
+    public void drawScreen(int mouseX, int mouseY, float delta) {
+        if (openAnimation.isDone() && openAnimation.getDirection().equals(Direction.BACKWARDS)) {
+            windows.forEach(AbstractWindow::onClose);
+            mc.currentScreen = null;
+            mc.displayGuiScreen(null);
+        }
+
+        dWheel = Mouse.getDWheel();
+
+
+        if (dWheel > 0)
+            scrollSpeed += 14;
+        else if (dWheel < 0)
+            scrollSpeed -= 14;
+
+        double anim = (openAnimation.getOutput() + .6f);
+
+
+        GlStateManager.pushMatrix();
+
+        double centerX = width >> 1;
+        double centerY = height >> 1;
+
+        GlStateManager.translate(centerX, centerY, 0);
+        GlStateManager.scale(anim, anim, 1);
+        GlStateManager.translate(-centerX, -centerY, 0);
+
+        for (AbstractWindow window : windows) {
+            if (Keyboard.isKeyDown(Keyboard.KEY_DOWN))
+                window.setY(window.getY() + 2);
+            else if (Keyboard.isKeyDown(Keyboard.KEY_UP))
+                window.setY(window.getY() - 2);
+            else if (Keyboard.isKeyDown(Keyboard.KEY_LEFT))
+                window.setX(window.getX() - 2);
+            else if (Keyboard.isKeyDown(Keyboard.KEY_RIGHT))
+                window.setX(window.getX() + 2);
+            if (dWheel != 0)
+                window.setY(window.getY() + scrollSpeed);
+            else
+                scrollSpeed = 0;
+
+            window.render(mouseX, mouseY, delta, ClickGui.getInstance().hcolor1.getValue().getColorObject(), openAnimation.isDone() && openAnimation.getDirection() == Direction.FORWARDS);
+        }
+        GlStateManager.popMatrix();
+
+        super.drawScreen(mouseX, mouseY, delta);
+    }
+
+    @Override
+    public void onGuiClosed() {
+
+    }
+
+    @Override
+    public void updateScreen() {
+        windows.forEach(AbstractWindow::tick);
+        super.updateScreen();
+    }
+
+    @Override
+    public void mouseClicked(int mouseX, int mouseY, int button) throws IOException {
+        windows.forEach(w -> {
+            w.mouseClicked(mouseX, mouseY, button);
+
+            windows.forEach(w1 -> {
+                if (w.dragging && w != w1)
+                    w1.dragging = false;
+            });
+        });
+        super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    @Override
+    public void mouseReleased(int mouseX, int mouseY, int button) {
+        windows.forEach(w -> w.mouseReleased(mouseX, mouseY, button));
+        super.mouseReleased(mouseX, mouseY, button);
+    }
+
+    @Override
+    public void handleMouseInput() throws IOException {
+        windows.forEach(w -> {
+            try {
+                w.handleMouseInput();
+            } catch (IOException ignored) {
+
             }
+        });
+        super.handleMouseInput();
+    }
+
+    @Override
+    public void keyTyped(char chr, int keyCode) throws IOException {
+        windows.forEach(w -> {
+            w.keyTyped(chr, keyCode);
+        });
+
+        if (keyCode == 1 || keyCode == Thunderhack.moduleManager.getModuleByClass(ClickGui.class).getBind().getKey()) {
+            bgAnimation.setDirection(Direction.BACKWARDS);
+            rAnimation.setDirection(Direction.BACKWARDS);
+            openAnimation.setDirection(Direction.BACKWARDS);
         }
     }
-
-    public float animopenY = 5f;
-    int color = ColorUtil.toARGB(ClickGui.getInstance().topColor.getValue().getRed(), ClickGui.getInstance().topColor.getValue().getGreen(), ClickGui.getInstance().topColor.getValue().getBlue(), 25);
-
-    public void drawScreen(int mouseX, int mouseY, float partialTicks) {
-
-        this.checkMouseWheel();
-        if(ClickGui.getInstance().darkBackGround.getValue()) {
-            this.drawDefaultBackground();
-        }
-        this.components.forEach(components -> components.drawScreen(mouseX, mouseY, partialTicks));
-
-    }
-
-
-    public void mouseClicked(int mouseX, int mouseY, int clickedButton) {
-        this.components.forEach(components -> components.mouseClicked(mouseX, mouseY, clickedButton));
-    }
-
-    public void mouseReleased(int mouseX, int mouseY, int releaseButton) {
-        this.components.forEach(components -> components.mouseReleased(mouseX, mouseY, releaseButton));
-    }
-
-    public boolean doesGuiPauseGame() {
-        return false;
-    }
-
-    public final ArrayList<Component> getComponents() {
-        return this.components;
-    }
-
-    public void checkMouseWheel() {
-        int dWheel = Mouse.getDWheel();
-        if (dWheel < 0) {
-            this.components.forEach(component -> component.setY(component.getY() - 10));
-        } else if (dWheel > 0) {
-            this.components.forEach(component -> component.setY(component.getY() + 10));
-        }
-    }
-
-    public int getTextOffset() {
-        return -6;
-    }
-
-    public Component getComponentByName(String name) {
-        for (Component component : this.components) {
-            if (!component.getName().equalsIgnoreCase(name)) continue;
-            return component;
-        }
-        return null;
-    }
-
-
-
 }

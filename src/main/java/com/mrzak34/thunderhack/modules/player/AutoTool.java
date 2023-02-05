@@ -15,7 +15,7 @@ import java.util.List;
 public class AutoTool extends Module {
 
     public AutoTool() {
-        super("AutoTool", "Автоматом свапается на-луший инструмент", Category.PLAYER, true, false, false);
+        super("AutoTool", "Автоматом свапается на-луший инструмент", Category.PLAYER);
     }
 
 

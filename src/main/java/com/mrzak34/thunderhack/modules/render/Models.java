@@ -6,7 +6,7 @@ import com.mrzak34.thunderhack.setting.Setting;
 
 public class Models extends Module {
     public Models() {
-        super("Models", "Models", Category.RENDER, true, false, false);
+        super("Models", "Models", Category.RENDER);
     }
 
 

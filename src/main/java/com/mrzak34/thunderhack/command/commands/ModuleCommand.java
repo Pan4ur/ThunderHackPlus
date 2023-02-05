@@ -1,17 +1,22 @@
 package com.mrzak34.thunderhack.command.commands;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 import com.mojang.realmsclient.gui.ChatFormatting;
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.command.Command;
+import com.mrzak34.thunderhack.modules.Feature;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.manager.ConfigManager;
-import com.mrzak34.thunderhack.setting.Setting;
+import com.mrzak34.thunderhack.setting.*;
+
+import java.util.Objects;
 
 public class ModuleCommand
         extends Command {
     public ModuleCommand() {
-        super("module", new String[]{"<module>", "<set/reset>", "<setting>", "<value>"});
+        super("module");
     }
 
     @Override
@@ -77,12 +82,67 @@ public class ModuleCommand
                         module.disable();
                     }
                 }
-                ConfigManager.setValueFromJson(module, setting, jp.parse(commands[3]));
+              setCommandValue(module, setting, jp.parse(commands[3]));
             } catch (Exception e) {
                 ModuleCommand.sendMessage("Bad Value! This setting requires a: " + setting.getType() + " value.");
                 return;
             }
             ModuleCommand.sendMessage(ChatFormatting.GRAY + module.getName() + " " + setting.getName() + " has been set to " + commands[3] + ".");
+        }
+    }
+
+
+    public static void setCommandValue(Feature feature, Setting setting, JsonElement element) {
+        String str;
+        for(Setting setting2 : feature.getSettings()) {
+            if(Objects.equals(setting.getName(), setting2.getName())) {
+                switch (setting2.getType()) {
+                    case "Parent":
+                        return;
+                    case "Boolean":
+                        setting2.setValue(Boolean.valueOf(element.getAsBoolean()));
+                        return;
+                    case "Double":
+                        setting2.setValue(Double.valueOf(element.getAsDouble()));
+                        return;
+                    case "Float":
+                        setting2.setValue(Float.valueOf(element.getAsFloat()));
+                        return;
+                    case "Integer":
+                        setting2.setValue(Integer.valueOf(element.getAsInt()));
+                        return;
+                    case "String":
+                        str = element.getAsString();
+                        setting2.setValue(str.replace("_", " "));
+                        return;
+                    case "Bind":
+                        JsonArray array4 = element.getAsJsonArray();
+                        setting2.setValue((new Bind.BindConverter()).doBackward(array4.get(0)));
+                        ((Bind) setting2.getValue()).setHold(array4.get(1).getAsBoolean());
+                        return;
+                    case "ColorSetting":
+                        JsonArray array = element.getAsJsonArray();
+                        ((ColorSetting) setting2.getValue()).setColor(array.get(0).getAsInt());
+                        ((ColorSetting) setting2.getValue()).setCycle(array.get(1).getAsBoolean());
+                        ((ColorSetting) setting2.getValue()).setGlobalOffset(array.get(2).getAsInt());
+                        return;
+                    case "PositionSetting":
+                        JsonArray array3 = element.getAsJsonArray();
+                        ((PositionSetting) setting2.getValue()).setX(array3.get(0).getAsFloat());
+                        ((PositionSetting) setting2.getValue()).setY(array3.get(1).getAsFloat());
+                        return;
+                    case "SubBind":
+                        setting2.setValue((new SubBind.SubBindConverter()).doBackward(element));
+                        return;
+                    case "Enum":
+                        try {
+                            EnumConverter converter = new EnumConverter(((Enum) setting2.getValue()).getClass());
+                            Enum value = converter.doBackward(element);
+                            setting2.setValue((value == null) ? setting2.getDefaultValue() : value);
+                        } catch (Exception ignored) {
+                        }
+                }
+            }
         }
     }
 }

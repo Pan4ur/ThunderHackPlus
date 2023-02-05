@@ -1,6 +1,6 @@
 package com.mrzak34.thunderhack.mixin.mixins;
 
-import com.mrzak34.thunderhack.event.events.DeathEvent;
+import com.mrzak34.thunderhack.events.DeathEvent;
 import com.mrzak34.thunderhack.util.Util;
 import org.spongepowered.asm.mixin.*;
 import net.minecraft.client.network.*;

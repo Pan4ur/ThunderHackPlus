@@ -1,11 +1,11 @@
 package com.mrzak34.thunderhack.modules.render;
 
-import com.mrzak34.thunderhack.event.events.EventEntityMove;
-import com.mrzak34.thunderhack.event.events.PostRenderEvent;
+import com.mrzak34.thunderhack.events.EventEntityMove;
+import com.mrzak34.thunderhack.events.PreRenderEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.setting.Setting;
-import com.mrzak34.thunderhack.util.*;
+import com.mrzak34.thunderhack.util.math.AstolfoAnimation;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.renderer.GlStateManager;
 
@@ -18,12 +18,12 @@ import java.util.*;
 import java.util.List;
 
 
-import com.mrzak34.thunderhack.event.events.Render3DEvent;
+import com.mrzak34.thunderhack.events.Render3DEvent;
 
 public class PlayerTrails extends Module{
 
     public PlayerTrails() {
-        super("PlayerTrails", "PlayerTrails", Category.RENDER, true, false, false);
+        super("PlayerTrails", "PlayerTrails", Category.RENDER);
     }
 
 
@@ -229,7 +229,7 @@ public class PlayerTrails extends Module{
 
 
     @SubscribeEvent
-    public void onRenderPost(PostRenderEvent event) {
+    public void onRenderPost(PreRenderEvent event) {
         if(!shfix.getValue()){
             return;
         }

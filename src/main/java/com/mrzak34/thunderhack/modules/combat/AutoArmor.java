@@ -1,8 +1,7 @@
 package com.mrzak34.thunderhack.modules.combat;
 
 import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.event.events.PacketEvent;
-import com.mrzak34.thunderhack.gui.hud.RadarRewrite;
+import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.modules.movement.ElytraFlight;
 import com.mrzak34.thunderhack.modules.player.FastPlace2;
@@ -39,7 +38,7 @@ public class AutoArmor
         extends Module {
 
     public AutoArmor() {
-    super("AutoArmor", "Автоброня", Category.PLAYER, true, false, false);
+    super("AutoArmor", "Автоброня", Category.PLAYER);
     }
 
 

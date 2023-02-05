@@ -5,15 +5,12 @@ import com.mrzak34.thunderhack.gui.thundergui.fontstuff.FontRender;
 import com.mrzak34.thunderhack.modules.client.ThunderHackGui;
 import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.setting.Setting;
-import com.mrzak34.thunderhack.util.GuiRenderHelper;
-import com.mrzak34.thunderhack.util.RenderUtil;
+import com.mrzak34.thunderhack.util.render.RenderUtil;
 import com.mrzak34.thunderhack.util.Timer;
 import com.mrzak34.thunderhack.util.Util;
 import org.lwjgl.input.Mouse;
 
 import java.awt.*;
-
-import static com.mrzak34.thunderhack.gui.misc.GuiMiddleClickMenu.mouseWithinBounds;
 
 public class TColorPicker extends TItem{
 
@@ -86,7 +83,7 @@ public class TColorPicker extends TItem{
         int indicatorX = (int) (this.x + 3 + (int) (hsb[1] * 88));
         int indicatorY = (int) ((40 + this.y + 12) - (int) (hsb[2] * 40));
 //        this.x + 3, this.y + 12, this.x + 91, this.y + 52
-        GuiRenderHelper.drawRect(indicatorX - 1F, indicatorY - 1F, 2F, 2F, indicatorColor);
+        RenderUtil.drawRect(indicatorX - 1F, indicatorY - 1F, indicatorX + 1F, indicatorY + 1F, indicatorColor);
 //        RenderUtil.drawRect2(this.x,this.y,this.x + 94,this.y + 90,new Color(0xB3232323, true).getRGB());
         RenderUtil.drawSmoothRect(this.x + 3, this.y + 80,this.x + 91,this.y + 88,new Color(red,green,blue).getRGB());
         String values = "R" + this.red + "/" + "G" + this.green + "/" + "B" + this.blue + "/" + "A" + this.alpha;
@@ -148,7 +145,9 @@ public class TColorPicker extends TItem{
     }
 
 
-
+    public static boolean mouseWithinBounds(int mouseX, int mouseY, double x, double y, double width, double height) {
+        return (mouseX >= x && mouseX <= x + width && mouseY >= y && mouseY <= y + height);
+    }
 
 
     private void getRGBfromClick(float mouseX, float mouseY) {

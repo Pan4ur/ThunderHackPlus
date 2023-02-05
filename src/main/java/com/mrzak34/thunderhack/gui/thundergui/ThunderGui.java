@@ -5,13 +5,13 @@ import com.mrzak34.thunderhack.gui.thundergui.components.items.buttons.TConfigCo
 import com.mrzak34.thunderhack.gui.thundergui.components.items.buttons.TFriendComponent;
 import com.mrzak34.thunderhack.gui.thundergui.components.items.buttons.TModuleButt;
 import com.mrzak34.thunderhack.gui.thundergui.fontstuff.FontRender;
-import com.mrzak34.thunderhack.modules.client.DiscordWebhook;
+import com.mrzak34.thunderhack.manager.ConfigManager;
 import com.mrzak34.thunderhack.modules.client.ThunderHackGui;
 import com.mrzak34.thunderhack.modules.misc.NameProtect;
-import com.mrzak34.thunderhack.util.PaletteHelper;
-import com.mrzak34.thunderhack.manager.FriendManager;
+import com.mrzak34.thunderhack.util.render.PaletteHelper;
 import com.mrzak34.thunderhack.util.*;
 import com.mrzak34.thunderhack.util.Timer;
+import com.mrzak34.thunderhack.util.render.RenderUtil;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
@@ -23,13 +23,10 @@ import org.lwjgl.opengl.GL11;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
-
-import static com.mrzak34.thunderhack.util.Util.mc;
 
 public class ThunderGui extends GuiScreen {
 
@@ -58,16 +55,16 @@ public class ThunderGui extends GuiScreen {
     String addFriendLine = "";
     public int totalwheel = 0;
     ResourceLocation head;
-    ResourceLocation combaticon = new ResourceLocation("textures/combaticon.png");
-    ResourceLocation miscicon = new ResourceLocation("textures/miscicon.png");
-    ResourceLocation movementicon = new ResourceLocation("textures/movementicon.png");
-    ResourceLocation clienticon = new ResourceLocation("textures/clienticon.png");
-    ResourceLocation playericon = new ResourceLocation("textures/playericon.png");
-    ResourceLocation hudicon = new ResourceLocation("textures/hudicon.png");
+    ResourceLocation combaticon = new ResourceLocation("textures/combat.png");
+    ResourceLocation miscicon = new ResourceLocation("textures/misc.png");
+    ResourceLocation movementicon = new ResourceLocation("textures/movement.png");
+    ResourceLocation clienticon = new ResourceLocation("textures/client.png");
+    ResourceLocation playericon = new ResourceLocation("textures/player.png");
+    ResourceLocation hudicon = new ResourceLocation("textures/hud.png");
     ResourceLocation friendmanagericon = new ResourceLocation("textures/friendmanagericon.png");
-    ResourceLocation rendericon = new ResourceLocation("textures/rendericon.png");
+    ResourceLocation rendericon = new ResourceLocation("textures/render.png");
     ResourceLocation configicon = new ResourceLocation("textures/configpng.png");
-    ResourceLocation funnygameicon = new ResourceLocation("textures/funnygameicon.png");
+    ResourceLocation funnygameicon = new ResourceLocation("textures/funnygame.png");
 
     //TODO ПЕРЕМЕЕЕЕЕЕЕЕЕЕЕЕЕЕЕЕЕЕННЫЕ
 
@@ -133,16 +130,14 @@ public class ThunderGui extends GuiScreen {
                     }
                 });
             } else if(currentCategory == Categories.FRIENDS){
-                    for (FriendManager.Friend friend : Thunderhack.friendManager.getFriends()) {
-                        this.friendslist.add(new TFriendComponent(friend.getUsername(), thunderguiX + 140,  thunderguiY + 90 + (35 * index2.get())));
+                    for (String friend : Thunderhack.friendManager.getFriends()) {
+                        this.friendslist.add(new TFriendComponent(friend, thunderguiX + 140,  thunderguiY + 90 + (35 * index2.get())));
                         index2.set(index2.get() + 1);
                     }
             } else {
-                for (File file1 : directories) {
-                    if(!(Objects.equals(file1.getName(), "customimage") || Objects.equals(file1.getName(), "pvp") || Objects.equals(file1.getName(), "notebot") || Objects.equals(file1.getName(), "customimage")|| Objects.equals(file1.getName(), "kits")|| Objects.equals(file1.getName(), "tmp")|| Objects.equals(file1.getName(), "friendsAvatars")|| Objects.equals(file1.getName(), "skins") || file1.getName().contains("oldcfg"))){
-                        this.configlist.add(new TConfigComponent(file1.getName(), thunderguiX + 140,  thunderguiY + 90 + (35 * index3.get())));
-                        index3.set(index3.get() + 1);
-                    }
+                for (String file1 : Objects.requireNonNull(ConfigManager.getConfigList())) {
+                    configlist.add(new TConfigComponent(file1, thunderguiX + 140,  thunderguiY + 90 + (35 * index3.get())));
+                    index3.set(index3.get() + 1);
                 }
             }
     }
@@ -192,7 +187,7 @@ public class ThunderGui extends GuiScreen {
         } else {
             FontRender.drawString2("Protected",thunderguiX + 182,thunderguiY + 9, new Color(0x2A2A2A).getRGB());
         }
-        FontRender.drawString3("current cfg: " + Thunderhack.configManager.currentcfg,thunderguiX + 182,thunderguiY + 28, new Color(0x0A0A0A).getRGB());
+        FontRender.drawString3("current cfg: " + ConfigManager.currentConfig.getName(),thunderguiX + 182,thunderguiY + 28, new Color(0x0A0A0A).getRGB());
 
 
         if(timer.passedMs(30)){
@@ -503,7 +498,7 @@ public class ThunderGui extends GuiScreen {
            }
            if(currentCategory == Categories.CONFIGS){
                if(!Objects.equals(addConfigLine, "") && configListening){
-                   Thunderhack.configManager.saveConfig(addConfigLine);
+                   ConfigManager.save(addConfigLine);
                    resetThunderGui(currentCategory);
                    addConfigLine = "";
                }
@@ -645,7 +640,7 @@ public class ThunderGui extends GuiScreen {
                 return;
             }
             if(keyCode == 28){
-                Thunderhack.configManager.saveConfig(addConfigLine);
+                ConfigManager.save(addConfigLine);
                 addConfigLine = "";
                 configListening = false;
                 resetThunderGui(currentCategory);

@@ -1,15 +1,13 @@
 package com.mrzak34.thunderhack.modules.funnygame;
 
 import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.command.Command;
-import com.mrzak34.thunderhack.event.events.ConnectToServerEvent;
-import com.mrzak34.thunderhack.event.events.EventPreMotion;
-import com.mrzak34.thunderhack.event.events.Render3DEvent;
+import com.mrzak34.thunderhack.events.EventPreMotion;
+import com.mrzak34.thunderhack.events.Render3DEvent;
 import com.mrzak34.thunderhack.gui.thundergui.fontstuff.FontRender;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.*;
-import com.mrzak34.thunderhack.util.phobos.RayTraceUtil;
+import com.mrzak34.thunderhack.util.render.RenderUtil;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
@@ -22,13 +20,11 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.client.CPacketEntityAction;
 import net.minecraft.network.play.client.CPacketHeldItemChange;
 import net.minecraft.network.play.client.CPacketPlayerDigging;
-import net.minecraft.network.play.client.CPacketPlayerTryUseItemOnBlock;
 import net.minecraft.util.CombatRules;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.Explosion;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -59,7 +55,7 @@ public class C4Aura extends Module {
     BlockPos renderblockpos;
 
     public C4Aura() {
-        super("C4Aura", "Ставит с4", Category.FUNNYGAME, true, false, false);
+        super("C4Aura", "Ставит с4", Category.FUNNYGAME);
     }
 
     @SubscribeEvent
@@ -101,6 +97,18 @@ public class C4Aura extends Module {
         }
         sneak_fix = stopSneaking(sneak_fix);
     }
+
+
+
+
+
+
+
+
+
+
+
+
 
     public static boolean stopSneaking(boolean isSneaking) {
         if (isSneaking && EntityUtil.mc.player != null) {
@@ -314,7 +322,7 @@ public class C4Aura extends Module {
     public void renderdmg(BlockPos aboba, EntityPlayer target) {
         try {
             DecimalFormat df = new DecimalFormat("0.0");
-            RenderUtil.drawBlockOutline(aboba, new Color(0x05FDCE), 3f, true);
+            RenderUtil.drawBlockOutline(aboba, new Color(0x05FDCE), 3f, true,0);
 
 
             GlStateManager.pushMatrix();

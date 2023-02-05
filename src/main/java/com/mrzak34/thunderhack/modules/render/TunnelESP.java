@@ -1,10 +1,10 @@
 package com.mrzak34.thunderhack.modules.render;
 
 import com.mrzak34.thunderhack.modules.Module;
-import com.mrzak34.thunderhack.event.events.Render3DEvent;
+import com.mrzak34.thunderhack.events.Render3DEvent;
 import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.setting.Setting;
-import com.mrzak34.thunderhack.util.RenderUtil;
+import com.mrzak34.thunderhack.util.render.RenderUtil;
 import net.minecraft.util.math.BlockPos;
 
 import java.util.ArrayList;
@@ -22,7 +22,7 @@ public class TunnelESP
     private final Setting<ColorSetting> Color2 = this.register(new Setting<>("Color2", new ColorSetting(0x8800FF00)));
 
     public TunnelESP() {
-        super("TunnelESP", "Подсвечивает туннели", Module.Category.RENDER, false, false, false);
+        super("TunnelESP", "Подсвечивает туннели", Module.Category.RENDER);
     }
 
 
@@ -34,7 +34,7 @@ public class TunnelESP
 
         try {
             for (BlockPos bp : tunnelbp) {
-                RenderUtil.drawBoxESP(bp, Color1.getValue().getColorObject(), this.outline.getValue(), Color2.getValue().getColorObject(), this.lineWidth.getValue(), this.outline.getValue(), this.box.getValue(), this.boxAlpha.getValue(), true);
+                RenderUtil.drawBoxESP(bp, Color1.getValue().getColorObject(), this.outline.getValue(), Color2.getValue().getColorObject(), this.lineWidth.getValue(), this.outline.getValue(), this.box.getValue(), this.boxAlpha.getValue(), true,0);
             }
         } catch (Exception e){
             System.out.println("Concurrent exception");

@@ -1,7 +1,5 @@
 package com.mrzak34.thunderhack.modules;
 
-import com.mrzak34.thunderhack.gui.hud.HudEditorGui;
-import com.mrzak34.thunderhack.gui.classic.ClassicGui;
 import com.mrzak34.thunderhack.setting.Setting;
 import java.util.ArrayList;
 import java.util.List;
@@ -50,12 +48,6 @@ public class Feature implements Util{
     public Setting register(Setting setting) {
         setting.setFeature(this);
         this.settings.add(setting);
-        if (this instanceof Module && mc.currentScreen instanceof ClassicGui) {
-            ClassicGui.getInstance().updateModule((Module) this);
-        }
-        if (this instanceof Module && mc.currentScreen instanceof HudEditorGui) {
-            HudEditorGui.getInstance().updateModule((Module) this);
-        }
         return setting;
     }
 
@@ -65,16 +57,6 @@ public class Feature implements Util{
             return setting;
         }
         return null;
-    }
-
-    public void reset() {
-        for (Setting setting : this.settings) {
-            setting.setValue(setting.getDefaultValue());
-        }
-    }
-
-    public void clearSettings() {
-        this.settings = new ArrayList<>();
     }
 }
 

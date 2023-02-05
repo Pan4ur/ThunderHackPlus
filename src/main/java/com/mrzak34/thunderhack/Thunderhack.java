@@ -3,181 +3,183 @@ package com.mrzak34.thunderhack;
 import com.mrzak34.thunderhack.gui.thundergui.fontstuff.*;
 import com.mrzak34.thunderhack.manager.*;
 import com.mrzak34.thunderhack.util.ThunderUtils;
+import com.mrzak34.thunderhack.util.Util;
 import com.mrzak34.thunderhack.util.dism.EntityGib;
 import com.mrzak34.thunderhack.util.dism.RenderGib;
 import com.mrzak34.thunderhack.util.ffp.NetworkHandler;
 import com.mrzak34.thunderhack.util.phobos.*;
+import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.lwjgl.opengl.Display;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.Objects;
 
 
-@Mod(
-        modid = "thunderhack",
-        name = "ThunderHack",
-        version = "2.38")
-
-
+@Mod(modid = "thunderhack", name = "ThunderHack", version = "2.38")
 public class Thunderhack {
 
-    public static final String MODID = "thunderhack";
-    public static CommandManager commandManager;
-    public static FriendManager friendManager;
-    public static ModuleManager moduleManager;
-    public static EnemyManager enemyManager;
-    public static NetworkHandler networkHandler;
-    public static MacroManager macromanager;
-    public static CFontRenderer fontRenderer;
-    public static CFontRenderer2 fontRenderer2;
-    public static CFontRenderer3 fontRenderer3;
-    public static CFontRenderer4 fontRenderer4;
-    public static CFontRenderer5 fontRenderer5;
-    public static CFontRenderer6 fontRenderer6;
-    public static CFontRenderer7 fontRenderer7;
-
-    public static SpeedManager speedManager;
-    public static ReloadManager reloadManager;
-    public static FileManager fileManager;
-    public static ConfigManager configManager;
-    public static ServerManager serverManager;
-    public static EventManager eventManager;
-    public static EntityProvider entityProvider;
 
 
-    public static PositionManager positionManager;
-    public static RotationManager rotationManager;
-    public static SetDeadManager setDeadManager;
-    public static ThreadManager threadManager;
-    public static ServerTickManager servtickManager;
-    public static SwitchManager switchManager;
-    public static CombatManager combatManager;
-    public static Scheduler yahz;
-    public static NoMotionUpdateService nobitches;
-
-
-    public static String ServerIp;
-    public static int ServerPort;
 
     @Mod.Instance
     public static Thunderhack INSTANCE;
-    private static boolean unloaded;
-    static {
-        unloaded = false;
-    }
-    public static float TICK_TIMER = 1;
+
+    private static boolean unloaded = false;
+    public static float TICK_TIMER = 1f;
+    public static java.util.List<String> alts = new ArrayList<>();
+    public static long initTime;
+    public static BlockPos gps_position;
+
+
+    /*-----------------    Managers  ---------------------*/
+
+    public static NoMotionUpdateService noMotionUpdateService;
+    public static ServerTickManager servtickManager;
+    public static PositionManager positionManager;
+    public static RotationManager rotationManager;
+    public static EntityProvider entityProvider;
+    public static CommandManager commandManager;
+    public static SetDeadManager setDeadManager;
+    public static NetworkHandler networkHandler;
+    public static ThreadManager threadManager;
+    public static SwitchManager switchManager;
+    public static ReloadManager reloadManager;
+    public static CombatManager combatManager;
+    public static ServerManager serverManager;
+    public static FriendManager friendManager;
+    public static ModuleManager moduleManager;
+    public static EventManager eventManager;
+    public static SpeedManager speedManager;
+    public static MacroManager macromanager;
+    public static Scheduler yahz;
+
+    /*--------------------------------------------------------*/
+
+
+
+
+    /*-----------------    Fonts  ---------------------*/
+
+    public static CFontRenderer fontRenderer;
+    public static CFontRenderer fontRenderer2;
+    public static CFontRenderer fontRenderer3;
+    public static CFontRenderer fontRenderer4;
+    public static CFontRenderer fontRenderer5;
+    public static CFontRenderer fontRenderer6;
+    public static CFontRenderer fontRenderer7;
+    public static CFontRenderer fontRenderer8;
+
+    /*--------------------------------------------------------*/
 
 
     public static void load() {
+        ConfigManager.loadAlts();
+        ConfigManager.loadSearch();
         unloaded = false;
         if (reloadManager != null) {
             reloadManager.unload();
             reloadManager = null;
         }
 
+        ConfigManager.init();
 
         try {
-            Font verdanapro = Font.createFont( Font.TRUETYPE_FONT, Objects.requireNonNull(Thunderhack.class.getResourceAsStream("/fonts/ThunderFont2.ttf")));
-            verdanapro = verdanapro.deriveFont( 24.f );
-            fontRenderer = new CFontRenderer( verdanapro, true, true );
-
-            Font verdanapro2 = Font.createFont( Font.TRUETYPE_FONT, Objects.requireNonNull(Thunderhack.class.getResourceAsStream("/fonts/ThunderFont3.ttf")));
-            verdanapro2 = verdanapro2.deriveFont( 36.f );
-            fontRenderer2 = new CFontRenderer2( verdanapro2, true, true );
-
-            Font verdanapro3 = Font.createFont( Font.TRUETYPE_FONT, Objects.requireNonNull(Thunderhack.class.getResourceAsStream("/fonts/ThunderFont2.ttf")));
-            verdanapro3 = verdanapro3.deriveFont( 18.f );
-            fontRenderer3 = new CFontRenderer3( verdanapro3, true, true );
-
-            Font verdanapro4 = Font.createFont( Font.TRUETYPE_FONT, Objects.requireNonNull(Thunderhack.class.getResourceAsStream("/fonts/ThunderFont2.ttf")));
-            verdanapro4 = verdanapro4.deriveFont( 50.f );
-            fontRenderer4 = new CFontRenderer4( verdanapro4, true, true );
-
-            Font verdanapro5 = Font.createFont( Font.TRUETYPE_FONT, Objects.requireNonNull(Thunderhack.class.getResourceAsStream("/fonts/Monsterrat.ttf")));
-            verdanapro5 = verdanapro5.deriveFont( 12.f );
-            fontRenderer5 = new CFontRenderer5( verdanapro5, true, true );
-
-            Font verdanapro6 = Font.createFont( Font.TRUETYPE_FONT, Objects.requireNonNull(Thunderhack.class.getResourceAsStream("/fonts/Monsterrat.ttf")));
-            verdanapro6 = verdanapro6.deriveFont( 14.f );
-            fontRenderer6 = new CFontRenderer6( verdanapro6, true, true );
-
-
-            Font verdanapro7 = Font.createFont( Font.TRUETYPE_FONT, Objects.requireNonNull(Thunderhack.class.getResourceAsStream("/fonts/Monsterrat.ttf")));
-            verdanapro7 = verdanapro7.deriveFont( 10.f );
-            fontRenderer7 = new CFontRenderer7( verdanapro7, true, true );
+            fontRenderer = new CFontRenderer( Font.createFont( Font.TRUETYPE_FONT, Objects.requireNonNull(Thunderhack.class.getResourceAsStream("/fonts/ThunderFont2.ttf"))).deriveFont( 24.f ), true, true );
+            fontRenderer2 = new CFontRenderer( Font.createFont( Font.TRUETYPE_FONT, Objects.requireNonNull(Thunderhack.class.getResourceAsStream("/fonts/ThunderFont3.ttf"))).deriveFont( 36.f ), true, true );
+            fontRenderer3 = new CFontRenderer( Font.createFont( Font.TRUETYPE_FONT, Objects.requireNonNull(Thunderhack.class.getResourceAsStream("/fonts/ThunderFont2.ttf"))).deriveFont( 18.f ), true, true );
+            fontRenderer4 = new CFontRenderer( Font.createFont( Font.TRUETYPE_FONT, Objects.requireNonNull(Thunderhack.class.getResourceAsStream("/fonts/ThunderFont2.ttf"))).deriveFont( 50.f ), true, true );
+            fontRenderer5 = new CFontRenderer( Font.createFont( Font.TRUETYPE_FONT, Objects.requireNonNull(Thunderhack.class.getResourceAsStream("/fonts/Monsterrat.ttf"))).deriveFont( 12.f ), true, true );
+            fontRenderer6 = new CFontRenderer( Font.createFont( Font.TRUETYPE_FONT, Objects.requireNonNull(Thunderhack.class.getResourceAsStream("/fonts/Monsterrat.ttf"))).deriveFont( 14.f ), true, true );
+            fontRenderer7 = new CFontRenderer( Font.createFont( Font.TRUETYPE_FONT, Objects.requireNonNull(Thunderhack.class.getResourceAsStream("/fonts/Monsterrat.ttf"))).deriveFont( 10.f ), true, true );
+            fontRenderer8 = new CFontRenderer( Font.createFont( Font.TRUETYPE_FONT, Objects.requireNonNull(Thunderhack.class.getResourceAsStream("/fonts/ThunderFont3.ttf"))).deriveFont( 62.f ), true, true );
         } catch ( Exception e ) {
             e.printStackTrace( );
-            return;
         }
 
-
-        ThunderUtils.syncCapes();
-        entityProvider = new EntityProvider();
-
+        noMotionUpdateService = new NoMotionUpdateService();
+        servtickManager = new ServerTickManager();
         positionManager = new PositionManager();
         rotationManager = new RotationManager();
-        threadManager = new ThreadManager();
-        servtickManager = new ServerTickManager();
-        switchManager = new SwitchManager();
-        combatManager = new CombatManager();
-        yahz = new Scheduler();
         commandManager = new CommandManager();
-        friendManager = new FriendManager();
-        moduleManager = new ModuleManager();
-        enemyManager = new EnemyManager();
-        eventManager = new EventManager();
-        macromanager = new MacroManager();
+        entityProvider = new EntityProvider();
         networkHandler = new NetworkHandler();
         setDeadManager = new SetDeadManager();
-        speedManager = new SpeedManager();
         serverManager = new ServerManager();
-        fileManager = new FileManager();
-        configManager = new ConfigManager();
-        nobitches = new NoMotionUpdateService();
+        threadManager = new ThreadManager();
+        switchManager = new SwitchManager();
+        combatManager = new CombatManager();
+        friendManager = new FriendManager();
+        moduleManager = new ModuleManager();
+        eventManager = new EventManager();
+        macromanager = new MacroManager();
+        speedManager = new SpeedManager();
+        yahz = new Scheduler();
 
-        moduleManager.init();
-        configManager.init();
-        eventManager.init();
+
+
+        noMotionUpdateService.init();
         positionManager.init();
         rotationManager.init();
         servtickManager.init();
-        switchManager.init();
-        combatManager.init();
-        yahz.init();
-        setDeadManager.init();
-        nobitches.init();
+        moduleManager.init();
         entityProvider.init();
-
+        setDeadManager.init();
+        combatManager.init();
+        switchManager.init();
+        eventManager.init();
+        FriendManager.loadFriends();
+        yahz.init();
+        ConfigManager.load(ConfigManager.getCurrentConfig());
         moduleManager.onLoad();
+        ThunderUtils.syncCapes();
+        MacroManager.onLoad();
+        if(Util.mc.session != null && !alts.contains(Util.mc.session.getUsername())){
+            alts.add(Util.mc.session.getUsername());
+        }
     }
 
-    public static void unload(boolean unload) {
+    public static void unload(boolean initReloadManager) {
         Display.setTitle("Minecraft 1.12.2");
-
-        if (unload) {
+        if (initReloadManager) {
             reloadManager = new ReloadManager();
             reloadManager.init(commandManager != null ? commandManager.getPrefix() : ".");
         }
-        Thunderhack.onUnload();
+        ConfigManager.saveAlts();
+        ConfigManager.saveSearch();
+        FriendManager.saveFriends();
+        if (!unloaded) {
+            eventManager.onUnload();
+
+            noMotionUpdateService.unload();
+            positionManager.unload();
+            rotationManager.unload();
+            servtickManager.unload();
+            entityProvider.unload();
+            setDeadManager.unload();
+            combatManager.unload();
+            switchManager.unload();
+            yahz.unload();
+            moduleManager.onUnload();
+            ConfigManager.save(ConfigManager.getCurrentConfig());
+            MacroManager.saveMacro();
+            moduleManager.onUnloadPost();
+            unloaded = true;
+        }
 
         eventManager = null;
         friendManager = null;
         speedManager = null;
         fontRenderer = null;
-        enemyManager = null;
         macromanager = null;
         networkHandler = null;
-        configManager = null;
         commandManager = null;
         serverManager = null;
-        fileManager = null;
         servtickManager = null;
     }
 
@@ -187,27 +189,18 @@ public class Thunderhack {
     }
 
 
-    public static void onUnload() {
-        if (!unloaded) {
-            eventManager.onUnload();
-            moduleManager.onUnload();
-            configManager.saveConfig(Thunderhack.configManager.config.replaceFirst("ThunderHack/", ""));
-            moduleManager.onUnloadPost();
-            unloaded = true;
-        }
-    }
 
-    private static final Logger LOGGER = LogManager.getLogger("thunderhack");
 
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event) {
         RenderingRegistry.registerEntityRenderingHandler(EntityGib.class, RenderGib::new);
-        GlobalExecutor.EXECUTOR.submit(() -> Sphere.cacheSphere(LOGGER));
+        GlobalExecutor.EXECUTOR.submit(() -> Sphere.cacheSphere());
     }
 
     @Mod.EventHandler
     public void init(FMLInitializationEvent event) {
         Display.setTitle("ThunderHack+");
+        initTime = System.currentTimeMillis();
         Thunderhack.load();
         MinecraftForge.EVENT_BUS.register(networkHandler);
     }

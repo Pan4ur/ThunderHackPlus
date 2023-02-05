@@ -9,7 +9,7 @@ import java.util.Objects;
 
 public class LevitationControl  extends Module {
     public LevitationControl () {
-        super("LevitCtrl", "хз херня какаята", Category.MOVEMENT, true, false, false);
+        super("LevitCtrl", "хз херня какаята", Category.MOVEMENT);
     }
 
 

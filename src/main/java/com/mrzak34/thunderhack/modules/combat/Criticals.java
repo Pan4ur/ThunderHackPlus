@@ -1,30 +1,32 @@
 package com.mrzak34.thunderhack.modules.combat;
 
-import com.mrzak34.thunderhack.command.Command;
-import com.mrzak34.thunderhack.event.events.AttackEvent;
-import com.mrzak34.thunderhack.mixin.mixins.ICPacketPlayer;
+import com.mrzak34.thunderhack.events.AttackEvent;
 import com.mrzak34.thunderhack.modules.Module;
-import com.mrzak34.thunderhack.event.events.PacketEvent;
+import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.setting.Setting;
-import com.mrzak34.thunderhack.util.MathUtil;
-import com.mrzak34.thunderhack.util.MovementUtil;
 import com.mrzak34.thunderhack.util.Timer;
-import com.mrzak34.thunderhack.util.dV;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraft.network.play.client.CPacketUseEntity;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+
+import static com.mrzak34.thunderhack.modules.combat.Aura.interpolateRandom;
+import static com.mrzak34.thunderhack.util.MovementUtil.isMoving;
 
 
 public class Criticals
         extends Module {
 
     public Criticals() {
-        super("Criticals", "Каждый удар станет-критом", Category.COMBAT, true, false, false);
+        super("Criticals", "Каждый удар станет-критом", Category.COMBAT);
     }
+
+    Timer timer = new Timer();
+
+
+
 
 
     public Setting<Mode> mode = this.register(new Setting<>("Mode", Mode.FunnyGame));
@@ -35,16 +37,10 @@ public class Criticals
 
 
     public static boolean e() {
-        return Criticals.z() || Criticals.A();
+        return ( mc.player.isInWater() || mc.player.isInLava() || mc.player.isOnLadder() || mc.player.isRiding()) || (mc.player.isInWeb && (mc.player.moveForward != 0.0f || mc.player.moveStrafing != 0.0f));
     }
 
-    private static boolean z() {
-        return mc.player.isInWater() || mc.player.isInLava() || mc.player.isOnLadder() || mc.player.isRiding();
-    }
 
-    private static  boolean A() {
-        return mc.player.isInWeb && dV.a();
-    }
 
     @SubscribeEvent
     public void onAttack(AttackEvent e){
@@ -60,9 +56,12 @@ public class Criticals
             mc.player.onCriticalHit(e.getEntity());
         }
         if(mode.getValue() == Mode.Nurik){
-            mc.player.connection.sendPacket(new CPacketPlayer.Position(mc.player.posX, mc.player.posY + 0.010826975107192, mc.player.posZ, false));
-            mc.player.connection.sendPacket(new CPacketPlayer.Position(mc.player.posX, mc.player.posY + 0.000919209350040, mc.player.posZ,true));
-            mc.player.onCriticalHit(e.getEntity());
+            if (mc.player.onGround) {
+                double[] var8 = new double[]{0.0625 + (double)interpolateRandom(-0.09F, 0.09F), 0.001 - Math.random() / 10000.0};
+                for (double var12 : var8) {
+                    mc.player.connection.sendPacket(new CPacketPlayer.Position(mc.player.posX, mc.player.posY + var12, mc.player.posZ, false));
+                }
+            }
         }
     }
 
@@ -83,12 +82,6 @@ public class Criticals
             {
                 block13:
                 {
-                    if (f4h2.getStage() == 1) {
-                        if (mc.player.fallDistance == 1337.0f) {
-                            mc.player.fallDistance = 0.0f;
-                        }
-                        return;
-                    }
                     if (mc.player.fallDistance > 0.0f) {
                         return;
                     }
@@ -113,12 +106,9 @@ public class Criticals
                     break;
                 }
             }
-            mc.player.fallDistance = 1337.0f;
-
     }
 
     boolean cancelSomePackets;
-    Timer timer = new Timer();
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void onPacketSend(PacketEvent.Send e) {
@@ -147,7 +137,11 @@ public class Criticals
                 e.setCanceled(true);
             }
         }
-
     }
+
+
+
+
+
 }
 

@@ -1,12 +1,11 @@
 package com.mrzak34.thunderhack.gui.thundergui.components.items.buttons;
 
 import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.gui.classic.components.items.buttons.ModuleButton;
 import com.mrzak34.thunderhack.gui.thundergui.ThunderGui;
 import com.mrzak34.thunderhack.gui.thundergui.fontstuff.FontRender;
 import com.mrzak34.thunderhack.modules.client.ThunderHackGui;
 import com.mrzak34.thunderhack.util.PNGtoResourceLocation;
-import com.mrzak34.thunderhack.util.RenderUtil;
+import com.mrzak34.thunderhack.util.render.RenderUtil;
 import com.mrzak34.thunderhack.util.Util;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.GlStateManager;
@@ -15,6 +14,8 @@ import net.minecraft.util.ResourceLocation;
 import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
+
+import static com.mrzak34.thunderhack.gui.thundergui.ThunderGui.drawCompleteImage;
 
 public class TFriendComponent extends TItem{
 
@@ -53,10 +54,10 @@ public class TFriendComponent extends TItem{
 
         if(head != null){
             Util.mc.getTextureManager().bindTexture(head);
-            ModuleButton.drawCompleteImage(this.x + 2, this.y + 2,22, 22);
+           drawCompleteImage(this.x + 2, this.y + 2,22, 22);
         } else {
             Util.mc.getTextureManager().bindTexture(crackedSkin);
-            ModuleButton.drawCompleteImage(this.x + 2, this.y + 2,22, 22);
+            drawCompleteImage(this.x + 2, this.y + 2,22, 22);
         }
         if(isHoveringItem(this.x + 410, this.y + 5,this.x + 426,this.y + 21,mouseX,mouseY)) {
             drawImage(bin, this.x + 411, this.y + 6, 14, 14, new Color(0x606060));

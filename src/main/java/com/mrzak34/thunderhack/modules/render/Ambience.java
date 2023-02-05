@@ -6,7 +6,7 @@ import com.mrzak34.thunderhack.setting.Setting;
 
 public class Ambience extends Module {
     public Ambience() {
-        super("Ambience", "изменяет цвет-окружения", Category.RENDER, true, false, false);
+        super("Ambience", "изменяет цвет-окружения", Category.RENDER);
     }
 
     public final Setting<ColorSetting> colorLight = this.register(new Setting<>("Color Light", new ColorSetting(0x8800FF00)));

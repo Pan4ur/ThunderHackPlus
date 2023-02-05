@@ -203,9 +203,6 @@ public class EntityUtil
         return yaw;
     }
 
-    public static boolean canEntityFeetBeSeen(Entity entityIn) {
-        return mc.world.rayTraceBlocks(new Vec3d(mc.player.posX, mc.player.posX + (double) mc.player.getEyeHeight(), mc.player.posZ), new Vec3d(entityIn.posX, entityIn.posY, entityIn.posZ), false, true, false) == null;
-    }
     public static boolean canEntityBeSeen(Entity entityIn) {
         return mc.world.rayTraceBlocks(new Vec3d(mc.player.posX, mc.player.posX + (double) mc.player.getEyeHeight(), mc.player.posZ), new Vec3d(entityIn.posX, entityIn.posY + (double) entityIn.getEyeHeight(), entityIn.posZ), false, true, false) == null;
     }

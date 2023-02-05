@@ -1,5 +1,6 @@
 package com.mrzak34.thunderhack.command.commands;
 
+import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.macro.Macro;
 import com.mrzak34.thunderhack.manager.MacroManager;
@@ -11,7 +12,7 @@ public class MacroCommand extends Command {
 
 
     public MacroCommand() {
-        super("macro", new String[]{"<add/remove/list>", "<name>"});
+        super("macro");
     }
 
     @Override
@@ -22,12 +23,12 @@ public class MacroCommand extends Command {
             if (args[0].equals("list")) {
                 sendMessage("Макросы:");
                 sendMessage(" ");
-                MacroManager.getMacros().forEach(macro -> sendMessage(macro.getName() + (macro.getBind() != Keyboard.KEY_NONE ? " [" + Keyboard.getKeyName(macro.getBind()) + "]" : "") + " {" + macro.getText() + "}"));
+                Thunderhack.macromanager.getMacros().forEach(macro -> sendMessage(macro.getName() + (macro.getBind() != Keyboard.KEY_NONE ? " [" + Keyboard.getKeyName(macro.getBind()) + "]" : "") + " {" + macro.getText() + "}"));
             }
             if (args[0].equals("remove")) {
-                if (MacroManager.getMacroByName(args[1]) != null) {
-                    Macro macro = MacroManager.getMacroByName(args[1]);
-                    MacroManager.removeMacro(macro);
+                if (Thunderhack.macromanager.getMacroByName(args[1]) != null) {
+                    Macro macro = Thunderhack.macromanager.getMacroByName(args[1]);
+                    Thunderhack.macromanager.removeMacro(macro);
                     sendMessage("Удален макрос " + macro.getName());
                 } else {
                     sendMessage("Не существует макроса с именем " + args[1]);
@@ -43,7 +44,7 @@ public class MacroCommand extends Command {
                     return;
                 }
                 Macro macro = new Macro(name, text, Keyboard.getKeyIndex(bind));
-                MacroManager.addMacro(macro);
+                Thunderhack.macromanager.addMacro(macro);
                 sendMessage("Добавлен макрос " + name + " на кнопку " + Keyboard.getKeyName(macro.getBind()));
             }else {
                 sendMessage(usage());

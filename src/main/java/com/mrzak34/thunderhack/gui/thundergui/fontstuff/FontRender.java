@@ -65,7 +65,14 @@ public class FontRender{
     }
 
 
+    public static float drawString8(String text, int x, int y, int color) {
+        return Thunderhack.fontRenderer8.drawString(text, x, y, color);
+    }
 
+    public static float drawCentString8(String text, float x, float y, int color) {
+        return Thunderhack.fontRenderer8.drawString(text, x - getStringWidth6(text) / 2f, y, color);
+
+    }
 
     public static float drawString4(String text, int x, int y, int color) {
         if (isCustomFontEnabled())
@@ -144,6 +151,11 @@ public class FontRender{
     public static int getFontHeight6() {
             return Thunderhack.fontRenderer6.getHeight();
     }
+
+    public static int getFontHeight8() {
+        return Thunderhack.fontRenderer8.getHeight();
+    }
+
     public static int getFontHeight5() {
         return Thunderhack.fontRenderer5.getHeight() + 2;
     }

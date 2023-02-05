@@ -11,7 +11,7 @@ import org.lwjgl.input.Keyboard;
 
 public class AutoCappRegear extends Module{
     public AutoCappRegear() {
-        super("CappRegear", "регирит каппучино-по бинду", Category.FUNNYGAME, true, false, false);
+        super("CappRegear", "регирит каппучино-по бинду", Category.FUNNYGAME);
     }
 
     public Timer timer = new Timer();

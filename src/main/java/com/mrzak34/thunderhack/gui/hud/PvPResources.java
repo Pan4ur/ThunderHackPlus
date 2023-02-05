@@ -1,13 +1,14 @@
 package com.mrzak34.thunderhack.gui.hud;
 
-import com.mrzak34.thunderhack.event.events.Render2DEvent;
+import com.mrzak34.thunderhack.events.Render2DEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.setting.PositionSetting;
 import com.mrzak34.thunderhack.setting.Setting;
-import com.mrzak34.thunderhack.util.PaletteHelper;
-import com.mrzak34.thunderhack.util.RectHelper;
-import com.mrzak34.thunderhack.util.RenderUtil;
+import com.mrzak34.thunderhack.util.RoundedShader;
+import com.mrzak34.thunderhack.util.render.PaletteHelper;
+import com.mrzak34.thunderhack.util.render.RectHelper;
+import com.mrzak34.thunderhack.util.render.RenderUtil;
 import net.minecraft.client.gui.GuiChat;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
@@ -25,13 +26,14 @@ import java.util.List;
 
 public class PvPResources extends Module{
     public PvPResources() {
-        super("PvPResources", "PvPResources", Module.Category.HUD, true, false, false);
+        super("PvPResources", "PvPResources", Module.Category.HUD);
     }
 
-    public final Setting<ColorSetting> color = this.register(new Setting<>("Color", new ColorSetting(0x8800FF00)));
     private final Setting<PositionSetting> pos = this.register(new Setting<>("Position", new PositionSetting(0.5f,0.5f)));
-    public Setting <Integer> sizeRect = this.register( new Setting <> ( "asdasd", 100, 1, 120) );
-    public final Setting<ColorSetting> color2 = this.register(new Setting<>("Color2", new ColorSetting(0x8800FF00)));
+
+    public final Setting<ColorSetting> shadowColor = this.register(new Setting<>("ShadowColor", new ColorSetting(0xFF101010)));
+    public final Setting<ColorSetting> color2 = this.register(new Setting<>("Color", new ColorSetting(0xFF101010)));
+    public final Setting<ColorSetting> color3 = this.register(new Setting<>("Color2",  new ColorSetting(0xC59B9B9B)));
 
 
 
@@ -44,11 +46,10 @@ public class PvPResources extends Module{
         y1 = e.scaledResolution.getScaledHeight() * pos.getValue().getY();
         x1 = e.scaledResolution.getScaledWidth() * pos.getValue().getX();
 
-        RectHelper.drawBorderedRect(x1 + 2.5F, y1 + 2.5F, (x1 + sizeRect.getValue()) - 2.5F, (y1 + sizeRect.getValue()) - 2.5F, 0.5F, PaletteHelper.getColor(2),color.getValue().getColor(), false);
-        RectHelper.drawBorderedRect(x1 + 3, y1 + 3, x1 + sizeRect.getValue() - 3, y1 + sizeRect.getValue() - 3, 0.2F, PaletteHelper.getColor(2), color.getValue().getColor(), false);
 
-        RectHelper.drawRect(x1 + (sizeRect.getValue() / 2F - 0.5), y1 + 3.5, x1 + (sizeRect .getValue()/ 2F + 0.2), (y1 + sizeRect.getValue()) - 3.5, color2.getValue().getColor());
-        RectHelper.drawRect(x1 + 3.5, y1 + (sizeRect .getValue()/ 2F - 0.2), (x1 + sizeRect.getValue()) - 3.5, y1 + (sizeRect .getValue()/ 2F + 0.5), color2.getValue().getColor());
+        RenderUtil.drawBlurredShadow(x1,y1,42,42, 20, shadowColor.getValue().getColorObject());
+        RoundedShader.drawRound(x1,y1,42,42, 7f, color2.getValue().getColorObject());
+
 
         int n2 = Method492(Items.TOTEM_OF_UNDYING);
         int n3 = Method492(Items.EXPERIENCE_BOTTLE);
@@ -94,19 +95,12 @@ public class PvPResources extends Module{
             GlStateManager.popMatrix();
         }
 
-
-
-
-
-
         if(mc.currentScreen instanceof GuiChat || mc.currentScreen instanceof HudEditorGui){
             if(isHovering()){
                 if(Mouse.isButtonDown(0) && mousestate){
                     pos.getValue().setX( (float) (normaliseX() - dragX) / e.scaledResolution.getScaledWidth());
                     pos.getValue().setY( (float) (normaliseY() - dragY) / e.scaledResolution.getScaledHeight());
                 }
-
-                RenderUtil.drawRect2(x1 - 10,y1 ,x1 + 50,y1 + 10,new Color(0x73A9A9A9, true).getRGB());
             }
         }
 
@@ -145,6 +139,6 @@ public class PvPResources extends Module{
         return n;
     }
     public boolean isHovering(){
-        return normaliseX() > x1 - 10 && normaliseX()< x1 + 50 && normaliseY() > y1 &&  normaliseY() < y1 + 10;
+        return normaliseX() > x1 && normaliseX()< x1 + 42 && normaliseY() > y1 &&  normaliseY() < y1 + 42;
     }
 }

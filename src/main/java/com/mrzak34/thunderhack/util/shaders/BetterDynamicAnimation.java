@@ -3,7 +3,7 @@ package com.mrzak34.thunderhack.util.shaders;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.math.MathHelper;
 
-import static com.mrzak34.thunderhack.util.DynamicAnimation.createAnimation;
+import static com.mrzak34.thunderhack.util.math.DynamicAnimation.createAnimation;
 
 public class BetterDynamicAnimation {
     private int maxTicks;

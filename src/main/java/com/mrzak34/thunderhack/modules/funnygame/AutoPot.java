@@ -1,8 +1,7 @@
 package com.mrzak34.thunderhack.modules.funnygame;
 
 import com.mrzak34.thunderhack.command.Command;
-import com.mrzak34.thunderhack.event.events.ConnectToServerEvent;
-import com.mrzak34.thunderhack.event.events.Render2DEvent;
+import com.mrzak34.thunderhack.events.Render2DEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.*;
@@ -18,7 +17,6 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-import java.util.Objects;
 import java.util.Random;
 
 import static com.mrzak34.thunderhack.util.PlayerUtils.getPlayerPos;
@@ -26,7 +24,7 @@ import static com.mrzak34.thunderhack.util.PlayerUtils.getPlayerPos;
 
 public class AutoPot extends Module{
     public AutoPot() {
-        super("AutoCappuccino", "автокаппучино для-фангейма", Category.FUNNYGAME,true,false,false);
+        super("AutoCappuccino", "автокаппучино для-фангейма", Category.FUNNYGAME);
     }
     public Setting<Integer> triggerhealth = this.register(new Setting<Integer>("TriggerHealth", 10, 1, 36));
     public Setting<Integer> delay = this.register(new Setting<Integer>("delay", 200, 1, 2000));

@@ -10,9 +10,6 @@ import net.minecraft.item.ItemStack;
 public class EntityHelper {
     public final static int WILDMARK = -1;
 
-    public static int getItemCountInInventory(final IInventory inventory, final Item item) {
-        return getItemCountInInventory(inventory, item, WILDMARK);
-    }
 
     public static int getItemCountInInventory(final IInventory inventory, final Item item, final int itemDamage) {
         final int inventorySize = inventory.getSizeInventory();
@@ -27,21 +24,5 @@ public class EntityHelper {
         }
 
         return count;
-    }
-
-    public static Vector3f getVector3fFromEntity(final Entity entity) {
-        return new Vector3f((float) entity.posX, (float) entity.posY, (float) entity.posZ);
-    }
-
-    public static Vector3f getVector3fFromEntity(final Entity entity, final Vector3f vec) {
-        return vec.set((float) entity.posX, (float) entity.posY, (float) entity.posZ);
-    }
-
-    public static Vector3i getVector3iFromEntity(final Entity entity) {
-        return new Vector3i((int) Math.floor(entity.posX), (int) Math.floor(entity.posY), (int) Math.floor(entity.posZ));
-    }
-
-    public static Vector3i getVector3iFromEntity(final Entity entity, final Vector3i vec) {
-        return vec.set((int) Math.floor(entity.posX), (int) Math.floor(entity.posY), (int) Math.floor(entity.posZ));
     }
 }

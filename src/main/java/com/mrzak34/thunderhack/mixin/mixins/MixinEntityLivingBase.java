@@ -1,28 +1,22 @@
 package com.mrzak34.thunderhack.mixin.mixins;
-import com.mrzak34.thunderhack.event.events.*;
+import com.mrzak34.thunderhack.Thunderhack;
+import com.mrzak34.thunderhack.events.ElytraEvent;
+import com.mrzak34.thunderhack.events.EventJump;
+import com.mrzak34.thunderhack.events.FinishUseItemEvent;
+import com.mrzak34.thunderhack.events.HandleLiquidJumpEvent;
+import com.mrzak34.thunderhack.modules.render.Animations;
 import com.mrzak34.thunderhack.util.phobos.IEntityLivingBase;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.ai.attributes.AbstractAttributeMap;
-import net.minecraft.entity.ai.attributes.AttributeMap;
-import net.minecraft.entity.ai.attributes.IAttribute;
-import net.minecraft.entity.ai.attributes.IAttributeInstance;
-import net.minecraft.item.ItemStack;
-import net.minecraft.network.datasync.DataParameter;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.eventhandler.Event;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.gen.Invoker;
+import org.spongepowered.asm.mixin.gen.Accessor;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import static net.minecraft.entity.EntityLivingBase.SWIM_SPEED;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(value={EntityLivingBase.class})
 public abstract class MixinEntityLivingBase
@@ -44,11 +38,6 @@ public abstract class MixinEntityLivingBase
     protected float lowestDura = Float.MAX_VALUE;
 
     @Override
-    @Invoker(value = "getArmSwingAnimationEnd")
-    public abstract int armSwingAnimationEnd();
-
-
-    @Override
     public void setLowestDura(float lowest)
     {
         this.lowestDura = lowest;
@@ -61,6 +50,22 @@ public abstract class MixinEntityLivingBase
     }
 
 
+
+    @Override
+    @Accessor(value = "ticksSinceLastSwing")
+    public abstract int getTicksSinceLastSwing();
+
+    @Override
+    @Accessor(value = "activeItemStackUseCount")
+    public abstract int getActiveItemStackUseCount();
+
+    @Override
+    @Accessor(value = "ticksSinceLastSwing")
+    public abstract void setTicksSinceLastSwing(int ticks);
+
+    @Override
+    @Accessor(value = "activeItemStackUseCount")
+    public abstract void setActiveItemStackUseCount(int count);
 
     @Inject(method = "travel", at = @At("HEAD"), cancellable = true)
     public void onTravel(float strafe, float vertical, float forward, CallbackInfo ci) {
@@ -95,4 +100,20 @@ public abstract class MixinEntityLivingBase
             ci.cancel();
         }
     }
+
+    @Inject(method={"onItemUseFinish"}, at={@At(value="HEAD")}, cancellable=true)
+    public void finishHook(CallbackInfo ci) {
+        FinishUseItemEvent event = new FinishUseItemEvent();
+        MinecraftForge.EVENT_BUS.post(event);
+        if (event.isCanceled()) {
+            ci.cancel();
+        }
+    }
+
+    @Inject(method = { "getArmSwingAnimationEnd" }, at = { @At("HEAD") }, cancellable = true)
+    private void getArmSwingAnimationEnd(final CallbackInfoReturnable<Integer> info) {
+        if (Thunderhack.moduleManager.getModuleByClass(Animations.class).isEnabled() && Thunderhack.moduleManager.getModuleByClass(Animations.class).rMode.getValue() == Animations.rmode.Slow) {
+            info.setReturnValue(Animations.getInstance().slowValue.getValue());}
+    }
+
 }

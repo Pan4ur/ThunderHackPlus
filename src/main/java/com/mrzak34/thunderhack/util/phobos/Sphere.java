@@ -1,8 +1,7 @@
 package com.mrzak34.thunderhack.util.phobos;
-import com.mrzak34.thunderhack.util.MathUtil;
+import com.mrzak34.thunderhack.util.math.MathUtil;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3i;
-import org.apache.logging.log4j.Logger;
 
 import java.util.Set;
 import java.util.TreeSet;
@@ -63,9 +62,8 @@ public class Sphere
      * Initializes the Sphere.
      * With Forge this is called on PreInit, as soon as possible.
      */
-    public static void cacheSphere(Logger logger)
+    public static void cacheSphere()
     {
-        logger.info("Caching Sphere...");
         long time = System.currentTimeMillis();
 
         BlockPos pos = BlockPos.ORIGIN;
@@ -143,7 +141,6 @@ public class Sphere
         }
 
         time = System.currentTimeMillis() - time;
-        logger.info("Cached sphere in " + time + "ms.");
     }
 
 }

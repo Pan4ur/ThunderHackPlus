@@ -2,8 +2,8 @@ package com.mrzak34.thunderhack.modules.misc;
 
 import com.mojang.realmsclient.gui.ChatFormatting;
 import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.event.events.EntityAddedEvent;
-import com.mrzak34.thunderhack.event.events.EntityRemovedEvent;
+import com.mrzak34.thunderhack.events.EntityAddedEvent;
+import com.mrzak34.thunderhack.events.EntityRemovedEvent;
 import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.notification.NotificationManager;
 import com.mrzak34.thunderhack.notification.NotificationType;
@@ -24,7 +24,7 @@ import static com.mrzak34.thunderhack.util.PlayerUtils.getPlayerPos;
 
 public class VisualRange extends Module {
 
-    public VisualRange() {super("VisualRange", "оповещает о игроках-в зоне прогрузки", Module.Category.MISC, true, false, false);}
+    public VisualRange() {super("VisualRange", "оповещает о игроках-в зоне прогрузки", Module.Category.MISC);}
 
     private static ArrayList<String> entities = new ArrayList<String>();
 

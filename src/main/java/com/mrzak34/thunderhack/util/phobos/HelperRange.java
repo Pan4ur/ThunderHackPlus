@@ -2,7 +2,7 @@ package com.mrzak34.thunderhack.util.phobos;
 
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.modules.combat.AutoCrystal;
-import com.mrzak34.thunderhack.util.MathUtil;
+import com.mrzak34.thunderhack.util.math.MathUtil;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;

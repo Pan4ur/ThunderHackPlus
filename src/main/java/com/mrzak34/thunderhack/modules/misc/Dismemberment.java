@@ -30,7 +30,7 @@ import java.util.Map.Entry;
 public class Dismemberment extends Module {
 
     public Dismemberment() {
-        super("Dismemberment", "Dismemberment", Category.MISC, true, false, false);
+        super("Dismemberment", "Dismemberment", Category.MISC);
     }
 
 

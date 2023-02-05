@@ -1,9 +1,7 @@
 package com.mrzak34.thunderhack.util.phobos;
 
-import com.mrzak34.thunderhack.event.events.GameZaloopEvent;
-import com.mrzak34.thunderhack.mixin.mixins.AccessorMinecraft;
+import com.mrzak34.thunderhack.events.GameZaloopEvent;
 import com.mrzak34.thunderhack.modules.Feature;
-import net.minecraft.client.Minecraft;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
@@ -31,6 +29,9 @@ public class Scheduler extends Feature
     public void init() {
         MinecraftForge.EVENT_BUS.register(this);
     }
+    public void unload() {
+        MinecraftForge.EVENT_BUS.unregister(this);
+    }
 
     @SubscribeEvent
     public void onGameZaloop(GameZaloopEvent e){
@@ -47,12 +48,6 @@ public class Scheduler extends Feature
     public static Scheduler getInstance()
     {
         return INSTANCE;
-    }
-
-
-    public void schedule(Runnable runnable)
-    {
-        schedule(runnable, true);
     }
 
 

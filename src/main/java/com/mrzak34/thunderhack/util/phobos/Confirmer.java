@@ -1,6 +1,5 @@
 package com.mrzak34.thunderhack.util.phobos;
-import com.mrzak34.thunderhack.command.Command;
-import com.mrzak34.thunderhack.event.events.PacketEvent;
+import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.modules.Feature;
 import com.mrzak34.thunderhack.util.Timer;
 import net.minecraft.init.SoundEvents;

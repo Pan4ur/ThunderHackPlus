@@ -8,7 +8,7 @@ import net.minecraft.util.text.TextFormatting;
 public class VClipCommand extends Command {
 
     public VClipCommand() {
-        super("vclip", new String[]{"<int>", "<name>"});
+        super("vclip");
     }
 
     @Override

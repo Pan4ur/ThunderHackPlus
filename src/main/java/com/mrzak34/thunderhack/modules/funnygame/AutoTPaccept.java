@@ -1,7 +1,7 @@
 package com.mrzak34.thunderhack.modules.funnygame;
 
 import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.event.events.PacketEvent;
+import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.ThunderUtils;
@@ -14,7 +14,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 public class AutoTPaccept extends Module {
 
     public AutoTPaccept() {
-        super("AutoTPaccept", "Принимает тп автоматом", Category.FUNNYGAME, true, false, false);
+        super("AutoTPaccept", "Принимает тп автоматом", Category.FUNNYGAME);
     }
     public Setting<Boolean> onlyFriends = register(new Setting("onlyFriends", Boolean.TRUE));
 

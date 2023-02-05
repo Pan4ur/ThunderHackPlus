@@ -1,9 +1,8 @@
 package com.mrzak34.thunderhack.modules.misc;
 
 import com.mrzak34.thunderhack.command.Command;
-import com.mrzak34.thunderhack.event.events.PacketEvent;
+import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.modules.Module;
-import com.mrzak34.thunderhack.modules.client.ClickGui;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.ThunderUtils;
 import net.minecraft.network.play.server.SPacketChat;
@@ -18,7 +17,7 @@ import java.util.Random;
 
 public class AutoEZ extends Module {
     public AutoEZ() {
-        super("AutoEZ", "Пишет изи убил убил - после килла", Category.MISC, true, false, false);
+        super("AutoEZ", "Пишет изи убил убил - после килла", Category.MISC);
         loadEZ();
     }
 
@@ -104,7 +103,7 @@ public class AutoEZ extends Module {
 
     public static void loadEZ() {
         try {
-            File file = new File("ThunderHack/AutoEZ.txt");
+            File file = new File("ThunderHack/misc/AutoEZ.txt");
             if (!file.exists()) file.createNewFile();;
 
             new Thread(() -> {

@@ -1,8 +1,10 @@
 package com.mrzak34.thunderhack.util;
 
 import com.google.common.collect.Maps;
+import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.modules.client.DiscordWebhook;
+import com.mrzak34.thunderhack.modules.client.MainSettings;
 import org.apache.commons.io.IOUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -28,7 +30,7 @@ public class ThunderUtils {
         if (uuidNameCache.containsKey(uuid)) {
             return uuidNameCache.get(uuid);
         }
-
+//6770099d-9ae2-3c3e-8c14-272f8c9c3e92
         final String url = "https://api.mojang.com/user/profiles/" + uuid + "/names";
         try {
             final String nameJson = IOUtils.toString(new URL(url));
@@ -89,7 +91,7 @@ public class ThunderUtils {
                     e.printStackTrace();
                 }
                 try {
-                    ImageIO.write(img, "png", new File("ThunderHack/friendsAvatars/" + nickname + ".png"));
+                    ImageIO.write(img, "png", new File("ThunderHack/temp/heads/" + nickname + ".png"));
                 } catch (IOException e) {
                     System.out.println("Couldn't create/send the output image.");
                     e.printStackTrace();
@@ -151,7 +153,7 @@ public class ThunderUtils {
                     e.printStackTrace();
                 }
                 try {
-                    ImageIO.write(img, "png", new File("ThunderHack/skins/" + nickname + ".png"));
+                    ImageIO.write(img, "png", new File("ThunderHack/temp/skins/" + nickname + ".png"));
                 } catch (IOException e) {
                     System.out.println("Couldn't create/send the output image.");
                     e.printStackTrace();
@@ -180,24 +182,28 @@ public class ThunderUtils {
     private static final List<Pair<String, BufferedImage>> userCapes = new ArrayList<>();
 
     public static void syncCapes(){
-        try {
-            File tmp = new File("ThunderHack"+ File.separator + "capes");
-            if (!tmp.exists()) {
-                tmp.mkdirs();
+        if(!Thunderhack.moduleManager.getModuleByClass(MainSettings.class).DownloadCapes.getValue())
+            return;
+        (new Thread(() -> {
+            try {
+                File tmp = new File("ThunderHack" + File.separator + "temp" + File.separator +   "capes");
+                if (!tmp.exists()) {
+                    tmp.mkdirs();
+                }
+                URL capesList = new URL("https://pastebin.com/raw/TYLWEa2E");
+                BufferedReader in = new BufferedReader(new InputStreamReader(capesList.openStream()));
+                String inputLine;
+                while ((inputLine = in.readLine()) != null) {
+                    String colune = inputLine.trim();
+                    String name = colune.split(":")[0];
+                    String cape = colune.split(":")[1];
+                    URL capeUrl = new URL("https://raw.githubusercontent.com/Pan4ur/cape/main/" + cape + ".png");
+                    BufferedImage capeImage = ImageIO.read(capeUrl);
+                    ImageIO.write(capeImage, "png", new File("ThunderHack/temp/capes/" + name + ".png"));
+                    userCapes.add(new Pair<>(name, capeImage));
+                }
+            } catch (Exception ignored) {
             }
-            URL capesList = new URL("https://pastebin.com/raw/TYLWEa2E");
-            BufferedReader in = new BufferedReader(new InputStreamReader(capesList.openStream()));
-            String inputLine;
-            while ((inputLine = in.readLine()) != null) {
-                String colune = inputLine.trim();
-                String name = colune.split(":")[0];
-                String cape = colune.split(":")[1];
-                URL capeUrl = new URL("https://raw.githubusercontent.com/Pan4ur/cape/main/" + cape + ".png");
-                BufferedImage capeImage = ImageIO.read(capeUrl);
-                ImageIO.write(capeImage, "png", new File("ThunderHack/capes/" + name + ".png"));
-                userCapes.add(new Pair<>(name, capeImage));
-            }
-        } catch (Exception ignored) {}
+        })).start();
     }
-
 }

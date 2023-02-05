@@ -1,10 +1,10 @@
 package com.mrzak34.thunderhack.modules.render;
 
-import com.mrzak34.thunderhack.event.events.Render3DEvent;
+import com.mrzak34.thunderhack.events.Render3DEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.BlockUtils;
-import com.mrzak34.thunderhack.util.RenderUtil;
+import com.mrzak34.thunderhack.util.render.RenderUtil;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
 
@@ -13,7 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class VoidESP extends Module {
-    public VoidESP() {super("VoidESP", "VoidESP", Module.Category.PLAYER, false, false, false);}
+    public VoidESP() {super("VoidESP", "VoidESP", Module.Category.PLAYER);}
 
 
     public Setting<Float> range = this.register(new Setting<Float>("Range", Float.valueOf(6.0f), Float.valueOf(3.0f), Float.valueOf(16.0f)));

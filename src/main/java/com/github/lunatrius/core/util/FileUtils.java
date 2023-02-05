@@ -6,7 +6,6 @@ import java.io.File;
 import java.io.IOException;
 
 public class FileUtils {
-    // http://stackoverflow.com/a/3758880/1166946
     public static String humanReadableByteCount(final long bytes) {
         final int unit = 1024;
         if (bytes < unit) {
@@ -23,12 +22,11 @@ public class FileUtils {
         return contains(root, new File(root, filename));
     }
 
-    // http://stackoverflow.com/q/18227634/1166946
     public static boolean contains(final File root, final File file) {
         try {
             return file.getCanonicalPath().startsWith(root.getCanonicalPath() + File.separator);
         } catch (final IOException e) {
-            Reference.logger.error("", e);
+            System.out.println( e);
         }
 
         return false;

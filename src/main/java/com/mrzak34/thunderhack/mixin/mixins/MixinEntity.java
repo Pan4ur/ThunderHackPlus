@@ -1,33 +1,21 @@
 package com.mrzak34.thunderhack.mixin.mixins;
 
 import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.event.events.MatrixMove;
-import com.mrzak34.thunderhack.event.events.PushEvent;
-import com.mrzak34.thunderhack.event.events.TurnEvent;
+import com.mrzak34.thunderhack.events.PushEvent;
+import com.mrzak34.thunderhack.events.StepEvent;
+import com.mrzak34.thunderhack.events.TurnEvent;
 import com.mrzak34.thunderhack.modules.combat.HitBoxes;
 import com.mrzak34.thunderhack.util.Timer;
 import com.mrzak34.thunderhack.util.phobos.EntityType;
 import com.mrzak34.thunderhack.util.phobos.IEntity;
 import com.mrzak34.thunderhack.util.phobos.IEntityNoInterp;
-import com.mrzak34.thunderhack.util.rotations.CastHelper;
-import net.minecraft.block.material.Material;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
-import net.minecraft.init.SoundEvents;
-import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.world.*;
-import net.minecraft.block.state.*;
 import net.minecraft.entity.*;
 import net.minecraft.util.math.*;
 import net.minecraftforge.common.*;
 import net.minecraftforge.fml.common.eventhandler.*;
-import net.minecraft.block.*;
-import net.minecraft.crash.*;
 import net.minecraft.util.*;
 
-import java.util.*;
 import java.util.function.Supplier;
 
 import org.spongepowered.asm.mixin.*;
@@ -63,10 +51,6 @@ public abstract class MixinEntity implements IEntity
     public boolean onGround;
     @Shadow
     public World world;
-    @Shadow
-    public boolean collidedHorizontally;
-    @Shadow
-    public boolean collidedVertically;
 
     @Shadow
     public abstract boolean isSneaking();
@@ -79,7 +63,19 @@ public abstract class MixinEntity implements IEntity
     public abstract boolean isInWater();
 
     @Shadow
-    public abstract void playSound(final SoundEvent p0,  final float p1,  final float p2);
+    public float stepHeight;
+
+    // Credit: auto
+    @Inject(method = "move", at = @At(value = "INVOKE", target = "Lnet/minecraft/profiler/Profiler;endSection()V", shift = At.Shift.BEFORE, ordinal = 0))
+    public void onMove(MoverType type, double x, double y, double z, CallbackInfo info) {
+        if (((Entity) (Object) this).equals(mc.player)) {
+            StepEvent event = new StepEvent(getEntityBoundingBox(), stepHeight);
+            MinecraftForge.EVENT_BUS.post(event);
+            if (event.isCanceled()) {
+                stepHeight = event.getHeight();
+            }
+        }
+    }
 
 
 
@@ -96,23 +92,10 @@ public abstract class MixinEntity implements IEntity
     //749
 
 
-
-
-
-
-
-
-
     @Redirect(method = { "applyEntityCollision" },  at = @At(value = "INVOKE",  target = "Lnet/minecraft/entity/Entity;addVelocity(DDD)V"))
     public void addVelocityHook(final Entity entity,  final double x,  final double y,  final double z) {
         final PushEvent event = new PushEvent(entity,  x,  y,  z,  true);
         MinecraftForge.EVENT_BUS.post((Event)event);
-        if (!event.isCanceled()) {
-            entity.motionX += event.x;
-            entity.motionY += event.y;
-            entity.motionZ += event.z;
-            entity.isAirBorne = event.airbone;
-        }
     }
 
     @Inject(method = "getCollisionBorderSize", at = @At("HEAD"), cancellable = true)
@@ -122,13 +105,6 @@ public abstract class MixinEntity implements IEntity
         if (Thunderhack.moduleManager.getModuleByClass(HitBoxes.class).isEnabled())
             callbackInfoReturnable.setReturnValue(0.1F + Thunderhack.moduleManager.getModuleByClass(HitBoxes.class).expand.getValue());
     }
-
-
-
-
-
-
-
 
 
     @Shadow
@@ -162,32 +138,17 @@ public abstract class MixinEntity implements IEntity
     @Unique
     private long oldServerZ;
 
-    private final Timer pseudoWatch = new Timer();
+    private final Timer pseudoTimer= new Timer();
     private Supplier<EntityType> type;
     private boolean pseudoDead;
     private long stamp;
     private boolean dummy;
 
-
-    @Shadow
-    protected abstract boolean getFlag(int flag);
     @Shadow
     public abstract boolean equals(Object p_equals_1_);
-    @Shadow
-    protected abstract void setRotation(float yaw, float pitch);
-    @Shadow
-    public abstract boolean isRiding();
 
-    @Shadow
-    public boolean noClip;
-
-    @Shadow
-    public abstract void move(MoverType type, double x, double y,
-                              double z);
     @Shadow
     public abstract String getName();
-
-    @Shadow public abstract void moveRelative(float strafe, float up, float forward, float friction);
 
     @Override
     @Accessor(value = "isInWeb")
@@ -235,7 +196,7 @@ public abstract class MixinEntity implements IEntity
     @Override
     public boolean isPseudoDead()
     {
-        if (pseudoDead && !isDead && pseudoWatch.passedMs(500))
+        if (pseudoDead && !isDead && pseudoTimer.passedMs(500))
         {
             pseudoDead = false;
         }
@@ -249,14 +210,14 @@ public abstract class MixinEntity implements IEntity
         this.pseudoDead = pseudoDead;
         if (pseudoDead)
         {
-            pseudoWatch.reset();
+            pseudoTimer.reset();
         }
     }
 
     @Override
     public Timer getPseudoTime()
     {
-        return pseudoWatch;
+        return pseudoTimer;
     }
 
     @Override

@@ -1,12 +1,11 @@
 package com.mrzak34.thunderhack.modules.render;
 
-import com.mrzak34.thunderhack.event.events.PostRenderEvent;
-import com.mrzak34.thunderhack.event.events.Render3DEvent;
+import com.mrzak34.thunderhack.events.Render3DEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.setting.Setting;
-import com.mrzak34.thunderhack.util.MathUtil;
-import com.mrzak34.thunderhack.util.RenderUtil;
+import com.mrzak34.thunderhack.util.math.MathUtil;
+import com.mrzak34.thunderhack.util.render.RenderUtil;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
@@ -21,11 +20,11 @@ import java.util.ConcurrentModificationException;
 public class HitParticles2 extends Module {
 
     public HitParticles2() {
-        super("HitParticles", "HitParticles", Category.RENDER, true, false, false);
+        super("HitParticles", "HitParticles", Category.RENDER);
     }
 
 
-    ArrayList<partical> particals = new ArrayList<>();
+    ArrayList<Particle> particles = new ArrayList<>();
 
     public final Setting<ColorSetting> colorLight = this.register(new Setting<>("Color", new ColorSetting(0x8800FF00)));
     public Setting<Boolean> selfp = register(new Setting("Self", false));
@@ -39,51 +38,36 @@ public class HitParticles2 extends Module {
         if (mc.world != null && mc.player != null) {
             for (EntityPlayer player : mc.world.playerEntities) {
                 if(!selfp.getValue() && player == mc.player){
-                    return;
+                    continue;
                 }
                 if (player.hurtTime > 0) {
-                    particals.add(new partical(player.posX + MathUtil.random(-0.05f, 0.05f), MathUtil.random((float) (player.posY + player.height), (float) player.posY), player.posZ + MathUtil.random(-0.05f, 0.05f)));
-                    particals.add(new partical(player.posX, MathUtil.random((float) (player.posY + player.height), (float) (player.posY + 0.1f)), player.posZ));
-                    particals.add(new partical(player.posX, MathUtil.random((float) (player.posY + player.height), (float) (player.posY + 0.1f)), player.posZ));
+                    particles.add(new Particle(player.posX + MathUtil.random(-0.05f, 0.05f), MathUtil.random((float) (player.posY + player.height), (float) player.posY), player.posZ + MathUtil.random(-0.05f, 0.05f)));
+                    particles.add(new Particle(player.posX, MathUtil.random((float) (player.posY + player.height), (float) (player.posY + 0.1f)), player.posZ));
+                    particles.add(new Particle(player.posX, MathUtil.random((float) (player.posY + player.height), (float) (player.posY + 0.1f)), player.posZ));
                 }
 
-                for (int i = 0; i < particals.size(); i++) {
-                    if (System.currentTimeMillis() - particals.get(i).getTime() >= speedor.getValue()) {
-                        particals.remove(i);
+                for (int i = 0; i < particles.size(); i++) {
+                    if (System.currentTimeMillis() - particles.get(i).getTime() >= speedor.getValue()) {
+                        particles.remove(i);
                     }
                 }
             }
         }
     }
-    private  final Setting<Boolean> shfix =this.register( new Setting<>("ShaderFix", false));
 
-    @SubscribeEvent
-    public void onRenderPost(PostRenderEvent event) {
-        if(!shfix.getValue()){
-            return;
-        }
 
-        if (mc.player != null && mc.world != null) {
-            for (partical partical : particals) {
-                partical.render(new Color(colorLight.getValue().getRed(), colorLight.getValue().getGreen(), colorLight.getValue().getBlue(), (int) Math.round(partical.alpha)).getRGB());
-            }
-        }
-    }
 
 
     @SubscribeEvent
     public void onRender3D(Render3DEvent event) {
-        if(shfix.getValue()){
-            return;
-        }
         if (mc.player != null && mc.world != null) {
-            for (partical partical : particals) {
-                partical.render(new Color(colorLight.getValue().getRed(), colorLight.getValue().getGreen(), colorLight.getValue().getBlue(), (int) Math.round(partical.alpha)).getRGB());
+            for (Particle particle : particles) {
+                particle.render(new Color(colorLight.getValue().getRed(), colorLight.getValue().getGreen(), colorLight.getValue().getBlue(), (int) Math.round(particle.alpha)).getRGB());
             }
         }
     }
 
-    public class partical {
+    public class Particle {
         double x;
         double y;
         double z;
@@ -93,7 +77,7 @@ public class HitParticles2 extends Module {
         long time;
         public int alpha = 180;
 
-        public partical(double x, double y, double z) {
+        public Particle(double x, double y, double z) {
             this.x = x;
             this.y = y;
             this.z = z;

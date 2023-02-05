@@ -1,7 +1,10 @@
 package com.mrzak34.thunderhack.modules.movement;
 
 import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.event.events.*;
+import com.mrzak34.thunderhack.events.EventMove;
+import com.mrzak34.thunderhack.events.PacketEvent;
+import com.mrzak34.thunderhack.events.PlayerUpdateEvent;
+import com.mrzak34.thunderhack.events.PushEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.setting.SubBind;
@@ -30,7 +33,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 public class PacketFly extends Module{
     public PacketFly() {
-        super("PacketFly", "летать на пакетах-из пятерочки", Category.MOVEMENT, true, false, false);
+        super("PacketFly", "летать на пакетах-из пятерочки", Category.MOVEMENT);
     }
     private  Setting<Type> type = this.register (new Setting<>("Type", Type.FAST));
     private  Setting<Mode> packetMode = this.register (new Setting<>("PacketMode", Mode.UP)); // down seems to work best especially on 9b/0b

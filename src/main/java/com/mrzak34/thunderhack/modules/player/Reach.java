@@ -9,7 +9,7 @@ public class Reach extends Module
     public Setting<Float> add  = this.register(new Setting<>("Add", 3.0f,0f,7f));
 
     public Reach() {
-        super("Reach", "Увеличивает дальность-взаимодействий (и член)", Module.Category.PLAYER, true, false, false);
+        super("Reach", "Увеличивает дальность-взаимодействий (и член)", Module.Category.PLAYER);
         this.setInstance();
     }
 

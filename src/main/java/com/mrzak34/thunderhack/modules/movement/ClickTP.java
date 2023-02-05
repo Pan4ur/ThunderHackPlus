@@ -1,10 +1,10 @@
 package com.mrzak34.thunderhack.modules.movement;
 
-import com.mrzak34.thunderhack.event.events.EventPreMotion;
-import com.mrzak34.thunderhack.event.events.Render3DEvent;
+import com.mrzak34.thunderhack.events.EventPreMotion;
+import com.mrzak34.thunderhack.events.Render3DEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
-import com.mrzak34.thunderhack.util.RenderUtil;
+import com.mrzak34.thunderhack.util.render.RenderUtil;
 import com.mrzak34.thunderhack.util.TessellatorUtil;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -21,7 +21,7 @@ import java.awt.*;
 public class ClickTP extends Module {
 
     public ClickTP() {
-        super("ClickTP", "ClickTP", Category.MOVEMENT, true, false, false);
+        super("ClickTP", "ClickTP", Category.MOVEMENT);
     }
 
     private Setting<Float> ass = this.register(new Setting<>("BlockYCorrect", 1.0f, -1f, 1f));
@@ -70,7 +70,7 @@ public class ClickTP extends Module {
             if (ray != null && ray.typeOfHit == RayTraceResult.Type.BLOCK) {
                 BlockPos blockpos = ray.getBlockPos();
                 // Color color1 = new Color(color.getValue().getColor());
-                RenderUtil.drawBlockOutline(blockpos, new Color(0xA7FA00), 1f, false);
+                RenderUtil.drawBlockOutline(blockpos, new Color(0xA7FA00), 1f, false,0);
             }
         } else  {
              TessellatorUtil.prepare();

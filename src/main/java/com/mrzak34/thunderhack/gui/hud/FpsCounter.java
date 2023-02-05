@@ -1,26 +1,22 @@
 package com.mrzak34.thunderhack.gui.hud;
 
 import com.mojang.realmsclient.gui.ChatFormatting;
-import com.mrzak34.thunderhack.event.events.Render2DEvent;
+import com.mrzak34.thunderhack.events.Render2DEvent;
 import com.mrzak34.thunderhack.gui.thundergui.fontstuff.FontRender;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.setting.PositionSetting;
 import com.mrzak34.thunderhack.setting.Setting;
-import com.mrzak34.thunderhack.util.RenderUtil;
-import com.mrzak34.thunderhack.util.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiChat;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.input.Mouse;
 
-import java.awt.*;
-
 public class FpsCounter extends Module {
 
     public FpsCounter() {
-        super("Fps", "fps", Category.HUD, true, false, false);
+        super("Fps", "fps", Category.HUD);
     }
 
     public final Setting<ColorSetting> color = this.register(new Setting<>("Color", new ColorSetting(0x8800FF00)));

@@ -3,9 +3,11 @@ package com.mrzak34.thunderhack.modules.render;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.ibm.icu.math.BigDecimal;
-import com.mrzak34.thunderhack.event.events.DeathEvent;
-import com.mrzak34.thunderhack.event.events.Render3DEvent;
+import com.mrzak34.thunderhack.events.DeathEvent;
+import com.mrzak34.thunderhack.events.Render3DEvent;
+import com.mrzak34.thunderhack.gui.thundergui.fontstuff.FontRender;
 import com.mrzak34.thunderhack.modules.Module;
+import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.Timer;
 import com.mrzak34.thunderhack.util.Util;
@@ -13,7 +15,9 @@ import com.mrzak34.thunderhack.util.Util;
 import java.awt.Color;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 
+import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
@@ -24,15 +28,13 @@ import net.minecraft.entity.EntityLivingBase;
 
 
 public class DMGParticles extends Module {
-    public DMGParticles() { super("DMGParticles", "партиклы урона", Category.RENDER, true, false, false);}
-
-    public Setting<Integer> deleteAfter = this.register ( new Setting <> ( "Remove Ticks", 7, 1, 20 ) );
-
-
+    public DMGParticles() { super("DMGParticles", "партиклы урона", Category.RENDER);}
 
     private final Map<Integer, Float> hpData = Maps.newHashMap();
-    private final List<Particle> particles = Lists.newArrayList();
+    private final List<Particle> particles = new CopyOnWriteArrayList<>();
 
+    public final Setting<ColorSetting> color1 = this.register(new Setting<>("HealthColor", new ColorSetting(3142544)));
+    public final Setting<ColorSetting> color2 = this.register(new Setting<>("DamageColor", new ColorSetting(15811379)));
 
 
     @SubscribeEvent
@@ -62,16 +64,14 @@ public class DMGParticles extends Module {
                 particles.add(new Particle("" + str, loc.x, loc.y, loc.z, color));
             }
         }
-    }
+        if (!particles.isEmpty()) {
+            particles.removeIf(Particle::update);
+        }
 
-    Timer timer = new Timer();
+    }
 
     @SubscribeEvent
     public void onRender3D(Render3DEvent e) {
-        if (timer.passedMs(deleteAfter.getValue() * 300)) {
-            particles.clear();
-            timer.reset();
-        }
         if (!particles.isEmpty()) {
             for (Particle p : particles) {
                 if (p != null) {
@@ -83,7 +83,7 @@ public class DMGParticles extends Module {
                     GlStateManager.rotate(mc.getRenderManager().playerViewX, mc.gameSettings.thirdPersonView == 2 ? -1 : 1, 0, 0);
                     GlStateManager.scale(-0.03, -0.03, 0.03);
                     GL11.glDepthMask(false);
-                    Util.fr.drawStringWithShadow(p.str, (float) (-Util.fr.getStringWidth(p.str) * 0.5), -Util.fr.FONT_HEIGHT + 1, p.color.getRGB());
+                    FontRender.drawCentString6(p.str, (float) (-Util.fr.getStringWidth(p.str) * 0.5), -5, p.color.getRGB());
                     GL11.glColor4f(1, 1, 1, 1);
                     GL11.glDepthMask(true);
                     GlStateManager.doPolygonOffset(1, 1500000);
@@ -107,7 +107,12 @@ public class DMGParticles extends Module {
             this.posY = posY;
             this.posZ = posZ;
             this.color = color;
-            this.ticks = 0;
+            this.ticks = 25;
+        }
+
+
+        public boolean update(){
+            return --ticks <= 0;
         }
     }
 }

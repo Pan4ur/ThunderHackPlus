@@ -1,31 +1,28 @@
 package com.mrzak34.thunderhack.modules.render;
 
-import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.event.events.PacketEvent;
-import com.mrzak34.thunderhack.event.events.Render2DEvent;
-import com.mrzak34.thunderhack.event.events.Render3DEvent;
+import com.mrzak34.thunderhack.events.PacketEvent;
+import com.mrzak34.thunderhack.events.Render2DEvent;
+import com.mrzak34.thunderhack.events.Render3DEvent;
 import com.mrzak34.thunderhack.gui.clickui.ColorUtil;
-import com.mrzak34.thunderhack.gui.hud.HudEditorGui;
 import com.mrzak34.thunderhack.gui.hud.RadarRewrite;
 import com.mrzak34.thunderhack.mixin.mixins.IRenderManager;
 import com.mrzak34.thunderhack.modules.Module;
-import com.mrzak34.thunderhack.modules.movement.PacketFly;
 import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.*;
-import net.minecraft.client.gui.GuiChat;
+import com.mrzak34.thunderhack.util.math.AnimationMode;
+import com.mrzak34.thunderhack.util.render.DrawHelper;
+import com.mrzak34.thunderhack.util.render.Drawable;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityEnderPearl;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.projectile.EntityArrow;
 import net.minecraft.network.play.server.SPacketDestroyEntities;
 import net.minecraft.network.play.server.SPacketSpawnObject;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
@@ -41,7 +38,7 @@ import static org.lwjgl.opengl.GL11.*;
 public class PearlESP extends Module {
 
     public PearlESP() {
-        super("Predictions", "Predictions", Category.RENDER, true, false, false);
+        super("Predictions", "Predictions", Category.RENDER);
     }
 
     private Setting<Boolean> triangleESP = this.register(new Setting<>("TriangleESP", true));
@@ -280,7 +277,7 @@ public class PearlESP extends Module {
     }
 
 
-    public  void drawTriangle(float x, float y, float size, int color) {
+    public void drawTriangle(float x, float y, float size, int color) {
         boolean blend = GL11.glIsEnabled(GL_BLEND);
         GL11.glEnable(GL_BLEND);
         boolean depth = GL11.glIsEnabled(GL_DEPTH_TEST);
@@ -331,12 +328,11 @@ public class PearlESP extends Module {
     public Map<Entity, List<PredictedPosition> > entAndTrail = new HashMap<>();
     public void draw(List<PredictedPosition> list, Entity entity) {
         boolean first = true;
+        boolean depth = GL11.glIsEnabled(GL_DEPTH_TEST);
+        boolean texture = GL11.glIsEnabled(GL_TEXTURE_2D);
         GL11.glPushMatrix();
         GL11.glDisable(GL11.GL_TEXTURE_2D);
-         GL11.glColor4f(color2.getValue().getRed() / 255.f, color2.getValue().getGreen() / 255.f, color2.getValue().getBlue() / 255.f, color2.getValue().getAlpha() / 255.f);
-
-      //  GL11.glColor4f(1.f, 1.f, 1.f, 1f);
-
+        GL11.glColor4f(color2.getValue().getRed() / 255.f, color2.getValue().getGreen() / 255.f, color2.getValue().getBlue() / 255.f, color2.getValue().getAlpha() / 255.f);
         GL11.glEnable(GL11.GL_LINE_SMOOTH);
         GL11.glDisable(GL11.GL_DEPTH_TEST);
         GL11.glLineWidth(0.5f);
@@ -356,8 +352,12 @@ public class PearlESP extends Module {
         }
         list.removeIf(w -> w.tick < entity.ticksExisted);
         GL11.glEnd();
-        GL11.glEnable(GL11.GL_DEPTH_TEST);
-        GL11.glEnable(GL11.GL_TEXTURE_2D);
+
+        if(depth)
+            GL11.glEnable(GL11.GL_DEPTH_TEST);
+        if(texture)
+            GL11.glEnable(GL11.GL_TEXTURE_2D);
+
         GL11.glPopMatrix();
     }
 

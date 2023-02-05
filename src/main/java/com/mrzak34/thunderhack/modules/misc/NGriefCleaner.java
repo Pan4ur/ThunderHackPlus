@@ -12,7 +12,7 @@ import net.minecraft.item.ItemStack;
 
 public class NGriefCleaner extends Module {
     public NGriefCleaner() {
-        super("NGriefCleaner", "убирает топорики и головы", Category.MISC, true, false, false);
+        super("NGriefCleaner", "убирает топорики и головы", Category.MISC);
     }
     public Setting<Boolean> openinv = this.register ( new Setting <> ( "OpenInv", true));
     private final Timer timer = new Timer();

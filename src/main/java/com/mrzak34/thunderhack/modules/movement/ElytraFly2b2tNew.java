@@ -2,27 +2,22 @@ package com.mrzak34.thunderhack.modules.movement;
 
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.command.Command;
-import com.mrzak34.thunderhack.event.events.*;
+import com.mrzak34.thunderhack.events.EventPlayerTravel;
+import com.mrzak34.thunderhack.events.EventPreMotion;
+import com.mrzak34.thunderhack.events.PacketEvent;
+import com.mrzak34.thunderhack.events.TurnEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
-import com.mrzak34.thunderhack.util.Timer;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockAir;
 import net.minecraft.client.audio.PositionedSoundRecord;
-import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.entity.Entity;
-import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.client.CPacketEntityAction;
-import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraft.network.play.server.SPacketPlayerPosLook;
 import net.minecraft.util.math.*;
 import net.minecraftforge.client.event.EntityViewRenderEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +27,7 @@ import static com.mrzak34.thunderhack.util.PyroSpeed.isMovingClient;
 public class ElytraFly2b2tNew extends Module {
 
     public ElytraFly2b2tNew() {
-        super("ElytraFly2b2tNew", "ElytraFly2b2tNew", Category.MOVEMENT, true, false, false);
+        super("ElytraFly2b2tNew", "ElytraFly2b2tNew", Category.MOVEMENT);
     }
 
 

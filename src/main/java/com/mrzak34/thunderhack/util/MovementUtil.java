@@ -1,13 +1,9 @@
 package com.mrzak34.thunderhack.util;
 
-import com.mrzak34.thunderhack.event.events.EventMove;
-import net.minecraft.entity.player.*;
+import com.mrzak34.thunderhack.events.EventMove;
 import net.minecraft.util.MovementInput;
-import net.minecraft.util.math.*;
 import net.minecraft.client.*;
 import net.minecraft.entity.*;
-import java.util.*;
-import net.minecraft.potion.*;
 
 public class MovementUtil implements Util
 {
@@ -76,13 +72,8 @@ public class MovementUtil implements Util
             }
         }
 
-        double posX =
-                moveForward * speed * -Math.sin(Math.toRadians(rotationYaw))
-                        + moveStrafe * speed * Math.cos(Math.toRadians(rotationYaw));
-        double posZ =
-                moveForward * speed * Math.cos(Math.toRadians(rotationYaw))
-                        - moveStrafe * speed * -Math.sin(Math.toRadians(rotationYaw));
-
+        double posX = moveForward * speed * -Math.sin(Math.toRadians(rotationYaw)) + moveStrafe * speed * Math.cos(Math.toRadians(rotationYaw));
+        double posZ = moveForward * speed * Math.cos(Math.toRadians(rotationYaw)) - moveStrafe * speed * -Math.sin(Math.toRadians(rotationYaw));
         return new double[] {posX, posZ};
     }
 

@@ -5,9 +5,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.mrzak34.thunderhack.util.Drawable;
+import com.mrzak34.thunderhack.modules.client.ClickGui;
+import com.mrzak34.thunderhack.util.render.Drawable;
 import com.mrzak34.thunderhack.gui.clickui.EaseBackIn;
-import com.mrzak34.thunderhack.util.RenderUtil;
+import com.mrzak34.thunderhack.util.render.RenderUtil;
 import com.mrzak34.thunderhack.util.RoundedShader;
 import com.mrzak34.thunderhack.gui.clickui.base.AbstractElement;
 import com.mrzak34.thunderhack.gui.clickui.base.AbstractWindow;
@@ -17,7 +18,7 @@ import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.notification.Animation;
 import com.mrzak34.thunderhack.notification.DecelerateAnimation;
 import com.mrzak34.thunderhack.notification.Direction;
-import com.mrzak34.thunderhack.util.MathUtil;
+import com.mrzak34.thunderhack.util.math.MathUtil;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
@@ -75,7 +76,6 @@ public class ModuleWindow extends AbstractWindow {
 		maxHeight = 4000;
 
 		scrollHover = Drawable.isHovered(mouseX, mouseY, x, y + height, width, maxHeight);
-		Color rectColor = new Color(14, 15, 17, 250);
 
 		animation.setDirection(isOpen() ? Direction.FORWARDS : Direction.BACKWARDS);
 		dragAnimation.setDirection(dragging ? Direction.FORWARDS : Direction.BACKWARDS);
@@ -86,9 +86,7 @@ public class ModuleWindow extends AbstractWindow {
 		float centerX = (float) (x + (mouseX - prevTargetX) / 2);
 		float centerY = (float) (y + (height) / 2);
 
-		rotation = (float) ((prevTargetX > x) ? RenderUtil.scrollAnimate(rotation, (float) -(5 - (x - prevTargetX) * 3.3), .94f)
-				: (prevTargetX < x) ? RenderUtil.scrollAnimate(rotation, (float) (5 + (x - prevTargetX) * 3.3), .94f)
-						: RenderUtil.scrollAnimate(rotation, 0, .8f));
+		rotation = (float) ((prevTargetX > x) ? RenderUtil.scrollAnimate(rotation, (float) -(5 - (x - prevTargetX) * 3.3), .94f) : (prevTargetX < x) ? RenderUtil.scrollAnimate(rotation, (float) (5 + (x - prevTargetX) * 3.3), .94f) : RenderUtil.scrollAnimate(rotation, 0, .8f));
 		
 		float dragScale = (float) (1f - (0.016f * dragAnimation.getOutput()));
 		double amount = Mouse.getDWheel();
@@ -97,8 +95,7 @@ public class ModuleWindow extends AbstractWindow {
 		GlStateManager.rotate((float) ((rotation)), 0, 0, 1);
 		GlStateManager.translate(-centerX, -centerY, 1);
 
-		RoundedShader.drawRound((float) x + 2, (float) (y + height - 5), (float) width - 4,
-				(float) ((getButtonsHeight() + 8) * animation.getOutput()), 3, true, new Color(35, 35, 38, 255));
+		RoundedShader.drawRound((float) x + 2, (float) (y + height - 5), (float) width - 4, (float) ((getButtonsHeight() + 8) * animation.getOutput()), 3, true, ClickGui.getInstance().plateColor.getValue().getColorObject());
 
 		if (animation.finished(Direction.FORWARDS)) {
 			if (scrollHover) {
@@ -115,8 +112,7 @@ public class ModuleWindow extends AbstractWindow {
 				}
 			}
 
-			Drawable.drawBlurredShadow((int) x + 4, (int) (y + height - 1), (int) width - 8, 3, 7,
-					new Color(0, 0, 0, 180));
+			Drawable.drawBlurredShadow((int) x + 4, (int) (y + height - 1), (int) width - 8, 3, 7, new Color(0, 0, 0, 180));
 
 			for (ModuleButton button : buttons) {
 				button.setX(x + 2);
@@ -129,7 +125,7 @@ public class ModuleWindow extends AbstractWindow {
 		}
 		GL11.glEnable(GL11.GL_LINE_SMOOTH);
 		
-		Drawable.drawRectWH(x, y, width, height, rectColor.getRGB());
+		Drawable.drawRectWH(x, y, width, height, ClickGui.getInstance().catColor.getValue().getColor());
 		Drawable.drawTexture(ICON, x + 3, y + (height - 12) / 2, 12, 12);
 
 		FontRender.drawString6(getName(), (float) x + 19, (float) y + (float) height /(float) 2 - (float) (FontRender.getFontHeight6() / 2), -1,true);
@@ -193,10 +189,7 @@ public class ModuleWindow extends AbstractWindow {
 		return prevScrollProgress + (scrollProgress - prevScrollProgress) * mc.getRenderPartialTicks();
 	}
 
-	private void setScrollProgress(double value) {
-		prevScrollProgress = scrollProgress;
-		scrollProgress = value;
-	}
+
 
 	private void updatePosition() {
 		double offsetY = 0;
@@ -223,10 +216,4 @@ public class ModuleWindow extends AbstractWindow {
 
 		return height;
 	}
-
-	public int getHeightDifference() {
-		double diffHeight = maxHeight;
-		return (int) (this.getButtonsHeight() - diffHeight);
-	}
-
 }

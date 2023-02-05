@@ -1,7 +1,7 @@
 package com.mrzak34.thunderhack.modules.movement;
 
 import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.event.events.ElytraEvent;
+import com.mrzak34.thunderhack.events.ElytraEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.Timer;
@@ -26,7 +26,7 @@ import java.util.Random;
 public class ElytraFlight extends Module {
     public static ElytraFlight INSTANCE = new ElytraFlight();
     public ElytraFlight() {
-        super("ElytraFlight", "бусты для 2б", Category.MOVEMENT,true,false,false);
+        super("ElytraFlight", "бусты для 2б", Category.MOVEMENT);
     }
 
     private  Setting<Mode> mode =register( new Setting<>("Mode", Mode.BOOST));

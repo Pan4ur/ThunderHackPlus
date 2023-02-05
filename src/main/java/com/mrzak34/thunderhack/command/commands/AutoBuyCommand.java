@@ -13,7 +13,7 @@ import java.util.Objects;
 public class AutoBuyCommand extends Command {
 
     public AutoBuyCommand() {
-        super("ab", new String[]{"<add/remove/list>", "<name>"});
+        super("ab");
     }
 
     // .ab add bow 5000 23(2) 3(1)

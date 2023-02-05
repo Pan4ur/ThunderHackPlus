@@ -1,14 +1,14 @@
 package com.mrzak34.thunderhack.modules.combat;
 
-import com.mrzak34.thunderhack.event.events.*;
-import com.mrzak34.thunderhack.command.Command;
+import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.modules.Module;
+import com.mrzak34.thunderhack.setting.Parent;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.*;
 import net.minecraft.init.Items;
 import net.minecraft.network.play.client.*;
 import net.minecraft.network.play.client.CPacketPlayer;
-import net.minecraft.network.play.server.SPacketPlayerPosLook;
+import net.minecraft.util.EnumHand;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.util.Random;
@@ -17,219 +17,104 @@ import java.util.Random;
 public class EZbowPOP extends Module {
 
 
-    // from 3arthH4ck
-    public EZbowPOP() { super("EZbowPOP", "Шотает с лука", Category.COMBAT, true, false, false); }
+    /*
 
-    public Setting <Boolean> confirmTeleport = this.register ( new Setting <> ( "confirmTeleport", false));
-    public Setting <Integer> customruns = this.register ( new Setting <> ( "CustomRuns", 8, 1, 250 ) );
-    public Setting <Integer> teleports = this.register ( new Setting <> ( "Teleports", 0, 0, 200 ) );
-    public Setting <Integer> interval = this.register ( new Setting <> ( "ConfirmInterval", 25, 0, 100 ) );
-    public Setting <Float> XYMultiplier = this.register ( new Setting <> ( "XZMultiplier", 2.0f, -3.0f, 3.0f) );
-    public Setting <Boolean> randomize = this.register ( new Setting <> ( "Randomize", false));
+        Best solution for mcfunny.su
+        PacketLogged from Konas 1.0.2 :P
 
+    */
 
-    public  Setting<directionModeEn> directionMode = this.register(new Setting<>("Direction", directionModeEn.only_Y));
-    private enum directionModeEn {
-        X_and_Z, only_Y, Both
-    }
-
-    public  Setting<packetModeEn> packetMode = this.register(new Setting<>("PacketMode", packetModeEn.Double));
-    private enum packetModeEn {
-        Default, Double, DefaultBypass
-    }
-
-    public  Setting<ModeEn> Mode = this.register(new Setting<>("Mode", ModeEn.Strong));
-    private enum ModeEn {
-        Fast, Strong, Custom
-    }
-
-    @Override
-    public void onEnable() {
-
-    }
+    public EZbowPOP() { super("EZbowPOP", "Шотает с лука", Category.COMBAT); }
 
 
-    public static boolean Ready = true;
-    public static int ticks = 0;
+    public Setting< Boolean > rotation = this.register ( new Setting <> ( "Rotation" , false) );
+    public  Setting<ModeEn> Mode = this.register(new Setting<>("Mode", ModeEn.Maximum));
+    public Setting <Float> factor = this.register ( new Setting <> ( "Factor", 1f, 1f, 20f) );
+    public  Setting<exploitEn> exploit = this.register(new Setting<>("Exploit", exploitEn.Strong));
+    public Setting <Float> scale = this.register ( new Setting <> ( "Scale", 0.01f, 0.01f, 0.4f) );
+    public Setting< Boolean > minimize = this.register ( new Setting <> ( "Minimize" , false) );
+    public Setting <Float> delay = this.register ( new Setting <> ( "Delay", 5f, 0f, 10f) );
+    public final  Setting<Parent> selection = register(new Setting<>("Selection", new Parent(false)));
+    public final Setting<Boolean> bow = register(new Setting<>("Bows", true)).withParent(selection);
+    public final Setting<Boolean> pearls = register(new Setting<>("EPearls", true)).withParent(selection);
+    public final Setting<Boolean> xp = register(new Setting<>("XP", true)).withParent(selection);
+    public final Setting<Boolean> eggs = register(new Setting<>("Eggs", true)).withParent(selection);
+    public final Setting<Boolean> potions = register(new Setting<>("SplashPotions", true)).withParent(selection);
+    public final Setting<Boolean> snowballs = register(new Setting<>("Snowballs", true)).withParent(selection);
+
+
+    private Random rnd = new Random();
+    public static Timer delayTimer = new Timer();
+
 
     @SubscribeEvent
     protected void onPacketSend(PacketEvent.Send event) {
-        if(fullNullCheck()){return;}
-        if (event.getPacket() instanceof CPacketPlayerDigging) {
-            Random randombool = new Random();
-            if(!Ready) return;
-            if (!mc.player.collidedVertically)
-                return;
-            if (((CPacketPlayerDigging) event.getPacket()).getAction() == CPacketPlayerDigging.Action.RELEASE_USE_ITEM && mc.player.getActiveItemStack().getItem() == Items.BOW) {
-                    mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.START_SPRINTING));
+        if(fullNullCheck() || !delayTimer.passedMs((long) (delay.getValue() * 1000))) return;
+        if (event.getPacket() instanceof CPacketPlayerDigging && ((CPacketPlayerDigging) event.getPacket()).getAction() == CPacketPlayerDigging.Action.RELEASE_USE_ITEM && (mc.player.getActiveItemStack().getItem() == Items.BOW && bow.getValue())
+                || event.getPacket() instanceof CPacketPlayerTryUseItem && ((CPacketPlayerTryUseItem)event.getPacket()).getHand() == EnumHand.MAIN_HAND &&  ((mc.player.getHeldItemMainhand().getItem() == Items.ENDER_PEARL && pearls.getValue()) || (mc.player.getHeldItemMainhand().getItem() == Items.EXPERIENCE_BOTTLE && xp.getValue()) || (mc.player.getHeldItemMainhand().getItem() == Items.EGG && eggs.getValue()) || (mc.player.getHeldItemMainhand().getItem() == Items.SPLASH_POTION && potions.getValue()) || (mc.player.getHeldItemMainhand().getItem() == Items.SNOWBALL && snowballs.getValue()))) {
+
+                mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.START_SPRINTING));
+
+                double[] strict_direction = new double[]{ 100f * -Math.sin(Math.toRadians(mc.player.rotationYaw)),100f * Math.cos(Math.toRadians(mc.player.rotationYaw))};
+
+                if(exploit.getValue() == exploitEn.Fast){
                     for (int i = 0; i < getRuns(); i++) {
-                        if (i != 0 && i % interval.getValue() == 0 && confirmTeleport.getValue()) {
-                            int id = teleportID;
-                            for (int j = 0; j < teleports.getValue(); j++) {
-                                mc.player.connection.sendPacket(new CPacketConfirmTeleport(++id));
-                            }
-                        }
-                        double[] dir = MovementUtil.strafe(0.001);
-
-
-                        if(!randomize.getValue()) {
-                            if (packetMode.getValue() == packetModeEn.Default) {
-                                if (directionMode.getValue() == directionModeEn.only_Y) {
-                                    mc.player.connection.sendPacket(new CPacketPlayer.Position(mc.player.posX, mc.player.posY - 1e-10, mc.player.posZ, true));
-                                    mc.player.connection.sendPacket(new CPacketPlayer.Position(mc.player.posX, mc.player.posY + 1e-10, mc.player.posZ, false));
-                                } else if (directionMode.getValue() == directionModeEn.X_and_Z) {
-                                    mc.player.connection.sendPacket(new CPacketPlayer.PositionRotation(mc.player.posX + dir[0], mc.player.posY, mc.player.posZ + dir[1], mc.player.rotationYaw, mc.player.rotationPitch, true));
-                                    mc.player.connection.sendPacket(new CPacketPlayer.PositionRotation(mc.player.posX + dir[0] * XYMultiplier.getValue(), mc.player.posY, mc.player.posZ + dir[1] * XYMultiplier.getValue(), mc.player.rotationYaw, mc.player.rotationPitch, false));
-                                } else if (directionMode.getValue() == directionModeEn.Both) {
-                                    mc.player.connection.sendPacket(new CPacketPlayer.Position(mc.player.posX + dir[0], mc.player.posY - 1e-10, mc.player.posZ + dir[1], true));
-                                    mc.player.connection.sendPacket(new CPacketPlayer.Position(mc.player.posX + dir[0] * XYMultiplier.getValue(), mc.player.posY + 1e-10, mc.player.posZ + dir[1] * XYMultiplier.getValue(), false));
-                                }
-                            } else if (packetMode.getValue() == packetModeEn.DefaultBypass) {
-                                if (directionMode.getValue() == directionModeEn.only_Y) {
-                                    mc.player.connection.sendPacket(new CPacketPlayer.Position(mc.player.posX, mc.player.posY + 1e-10, mc.player.posZ, false));
-                                    mc.player.connection.sendPacket(new CPacketPlayer.Position(mc.player.posX, mc.player.posY - 1e-10, mc.player.posZ, true));
-                                } else if (directionMode.getValue() == directionModeEn.X_and_Z) {
-                                    mc.player.connection.sendPacket(new CPacketPlayer.PositionRotation(mc.player.posX + dir[0] * XYMultiplier.getValue(), mc.player.posY, mc.player.posZ + dir[1] * 2, mc.player.rotationYaw, mc.player.rotationPitch, false));
-                                    mc.player.connection.sendPacket(new CPacketPlayer.PositionRotation(mc.player.posX + dir[0], mc.player.posY, mc.player.posZ + dir[1], mc.player.rotationYaw, mc.player.rotationPitch, true));
-                                } else if (directionMode.getValue() == directionModeEn.Both) {
-                                    mc.player.connection.sendPacket(new CPacketPlayer.Position(mc.player.posX + dir[0] * XYMultiplier.getValue(), mc.player.posY + 1e-10, mc.player.posZ + dir[1] * XYMultiplier.getValue(), false));
-                                    mc.player.connection.sendPacket(new CPacketPlayer.Position(mc.player.posX + dir[0], mc.player.posY - 1e-10, mc.player.posZ + dir[1], true));
-                                }
-                            } else if (packetMode.getValue() == packetModeEn.Double) {
-                                if (directionMode.getValue() == directionModeEn.only_Y) {
-                                    mc.player.connection.sendPacket(new CPacketPlayer.PositionRotation(mc.player.posX, mc.player.posY + 0.00000000000013, mc.player.posZ, mc.player.rotationYaw, mc.player.rotationPitch, true));
-                                    mc.player.connection.sendPacket(new CPacketPlayer.PositionRotation(mc.player.posX, mc.player.posY + 0.00000000000027, mc.player.posZ, mc.player.rotationYaw, mc.player.rotationPitch, false));
-                                } else if (directionMode.getValue() == directionModeEn.X_and_Z) {
-                                    mc.player.connection.sendPacket(new CPacketPlayer.PositionRotation(mc.player.posX + dir[0], mc.player.posY, mc.player.posZ + dir[1], mc.player.rotationYaw, mc.player.rotationPitch, true));
-                                    mc.player.connection.sendPacket(new CPacketPlayer.PositionRotation(mc.player.posX + dir[0] * XYMultiplier.getValue(), mc.player.posY, mc.player.posZ + dir[1] * XYMultiplier.getValue(), mc.player.rotationYaw, mc.player.rotationPitch, false));
-                                } else if (directionMode.getValue() == directionModeEn.Both) {
-                                    mc.player.connection.sendPacket(new CPacketPlayer.PositionRotation(mc.player.posX + dir[0], mc.player.posY + 0.00000000000013, mc.player.posZ + dir[1], mc.player.rotationYaw, mc.player.rotationPitch, true));
-                                    mc.player.connection.sendPacket(new CPacketPlayer.PositionRotation(mc.player.posX + dir[0] * XYMultiplier.getValue(), mc.player.posY + 0.00000000000027, mc.player.posZ + dir[1] * XYMultiplier.getValue(), mc.player.rotationYaw, mc.player.rotationPitch, false));
-                                }
-
-                            }
-                        } else if(randombool.nextBoolean()){
-                            if (packetMode.getValue() == packetModeEn.Default) {
-                                if (directionMode.getValue() == directionModeEn.only_Y) {
-                                    mc.player.connection.sendPacket(new CPacketPlayer.Position(mc.player.posX, mc.player.posY - 1e-10, mc.player.posZ, true));
-                                    mc.player.connection.sendPacket(new CPacketPlayer.Position(mc.player.posX, mc.player.posY + 1e-10, mc.player.posZ, false));
-                                } else if (directionMode.getValue() == directionModeEn.X_and_Z) {
-                                    mc.player.connection.sendPacket(new CPacketPlayer.PositionRotation(mc.player.posX - dir[0], mc.player.posY, mc.player.posZ - dir[1], mc.player.rotationYaw, mc.player.rotationPitch, true));
-                                    mc.player.connection.sendPacket(new CPacketPlayer.PositionRotation(mc.player.posX - dir[0] * XYMultiplier.getValue(), mc.player.posY, mc.player.posZ - dir[1] * XYMultiplier.getValue(), mc.player.rotationYaw, mc.player.rotationPitch, false));
-                                } else if (directionMode.getValue() == directionModeEn.Both) {
-                                    mc.player.connection.sendPacket(new CPacketPlayer.Position(mc.player.posX - dir[0], mc.player.posY - 1e-10, mc.player.posZ - dir[1], true));
-                                    mc.player.connection.sendPacket(new CPacketPlayer.Position(mc.player.posX - dir[0] * XYMultiplier.getValue(), mc.player.posY + 1e-10, mc.player.posZ - dir[1] * XYMultiplier.getValue(), false));
-                                }
-                            } else if (packetMode.getValue() == packetModeEn.DefaultBypass) {
-                                if (directionMode.getValue() == directionModeEn.only_Y) {
-                                    mc.player.connection.sendPacket(new CPacketPlayer.Position(mc.player.posX, mc.player.posY + 1e-10, mc.player.posZ, false));
-                                    mc.player.connection.sendPacket(new CPacketPlayer.Position(mc.player.posX, mc.player.posY - 1e-10, mc.player.posZ, true));
-                                } else if (directionMode.getValue() == directionModeEn.X_and_Z) {
-                                    mc.player.connection.sendPacket(new CPacketPlayer.PositionRotation(mc.player.posX - dir[0] * XYMultiplier.getValue(), mc.player.posY, mc.player.posZ - dir[1] * 2, mc.player.rotationYaw, mc.player.rotationPitch, false));
-                                    mc.player.connection.sendPacket(new CPacketPlayer.PositionRotation(mc.player.posX - dir[0], mc.player.posY, mc.player.posZ - dir[1], mc.player.rotationYaw, mc.player.rotationPitch, true));
-                                } else if (directionMode.getValue() == directionModeEn.Both) {
-                                    mc.player.connection.sendPacket(new CPacketPlayer.Position(mc.player.posX - dir[0] * XYMultiplier.getValue(), mc.player.posY + 1e-10, mc.player.posZ - dir[1] * XYMultiplier.getValue(), false));
-                                    mc.player.connection.sendPacket(new CPacketPlayer.Position(mc.player.posX - dir[0], mc.player.posY - 1e-10, mc.player.posZ - dir[1], true));
-                                }
-                            } else if (packetMode.getValue() == packetModeEn.Double) {
-                                if (directionMode.getValue() == directionModeEn.only_Y) {
-                                    mc.player.connection.sendPacket(new CPacketPlayer.PositionRotation(mc.player.posX, mc.player.posY + 0.00000000000013, mc.player.posZ, mc.player.rotationYaw, mc.player.rotationPitch, true));
-                                    mc.player.connection.sendPacket(new CPacketPlayer.PositionRotation(mc.player.posX, mc.player.posY + 0.00000000000027, mc.player.posZ, mc.player.rotationYaw, mc.player.rotationPitch, false));
-                                } else if (directionMode.getValue() == directionModeEn.X_and_Z) {
-                                    mc.player.connection.sendPacket(new CPacketPlayer.PositionRotation(mc.player.posX - dir[0], mc.player.posY, mc.player.posZ - dir[1], mc.player.rotationYaw, mc.player.rotationPitch, true));
-                                    mc.player.connection.sendPacket(new CPacketPlayer.PositionRotation(mc.player.posX - dir[0] * XYMultiplier.getValue(), mc.player.posY, mc.player.posZ - dir[1] * XYMultiplier.getValue(), mc.player.rotationYaw, mc.player.rotationPitch, false));
-                                } else if (directionMode.getValue() == directionModeEn.Both) {
-                                    mc.player.connection.sendPacket(new CPacketPlayer.PositionRotation(mc.player.posX - dir[0], mc.player.posY + 0.00000000000013, mc.player.posZ - dir[1], mc.player.rotationYaw, mc.player.rotationPitch, true));
-                                    mc.player.connection.sendPacket(new CPacketPlayer.PositionRotation(mc.player.posX - dir[0] * XYMultiplier.getValue(), mc.player.posY + 0.00000000000027, mc.player.posZ - dir[1] * XYMultiplier.getValue(), mc.player.rotationYaw, mc.player.rotationPitch, false));
-                                }
-                            }
-                        } else  {
-                            if (packetMode.getValue() == packetModeEn.Default) {
-                                if (directionMode.getValue() == directionModeEn.only_Y) {
-                                    mc.player.connection.sendPacket(new CPacketPlayer.Position(mc.player.posX, mc.player.posY + 1e-10, mc.player.posZ, false));
-                                    mc.player.connection.sendPacket(new CPacketPlayer.Position(mc.player.posX, mc.player.posY - 1e-10, mc.player.posZ, true));
-                                } else if (directionMode.getValue() == directionModeEn.X_and_Z) {
-                                    mc.player.connection.sendPacket(new CPacketPlayer.PositionRotation(mc.player.posX + dir[0] * XYMultiplier.getValue(), mc.player.posY, mc.player.posZ + dir[1] * XYMultiplier.getValue(), mc.player.rotationYaw, mc.player.rotationPitch, false));
-                                    mc.player.connection.sendPacket(new CPacketPlayer.PositionRotation(mc.player.posX + dir[0], mc.player.posY, mc.player.posZ + dir[1], mc.player.rotationYaw, mc.player.rotationPitch, true));
-                                } else if (directionMode.getValue() == directionModeEn.Both) {
-                                    mc.player.connection.sendPacket(new CPacketPlayer.Position(mc.player.posX + dir[0] * XYMultiplier.getValue(), mc.player.posY + 1e-10, mc.player.posZ + dir[1] * XYMultiplier.getValue(), false));
-                                    mc.player.connection.sendPacket(new CPacketPlayer.Position(mc.player.posX + dir[0], mc.player.posY - 1e-10, mc.player.posZ + dir[1], true));
-                                }
-                            } else if (packetMode.getValue() == packetModeEn.DefaultBypass) {
-                                if (directionMode.getValue() == directionModeEn.only_Y) {
-                                    mc.player.connection.sendPacket(new CPacketPlayer.Position(mc.player.posX, mc.player.posY - 1e-10, mc.player.posZ, true));
-                                    mc.player.connection.sendPacket(new CPacketPlayer.Position(mc.player.posX, mc.player.posY + 1e-10, mc.player.posZ, false));
-                                } else if (directionMode.getValue() == directionModeEn.X_and_Z) {
-                                    mc.player.connection.sendPacket(new CPacketPlayer.PositionRotation(mc.player.posX + dir[0], mc.player.posY, mc.player.posZ + dir[1], mc.player.rotationYaw, mc.player.rotationPitch, true));
-                                    mc.player.connection.sendPacket(new CPacketPlayer.PositionRotation(mc.player.posX + dir[0] * XYMultiplier.getValue(), mc.player.posY, mc.player.posZ + dir[1] * 2, mc.player.rotationYaw, mc.player.rotationPitch, false));
-                                } else if (directionMode.getValue() == directionModeEn.Both) {
-                                    mc.player.connection.sendPacket(new CPacketPlayer.Position(mc.player.posX + dir[0], mc.player.posY - 1e-10, mc.player.posZ + dir[1], true));
-                                    mc.player.connection.sendPacket(new CPacketPlayer.Position(mc.player.posX + dir[0] * XYMultiplier.getValue(), mc.player.posY + 1e-10, mc.player.posZ + dir[1] * XYMultiplier.getValue(), false));
-                                }
-                            } else if (packetMode.getValue() == packetModeEn.Double) {
-                                if (directionMode.getValue() == directionModeEn.only_Y) {
-                                    mc.player.connection.sendPacket(new CPacketPlayer.PositionRotation(mc.player.posX, mc.player.posY + 0.00000000000027, mc.player.posZ, mc.player.rotationYaw, mc.player.rotationPitch, false));
-                                    mc.player.connection.sendPacket(new CPacketPlayer.PositionRotation(mc.player.posX, mc.player.posY + 0.00000000000013, mc.player.posZ, mc.player.rotationYaw, mc.player.rotationPitch, true));
-                                } else if (directionMode.getValue() == directionModeEn.X_and_Z) {
-                                    mc.player.connection.sendPacket(new CPacketPlayer.PositionRotation(mc.player.posX + dir[0] * XYMultiplier.getValue(), mc.player.posY, mc.player.posZ + dir[1] * XYMultiplier.getValue(), mc.player.rotationYaw, mc.player.rotationPitch, false));
-                                    mc.player.connection.sendPacket(new CPacketPlayer.PositionRotation(mc.player.posX + dir[0], mc.player.posY, mc.player.posZ + dir[1], mc.player.rotationYaw, mc.player.rotationPitch, true));
-                                } else if (directionMode.getValue() == directionModeEn.Both) {
-                                    mc.player.connection.sendPacket(new CPacketPlayer.PositionRotation(mc.player.posX + dir[0] * XYMultiplier.getValue(), mc.player.posY + 0.00000000000027, mc.player.posZ + dir[1] * XYMultiplier.getValue(), mc.player.rotationYaw, mc.player.rotationPitch, false));
-                                    mc.player.connection.sendPacket(new CPacketPlayer.PositionRotation(mc.player.posX + dir[0], mc.player.posY + 0.00000000000013, mc.player.posZ + dir[1], mc.player.rotationYaw, mc.player.rotationPitch, true));
-                                }
-
-                            }
-                        }
-
-
-
-                        Ready = false;
+                        spoof(mc.player.posX,  minimize.getValue() ? mc.player.posY : mc.player.posY - 1e-10, mc.player.posZ, true);
+                        spoof(mc.player.posX, mc.player.posY + 1e-10, mc.player.posZ, false);
                     }
-            }
+                }
+                if(exploit.getValue() == exploitEn.Strong){
+                    for (int i = 0; i < getRuns(); i++) {
+                        spoof(mc.player.posX, mc.player.posY + 1e-10, mc.player.posZ, false);
+                        spoof(mc.player.posX, minimize.getValue() ? mc.player.posY : mc.player.posY - 1e-10, mc.player.posZ, true);
+                    }
+                }
+                if(exploit.getValue() == exploitEn.Phobos){
+                    for (int i = 0; i < getRuns(); i++) {
+                        spoof(mc.player.posX, mc.player.posY + 0.00000000000013, mc.player.posZ, true);
+                        spoof(mc.player.posX, mc.player.posY + 0.00000000000027, mc.player.posZ,  false);
+                    }
+                }
+                if(exploit.getValue() == exploitEn.Strict){
+                    for (int i = 0; i < getRuns(); i++) {
+                        if(rnd.nextBoolean()){
+                            spoof(mc.player.posX - strict_direction[0], mc.player.posY, mc.player.posZ - strict_direction[1], false);
+                        } else {
+                            spoof(mc.player.posX + strict_direction[0], mc.player.posY, mc.player.posZ + strict_direction[1], true);
+                        }
+                    }
+                }
+
+            delayTimer.reset();
         }
     }
 
-    @Override
-    public void onUpdate(){
-        if(Ready){
-            switch (Mode.getValue()){
-                case Fast: {ticks = 65; break;}
-                case Strong: {ticks = 100;break;}
-                case Custom:{ticks = (int)(customruns.getValue() * 0.6f);break;}
-            }
+    private void spoof(double x, double y , double z, boolean ground){
+        if(rotation.getValue()){
+            mc.player.connection.sendPacket(new CPacketPlayer.PositionRotation(x, y, z, mc.player.rotationYaw, mc.player.rotationPitch, ground));
         } else {
-            ticks--;
-            if(ticks < 1){
-                Ready = true;
-            }
+            mc.player.connection.sendPacket(new CPacketPlayer.Position(x, y, z, ground));
         }
     }
 
-
-    int getRuns(){
-        switch (Mode.getValue()){
-            case Fast: return 106;
-            case Strong: return 144;
-            case Custom: return customruns.getValue();
+    private int getRuns(){
+        if(Mode.getValue() == ModeEn.Factorised){
+            return 10 + (int)((factor.getValue() - 1));
         }
-        return 106;
+        if(Mode.getValue() == ModeEn.Normal){
+            return (int) Math.floor(factor.getValue());
+        }
+        if(Mode.getValue() == ModeEn.Maximum){
+            return (int) (30f * factor.getValue());
+        }
+        return  1;
     }
 
-    public int getMaxDelay(){
-        switch (Mode.getValue()){
-            case Fast: return 65;
-            case Strong: return 100;
-            case Custom: return (int)(customruns.getValue() * 0.6f);
-        }
-        return 106;
+    private enum exploitEn {
+        Strong, Fast, Strict, Phobos
     }
 
-    int teleportID = 0;
-    @SubscribeEvent
-    public void onPacketReceive(PacketEvent.Receive e){
-        if(e.getPacket() instanceof SPacketPlayerPosLook){
-            SPacketPlayerPosLook packet = e.getPacket();
-            teleportID = packet.getTeleportId();
-        }
+    private enum ModeEn {
+        Normal, Maximum, Factorised
     }
 }

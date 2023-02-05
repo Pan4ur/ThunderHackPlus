@@ -1,12 +1,13 @@
 package com.mrzak34.thunderhack.modules.player;
 
-import com.mrzak34.thunderhack.event.events.DamageBlockEvent;
-import com.mrzak34.thunderhack.event.events.EventPreMotion;
-import com.mrzak34.thunderhack.event.events.Render3DEvent;
+import com.mrzak34.thunderhack.events.DamageBlockEvent;
+import com.mrzak34.thunderhack.events.EventPreMotion;
+import com.mrzak34.thunderhack.events.Render3DEvent;
 import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.*;
+import com.mrzak34.thunderhack.util.render.RenderUtil;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.init.Blocks;
@@ -20,10 +21,8 @@ import net.minecraft.util.math.BlockPos;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
-import net.minecraft.init.MobEffects;
 import net.minecraft.item.Item;
 import net.minecraft.network.play.client.CPacketHeldItemChange;
-import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
@@ -37,7 +36,7 @@ import java.awt.*;
 public class Speedmine
         extends Module {
 
-    public Speedmine() {super("Speedmine", "пакетмайн", Module.Category.PLAYER, true, false, false);}
+    public Speedmine() {super("Speedmine", "пакетмайн", Module.Category.PLAYER);}
 
 
 
@@ -441,7 +440,7 @@ public class Speedmine
                 lastBlock = null;
             } else if (display.getValue()) {
                 if (mode.getValue() == Mode.Breaker || (mode.getValue() == Mode.Packet || mode.getValue() == Mode.PacketRebreak && !(BlockUtils.getBlockgs(lastBlock) instanceof BlockAir)) || (mode.getValue()== Mode.Packet || mode.getValue() == Mode.PacketRebreak)) {
-                    RenderUtil.drawBlockOutline(lastBlock, new Color(175, 175, 255), 2f, false);
+                    RenderUtil.drawBlockOutline(lastBlock, new Color(175, 175, 255), 2f, false,0);
                     if (showProgress.getValue()) {
                         int prognum = (int) ((((float) tick / pickTickSwitch.getValue() * 100) / Blocks.OBSIDIAN.blockHardness) * mc.world.getBlockState(lastBlock).getBlock().blockHardness);
                         GlStateManager.pushMatrix();

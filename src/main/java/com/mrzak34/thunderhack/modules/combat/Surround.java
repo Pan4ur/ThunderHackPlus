@@ -1,7 +1,7 @@
 package com.mrzak34.thunderhack.modules.combat;
 
-import com.mrzak34.thunderhack.event.events.EventPreMotion;
-import com.mrzak34.thunderhack.event.events.PacketEvent;
+import com.mrzak34.thunderhack.events.EventPreMotion;
+import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
@@ -27,7 +27,7 @@ public class Surround extends Module {
 
 
     public Surround() {
-        super("Surround", "Защищает тебя от-кристаллов", Module.Category.COMBAT, true, false, false);
+        super("Surround", "Защищает тебя от-кристаллов", Module.Category.COMBAT);
     }
 
     private final Timer delayTimer = new Timer();

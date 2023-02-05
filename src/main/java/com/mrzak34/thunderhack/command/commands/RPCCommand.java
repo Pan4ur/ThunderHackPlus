@@ -7,14 +7,14 @@ public class RPCCommand extends Command {
 
 
     public RPCCommand() {
-        super("rpc", new String[]{"<imageformat>",  "<url>"});
+        super("rpc");
     }
 
     @Override
     public void execute(String[] args) {
 
         if (args.length == 1) {
-            ModuleCommand.sendMessage(".rpc l/s url");
+            ModuleCommand.sendMessage(".rpc url or .rpc url url");
             return;
 
         }
@@ -23,7 +23,7 @@ public class RPCCommand extends Command {
             Command.sendMessage("Большая картинка RPC изменена на " + args[0]);
             return;
         }
-        if (commands.length >= 2) {
+        if (args.length >= 2) {
             Discord.WriteFile(args[0],args[1]);
             Command.sendMessage("Большая картинка RPC изменена на " + args[0]);
             Command.sendMessage("Маленькая картинка RPC изменена на " + args[1]);

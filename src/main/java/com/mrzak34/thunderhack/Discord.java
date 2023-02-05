@@ -22,13 +22,13 @@ class Discord {
     private static final DiscordRPC rpc;
     public static DiscordRichPresence presence;
     private static Thread thread;
-    private static int index;
     public static boolean started;
+
     static {
-        index = 1;
         rpc = DiscordRPC.INSTANCE;
         presence = new DiscordRichPresence ( );
     }
+
     public String out;
 
 
@@ -45,7 +45,7 @@ class Discord {
             Discord.presence.startTimestamp = (System.currentTimeMillis() / 1000L);
             Discord.presence.details = Util.mc.currentScreen instanceof GuiMainMenu ? "В главном меню" : "Играет " + (Minecraft.getMinecraft().currentServerData != null ? (RPC.INSTANCE.showIP.getValue() ? Minecraft.getMinecraft().currentServerData.serverIP.equals("localhost") ? "на " + "2bt2.org via 2bored2wait" : "на " + Minecraft.getMinecraft().currentServerData.serverIP : " НН сервер") : " Читерит в одиночке");
             Discord.presence.state = RPC.INSTANCE.state.getValue();
-            Discord.presence.largeImageText = "v2.38";
+            Discord.presence.largeImageText = "v2.39";
             rpc.Discord_UpdatePresence(presence);
 
             thread = new Thread(() -> {
@@ -54,11 +54,8 @@ class Discord {
 
                     if (!RPC.inQ) {
                         Discord.presence.details = Minecraft.getMinecraft().currentScreen instanceof GuiMainMenu || Minecraft.getMinecraft().currentScreen instanceof GuiScreenServerList || Minecraft.getMinecraft().currentScreen instanceof GuiScreenAddServer ? "В главном меню" : (Minecraft.getMinecraft().currentServerData != null ? (RPC.INSTANCE.showIP.getValue() ? "Играет на " + Minecraft.getMinecraft().currentServerData.serverIP : "НН сервер") : "Выбирает сервер");
-                    }
-                    if (RPC.inQ) {
-                        Discord.presence.state = "In queue: " + RPC.position;
                     } else {
-                        Discord.presence.state = RPC.INSTANCE.state.getValue();
+                        Discord.presence.details = "In queue: " + RPC.position;
                     }
 
 
@@ -70,47 +67,64 @@ class Discord {
                         }
                         Discord.presence.smallImageKey = "https://minotar.net/helm/" +  Util.mc.session.getUsername()+ "/100.png";
                     }
-                    if (RPC.INSTANCE.Mode.getValue() == RPC.mode.MegaCute) {
-                        Discord.presence.largeImageKey = "https://media1.tenor.com/images/6bcbfcc0be97d029613b54f97845bc59/tenor.gif?itemid=26823781";
+
+
+
+                    switch (RPC.INSTANCE.Mode.getValue()){
+                        case Thlogo:
+                            Discord.presence.largeImageKey = "aboba3";
+                            break;
+
+                        case minecraft:
+                            Discord.presence.largeImageKey = "minecraft";
+                            break;
+
+                        case Unknown:
+                            Discord.presence.largeImageKey = "th";
+                            break;
+
+                        case Konas:
+                            Discord.presence.largeImageKey = "2213";
+                            break;
+
+                        case cat:
+                            Discord.presence.largeImageKey = "caaat";
+                            break;
+
+                        case Astolfo:
+                            Discord.presence.largeImageKey = "astolf";
+                            break;
+
+                        case SlivSRC:
+                            Discord.presence.largeImageKey = "hhh";
+                            break;
+
+                        case pic:
+                            Discord.presence.largeImageKey = "pic";
+                            break;
+
+                        case newver:
+                            Discord.presence.largeImageKey = "img23";
+                            break;
+
+                        case thbeta:
+                            Discord.presence.largeImageKey = "nek";
+                            break;
+
+                        case MegaCute:
+                            Discord.presence.largeImageKey = "https://media1.tenor.com/images/6bcbfcc0be97d029613b54f97845bc59/tenor.gif?itemid=26823781";
+                            break;
+
+                        case Custom:
+                            readFile();
+                            Discord.presence.largeImageKey = String1.split("SEPARATOR")[0];
+                            if (!Objects.equals(String1.split("SEPARATOR")[1], "none")) {
+                                Discord.presence.smallImageKey = String1.split("SEPARATOR")[1];
+                            }
+                            break;
                     }
 
-                    if (RPC.INSTANCE.Mode.getValue() == RPC.mode.Custom) {
-                        readFile();
-                        Discord.presence.largeImageKey = String1.split("SEPARATOR")[0];
-                        if (!Objects.equals(String1.split("SEPARATOR")[1], "none")) {
-                            Discord.presence.smallImageKey = String1.split("SEPARATOR")[1];
-                        }
-                    }
-                    if (RPC.INSTANCE.Mode.getValue() == RPC.mode.thbeta) {
-                        Discord.presence.largeImageKey = "nek";
-                    }
-                    if (RPC.INSTANCE.Mode.getValue() == RPC.mode.newver) {
-                        Discord.presence.largeImageKey = "img23";
-                    }
-                    if (RPC.INSTANCE.Mode.getValue() == RPC.mode.pic) {
-                        Discord.presence.largeImageKey = "pic";
-                    }
-                    if (RPC.INSTANCE.Mode.getValue() == RPC.mode.SlivSRC) {
-                        Discord.presence.largeImageKey = "hhh";
-                    }
-                    if (RPC.INSTANCE.Mode.getValue() == RPC.mode.Astolfo) {
-                        Discord.presence.largeImageKey = "astolf";
-                    }
-                    if (RPC.INSTANCE.Mode.getValue() == RPC.mode.cat) {
-                        Discord.presence.largeImageKey = "caaat";
-                    }
-                    if (RPC.INSTANCE.Mode.getValue() == RPC.mode.Konas) {
-                        Discord.presence.largeImageKey = "2213";
-                    }
-                    if (RPC.INSTANCE.Mode.getValue() == RPC.mode.Unknown) {
-                        Discord.presence.largeImageKey = "th";
-                    }
-                    if (RPC.INSTANCE.Mode.getValue() == RPC.mode.minecraft) {
-                        Discord.presence.largeImageKey = "minecraft";
-                    }
-                    if (RPC.INSTANCE.Mode.getValue() == RPC.mode.Thlogo) {
-                        Discord.presence.largeImageKey = "aboba3";
-                    }
+
                     rpc.Discord_UpdatePresence(presence);
                     try {
                         Thread.sleep(2000L);
@@ -125,14 +139,12 @@ class Discord {
 
     public static void readFile(){
         try {
-            File file = new File("ThunderHack/RPC.txt");
-
+            File file = new File("ThunderHack/misc/RPC.txt");
             if (file.exists()) {
                 try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
                     while (reader.ready()) {
                         String1 =  reader.readLine();
                     }
-
                 }
             } else {
             }
@@ -142,9 +154,8 @@ class Discord {
 
 
     public static void WriteFile(String url1, String url2) {
-        File file = new File("ThunderHack/RPC.txt");
+        File file = new File("ThunderHack/misc/RPC.txt");
         try {
-            new File("ThunderHack").mkdirs();
             file.createNewFile();
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
                 writer.write(url1 + "SEPARATOR"+ url2 + '\n');

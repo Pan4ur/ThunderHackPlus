@@ -1,11 +1,10 @@
 package com.mrzak34.thunderhack.gui.thundergui.components.items.buttons;
 
-import com.mrzak34.thunderhack.gui.classic.components.items.buttons.StringButton;
 import com.mrzak34.thunderhack.gui.thundergui.ThunderGui;
 import com.mrzak34.thunderhack.gui.thundergui.fontstuff.FontRender;
 import com.mrzak34.thunderhack.modules.client.ThunderHackGui;
 import com.mrzak34.thunderhack.setting.Setting;
-import com.mrzak34.thunderhack.util.RenderUtil;
+import com.mrzak34.thunderhack.util.render.RenderUtil;
 import com.mrzak34.thunderhack.util.Util;
 import net.minecraft.util.ChatAllowedCharacters;
 
@@ -102,7 +101,7 @@ public class TStringButt extends TItem{
     }
 
     public void setString(String newString) {
-        this.currentString = new StringButton.CurrentString(newString);
+        this.currentString = new CurrentString(newString);
     }
 
     public static class CurrentString {
@@ -126,6 +125,6 @@ public class TStringButt extends TItem{
     }
 
     public boolean isListening;
-    private StringButton.CurrentString currentString = new StringButton.CurrentString("");
+    private CurrentString currentString = new CurrentString("");
 
 }

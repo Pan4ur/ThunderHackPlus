@@ -1,32 +1,24 @@
 package com.mrzak34.thunderhack.mixin.mixins;
 
 import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.event.events.*;
+import com.mrzak34.thunderhack.events.*;
 import com.mrzak34.thunderhack.modules.movement.Speed;
 import com.mrzak34.thunderhack.modules.movement.Strafe;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockLiquid;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.network.NetHandlerPlayClient;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.MoverType;
 import net.minecraft.init.Blocks;
-import net.minecraft.network.play.client.CPacketEntityAction;
-import net.minecraft.network.play.client.CPacketInput;
-import net.minecraft.network.play.client.CPacketPlayer;
-import net.minecraft.network.play.client.CPacketVehicleMove;
 import net.minecraft.stats.RecipeBook;
 import net.minecraft.stats.StatisticsManager;
-import net.minecraft.util.MovementInput;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -50,7 +42,6 @@ public abstract class MixinEntityPlayerSP
 
     @Redirect(method = "onUpdateWalkingPlayer", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/entity/EntityPlayerSP;isCurrentViewEntity()Z"))
     private boolean redirectIsCurrentViewEntity(EntityPlayerSP entityPlayerSP) {
-        Minecraft mc = Minecraft.getMinecraft();
         FreecamEvent event = new FreecamEvent();
         MinecraftForge.EVENT_BUS.post(event);
         if (event.isCanceled()) {
@@ -62,10 +53,40 @@ public abstract class MixinEntityPlayerSP
     @Shadow
     public final NetHandlerPlayClient connection;
 
+    private boolean updateLock = false;
+
     @Inject(method = {"onUpdate"}, at = {@At(value = "HEAD")})
     private void updateHook(CallbackInfo info) {
         PlayerUpdateEvent playerUpdateEvent = new PlayerUpdateEvent();
         MinecraftForge.EVENT_BUS.post(playerUpdateEvent);
+        if (!playerUpdateEvent.getPostEvents().isEmpty()) {
+            for (Runnable runnable : playerUpdateEvent.getPostEvents()) {
+                Minecraft.getMinecraft().addScheduledTask(runnable);
+            }
+        }
+    }
+
+    @Shadow
+    protected abstract void onUpdateWalkingPlayer();
+
+    @Inject(method = "onUpdate", at = @At(value = "INVOKE", target = "net/minecraft/client/entity/EntityPlayerSP.onUpdateWalkingPlayer()V", ordinal = 0, shift = At.Shift.AFTER), cancellable = true)
+    private void PostUpdateHook(CallbackInfo info) {
+        if (updateLock) {
+            return;
+        }
+        PostPlayerUpdateEvent playerUpdateEvent = new PostPlayerUpdateEvent();
+        MinecraftForge.EVENT_BUS.post(playerUpdateEvent);
+        if (playerUpdateEvent.isCanceled()) {
+            info.cancel();
+            if (playerUpdateEvent.getIterations() > 0) {
+                for (int i = 0; i < playerUpdateEvent.getIterations(); i++) {
+                    updateLock = true;
+                    onUpdate();
+                    updateLock = false;
+                    onUpdateWalkingPlayer();
+                }
+            }
+        }
     }
 
     @Redirect(method = "updateEntityActionState", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/entity/EntityPlayerSP;isCurrentViewEntity()Z"))
@@ -82,20 +103,19 @@ public abstract class MixinEntityPlayerSP
 
     @Inject(method = { "pushOutOfBlocks" },  at = { @At("HEAD") },  cancellable = true)
     private void pushOutOfBlocksHook(final double x,  final double y,  final double z,  final CallbackInfoReturnable<Boolean> info) {
-        final PushEvent event = new PushEvent(1);
+        final PushEvent event = new PushEvent();
         MinecraftForge.EVENT_BUS.post(event);
         if (event.isCanceled()) {
             info.setReturnValue(false);
         }
     }
 
-
     double preX, preZ;
 
     @Inject(method = "move", at = @At("HEAD"), cancellable = true)
     private void movePre(MoverType type, double x, double y, double z, CallbackInfo info) {
 
-        EventMove event = new EventMove(type, x, y, z,0);
+        EventMove event = new EventMove(type, x, y, z);
         MinecraftForge.EVENT_BUS.post(event);
         if (event.isCanceled()) {
             super.move(type, event.get_x(), event.get_y(), event.get_z());
@@ -137,23 +157,34 @@ public abstract class MixinEntityPlayerSP
 
     @Inject(method = "move", at = @At("RETURN"))
     private void movePost(MoverType type, double x, double y, double z, CallbackInfo info) {
-        EventMove event = new EventMove(type, x, y, z,1);
-        MinecraftForge.EVENT_BUS.post(event);
         double deltaX = posX - preX, deltaZ = posZ - preZ;
         MinecraftForge.EVENT_BUS.post(new EventPostMove(Math.sqrt(deltaX * deltaX + deltaZ * deltaZ)));
     }
 
-    @Inject(method = {"onUpdateWalkingPlayer"}, at = {@At(value = "HEAD")})
+    @Inject(method = {"onUpdateWalkingPlayer"}, at = {@At(value = "HEAD")}, cancellable = true)
     private void preMotion(CallbackInfo info) {
         EventPreMotion event = new EventPreMotion(rotationYaw,rotationPitch);
         MinecraftForge.EVENT_BUS.post(event);
         EventSprint e = new EventSprint(isSprinting());
         MinecraftForge.EVENT_BUS.post(e);
+        if (!event.getPostEvents().isEmpty()) {
+            for (Runnable runnable : event.getPostEvents()) {
+                Minecraft.getMinecraft().addScheduledTask(runnable);
+            }
+        }
+        if(event.isCanceled()){
+            info.cancel();
+        }
     }
 
     @Inject(method = {"onUpdateWalkingPlayer"}, at = {@At(value = "RETURN")})
     private void postMotion(CallbackInfo info) {
         EventPostMotion event = new EventPostMotion();
         MinecraftForge.EVENT_BUS.post(event);
+        if (!event.getPostEvents().isEmpty()) {
+            for (Runnable runnable : event.getPostEvents()) {
+                Minecraft.getMinecraft().addScheduledTask(runnable);
+            }
+        }
     }
 }

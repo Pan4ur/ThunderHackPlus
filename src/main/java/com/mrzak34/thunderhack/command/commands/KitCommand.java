@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.util.HashMap;
 
 public class KitCommand extends Command {
-    final static private String pathSave = "ThunderHack/kits/AutoGear.json";
+    final static private String pathSave = "ThunderHack/misc/kits/AutoGear.json";
 
     private static final HashMap<String, String> errorMessage = new HashMap<String, String>() {
         {
@@ -25,7 +25,7 @@ public class KitCommand extends Command {
     };
 
     public KitCommand() {
-        super("kit", new String[]{"<create/set/del/list>", "<name>"});
+        super("kit");
     }
 
 
@@ -61,7 +61,7 @@ public class KitCommand extends Command {
                     return;
                 }
             }
-            KitCommand.sendMessage("WTF R U MEAN ТУПОЙ ДЕБИЛ?!?!?!?!?!?");
+            KitCommand.sendMessage(".kit create/set/del");
         }
     }
 

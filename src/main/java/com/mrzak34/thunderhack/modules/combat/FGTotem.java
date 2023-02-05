@@ -1,9 +1,9 @@
 package com.mrzak34.thunderhack.modules.combat;
 
 import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.event.events.PacketEvent;
+import com.mrzak34.thunderhack.events.GameZaloopEvent;
+import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.modules.Module;
-import com.mrzak34.thunderhack.modules.combat.AutoCrystal;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.CrystalUtils;
 import com.mrzak34.thunderhack.util.Timer;
@@ -28,25 +28,30 @@ import java.util.List;
 public class FGTotem extends Module {
 
     public FGTotem() {
-        super("OffHand", "Автототем", Category.COMBAT, true, false, false);
+        super("OffHand", "Автототем", Category.COMBAT);
     }
 
     public Setting<Boolean> totem = this.register(new Setting<>("Totem", true));
-    public Setting<Boolean> gapple = this.register(new Setting<>("Gapple", true));
+    public Setting<Boolean> gapple = this.register(new Setting<>("SwordGap", false));
     public Setting<Boolean> crystal = this.register(new Setting<>("Crystal", true));
+
     public Setting<Float> delay =this.register( new Setting<>("Delay", 0F, 0F, 5F));
     public Setting<Boolean> hotbarTotem = this.register(new Setting<>("HotbarTotem", false));
     public Setting<Float> totemHealthThreshold = this.register(new Setting<>("TotemHealth", 5f, 0f, 36f));
-    public Setting<Boolean> rightClick = this.register(new Setting<>("RightClickGap", true));
+    public Setting<Boolean> rightClick = this.register(new Setting<>("RightClickGap", false, v-> gapple.getValue()));
     public Setting<CrystalCheck> crystalCheck = this.register(new Setting<>("CrystalCheck", CrystalCheck.DAMAGE));
-    public Setting<Float> crystalRange = this.register(new Setting<>("CrystalRange", 10f, 1f, 15f));
+    public Setting<Float> crystalRange = this.register(new Setting<>("CrystalRange", 10f, 1f, 15f,v -> crystalCheck.getValue() != CrystalCheck.NONE));
     public Setting<Boolean> fallCheck = this.register(new Setting<>("FallCheck", true));
-    public Setting<Float> fallDist = this.register(new Setting<>("FallDist", 15f, 0f, 50f));
+    public Setting<Float> fallDist = this.register(new Setting<>("FallDist", 15f, 0f, 50f,v -> fallCheck.getValue()));
     public Setting<Boolean> totemOnElytra = this.register(new Setting<>("TotemOnElytra", true));
-    public Setting<Boolean> extraSafe = this.register(new Setting<>("ExtraSafe", false));
-    public Setting<Boolean> clearAfter = this.register(new Setting<>("ClearAfter", true));
-    public Setting<Boolean> hard = this.register(new Setting<>("Hard", false));
-    public Setting<Boolean> notFromHotbar = this.register(new Setting<>("NotFromHotbar", true));
+
+
+    public Setting<Boolean> extraSafe = this.register(new Setting<>("ExtraCheck", false,v -> crystalCheck.getValue() != CrystalCheck.NONE));
+    public Setting<Boolean> clearAfter = this.register(new Setting<>("SwapBack", true));
+    public Setting<Boolean> hard = this.register(new Setting<>("AlwaysDefault", false));
+
+
+    public Setting<Boolean> notFromHotbar = this.register(new Setting<>("NotFromHotbar", false));
     public Setting<Default> defaultItem = this.register(new Setting<>("DefaultItem", Default.TOTEM));
 
     private final Queue<Integer> clickQueue = new LinkedList<>();
@@ -70,7 +75,8 @@ public class FGTotem extends Module {
         TOTEM(Items.TOTEM_OF_UNDYING),
         CRYSTAL(Items.END_CRYSTAL),
         GAPPLE(Items.GOLDEN_APPLE),
-        AIR(Items.AIR);
+        AIR(Items.AIR),
+        SHIELD(Items.SHIELD);
 
         public Item item;
 
@@ -79,8 +85,8 @@ public class FGTotem extends Module {
         }
     }
 
-    @Override
-    public void onUpdate() {
+    @SubscribeEvent
+    public void onLoop(GameZaloopEvent event) {
         if (mc.player == null || mc.world == null) return;
 
         if (!(mc.currentScreen instanceof GuiContainer)) {
@@ -88,26 +94,27 @@ public class FGTotem extends Module {
                 if (!timer.passedMs((long) (delay.getValue() * 100))) return;
                 int slot = clickQueue.poll();
                 try {
-                  //  HotbarRefill.moveTimer.reset();
                     timer.reset();
                     mc.playerController.windowClick(mc.player.inventoryContainer.windowId, slot, 0, ClickType.PICKUP, mc.player);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             } else {
+
                 if (!mc.player.inventory.getItemStack().isEmpty()) {
-                    int index = 44;
-                    while (index >= 9) {
+                    for ( int index = 44; index >= 9; index--) {
                         if (mc.player.inventoryContainer.getSlot(index).getStack().isEmpty()) {
                             mc.playerController.windowClick(0, index, 0, ClickType.PICKUP, mc.player);
                             return;
                         }
-                        index--;
                     }
                 }
 
                 if (totem.getValue()) {
-                    if (mc.player.getHealth() + mc.player.getAbsorptionAmount() <= totemHealthThreshold.getValue() || (totemOnElytra.getValue() && mc.player.isElytraFlying()) || (fallCheck.getValue() && mc.player.fallDistance >= fallDist.getValue() && !mc.player.isElytraFlying())) {
+                    if (mc.player.getHealth() + mc.player.getAbsorptionAmount() <= totemHealthThreshold.getValue()
+                            || (totemOnElytra.getValue() && mc.player.isElytraFlying())
+                            || (fallCheck.getValue() && mc.player.fallDistance >= fallDist.getValue() && !mc.player.isElytraFlying())) {
+
                         putItemIntoOffhand(Items.TOTEM_OF_UNDYING);
                         return;
                     } else if (crystalCheck.getValue() == CrystalCheck.RANGE) {
@@ -156,6 +163,7 @@ public class FGTotem extends Module {
                     putItemIntoOffhand(Items.GOLDEN_APPLE);
                     return;
                 }
+
                 if (crystal.getValue()) {
                     if (Thunderhack.moduleManager.getModuleByClass(AutoCrystal.class).isEnabled()) {
                         putItemIntoOffhand(Items.END_CRYSTAL);
@@ -166,7 +174,11 @@ public class FGTotem extends Module {
                     }
                 }
                 if (hard.getValue()) {
-                    putItemIntoOffhand(defaultItem.getValue().item);
+                    if((defaultItem.getValue().item == Items.SHIELD && mc.player.cooldownTracker.hasCooldown(Items.SHIELD))  || (defaultItem.getValue().item == Items.SHIELD && findItemSlot(Items.SHIELD) == -1 && mc.player.getHeldItemOffhand().getItem() != Items.SHIELD)){
+                        putItemIntoOffhand(Items.GOLDEN_APPLE);
+                    } else {
+                        putItemIntoOffhand(defaultItem.getValue().item);
+                    }
                 }
             }
         }
@@ -219,11 +231,7 @@ public class FGTotem extends Module {
             } else {
                 timer.reset();
                 mc.playerController.windowClick(mc.player.inventoryContainer.windowId, slot < 9 ? slot + 36 : slot, 0, ClickType.PICKUP, mc.player);
-                try {
-                    mc.playerController.windowClick(mc.player.inventoryContainer.windowId, 45, 0, ClickType.PICKUP, mc.player);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+                mc.playerController.windowClick(mc.player.inventoryContainer.windowId, 45, 0, ClickType.PICKUP, mc.player);
                 mc.playerController.windowClick(mc.player.inventoryContainer.windowId, slot < 9 ? slot + 36 : slot, 0, ClickType.PICKUP, mc.player);
             }
         }
@@ -243,7 +251,6 @@ public class FGTotem extends Module {
                 return true;
             }
         }
-
         return (((mc.player.getHealth() + mc.player.getAbsorptionAmount())) - cumDmg) <= totemHealthThreshold.getValue();
     }
 

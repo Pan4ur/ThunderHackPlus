@@ -6,7 +6,7 @@ import com.mrzak34.thunderhack.modules.Module;
 public class TpsSync
         extends Module {
     public TpsSync() {
-        super("TpsSync", "синхронизирует игру-с тпс", Module.Category.PLAYER, true, false, false);
+        super("TpsSync", "синхронизирует игру-с тпс", Module.Category.PLAYER);
     }
 
 

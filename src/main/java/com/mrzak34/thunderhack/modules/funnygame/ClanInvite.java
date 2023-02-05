@@ -3,7 +3,7 @@ package com.mrzak34.thunderhack.modules.funnygame;
 import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.Ordering;
 import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.event.events.PacketEvent;
+import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.modules.client.DiscordWebhook;
 import com.mrzak34.thunderhack.setting.Setting;
@@ -28,7 +28,7 @@ public class ClanInvite extends Module {
 
 
     public ClanInvite() {
-        super("ClanInvite", "Автоматически приглашает-в клан", Category.FUNNYGAME, true, false, false);
+        super("ClanInvite", "Автоматически приглашает-в клан", Category.FUNNYGAME);
     }
     private static final Ordering<NetworkPlayerInfo> ENTRY_ORDERING = Ordering.from(new PlayerComparator());
 

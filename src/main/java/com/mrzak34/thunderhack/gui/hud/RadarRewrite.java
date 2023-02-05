@@ -1,19 +1,23 @@
 package com.mrzak34.thunderhack.gui.hud;
 
 import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.event.events.Render2DEvent;
+import com.mrzak34.thunderhack.events.Render2DEvent;
 import com.mrzak34.thunderhack.gui.clickui.ColorUtil;
-import com.mrzak34.thunderhack.util.Drawable;
+import com.mrzak34.thunderhack.util.math.AstolfoAnimation;
+import com.mrzak34.thunderhack.util.render.Drawable;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.setting.PositionSetting;
 import com.mrzak34.thunderhack.setting.Setting;
+import com.mrzak34.thunderhack.util.render.DrawHelper;
+import com.mrzak34.thunderhack.util.render.PaletteHelper;
+import com.mrzak34.thunderhack.util.render.RenderHelper;
 import net.minecraft.client.gui.GuiChat;
 import net.minecraft.client.gui.ScaledResolution;
-import com.mrzak34.thunderhack.util.*;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
@@ -26,7 +30,7 @@ import static org.lwjgl.opengl.GL11.*;
 public class RadarRewrite extends Module {
 
     public RadarRewrite() {
-        super("AkrienRadar", "стрелочки", Category.RENDER, true, false, false);
+        super("AkrienRadar", "стрелочки", Category.RENDER);
     }
 
     private Setting<Float> width = register( new Setting<>("TracerHeight", 2.28f, 0.1f, 5f));
@@ -253,5 +257,11 @@ public class RadarRewrite extends Module {
     }
     public static double interp(double d, double d2) {
         return d2 + (d - d2) * (double)mc.getRenderPartialTicks();
+    }
+
+    public static float getRotations(BlockPos entity) {
+        double x = entity.x - interp(mc.player.posX,mc.player.lastTickPosX);
+        double z = entity.z - interp(mc.player.posZ, mc.player.lastTickPosZ);
+        return (float)-(Math.atan2(x, z) * (180 / Math.PI));
     }
 }

@@ -1,6 +1,6 @@
 package com.mrzak34.thunderhack.modules.funnygame;
 
-import com.mrzak34.thunderhack.event.events.PacketEvent;
+import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
@@ -18,21 +18,33 @@ import java.util.Objects;
 public class AntiTPhere extends Module {
 
     public AntiTPhere() {
-        super("AntiTPhere", "AntiTPhere", Category.FUNNYGAME, true, false, false);
+        super("AntiTPhere", "AntiTPhere", Category.FUNNYGAME);
     }
 
     private Setting<Modes> mode = register(new Setting("Mode", Modes.Back));
+    public Setting<Integer> delay = this.register(new Setting<Integer>("delay", 100, 1, 1000));
 
     public enum Modes {
         Back, Home, RTP, Spawn
     }
 
+    Timer timer = new Timer();
+    private boolean flag = false;
+
     @SubscribeEvent
     public void onPacketReceive(PacketEvent.Receive event){
-        if(event.getPacket() instanceof SPacketChat){
+        if(event.getPacket() instanceof SPacketChat) {
             SPacketChat packet = event.getPacket();
-            if(packet.getChatComponent().getFormattedText().contains("Телепортирование...") && check(packet.getChatComponent().getFormattedText())){
+            if (packet.getChatComponent().getFormattedText().contains("Телепортирование...") && check(packet.getChatComponent().getFormattedText())) {
+                flag = true;
+                timer.reset();
+            }
+        }
+    }
 
+    @Override
+    public void onUpdate(){
+        if(flag && timer.passedMs(delay.getValue())){
                 StringBuilder log = new StringBuilder("Тебя телепортировали в X: " + (int)mc.player.posX + " Z: " + (int) mc.player.posZ +
                         ". Ближайшие игроки : ");
 
@@ -64,7 +76,6 @@ public class AntiTPhere extends Module {
                     }
 
                 }
-            }
         }
     }
 

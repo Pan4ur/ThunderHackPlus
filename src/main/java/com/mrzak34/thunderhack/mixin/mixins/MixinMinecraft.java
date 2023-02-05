@@ -1,11 +1,12 @@
 package com.mrzak34.thunderhack.mixin.mixins;
 
 import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.event.events.*;
+import com.mrzak34.thunderhack.events.*;
+import com.mrzak34.thunderhack.gui.mainmenu.ThunderMenu;
 import com.mrzak34.thunderhack.modules.client.AntiDisconnect;
+import com.mrzak34.thunderhack.modules.client.MainSettings;
 import com.mrzak34.thunderhack.util.phobos.IMinecraft;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.GuiMainMenu;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.GuiYesNo;
@@ -63,6 +64,19 @@ public abstract class MixinMinecraft implements IMinecraft {
         if (event.isCanceled())
         {
             callbackInfo.cancel();
+        }
+    }
+    @Inject(method={"runTick()V"}, at={@At(value="RETURN")})
+    private void runTick(CallbackInfo callbackInfo) {
+        if (Minecraft.getMinecraft().currentScreen instanceof GuiMainMenu && Thunderhack.moduleManager != null && Thunderhack.moduleManager.getModuleByClass(MainSettings.class).mainMenu.getValue() ) {
+            Minecraft.getMinecraft().displayGuiScreen(new ThunderMenu());
+        }
+    }
+
+    @Inject(method={"displayGuiScreen"}, at={@At(value="HEAD")})
+    private void displayGuiScreenHook(GuiScreen screen, CallbackInfo ci) {
+        if (screen instanceof GuiMainMenu && Thunderhack.moduleManager != null && Thunderhack.moduleManager.getModuleByClass(MainSettings.class).mainMenu.getValue()) {
+            mc.displayGuiScreen(new ThunderMenu());
         }
     }
 
@@ -133,7 +147,7 @@ public abstract class MixinMinecraft implements IMinecraft {
         }
     }
     private void unload() {
-        Thunderhack.onUnload();
+        Thunderhack.unload(false);
     }
 }
 

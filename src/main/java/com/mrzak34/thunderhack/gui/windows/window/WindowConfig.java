@@ -1,9 +1,10 @@
 package com.mrzak34.thunderhack.gui.windows.window;
 
-import com.mrzak34.thunderhack.Thunderhack;
+import com.mrzak34.thunderhack.gui.thundergui.components.items.buttons.TConfigComponent;
 import com.mrzak34.thunderhack.gui.thundergui.fontstuff.FontRender;
 import com.mrzak34.thunderhack.gui.windows.window.parts.ConfigPart;
-import com.mrzak34.thunderhack.util.RenderUtil;
+import com.mrzak34.thunderhack.manager.ConfigManager;
+import com.mrzak34.thunderhack.util.render.RenderUtil;
 import net.minecraft.client.gui.ScaledResolution;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
@@ -48,13 +49,11 @@ public class WindowConfig {
     static ArrayList<String> already = new ArrayList<String>();
 
     static File file;
-    static List<File> directories;
 
     static boolean once = false;
 
     public static void once(){
         file = new File("ThunderHack/");
-        directories = Arrays.stream(Objects.requireNonNull(file.listFiles())).filter(File::isDirectory).filter(f -> !f.getName().equals("util")).collect(Collectors.toList());
     }
 
     public static void drawScreen(int mouseX, int mouseY, float partialTicks) {
@@ -102,16 +101,16 @@ public class WindowConfig {
         }
 
 
-        for (File file1 : directories) {
-            if(!(Objects.equals(file1.getName(), "customimage") || Objects.equals(file1.getName(), "pvp") || Objects.equals(file1.getName(), "notebot") || Objects.equals(file1.getName(), "customimage")|| Objects.equals(file1.getName(), "kits")|| Objects.equals(file1.getName(), "tmp")|| Objects.equals(file1.getName(), "friendsAvatars")|| Objects.equals(file1.getName(), "skins") || file1.getName().contains("oldcfg"))){
-                if(already.contains(file1.getName())){
-                    continue;
-                }
-                configs.add(new ConfigPart(file1.getName(), posX, posY,width,configPartId));
-                already.add(file1.getName());
-                ++configPartId;
+        for (String file1 : Objects.requireNonNull(ConfigManager.getConfigList())) {
+            if(already.contains(file1)){
+                continue;
             }
+            configs.add(new ConfigPart(file1, posX, posY,width,configPartId));
+            already.add(file1);
+            ++configPartId;
         }
+
+
 
         RenderUtil.glScissor(posX,posY + 12f,posX + width,posY + height  - 25,sr);
         GL11.glEnable(GL11.GL_SCISSOR_TEST);
@@ -145,7 +144,7 @@ public class WindowConfig {
                 return;
             }
             if(keyCode == 28){
-                Thunderhack.configManager.saveConfig(addString);
+                ConfigManager.save(addString);
                 addString = "Type here";
                 listeningString = false;
                 return;
@@ -174,7 +173,7 @@ public class WindowConfig {
             if(Objects.equals(addString, "Type here")){
                 return;
             }
-            Thunderhack.configManager.saveConfig(addString);
+            ConfigManager.save(addString);
             listeningString = false;
         }
         if(isInWindow(mouseX,mouseY)){

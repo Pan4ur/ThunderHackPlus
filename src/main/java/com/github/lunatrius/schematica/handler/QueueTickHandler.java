@@ -4,6 +4,7 @@ import com.github.lunatrius.schematica.reference.Names;
 import com.github.lunatrius.schematica.reference.Reference;
 import com.github.lunatrius.schematica.world.chunk.SchematicContainer;
 import com.github.lunatrius.schematica.world.schematic.SchematicFormat;
+import com.mrzak34.thunderhack.command.Command;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -58,8 +59,7 @@ public class QueueTickHandler {
 
         if (container.hasNext()) {
             if (container.isFirst()) {
-                final TextComponentTranslation component = new TextComponentTranslation(Names.Command.Save.Message.SAVE_STARTED, container.chunkCount, container.file.getName());
-                container.player.sendMessage(component);
+                Command.sendMessage("Начинаю сохранять схему! Кол-во чанков: " + container.chunkCount + " Название файла: " + container.file.getName() );
             }
 
             container.next();

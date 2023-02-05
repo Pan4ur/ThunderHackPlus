@@ -1,7 +1,7 @@
 package com.mrzak34.thunderhack.gui.hud;
 
 import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.event.events.Render2DEvent;
+import com.mrzak34.thunderhack.events.Render2DEvent;
 import com.mrzak34.thunderhack.gui.thundergui.fontstuff.FontRender;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.modules.misc.Timer;
@@ -10,8 +10,10 @@ import com.mrzak34.thunderhack.modules.movement.MSTSpeed;
 import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.setting.PositionSetting;
 import com.mrzak34.thunderhack.setting.Setting;
-import com.mrzak34.thunderhack.util.DrawHelper;
-import com.mrzak34.thunderhack.util.*;
+import com.mrzak34.thunderhack.util.math.AstolfoAnimation;
+import com.mrzak34.thunderhack.util.math.DynamicAnimation;
+import com.mrzak34.thunderhack.util.render.DrawHelper;
+import com.mrzak34.thunderhack.util.render.RenderUtil;
 import net.minecraft.client.gui.GuiChat;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -25,7 +27,7 @@ import java.util.List;
 
 public class Indicators extends Module {
     public Indicators() {
-        super("WexIndicators", "Индикаторы как в вексайде-(из вексайда)", Category.HUD, true, false, false);
+        super("WexIndicators", "Индикаторы как в вексайде-(из вексайда)", Category.HUD);
     }
 
 

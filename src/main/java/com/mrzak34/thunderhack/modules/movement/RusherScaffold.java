@@ -1,11 +1,14 @@
 package com.mrzak34.thunderhack.modules.movement;
 
 
-import com.mrzak34.thunderhack.event.events.*;
+import com.mrzak34.thunderhack.events.EventMove;
+import com.mrzak34.thunderhack.events.EventPostMotion;
+import com.mrzak34.thunderhack.events.EventPreMotion;
+import com.mrzak34.thunderhack.events.Render3DEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.setting.Setting;
-import com.mrzak34.thunderhack.util.RenderUtil;
+import com.mrzak34.thunderhack.util.render.RenderUtil;
 import com.mrzak34.thunderhack.util.Timer;
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.GlStateManager;
@@ -22,20 +25,20 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 
 import java.awt.*;
 
-
-
-
+import static net.minecraft.util.math.MathHelper.clamp;
+import static net.minecraft.util.math.MathHelper.wrapDegrees;
 
 
 public class RusherScaffold extends Module {
 
     public RusherScaffold() {
-        super("Scaffold", "лучший скафф", Module.Category.PLAYER, true, false, false);
+        super("Scaffold", "лучший скафф", Module.Category.PLAYER);
         timer = new Timer();
     }
 
@@ -48,6 +51,8 @@ public class RusherScaffold extends Module {
     public Setting<Boolean> safewalk = this.register(new Setting<Boolean>("SafeWalk", true));
     public Setting<Boolean> echestholding = this.register(new Setting<Boolean>("EchestHolding", false));
     public Setting<Boolean> render = this.register(new Setting<Boolean>("Render", true));
+    public Setting<Boolean> nexusGrief = this.register(new Setting<Boolean>("NexusGrief", false));
+
     private final Setting<Float> lineWidth = this.register(new Setting<Float>("LineWidth", 1.0f, 0.1f, 5.0f));
     public final Setting<ColorSetting> Color2 = this.register(new Setting<>("Color", new ColorSetting(0x8800FF00)));
 
@@ -192,6 +197,7 @@ public class RusherScaffold extends Module {
         return ret;
     }
 
+
     public static class BlockPosWithFacing {
         public BlockPos blockPos;
         public EnumFacing enumFacing;
@@ -250,7 +256,7 @@ public class RusherScaffold extends Module {
         event.setCanceled(true);
     }
 
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.HIGH)
     public void onMove(EventMove event) {
         if (fullNullCheck()) return;
 
@@ -264,7 +270,7 @@ public class RusherScaffold extends Module {
 
         if (render.getValue() && currentblock != null) {
             GlStateManager.pushMatrix();
-            RenderUtil.drawBlockOutline(currentblock.blockPos, Color2.getValue().getColorObject(), lineWidth.getValue(), false);
+            RenderUtil.drawBlockOutline(currentblock.blockPos, Color2.getValue().getColorObject(), lineWidth.getValue(), false,0);
             GlStateManager.popMatrix();
         }
 
@@ -302,13 +308,17 @@ public class RusherScaffold extends Module {
                     currentblock = this.checkNearBlocksExtended(blockPos2);
                     if (currentblock != null) {
                         if (this.rotate.getValue()) {
-                            float[ ] rotations = getRotations( currentblock.blockPos, currentblock.enumFacing );
-                            mc.player.rotationYaw =( rotations[ 0 ] );
-                            mc.player.rotationPitch =( rotations[ 1 ] );
+                                float[] rotations = getRotations(currentblock.blockPos, currentblock.enumFacing);
+                                mc.player.rotationYaw = (rotations[0]);
+                                mc.player.rotationPitch = (rotations[1]);
                         }
                     }
                 }
             }
+        }
+        if(nexusGrief.getValue()){
+            mc.player.motionX /= 1.7f;
+            mc.player.motionZ /= 1.7f;
         }
     }
 
@@ -340,8 +350,13 @@ public class RusherScaffold extends Module {
             if (bl) {
                 mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.START_SNEAKING));
             }
-            mc.playerController.processRightClickBlock(mc.player, mc.world, blockPos, this.currentblock.enumFacing, new Vec3d((double)blockPos.getX() + Math.random(), mc.world.getBlockState((BlockPos)blockPos).getSelectedBoundingBox((World)mc.world, (BlockPos)blockPos).maxY - 0.01, (double)blockPos.getZ() + Math.random()), EnumHand.MAIN_HAND);
+
+
+            mc.playerController.processRightClickBlock(mc.player, mc.world, blockPos, this.currentblock.enumFacing, new Vec3d((double) blockPos.getX() + Math.random(), mc.world.getBlockState((BlockPos) blockPos).getSelectedBoundingBox((World) mc.world, (BlockPos) blockPos).maxY - 0.01, (double) blockPos.getZ() + Math.random()), EnumHand.MAIN_HAND);
             mc.player.swingArm(EnumHand.MAIN_HAND);
+
+
+
             if (bl) {
                 mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.STOP_SNEAKING));
             }

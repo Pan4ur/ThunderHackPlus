@@ -13,30 +13,25 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 public class NoFall extends Module {
     public NoFall() {
-        super("NoFall", "рубербендит если ты-упал", Category.MOVEMENT, false, false, false);
+        super("NoFall", "рубербендит если ты-упал", Category.MOVEMENT);
     }
 
 
-    public Setting<rotmod> mod = register(new Setting("Mode", rotmod.Matrix));
+    public Setting<rotmod> mod = register(new Setting("Mode", rotmod.Rubberband));
 
     public enum rotmod {
-        Matrix, Rubberband, Default;
+        Rubberband, Default;
     }
 
 
     @Override
     public void onUpdate(){
+        if(fullNullCheck()) return;
         if (mc.player.fallDistance > 3 && !mc.player.isSneaking() && mod.getValue() == rotmod.Rubberband) {
             mc.player.motionY -= 0.1;
             mc.player.onGround = true;
             mc.player.capabilities.disableDamage = true;
         }
-    }
-
-
-    @SubscribeEvent
-    public void onClientTickEvent(TickEvent.ClientTickEvent clientTickEvent) {
-
         if (mod.getValue() == rotmod.Default) {
             if ((double)mc.player.fallDistance > 2.5) {
                 mc.player.connection.sendPacket(new CPacketPlayer(true));
@@ -44,15 +39,10 @@ public class NoFall extends Module {
         }
     }
 
-    @SubscribeEvent
-    public void onPlayerTickEvent(TickEvent.PlayerTickEvent playerTickEvent) {
-        if (mod.getValue() != rotmod.Matrix) {
-            return;
-        }
-        if (!mc.player.onGround && mc.player.fallDistance > 2.0f &&  mc.world.getBlockState(mc.player.getPosition().down()).getBlock() == Blocks.AIR) {
-            mc.player.onGround = false;
-        }
-    }
+
+
+
+
 
 
 }

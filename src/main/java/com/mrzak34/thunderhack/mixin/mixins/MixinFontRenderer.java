@@ -27,9 +27,9 @@ public abstract class MixinFontRenderer {
             return;
         }
         if(Thunderhack.moduleManager.getModuleByClass(PasswordHider.class).isEnabled()) {
-            if(string.contains("/l") || string.contains("/login") || string.contains("/reg") || string.contains("/register") && mc.currentScreen instanceof GuiChat) {
+            if(string.contains("/l ") || string.contains("/login ") || string.contains("/reg ") || string.contains("/register ") && mc.currentScreen instanceof GuiChat) {
                 StringBuilder final_string = new StringBuilder("");
-                for(char cha: string.replace("/login","").replace("/register","").replace("/l ","").replace("/reg ","").toCharArray()){
+                for(char cha: string.replace("/login ","").replace("/register ","").replace("/l ","").replace("/reg ","").toCharArray()){
                     final_string.append("*");
                 }
 
@@ -39,10 +39,10 @@ public abstract class MixinFontRenderer {
                 }else if(string.contains("/login")){
                     renderStringAtPos("/login " + final_string, bl);
                     return;
-                } else if(string.contains("/l")) {
+                } else if(string.contains("/l ")) {
                     renderStringAtPos("/l " + final_string, bl);
                     return;
-                } else if(string.contains("/reg")){
+                } else if(string.contains("/reg ")){
                     renderStringAtPos("/reg " + final_string, bl);
                     return;
                 }

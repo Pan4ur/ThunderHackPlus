@@ -1,7 +1,8 @@
 package com.mrzak34.thunderhack.manager;
 
-import com.mrzak34.thunderhack.event.events.Render2DEvent;
-import com.mrzak34.thunderhack.event.events.Render3DEvent;
+import com.mrzak34.thunderhack.events.Render2DEvent;
+import com.mrzak34.thunderhack.events.Render3DEvent;
+import com.mrzak34.thunderhack.gui.clickui.ClickUI;
 import com.mrzak34.thunderhack.gui.hud.*;
 import com.mrzak34.thunderhack.gui.thundergui.ThunderGui;
 import com.mrzak34.thunderhack.gui.thundergui.fontstuff.FontRender;
@@ -18,7 +19,6 @@ import com.mrzak34.thunderhack.modules.player.*;
 import com.mrzak34.thunderhack.modules.render.*;
 import com.mrzak34.thunderhack.notification.NotificationManager;
 import com.mrzak34.thunderhack.modules.Feature;
-import com.mrzak34.thunderhack.gui.classic.ClassicGui;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.util.PlayerUtils;
 import net.minecraftforge.common.MinecraftForge;
@@ -43,9 +43,15 @@ public class ModuleManager extends Feature {
         this.modules.add(new AimAssist());
         this.modules.add(new AutoBuy());
         this.modules.add(new AutoTotem());
-        this.modules.add(new Offhand());
         this.modules.add(new AutoBuff());
-
+        this.modules.add(new DiscordEmbeds());
+        this.modules.add(new Welcomer());
+        this.modules.add(new FastFall());
+        this.modules.add(new Search());
+        this.modules.add(new AutoFlyme());
+        this.modules.add(new ReverseStep());
+        this.modules.add(new Step());
+        this.modules.add(new NoInteract());
         this.modules.add(new Strafe());
         this.modules.add(new ClanInvite());
         this.modules.add(new AntiBadEffects());
@@ -58,7 +64,6 @@ public class ModuleManager extends Feature {
         this.modules.add(new PvPResources());
         this.modules.add(new ElytraFly2b2tNew());
         this.modules.add(new CivBreaker());
-        this.modules.add(new LiquidBoost());
         this.modules.add(new AntiTPhere());
         this.modules.add(new PearlBait());
         this.modules.add(new AutoSheep());
@@ -76,11 +81,9 @@ public class ModuleManager extends Feature {
         this.modules.add(new Ambience());
         this.modules.add(new Ghost());
         this.modules.add(new BowAim());
-        this.modules.add(new DeadCodeAura());
         this.modules.add(new Shulkerception());
         this.modules.add(new FunnyClicker());
         this.modules.add(new Interactions());
-        this.modules.add(new MotionBlur());
         this.modules.add(new ThirdPersView());
         this.modules.add(new SolidWeb());
         this.modules.add(new NoCom());
@@ -130,8 +133,8 @@ public class ModuleManager extends Feature {
         this.modules.add(new NoVoid());
         this.modules.add(new NoHandShake());
         this.modules.add(new WTap());
-        this.modules.add(new ChatTweaks());
         this.modules.add(new AutoRegear());
+        this.modules.add(new AutoLeave());
         this.modules.add(new ShiftInterp());
         this.modules.add(new Particles());
         this.modules.add(new ElytraFlight());
@@ -180,6 +183,7 @@ public class ModuleManager extends Feature {
         this.modules.add(new Speed());
         this.modules.add(new Burrow());
         this.modules.add(new AntiHunger());
+        this.modules.add(new TriggerBot());
         this.modules.add(new FullBright());
         this.modules.add(new Velocity());
         this.modules.add(new NameTags());
@@ -211,6 +215,7 @@ public class ModuleManager extends Feature {
         this.modules.add(new TrueDurability());
         this.modules.add(new ItemPhysics());
         this.modules.add(new Potions());
+        this.modules.add(new NoServerSlot());
         this.modules.add(new CevBreaker());
         this.modules.add(new AntiBot());
         this.modules.add(new AntiTittle());
@@ -359,7 +364,7 @@ public class ModuleManager extends Feature {
     }
 
     public void onKeyPressed(int eventKey) {
-        if (eventKey == 0 || !Keyboard.getEventKeyState() || ModuleManager.mc.currentScreen instanceof ClassicGui || ModuleManager.mc.currentScreen instanceof ThunderGui || ModuleManager.mc.currentScreen instanceof WindowsGui) {
+        if (eventKey == 0 || !Keyboard.getEventKeyState() || ModuleManager.mc.currentScreen instanceof ClickUI || ModuleManager.mc.currentScreen instanceof ThunderGui || ModuleManager.mc.currentScreen instanceof WindowsGui) {
             return;
         }
         this.modules.forEach(module -> {

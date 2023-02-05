@@ -2,24 +2,20 @@ package com.mrzak34.thunderhack.modules.render;
 
 import com.google.common.collect.Maps;
 import com.mrzak34.thunderhack.command.Command;
-import com.mrzak34.thunderhack.event.events.*;
+import com.mrzak34.thunderhack.events.PacketEvent;
+import com.mrzak34.thunderhack.events.PreRenderEvent;
+import com.mrzak34.thunderhack.events.Render3DEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mojang.authlib.GameProfile;
-import com.mrzak34.thunderhack.util.RenderUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Items;
-import net.minecraft.item.ItemArmor;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemTool;
 import net.minecraft.network.play.server.SPacketPlayerListItem;
 import net.minecraft.util.math.Vec3d;
 import com.mrzak34.thunderhack.setting.Setting;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraft.util.math.*;
 import org.apache.commons.io.IOUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -27,21 +23,19 @@ import org.json.simple.JSONValue;
 import org.json.simple.parser.ParseException;
 import org.lwjgl.opengl.GL11;
 
-import java.awt.*;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Map;
 
-import static com.mrzak34.thunderhack.gui.font.FontRendererWrapper.getFontHeight;
-import static com.mrzak34.thunderhack.util.RenderUtil.drawRect;
-import static com.mrzak34.thunderhack.util.RenderUtil.interpolate;
+import static com.mrzak34.thunderhack.util.render.RenderUtil.drawRect;
+import static com.mrzak34.thunderhack.util.render.RenderUtil.interpolate;
 
 public class LogoutSpots extends Module {
     private final Setting<Integer> removeDistance = this.register(new Setting<Integer>("RemoveDistance", 255, 1, 2000));
 
 
     public LogoutSpots() {
-        super("LogoutSpots", "Puts Armor on for you.", Category.RENDER, true, false, false);
+        super("LogoutSpots", "Puts Armor on for you.", Category.RENDER);
     }
 
     private final Map<String, EntityPlayer> playerCache = Maps.newConcurrentMap();
@@ -155,7 +149,7 @@ public class LogoutSpots extends Module {
     }
 
     @SubscribeEvent
-    public void onRenderPost(PostRenderEvent event) {
+    public void onRenderPost(PreRenderEvent event) {
         for (String uuid : this.logoutCache.keySet()) {
             final PlayerData data = this.logoutCache.get(uuid);
 
@@ -203,10 +197,10 @@ public class LogoutSpots extends Module {
         GlStateManager.disableDepth ( );
         GlStateManager.enableBlend ( );
 
-        drawRect((float)(-width - 2),  (float)(-(getFontHeight() + 1)),  width + 2.0f,  1.5f,  1426063360);
+        drawRect((float)(-width - 2),  (float)(-(3 + 1)),  width + 2.0f,  1.5f,  1426063360);
 
         GlStateManager.disableBlend ( );
-        mc.fontRenderer.drawStringWithShadow(displayTag,  (float)(-width),  (float)(-(getFontHeight() - 1)),  -1);
+        mc.fontRenderer.drawStringWithShadow(displayTag,  (float)(-width),  (float)(-(3 - 1)),  -1);
         camera.posX = originalPositionX;
         camera.posY = originalPositionY;
         camera.posZ = originalPositionZ;

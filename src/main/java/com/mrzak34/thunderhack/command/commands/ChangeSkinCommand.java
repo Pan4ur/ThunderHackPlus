@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 public class ChangeSkinCommand extends Command {
     public ChangeSkinCommand() {
-        super("skinset", new String[]{"<name>", "<skinname>"});
+        super("skinset");
         this.setInstance();
     }
     private void setInstance() {

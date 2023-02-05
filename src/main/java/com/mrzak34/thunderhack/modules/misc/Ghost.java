@@ -1,13 +1,13 @@
 package com.mrzak34.thunderhack.modules.misc;
 
-import com.mrzak34.thunderhack.event.events.PacketEvent;
+import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class Ghost extends Module {
     public Ghost() {
-        super("Ghost", "Жить после смерти", Category.MISC, true, false, false);
+        super("Ghost", "Жить после смерти", Category.MISC);
     }
 
     private boolean bypass = false;

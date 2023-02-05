@@ -19,7 +19,7 @@ import java.util.function.Predicate;
 public class Shaders extends Module {
 
     public Shaders() {
-        super("Shaders", "Шейдеры", Category.RENDER, true, false, false);
+        super("Shaders", "Шейдеры", Category.RENDER);
     }
 
     private Setting<fillShadermode> fillShader = register(new Setting("Fill Shader", fillShadermode.None));

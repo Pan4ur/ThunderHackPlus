@@ -3,12 +3,12 @@ package com.mrzak34.thunderhack.gui.clickui.elements;
 import java.awt.Color;
 import java.util.Objects;
 
-import com.mrzak34.thunderhack.util.RenderUtil;
+import com.mrzak34.thunderhack.util.render.RenderUtil;
 import com.mrzak34.thunderhack.util.RoundedShader;
 import com.mrzak34.thunderhack.gui.clickui.base.AbstractElement;
 import com.mrzak34.thunderhack.gui.thundergui.fontstuff.FontRender;
 import com.mrzak34.thunderhack.setting.Setting;
-import com.mrzak34.thunderhack.util.MathUtil;
+import com.mrzak34.thunderhack.util.math.MathUtil;
 
 import net.minecraft.util.math.MathHelper;
 

@@ -1,10 +1,8 @@
 package com.mrzak34.thunderhack.modules.misc;
 
-import com.mrzak34.thunderhack.command.Command;
-import com.mrzak34.thunderhack.event.events.PacketEvent;
+import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import net.minecraft.client.gui.inventory.GuiChest;
-import net.minecraft.command.ICommand;
 import net.minecraft.inventory.ClickType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTBase;
@@ -17,7 +15,6 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -25,7 +22,7 @@ import java.util.Objects;
 public class AutoBuy extends Module {
 
     public AutoBuy() {
-        super("AutoBuy", "авто залупка", Category.MISC, true, false, false);
+        super("AutoBuy", "авто залупка", Category.MISC);
     }
 
 

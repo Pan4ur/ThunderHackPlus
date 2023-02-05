@@ -1,8 +1,6 @@
 package com.mrzak34.thunderhack.util.phobos;
 
 import com.mrzak34.thunderhack.mixin.mixins.IRenderManager;
-import com.mrzak34.thunderhack.util.ColorUtil;
-import com.mrzak34.thunderhack.util.GLUProjection;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.culling.Frustum;
@@ -55,17 +53,6 @@ public class RenderUtil
         genOpenGlBuffers();
     }
 
-    public static void updateMatrices()
-    {
-        glGetFloat(GL_MODELVIEW_MATRIX, modelView);
-        glGetFloat(GL_PROJECTION_MATRIX, projection);
-        // glGetFloat(GL_VIEWPORT, viewportFloat);
-        glGetInteger(GL_VIEWPORT, viewport);
-        final ScaledResolution res = new ScaledResolution(mc);
-        GLUProjection.getInstance().updateMatrices(viewport, modelView, projection,
-                (float) res.getScaledWidth() / (float) mc.displayWidth,
-                (float) res.getScaledHeight() / (float) mc.displayHeight);
-    }
 
     public static Entity getEntity()
     {

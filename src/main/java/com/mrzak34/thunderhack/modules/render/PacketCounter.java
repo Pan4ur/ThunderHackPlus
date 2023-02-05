@@ -1,13 +1,13 @@
 package com.mrzak34.thunderhack.modules.render;
 
-import com.mrzak34.thunderhack.event.events.PacketEvent;
-import com.mrzak34.thunderhack.event.events.Render2DEvent;
+import com.mrzak34.thunderhack.events.PacketEvent;
+import com.mrzak34.thunderhack.events.Render2DEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
-import com.mrzak34.thunderhack.util.PaletteHelper;
+import com.mrzak34.thunderhack.util.render.PaletteHelper;
 import com.mrzak34.thunderhack.notification.NotificationManager;
 import com.mrzak34.thunderhack.notification.NotificationType;
-import com.mrzak34.thunderhack.util.RenderUtil;
+import com.mrzak34.thunderhack.util.render.RenderUtil;
 import com.mrzak34.thunderhack.util.Timer;
 import com.mrzak34.thunderhack.util.Util;
 import net.minecraft.client.gui.ScaledResolution;
@@ -17,7 +17,7 @@ import java.awt.*;
 
 public class PacketCounter extends Module{
     public PacketCounter() {
-        super("PacketCounter", "PacketCounter", Category.HUD, true, false, false);
+        super("PacketCounter", "PacketCounter", Category.HUD);
         this.timer = new Timer();
     }
     private final Timer timer;

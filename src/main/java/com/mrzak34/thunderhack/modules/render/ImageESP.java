@@ -1,12 +1,12 @@
 package com.mrzak34.thunderhack.modules.render;
 
-import com.mrzak34.thunderhack.event.events.Render2DEvent;
+import com.mrzak34.thunderhack.events.Render2DEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.setting.Setting;
-import com.mrzak34.thunderhack.util.PaletteHelper;
-import com.mrzak34.thunderhack.util.RectHelper;
-import com.mrzak34.thunderhack.util.RenderHelper;
+import com.mrzak34.thunderhack.util.render.PaletteHelper;
+import com.mrzak34.thunderhack.util.render.RectHelper;
+import com.mrzak34.thunderhack.util.render.RenderHelper;
 import com.mrzak34.thunderhack.util.PNGtoResourceLocation;
 import com.mrzak34.thunderhack.util.Util;
 import net.minecraft.client.renderer.GLAllocation;
@@ -29,11 +29,12 @@ import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.glu.GLU;
 
-import static com.mrzak34.thunderhack.gui.classic.components.items.buttons.ModuleButton.drawCompleteImage;
+import static com.mrzak34.thunderhack.modules.player.ElytraSwap.drawCompleteImage;
+
 
 public class ImageESP extends Module {
     public ImageESP() {
-        super("ImageESP", "ImageESP ImageESP.", Category.RENDER, true, false, false);
+        super("ImageESP", "ImageESP ImageESP.", Category.RENDER);
     }
 
     public Setting<Float> scalefactor = register(new Setting("Raytrace", Float.valueOf(2.0F), Float.valueOf(0.1F), Float.valueOf(4.0F)));
@@ -165,8 +166,6 @@ public class ImageESP extends Module {
                             Util.mc.getTextureManager().bindTexture(this.customImg3);
                         }
                         drawCompleteImage((float) posX + scalefactor1.getValue(), (float) posY + scalefactor2.getValue(), (int) ((int) endPosX - posX), (int) ((int) endPosY - posY));
-
-
                     }
                 }
             }

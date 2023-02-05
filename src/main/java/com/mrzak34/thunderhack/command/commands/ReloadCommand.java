@@ -6,7 +6,7 @@ import com.mrzak34.thunderhack.command.Command;
 public class ReloadCommand
         extends Command {
     public ReloadCommand() {
-        super("reload", new String[0]);
+        super("reload");
     }
 
     @Override

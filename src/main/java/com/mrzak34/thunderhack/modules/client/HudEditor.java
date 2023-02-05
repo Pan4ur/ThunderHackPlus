@@ -8,7 +8,7 @@ public class HudEditor extends Module{
     private static HudEditor INSTANCE = new HudEditor();
 
     public HudEditor() {
-        super("HudEditor", "худ изменять да", Module.Category.CLIENT, true, false, false);
+        super("HudEditor", "худ изменять да", Module.Category.CLIENT);
         this.setInstance();
     }
 
@@ -27,10 +27,6 @@ public class HudEditor extends Module{
     public void onEnable(){
         Util.mc.displayGuiScreen(HudEditorGui.getHudGui());
         toggle();
-    }
-    @Override
-    public void onDisable(){
-      //  OyVeyGui.getInstance().hudeditor = false;
     }
 
 

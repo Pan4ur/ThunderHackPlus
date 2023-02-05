@@ -1,7 +1,7 @@
 package com.mrzak34.thunderhack.modules.misc;
 
 import com.mrzak34.thunderhack.command.Command;
-import com.mrzak34.thunderhack.event.events.EventPreMotion;
+import com.mrzak34.thunderhack.events.EventPreMotion;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import net.minecraft.network.play.client.CPacketPlayer;
@@ -9,7 +9,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class RWKTLeave extends Module {
     public RWKTLeave() {
-        super("RWKTLeave", "лив в кт для рилика", Category.MISC, true, false, false);
+        super("RWKTLeave", "лив в кт для рилика", Category.MISC);
     }
 
     private  final Setting<Integer> X = this.register( new Setting<>("X", 15000, -16000, 16000));

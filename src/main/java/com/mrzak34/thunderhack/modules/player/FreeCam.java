@@ -1,16 +1,15 @@
 package com.mrzak34.thunderhack.modules.player;
 
 
-import com.mrzak34.thunderhack.event.events.FreecamEvent;
-import com.mrzak34.thunderhack.event.events.Render2DEvent;
-import com.mrzak34.thunderhack.event.events.RenderItemOverlayEvent;
+import com.mrzak34.thunderhack.events.FreecamEvent;
+import com.mrzak34.thunderhack.events.Render2DEvent;
+import com.mrzak34.thunderhack.events.RenderItemOverlayEvent;
 import com.mrzak34.thunderhack.gui.thundergui.fontstuff.FontRender;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.setting.SubBind;
 import com.mrzak34.thunderhack.util.FreecamCamera;
 import com.mrzak34.thunderhack.util.PlayerUtils;
-import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.MovementInput;
@@ -24,7 +23,7 @@ public class FreeCam extends Module{
     private static FreeCam INSTANCE = new FreeCam();
 
     public FreeCam() {
-        super("FreeCam", "свобоная камера", Category.PLAYER,true,false,false);
+        super("FreeCam", "свобоная камера", Category.PLAYER);
         this.setInstance();
 
     }

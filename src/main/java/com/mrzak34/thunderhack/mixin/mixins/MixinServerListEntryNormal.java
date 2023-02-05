@@ -16,9 +16,6 @@ import java.awt.*;
 @Mixin(ServerListEntryNormal.class)
 public abstract class MixinServerListEntryNormal {
 
-    Color n = new Color(0x4AD301);
-    Color n1 = new Color(-1601138544);
-
     @Inject(method = "mousePressed", at = @At("HEAD"))
     public void Z(int slotIndex, int mouseX, int mouseY, int mouseEvent, int relativeX, int relativeY, CallbackInfoReturnable<Boolean> cir) {
 

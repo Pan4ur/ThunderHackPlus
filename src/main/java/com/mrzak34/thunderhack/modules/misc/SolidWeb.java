@@ -5,6 +5,6 @@ import com.mrzak34.thunderhack.modules.Module;
 public class SolidWeb extends Module {
 
     public SolidWeb() {
-        super("SolidWeb", "SolidWeb", Category.MISC, true, false, false);
+        super("SolidWeb", "SolidWeb", Category.MISC);
     }
 }

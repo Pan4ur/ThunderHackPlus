@@ -9,7 +9,7 @@ import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.gui.clickui.ColorUtil;
 import com.mrzak34.thunderhack.gui.clickui.elements.*;
 import com.mrzak34.thunderhack.setting.*;
-import com.mrzak34.thunderhack.util.Drawable;
+import com.mrzak34.thunderhack.util.render.Drawable;
 import com.mrzak34.thunderhack.gui.clickui.base.AbstractElement;
 import com.mrzak34.thunderhack.gui.thundergui.fontstuff.FontRender;
 import com.mrzak34.thunderhack.modules.Module;
@@ -20,8 +20,6 @@ import com.mrzak34.thunderhack.notification.Direction;
 import org.lwjgl.input.Keyboard;
 
 import com.mojang.realmsclient.gui.ChatFormatting;
-
-import net.minecraft.client.renderer.GlStateManager;
 
 public class ModuleButton {
 
@@ -50,11 +48,13 @@ public class ModuleButton {
 			} else if (setting.isNumberSetting() && setting.hasRestriction()) {
 				elements.add(new SliderElement(setting));
 			} else if (setting.isEnumSetting() && !(setting.getValue() instanceof Parent) && !(setting.getValue() instanceof PositionSetting)){
-				elements.add(new ComboBoxElement(setting));
+				elements.add(new ModeElement(setting));
 			} else if (setting.getValue() instanceof SubBind) {
 				elements.add(new SubBindElement(setting));
 			}else if ((setting.getValue() instanceof String || setting.getValue() instanceof Character) && !setting.getName().equalsIgnoreCase("displayName")) {
 				elements.add(new StringElement(setting));
+			} else if (setting.getValue() instanceof Parent) {
+				elements.add(new ParentElement(setting));
 			}
 		}
 	}
@@ -102,8 +102,8 @@ public class ModuleButton {
 				else if (element instanceof SliderElement)
 					element.setHeight(18);
 
-				if (element instanceof ComboBoxElement) {
-					ComboBoxElement combobox = (ComboBoxElement) element;
+				if (element instanceof ModeElement) {
+					ModeElement combobox = (ModeElement) element;
 					combobox.setWHeight(17);
 
 					if (combobox.isOpen()) {
@@ -123,7 +123,7 @@ public class ModuleButton {
 			Drawable.drawBlurredShadow((int) x, (int) (y + height), (int) width, 3, 9, new Color(0, 0, 0, 190));
 		}
 
-		Drawable.drawRectWH(x, y, width, isOpen() ? height + 2 : height, new Color(32, 32, 35, 255).getRGB());
+		Drawable.drawRectWH(x, y, width, isOpen() ? height + 2 : height, ClickGui.getInstance().downColor.getValue().getColor());
 
 		if (!enableAnimation.finished(Direction.FORWARDS)) {
 			Drawable.horizontalGradient(x, y, (x + width) * (1 - enableAnimation.getOutput()),
@@ -141,19 +141,14 @@ public class ModuleButton {
 		}
 
 
-		GlStateManager.pushMatrix();
 
-		float scale = (float) (1f - (0.03f * animation.getOutput()));
-		GlStateManager.translate(ix, iy, 0);
-		GlStateManager.scale(scale, scale, 1);
-		GlStateManager.translate(-ix, -iy, 0);
+		float scale = (float) (animation.getOutput());
 
 		if (binding) {
 			FontRender.drawString6("Keybind: " + (module.getBind().toString()), (float) ix,(float) iy, 0xFFEAEAEA,true);
 		} else
-			FontRender.drawString6(module.getName(), (float) ix, (float) iy + 3, 0xFFEAEAEA,true);
+			FontRender.drawString6(module.getName(), (float) ix + scale, (float) iy + 3, 0xFFEAEAEA,true);
 
-		GlStateManager.popMatrix();
 
 	}
 

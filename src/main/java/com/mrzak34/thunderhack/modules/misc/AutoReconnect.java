@@ -3,7 +3,7 @@ package com.mrzak34.thunderhack.modules.misc;
 
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
-import com.mrzak34.thunderhack.util.MathUtil;
+import com.mrzak34.thunderhack.util.math.MathUtil;
 import net.minecraftforge.client.event.*;
 import net.minecraft.client.gui.*;
 import net.minecraftforge.fml.common.eventhandler.*;
@@ -18,7 +18,7 @@ public class AutoReconnect extends Module
     private static AutoReconnect INSTANCE;
 
     public AutoReconnect() {
-        super("AutoReconnect",  "коннектит к серву-если кикнуло",  Category.MISC,  true,  false,  false);
+        super("AutoReconnect",  "коннектит к серву-если кикнуло",  Category.MISC);
         this.setInstance();
     }
     public Setting<Integer> delay = this.register ( new Setting <> ( "delay", 34, 0, 90 ) );

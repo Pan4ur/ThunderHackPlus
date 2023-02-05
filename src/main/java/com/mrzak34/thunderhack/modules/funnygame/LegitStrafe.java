@@ -1,6 +1,6 @@
 package com.mrzak34.thunderhack.modules.funnygame;
 
-import com.mrzak34.thunderhack.event.events.EventMove;
+import com.mrzak34.thunderhack.events.EventMove;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import net.minecraft.init.Items;
@@ -12,7 +12,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class LegitStrafe extends Module {
     public LegitStrafe() {
-        super("GlideFly", "мsdfsdf", Category.MOVEMENT, true, false, false);
+        super("GlideFly", "мsdfsdf", Category.MOVEMENT);
     }
 
     public  Setting<Float> motionY = this.register(new Setting<Float>("Y Offset", 2.0f, 0.1f, 0.42f));

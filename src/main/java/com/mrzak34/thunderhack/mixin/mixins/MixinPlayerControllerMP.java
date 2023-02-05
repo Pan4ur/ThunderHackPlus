@@ -1,6 +1,6 @@
 package com.mrzak34.thunderhack.mixin.mixins;
 
-import com.mrzak34.thunderhack.event.events.*;
+import com.mrzak34.thunderhack.events.*;
 import com.mrzak34.thunderhack.modules.player.Reach;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -38,9 +38,7 @@ public abstract class MixinPlayerControllerMP implements IPlayerControllerMP{
 
     @Inject(method = {"clickBlock"}, at = {@At(value = "HEAD")}, cancellable = true)
     private void clickBlockHook(BlockPos pos, EnumFacing face, CallbackInfoReturnable<Boolean> info) {
-        BlockEvent event = new BlockEvent(3, pos, face);
         ClickBlockEvent event2 = new ClickBlockEvent(pos, face);
-        MinecraftForge.EVENT_BUS.post(event);
         MinecraftForge.EVENT_BUS.post(event2);
         if (event2.isCanceled())
         {
@@ -59,23 +57,10 @@ public abstract class MixinPlayerControllerMP implements IPlayerControllerMP{
     @Accessor(value = "currentPlayerItem")
     public abstract int getItem();
 
-    @Inject(method = "processRightClick", at = @At("HEAD"), cancellable = true)
-    private void processClickHook(EntityPlayer player, World worldIn, EnumHand hand, CallbackInfoReturnable<EnumActionResult> cir)
-    {
-        RightClickItemEvent event =
-                new RightClickItemEvent(player, worldIn, hand);
-
-        MinecraftForge.EVENT_BUS.post(event);
-        if (event.isCanceled())
-        {
-            cir.setReturnValue(EnumActionResult.PASS);
-        }
-    }
-
 
     @Inject(method = "attackEntity", at = @At(value = "HEAD"),cancellable = true)
     public void attackEntityPre(EntityPlayer playerIn, Entity targetEntity,CallbackInfo info) {
-        AttackEvent event = new AttackEvent(targetEntity,0);
+        AttackEvent event = new AttackEvent(targetEntity);
 
         MinecraftForge.EVENT_BUS.post(event);
 
@@ -83,15 +68,6 @@ public abstract class MixinPlayerControllerMP implements IPlayerControllerMP{
             info.cancel();
     }
 
-    @Inject(method = "attackEntity", at = @At(value = "RETURN"),cancellable = true)
-    public void attackEntityPost(EntityPlayer playerIn, Entity targetEntity,CallbackInfo info) {
-        AttackEvent event = new AttackEvent(targetEntity,1);
-
-        MinecraftForge.EVENT_BUS.post(event);
-
-        if(event.isCanceled())
-            info.cancel();
-    }
 
 
     @Inject(method = "processRightClickBlock", at = @At(value = "HEAD"), cancellable = true)
@@ -122,22 +98,15 @@ public abstract class MixinPlayerControllerMP implements IPlayerControllerMP{
         }
     }
 
-    @Inject(method = "onStoppedUsingItem", at = @At("HEAD"), cancellable = true)
-    private void onStoppedUsingItemInject(EntityPlayer playerIn, CallbackInfo ci) {
-        if (playerIn.equals(Minecraft.getMinecraft().player)) {
-            StopUsingItemEvent event = new StopUsingItemEvent();
-            MinecraftForge.EVENT_BUS.post(event);
-            if (event.isCanceled()) {
-                if (event.isPacket()) {
-                    this.syncCurrentPlayItem();
-                    playerIn.stopActiveHand();
-                }
-                ci.cancel();
-            }
+
+    @Inject(method={"onStoppedUsingItem"}, at={@At(value="HEAD")}, cancellable=true)
+    public void stopHook(CallbackInfo info) {
+        StopUsingItemEvent event = new StopUsingItemEvent();
+        MinecraftForge.EVENT_BUS.post(event);
+        if (event.isCanceled()) {
+            info.cancel();
         }
     }
-
-
 
     @Inject(method = "onPlayerDestroyBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;playEvent(ILnet/minecraft/util/math/BlockPos;I)V"), cancellable = true)
     private void onPlayerDestroyBlock(BlockPos pos, CallbackInfoReturnable<Boolean> callbackInfoReturnable) {
@@ -149,20 +118,6 @@ public abstract class MixinPlayerControllerMP implements IPlayerControllerMP{
         MinecraftForge.EVENT_BUS.post(new DestroyBlockEvent(pos));
     }
 
-    @Inject(method = {"onPlayerDamageBlock"}, at = {@At(value = "HEAD")}, cancellable = true)
-    private void onPlayerDamageBlockHook(BlockPos pos, EnumFacing face, CallbackInfoReturnable<Boolean> info) {
-        BlockEvent event = new BlockEvent(4, pos, face);
-        MinecraftForge.EVENT_BUS.post(event);
-    }
-
-    @Inject(method = {"processRightClickBlock"}, at = {@At(value = "HEAD")}, cancellable = true)
-    public void processRightClickBlock(EntityPlayerSP player, WorldClient worldIn, BlockPos pos, EnumFacing direction, Vec3d vec, EnumHand hand, CallbackInfoReturnable<EnumActionResult> cir) {
-        ProcessRightClickBlockEvent event = new ProcessRightClickBlockEvent(pos, hand, Minecraft.instance.player.getHeldItem(hand));
-        MinecraftForge.EVENT_BUS.post(event);
-        if (event.isCanceled()) {
-            cir.cancel();
-        }
-    }
 
     @Inject(method = "onPlayerDamageBlock(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/EnumFacing;)Z", at = @At("HEAD"), cancellable = true)
     private void onPlayerDamageBlock(BlockPos posBlock, EnumFacing directionFacing, CallbackInfoReturnable<Boolean> callbackInfoReturnable) {

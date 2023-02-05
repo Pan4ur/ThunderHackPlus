@@ -19,7 +19,7 @@ import java.util.Random;
 
 public class Weather extends Module {
     public Weather() {
-        super("Weather", "изменяет погоду в мире-на клиентской стороне", Category.MISC, true, false, false);
+        super("Weather", "изменяет погоду в мире-на клиентской стороне", Category.MISC);
     }
 
 

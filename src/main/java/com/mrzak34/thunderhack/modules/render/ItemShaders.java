@@ -1,6 +1,6 @@
 package com.mrzak34.thunderhack.modules.render;
 
-import com.mrzak34.thunderhack.event.events.RenderHand;
+import com.mrzak34.thunderhack.events.RenderHand;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.setting.Setting;
@@ -15,7 +15,7 @@ import java.util.function.Predicate;
 
 public class ItemShaders extends Module{
     public ItemShaders() {
-        super("ItemShaders", "ItemShaders", Module.Category.RENDER, true, false, false);
+        super("ItemShaders", "ItemShaders", Module.Category.RENDER);
         this.setInstance();
     }
     public static ItemShaders getInstance() {

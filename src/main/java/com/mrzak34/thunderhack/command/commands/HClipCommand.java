@@ -7,7 +7,7 @@ import net.minecraft.util.text.TextFormatting;
 public class HClipCommand extends Command {
 
         public HClipCommand() {
-            super("hclip", new String[]{"<int>", "<name>"});
+            super("hclip");
         }
 
         @Override

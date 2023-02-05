@@ -1,7 +1,9 @@
 package com.mrzak34.thunderhack.modules.funnygame;
 
 import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.event.events.*;
+import com.mrzak34.thunderhack.events.EventMove;
+import com.mrzak34.thunderhack.events.EventPreMotion;
+import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.mixin.mixins.ICPacketPlayer;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
@@ -21,7 +23,7 @@ import static com.mrzak34.thunderhack.util.MovementUtil.isMoving;
 public class GroundBoost extends Module {
 
     public GroundBoost() {
-        super("GroundBoost", "Лютейшие спиды-(каппучино+плоскость)", Category.FUNNYGAME, true, false, false);
+        super("GroundBoost", "Лютейшие спиды-(каппучино+плоскость)", Category.FUNNYGAME);
     }
 
 

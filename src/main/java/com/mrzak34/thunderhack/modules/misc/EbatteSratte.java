@@ -1,5 +1,5 @@
 package com.mrzak34.thunderhack.modules.misc;
-import com.mrzak34.thunderhack.event.events.AttackEvent;
+import com.mrzak34.thunderhack.events.AttackEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.Timer;
@@ -10,7 +10,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class EbatteSratte extends Module {
     public EbatteSratte() {
-        super("Ebatte Sratte", "авто токсик", Module.Category.MISC, true, false, false);
+        super("Ebatte Sratte", "авто токсик", Module.Category.MISC);
     }
     Timer timer = new Timer();
     String chatprefix = " ";

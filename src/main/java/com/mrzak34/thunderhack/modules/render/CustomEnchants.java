@@ -4,7 +4,7 @@ import com.mrzak34.thunderhack.modules.Module;
 
 public class CustomEnchants extends Module{
     public CustomEnchants() {
-        super("RainbowEnchants", "радужные зачары", Module.Category.RENDER, true, false, false);
+        super("RainbowEnchants", "радужные зачары", Module.Category.RENDER);
         this.setInstance();
     }
     public static CustomEnchants getInstance() {

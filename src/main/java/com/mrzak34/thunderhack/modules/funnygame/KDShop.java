@@ -1,7 +1,7 @@
 package com.mrzak34.thunderhack.modules.funnygame;
 
-import com.mrzak34.thunderhack.event.events.*;
 import com.mrzak34.thunderhack.command.Command;
+import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.setting.SubBind;
@@ -15,7 +15,7 @@ import org.lwjgl.input.Keyboard;
 
 public class KDShop extends Module{
     public KDShop() {
-        super("KDShop", "Не всегда работает-но да ладно", Category.FUNNYGAME, true, false, false);
+        super("KDShop", "Не всегда работает-но да ладно", Category.FUNNYGAME);
     }
     
     public static GuiScreen lastGui;

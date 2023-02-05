@@ -6,7 +6,7 @@ import net.minecraft.init.MobEffects;
 
 public class AntiBadEffects extends Module {
     public AntiBadEffects() {
-        super("AntiBadEffects", "AntiBadEffects", Category.PLAYER, true, false, false);
+        super("AntiBadEffects", "AntiBadEffects", Category.PLAYER);
     }
 
     @Override

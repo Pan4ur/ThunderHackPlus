@@ -1,7 +1,7 @@
 package com.mrzak34.thunderhack.mixin.mixins;
 
 import com.mojang.authlib.GameProfile;
-import com.mrzak34.thunderhack.event.events.EventPlayerTravel;
+import com.mrzak34.thunderhack.events.EventPlayerTravel;
 import com.mrzak34.thunderhack.mixin.ducks.IEntityPlayer;
 import com.mrzak34.thunderhack.util.Util;
 import com.mrzak34.thunderhack.util.phobos.MotionTracker;
@@ -15,18 +15,12 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 
 @Mixin(value={EntityPlayer.class})
 public abstract class MixinEntityPlayer extends EntityLivingBase implements IEntityPlayer {
     public MixinEntityPlayer(World worldIn, GameProfile gameProfileIn) {
         super(worldIn);
-    }
-
-    @Inject(method={"getCooldownPeriod"}, at={@At(value="HEAD")}, cancellable=true)
-    private void getCooldownPeriodHook(CallbackInfoReturnable<Float> callbackInfoReturnable) {
-
     }
 
 

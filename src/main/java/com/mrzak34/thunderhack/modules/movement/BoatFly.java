@@ -2,8 +2,8 @@ package com.mrzak34.thunderhack.modules.movement;
 
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.command.Command;
-import com.mrzak34.thunderhack.event.events.EventPlayerTravel;;
-import com.mrzak34.thunderhack.event.events.PacketEvent;
+import com.mrzak34.thunderhack.events.EventPlayerTravel;;
+import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.Util;
@@ -31,7 +31,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class BoatFly extends Module {
     public BoatFly() {
-        super("BoatFly", "BoatFly", Category.MOVEMENT, true, false, false);
+        super("BoatFly", "BoatFly", Category.MOVEMENT);
     }
 
 

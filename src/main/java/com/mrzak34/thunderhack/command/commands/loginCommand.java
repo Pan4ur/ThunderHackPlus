@@ -1,8 +1,11 @@
 package com.mrzak34.thunderhack.command.commands;
 
 import com.mrzak34.thunderhack.command.Command;
-import com.mrzak34.thunderhack.util.AccountAuthenticator;
 import com.mrzak34.thunderhack.util.Util;
+import net.minecraft.client.Minecraft;
+import net.minecraft.util.Session;
+
+import java.lang.reflect.Field;
 
 public class loginCommand extends Command {
 
@@ -13,26 +16,27 @@ public class loginCommand extends Command {
     @Override
     public void execute(String[] var1) {
         try {
-            if (var1.length > 2 || var1[0].contains(":")) {
-                String[] object;
-                String string2 = "";
-                String string3 = "";
-                if (var1[0].contains(":")) {
-                    object = var1[0].split(":", 2);
-                    string2 = object[0];
-                    string3 = object[1];
-                } else {
-                    string2 = var1[0];
-                    string3 = var1[1];
-                }
-                Command.sendMessage(AccountAuthenticator.a(string2, string3));
-            } else {
-                AccountAuthenticator.a(var1[0]);
-                Command.sendMessage("Logged [Cracked]: " + Util.mc.getSession().getUsername());
-            }
+            login(var1[0]);
+            Command.sendMessage("Аккаунт изменен на: " + Util.mc.getSession().getUsername());
         }
         catch (Exception exception) {
-            Command.sendMessage("Usage: .login nick / .login email password");
+            Command.sendMessage("Использование: .login nick");
         }
     }
+
+
+    public static void login(String string) {
+        try {
+            Field field = Minecraft.class.getDeclaredField("field_71449_j"); //session
+            field.setAccessible(true);
+            Field field2 = Field.class.getDeclaredField("modifiers");
+            field2.setAccessible(true);
+            field2.setInt(field, field.getModifiers() & 0xFFFFFFEF);
+            field.set(Util.mc, new Session(string, "", "", "mojang"));
+        }
+        catch (Exception exception) {
+            Command.sendMessage("Неверное имя! " + exception);
+        }
+    }
+
 }

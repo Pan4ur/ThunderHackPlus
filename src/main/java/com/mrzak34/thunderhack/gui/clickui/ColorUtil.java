@@ -4,11 +4,9 @@ package com.mrzak34.thunderhack.gui.clickui;
 import java.awt.Color;
 import java.awt.image.BufferedImage;
 
-import com.mrzak34.thunderhack.util.MathUtil;
+import com.mrzak34.thunderhack.util.math.MathUtil;
 
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.EntityPlayer;
 
 public class ColorUtil {
 

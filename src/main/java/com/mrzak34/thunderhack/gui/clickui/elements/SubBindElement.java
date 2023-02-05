@@ -1,16 +1,11 @@
 package com.mrzak34.thunderhack.gui.clickui.elements;
 
 import com.mojang.realmsclient.gui.ChatFormatting;
-import com.mrzak34.thunderhack.gui.classic.ClassicGui;
 import com.mrzak34.thunderhack.gui.clickui.base.AbstractElement;
 import com.mrzak34.thunderhack.gui.thundergui.fontstuff.FontRender;
-import com.mrzak34.thunderhack.modules.client.ClickGui;
-import com.mrzak34.thunderhack.notification.Direction;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.setting.SubBind;
-import com.mrzak34.thunderhack.util.RoundedShader;
 
-import java.awt.*;
 
 public class SubBindElement extends AbstractElement {
     public SubBindElement(Setting setting) {

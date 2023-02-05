@@ -1,5 +1,6 @@
 package com.mrzak34.thunderhack.util.rotations;
 
+import com.github.lunatrius.core.util.vector.Vector2f;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 
@@ -9,10 +10,11 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 
-public class AdvancedCast {
-    public static AdvancedCast instance = new AdvancedCast();
+import static com.mrzak34.thunderhack.util.Util.mc;
 
-    public Entity getMouseOver(Entity target, float yaw, float pitch, double distance, boolean ignoreWalls) {
+public class AdvancedCast {
+
+    public static Entity getMouseOver(Entity target, float yaw, float pitch, double distance, boolean ignoreWalls) {
         Minecraft mc = Minecraft.getMinecraft();
         Entity pointedEntity;
         RayTraceResult objectMouseOver;
@@ -74,15 +76,14 @@ public class AdvancedCast {
         return null;
     }
 
-    public RayTraceResult rayTrace(double blockReachDistance, float yaw, float pitch) {
+    public static RayTraceResult rayTrace(double blockReachDistance, float yaw, float pitch) {
         Vec3d vec3d = Minecraft.getMinecraft().player.getPositionEyes(1);
         Vec3d vec3d1 = getVectorForRotation(pitch, yaw);
-        Vec3d vec3d2 = vec3d.add(vec3d1.x * blockReachDistance, vec3d1.y * blockReachDistance,
-                vec3d1.z * blockReachDistance);
+        Vec3d vec3d2 = vec3d.add(vec3d1.x * blockReachDistance, vec3d1.y * blockReachDistance, vec3d1.z * blockReachDistance);
         return Minecraft.getMinecraft().world.rayTraceBlocks(vec3d, vec3d2, true, true, true);
     }
 
-    protected final Vec3d getVectorForRotation(float pitch, float yaw) {
+    public static Vec3d getVectorForRotation(float pitch, float yaw) {
         float f = MathHelper.cos(-yaw * 0.017453292F - (float) Math.PI);
         float f1 = MathHelper.sin(-yaw * 0.017453292F - (float) Math.PI);
         float f2 = -MathHelper.cos(-pitch * 0.017453292F);

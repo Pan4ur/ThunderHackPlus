@@ -1,13 +1,12 @@
 package com.mrzak34.thunderhack.util.phobos;
 
-import com.mrzak34.thunderhack.event.events.PostWorldTick;
+import com.mrzak34.thunderhack.events.PostWorldTick;
 import com.mrzak34.thunderhack.modules.Feature;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import org.lwjgl.Sys;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,6 +26,10 @@ public class EntityProvider extends Feature
     public void init() {
         MinecraftForge.EVENT_BUS.register(this);
     }
+    public void unload() {
+        MinecraftForge.EVENT_BUS.unregister(this);
+    }
+
 
     public EntityProvider()
     {

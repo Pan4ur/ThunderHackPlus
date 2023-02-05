@@ -2,8 +2,8 @@ package com.mrzak34.thunderhack.modules.misc;
 
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.command.Command;
-import com.mrzak34.thunderhack.event.events.EntityAddedEvent;
-import com.mrzak34.thunderhack.event.events.PacketEvent;
+import com.mrzak34.thunderhack.events.EntityAddedEvent;
+import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.InventoryUtil;
@@ -21,7 +21,7 @@ import com.mrzak34.thunderhack.util.Timer;
 
 public class AutoFish extends Module{
     public AutoFish() {
-        super("AutoFish", "признайся захотел", Category.MISC, true, false, false);
+        super("AutoFish", "признайся захотел", Category.MISC);
     }
 
     public Setting<Boolean> rodSave = register(new Setting<>("RodSave", true));

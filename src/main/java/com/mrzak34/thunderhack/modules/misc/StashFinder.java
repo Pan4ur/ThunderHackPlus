@@ -37,7 +37,7 @@ import static com.mrzak34.thunderhack.util.PlayerUtils.getPlayerPos;
 
 public class StashFinder extends Module {
 
-    public StashFinder() {super("StashFinder", "ищет стеши в зоне-прогрузки", Module.Category.MISC, true, false, false);}
+    public StashFinder() {super("StashFinder", "ищет стеши в зоне-прогрузки", Module.Category.MISC);}
 
     private Timer timer = new Timer();
     private HashMap<Chunk, ArrayList<TileEntity>> map = new HashMap<>();

@@ -4,12 +4,11 @@ import java.awt.Color;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
-import com.mrzak34.thunderhack.event.events.Render2DEvent;
+import com.mrzak34.thunderhack.events.Render2DEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Bind;
 import com.mrzak34.thunderhack.setting.Setting;
-import com.mrzak34.thunderhack.util.ColorUtil;
-import com.mrzak34.thunderhack.util.RenderUtil;
+import com.mrzak34.thunderhack.util.render.RenderUtil;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
@@ -65,7 +64,7 @@ public class ToolTips
     private int textRadarY;
 
     public ToolTips() {
-        super("ToolTips", "показывает содержимое-шалкера/карты/книги", Module.Category.MISC, true, false, false);
+        super("ToolTips", "показывает содержимое-шалкера/карты/книги", Module.Category.MISC);
         this.setInstance();
     }
 
@@ -201,7 +200,7 @@ public class ToolTips
             if (this.textColor.getValue().booleanValue()) {
                 color = new Color(this.red.getValue(), this.green.getValue(), this.blue.getValue(), this.alpha.getValue());
             }
-            mc.fontRenderer.drawStringWithShadow(name == null ? stack.getDisplayName() : name, x + 8, y + 6, ColorUtil.toRGBA(color));
+            mc.fontRenderer.drawStringWithShadow(name == null ? stack.getDisplayName() : name, x + 8, y + 6, color.getRGB());
             GlStateManager.enableDepth();
             RenderHelper.enableGUIStandardItemLighting();
             GlStateManager.enableRescaleNormal();

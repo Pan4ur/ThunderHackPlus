@@ -1,11 +1,10 @@
 package com.mrzak34.thunderhack.util.phobos;
 
-import com.mrzak34.thunderhack.event.events.PacketEvent;
+import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.modules.Feature;
 import com.mrzak34.thunderhack.util.Timer;
 import net.minecraft.network.play.client.CPacketHeldItemChange;
 import net.minecraft.network.play.server.SPacketHeldItemChange;
-import net.minecraft.network.play.server.SPacketSetSlot;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
@@ -18,7 +17,9 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
  */
 public class SwitchManager extends Feature
 {
-
+    public void unload() {
+        MinecraftForge.EVENT_BUS.unregister(this);
+    }
     public void init() {
         MinecraftForge.EVENT_BUS.register(this);
     }

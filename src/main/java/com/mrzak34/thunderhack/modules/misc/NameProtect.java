@@ -4,6 +4,6 @@ import com.mrzak34.thunderhack.modules.Module;
 
 public class NameProtect extends Module {
     public NameProtect() {
-        super("NameProtect", "прячет твой ник", Category.MISC, true, false, false);
+        super("NameProtect", "прячет твой ник", Category.MISC);
     }
 }
