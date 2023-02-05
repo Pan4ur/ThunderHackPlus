@@ -159,6 +159,7 @@ public class Aura extends Module {
 
     public static BackTrack.Box bestBtBox;
     public boolean thisContextRotatedBefore;
+    public static int CPSLimit;
 
     @Override
     public void onUpdate(){
@@ -206,7 +207,9 @@ public class Aura extends Module {
                 }
             }
         }
-
+        if (CPSLimit > 0) {
+            CPSLimit--;
+        }
         boolean shieldDesyncActive = shieldDesync.getValue();
         if (shieldDesyncOnlyOnAura.getValue() && target == null) {
             shieldDesyncActive = false;
@@ -399,9 +402,11 @@ public class Aura extends Module {
 
                     if (InventoryUtil.getBestAxe() >= 0 && shieldBreaker.getValue() && base instanceof EntityPlayer && isActiveItemStackBlocking((EntityPlayer) base, 1)) {
                         mc.player.connection.sendPacket(new CPacketHeldItemChange(InventoryUtil.getBestAxe()));
-                        shieldBreaker((EntityPlayer) base);
+                        mc.playerController.attackEntity(mc.player, (EntityPlayer) base);
+                        mc.player.swingArm(EnumHand.MAIN_HAND);
                         mc.player.connection.sendPacket(new CPacketHeldItemChange(mc.player.inventory.currentItem));
                     }
+
                     if (blocking) {
                         mc.player.connection.sendPacket(new CPacketPlayerTryUseItem(mc.player.getActiveHand()));
                     }
@@ -412,9 +417,11 @@ public class Aura extends Module {
                         swapBack = true;
                         swappedToAxe = false;
                     }
+                    CPSLimit = 10;
                 }
             }
         }
+
     }
 
 
@@ -446,10 +453,6 @@ public class Aura extends Module {
         return (f * f + f1 * f1 + f2 * f2);
     }
 
-    public void shieldBreaker(EntityPlayer base) {
-        mc.playerController.attackEntity(mc.player, base);
-        mc.player.swingArm(EnumHand.MAIN_HAND);
-    }
 
     public boolean isNakedPlayer(EntityLivingBase base) {
         if (!(base instanceof EntityOtherPlayerMP)) {
@@ -492,9 +495,11 @@ public class Aura extends Module {
                 || mc.player.isInWeb
                 || (smartCrit.getValue() && (isCrystalNear() || (!criticals_autojump.getValue() && !mc.gameSettings.keyBindJump.isKeyDown())));
 
-
         if(timingMode.getValue() == TimingMode.Default) {
-            if (getCooledAttackStrength() <= 0.93) {
+            if (mc.player.getCooledAttackStrength(1.5f) <= 0.93) {
+                return false;
+            }
+            if(CPSLimit  > 0){
                 return false;
             }
         } else {
@@ -504,18 +509,16 @@ public class Aura extends Module {
             }
         }
 
-
-
-
         if(target != null){
             if(mc.player.getDistanceSq(target) > attackDistance.getValue() * attackDistance.getValue()){
                 return  false;
             }
         }
 
-
         if( criticals.getValue() && watercrits.getValue() && (mc.world.getBlockState(new BlockPos(mc.player.posX, mc.player.posY, mc.player.posZ)).getBlock() instanceof BlockLiquid && mc.world.getBlockState(new BlockPos(mc.player.posX, mc.player.posY + 1, mc.player.posZ)).getBlock() instanceof BlockAir && mc.player.fallDistance >= 0.08f)){
             return true;
+        } else if(criticals.getValue() && watercrits.getValue() && (mc.world.getBlockState(new BlockPos(mc.player.posX, mc.player.posY, mc.player.posZ)).getBlock() instanceof BlockLiquid && mc.world.getBlockState(new BlockPos(mc.player.posX, mc.player.posY + 1, mc.player.posZ)).getBlock() instanceof BlockAir)){
+            return false;
         }
 
         if(criticals.getValue() && !reasonForCancelCritical) {
@@ -540,16 +543,13 @@ public class Aura extends Module {
         return clamp(((float)  ((IEntityLivingBase) mc.player).getTicksSinceLastSwing()  + 1.5f ) / getCooldownPeriod(), 0.0F, 1.0F);
     }
     public float getCooldownPeriod() {
-        return (float)(1.0 / mc.player.getEntityAttribute(SharedMonsterAttributes.ATTACK_SPEED).getAttributeValue() * ( Thunderhack.moduleManager.getModuleByClass(com.mrzak34.thunderhack.modules.misc.Timer.class).isOn() ? 20f * Thunderhack.moduleManager.getModuleByClass(com.mrzak34.thunderhack.modules.misc.Timer.class).speed.getValue() : 20.0) );
+        return (float)(1.0 / mc.player.getEntityAttribute(SharedMonsterAttributes.ATTACK_SPEED).getAttributeValue() * ( Thunderhack.moduleManager.getModuleByClass(com.mrzak34.thunderhack.modules.misc.Timer.class).isOn() ? 20f * Thunderhack.moduleManager.getModuleByClass(com.mrzak34.thunderhack.modules.misc.Timer.class).speed.getValue() : 20f) );
     }
 
 
 
     private boolean isCrystalNear() {
-        EntityEnderCrystal crystal = (EntityEnderCrystal) mc.world.loadedEntityList.stream()
-                .filter(e -> (e instanceof EntityEnderCrystal && mc.player.getDistance(e) <= 6))
-                .min(Comparator.comparing(c -> mc.player.getDistance(c)))
-                .orElse(null);
+        EntityEnderCrystal crystal = (EntityEnderCrystal) mc.world.loadedEntityList.stream().filter(e -> (e instanceof EntityEnderCrystal && mc.player.getDistance(e) <= 6)).min(Comparator.comparing(c -> mc.player.getDistance(c))).orElse(null);
         if (crystal != null) {
             return true;
         }
@@ -610,7 +610,7 @@ public class Aura extends Module {
         if (!ignoreWalls(entity)) {
             return getBestHitbox(entity) != null;
         } else
-            return !(entity.getDistanceSq(mc.player) > Math.pow((attackDistance.getValue() + rotateDistance.getValue()),2) );
+            return mc.player.getDistanceSq(entity) <= Math.pow((attackDistance.getValue() + rotateDistance.getValue()),2) ;
     }
 
     public Vec3d getBestHitbox(Entity target) {
@@ -750,13 +750,13 @@ public class Aura extends Module {
         if (input instanceof EntityEnderCrystal) {
             return true;
         }
-        BlockPos pos = new BlockPos(mc.player.posX, Thunderhack.positionManager.getY(), mc.player.posZ);
+        BlockPos pos = new BlockPos(Thunderhack.positionManager.getX(), Thunderhack.positionManager.getY(), Thunderhack.positionManager.getZ());
         if (mc.world.getBlockState(pos).getMaterial() != Material.AIR) {
             return true;
         }
 
         if(ignoreWalls.getValue()){
-            return mc.player.getDistanceSq(input) <= walldistance.getValue()*walldistance.getValue();
+            return mc.player.getDistanceSq(input) <= walldistance.getValue() * walldistance.getValue();
         }
 
         return ignoreWalls.getValue();
@@ -776,7 +776,7 @@ public class Aura extends Module {
     }
 
     public boolean isHitBoxVisible(Entity target, Vec3d vector, double dst) {
-        return AdvancedCast.getMouseOver(target,getRotationForCoord(vector).x,getRotationForCoord(vector).y, dst, !ignoreWalls(target)) == target;
+        return RaycastHelper.getPointedEntity(getRotationForCoord(vector), dst, 1, !ignoreWalls(target), target) == target;
     }
 
     public static Vector2f getRotationForCoord(Vec3d point) {
