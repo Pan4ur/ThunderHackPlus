@@ -4,6 +4,7 @@ import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.events.*;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
+import com.mrzak34.thunderhack.util.MovementUtil;
 import com.mrzak34.thunderhack.util.math.MatrixStrafeMovement;
 import com.mrzak34.thunderhack.util.PlayerUtils;
 import com.mrzak34.thunderhack.util.Timer;
@@ -44,7 +45,7 @@ public class Speed extends Module {
     private Setting<Boolean> str2 =this.register( new Setting<>("Strafe", false, v -> Mode.getValue() == mode.Matrix));
 
     public enum mode {
-        Default, Grief,StrafeStrict,ReallyWorld, Matrix;
+        Default, Grief,StrafeStrict,ReallyWorld, Matrix, MatrixJumpBoost;
     }
 
     public double defaultBaseSpeed = getBaseMoveSpeed();
@@ -55,7 +56,10 @@ public class Speed extends Module {
     int velocity = 0;
     int boostticks = 0;
     boolean isBoosting = false;
-
+    private boolean nexus_flip = false;
+    public static boolean serversprint = false;
+    public static boolean needSprintState;
+    int waterTicks;
     private double strictBaseSpeed = 0.2873D;
     private int strictCounter;
     private int strictStage = 4;
@@ -87,6 +91,20 @@ public class Speed extends Module {
 
     @SubscribeEvent
     public void onUpdateWalkingPlayerPre(EventPreMotion event) {
+        if(Mode.getValue() == mode.MatrixJumpBoost){
+            if(MovementUtil.isMoving() && !mc.world.getCollisionBoxes(mc.player, mc.player.getEntityBoundingBox().expand(0.5, 0.0, 0.5).offset(0.0, -1.0, 0.0)).isEmpty() && !nexus_flip){
+                mc.player.onGround = true;
+                mc.player.jump();
+            }
+        }
+
+        if(mc.player.fallDistance > 0){
+            nexus_flip = true;
+        }
+        if(!mc.world.getCollisionBoxes(mc.player, mc.player.getEntityBoundingBox().offset(0.0, -0.2, 0.0)).isEmpty() && nexus_flip){
+            nexus_flip = false;
+        }
+
         if(strafeBoost.getValue() && isBoosting){
             return;
         }
@@ -367,18 +385,10 @@ public class Speed extends Module {
                 break;
             }
         }
-        if(Mode.getValue() != mode.Default && Mode.getValue() != mode.Matrix) {
+        if(Mode.getValue() != mode.Default && Mode.getValue() != mode.Matrix && Mode.getValue() != mode.MatrixJumpBoost) {
             event.setCanceled(true);
         }
     }
-
-
-
-
-
-    public static boolean serversprint = false;
-    public static boolean needSprintState;
-    int waterTicks;
 
     @SubscribeEvent
     public void onPacketSend(PacketEvent.Send e){
