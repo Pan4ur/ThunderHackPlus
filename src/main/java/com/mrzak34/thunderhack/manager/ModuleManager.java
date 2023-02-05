@@ -190,6 +190,7 @@ public class ModuleManager extends Feature {
         this.modules.add(new AutoTPaccept());
         this.modules.add(new AntiDisconnect());
         this.modules.add(new XRay());
+        this.modules.add(new NoJumpDelay());
         this.modules.add(new Flight());
         this.modules.add(new HitBoxes());
         this.modules.add(new NGriefCleaner());

@@ -4,6 +4,7 @@ import com.mrzak34.thunderhack.events.ElytraEvent;
 import com.mrzak34.thunderhack.events.EventJump;
 import com.mrzak34.thunderhack.events.FinishUseItemEvent;
 import com.mrzak34.thunderhack.events.HandleLiquidJumpEvent;
+import com.mrzak34.thunderhack.modules.movement.NoJumpDelay;
 import com.mrzak34.thunderhack.modules.render.Animations;
 import com.mrzak34.thunderhack.util.phobos.IEntityLivingBase;
 import net.minecraft.entity.Entity;
@@ -17,6 +18,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+import static com.mrzak34.thunderhack.util.Util.mc;
 
 @Mixin(value={EntityLivingBase.class})
 public abstract class MixinEntityLivingBase
@@ -35,6 +38,7 @@ public abstract class MixinEntityLivingBase
     @Shadow
     public float moveForward;
 
+    @Shadow public int jumpTicks;
     protected float lowestDura = Float.MAX_VALUE;
 
     @Override
@@ -116,4 +120,10 @@ public abstract class MixinEntityLivingBase
             info.setReturnValue(Animations.getInstance().slowValue.getValue());}
     }
 
+    @Inject(method = { "onLivingUpdate" }, at = { @At("HEAD") })
+    public void onLivingUpdate(CallbackInfo ci) {
+        if(Thunderhack.moduleManager.getModuleByClass(NoJumpDelay.class).isEnabled()){
+            jumpTicks = 0;
+        }
+    }
 }
