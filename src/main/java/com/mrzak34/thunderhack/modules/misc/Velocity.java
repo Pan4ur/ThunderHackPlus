@@ -27,8 +27,8 @@ public class Velocity
     }
 
     public Setting<Boolean> onlyAura = register(new Setting<>("OnlyAura", false));
-    public Setting<Float> horizontal = this.register(new Setting<Float>("Horizontal", 0.0f, 0.0f, 100.0f,v-> mode.getValue() == modeEn.Matrix));
-    public Setting<Float> vertical = this.register(new Setting<Float>("Vertical", 0.0f, 0.0f, 100.0f,v-> mode.getValue() == modeEn.Matrix));
+    public Setting<Float> horizontal = this.register(new Setting<Float>("Horizontal", 0.0f, 0.0f, 100.0f,v-> mode.getValue() == modeEn.Custom));
+    public Setting<Float> vertical = this.register(new Setting<Float>("Vertical", 0.0f, 0.0f, 100.0f,v-> mode.getValue() == modeEn.Custom));
     public Setting<Boolean> ice = this.register(new Setting<Boolean>("Ice", false));
     public Setting<Boolean> autoDisable = this.register(new Setting<Boolean>("DisableOnVerify", false));
 
