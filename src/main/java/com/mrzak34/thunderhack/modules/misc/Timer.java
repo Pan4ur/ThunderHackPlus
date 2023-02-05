@@ -34,7 +34,7 @@ public class Timer extends Module {
     public Setting<Integer> maxTicks = register(new Setting("Bound", 0, 0, 15, v -> mode.getValue() == Mode.NORMAL));
     public Setting<Boolean> noMove = register(new Setting<>("NoMove", true,v-> smart.getValue() && mode.getValue() == Mode.NORMAL));
     public Setting<Boolean> autoDisable = register(new Setting<>("AutoDisable", true,v-> smart.getValue()  && mode.getValue() == Mode.NORMAL));
-    public Setting<Boolean> indicator = register(new Setting<>("Indicator", true,v-> smart.getValue()  && mode.getValue() == Mode.NORMAL));
+    public Setting<Boolean> indicator = register(new Setting<>("Indicator", false,v-> smart.getValue()  && mode.getValue() == Mode.NORMAL));
 
     public Setting<Float> shiftTicks = register(new Setting("ShiftTicks", 10.0F, 1F, 40f, v -> mode.getValue() == Mode.ReallyWorld));
 
