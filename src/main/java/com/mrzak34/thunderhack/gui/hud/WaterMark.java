@@ -19,7 +19,7 @@ public class WaterMark extends Module {
     int i = 0;
     public Timer timer = new Timer();
 
-
+    public final Setting<ColorSetting> color1 = this.register(new Setting<>("TextColor", new ColorSetting(-1)));
     public final Setting<ColorSetting> color2 = this.register(new Setting<>("Color", new ColorSetting(0xFF101010)));
     public final Setting<ColorSetting> shadowColor = this.register(new Setting<>("ShadowColor", new ColorSetting(0xFF101010)));
 
@@ -66,7 +66,7 @@ public class WaterMark extends Module {
 
 
         FontRender.drawString6(text, 7,9,-1,false);
-        FontRender.drawString6( "  |  " +  mc.player.getName() + "  |  " + Thunderhack.serverManager.getPing() + " ms  |  " + (mc.currentServerData == null ? "SinglePlayer" : mc.currentServerData.serverIP), FontRender.getStringWidth6("ThunderHack") + 10,9,-1,false);
+        FontRender.drawString6( "  |  " +  mc.player.getName() + "  |  " + Thunderhack.serverManager.getPing() + " ms  |  " + (mc.currentServerData == null ? "SinglePlayer" : mc.currentServerData.serverIP), FontRender.getStringWidth6("ThunderHack") + 10,9,color1.getValue().getColor(),false);
 
     }
 

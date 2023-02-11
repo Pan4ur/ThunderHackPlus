@@ -98,7 +98,7 @@ public class TriggerBot extends Module {
 
 
     private float getCooledAttackStrength() {
-        return clamp(((float)  ((IEntityLivingBase) mc.player).getTicksSinceLastSwing()  + 1.5f ) / getCooldownPeriod(), 0.0F, 1.0F);
+        return clamp(((float)  ((IEntityLivingBase) mc.player).getTicksSinceLastSwing() + 1.5f) / getCooldownPeriod(), 0.0F, 1.0F);
     }
     public float getCooldownPeriod() {
         return (float)(1.0 / mc.player.getEntityAttribute(SharedMonsterAttributes.ATTACK_SPEED).getAttributeValue() * ( Thunderhack.moduleManager.getModuleByClass(com.mrzak34.thunderhack.modules.misc.Timer.class).isOn() ? 20f * Thunderhack.moduleManager.getModuleByClass(com.mrzak34.thunderhack.modules.misc.Timer.class).speed.getValue() : 20.0) );

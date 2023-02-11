@@ -70,6 +70,13 @@ public class Setting<T> {
         return this.value;
     }
 
+    public float getPow2Value() {
+        if(this.value instanceof Float){
+            return ((Float) this.value).floatValue() * ((Float) this.value).floatValue();
+        }
+        return 0;
+    }
+
     public void setValue(T value) {
         this.setPlannedValue(value);
         if (this.hasRestriction) {

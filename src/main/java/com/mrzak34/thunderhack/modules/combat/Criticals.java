@@ -3,12 +3,19 @@ package com.mrzak34.thunderhack.modules.combat;
 import com.mrzak34.thunderhack.events.AttackEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.events.PacketEvent;
+import com.mrzak34.thunderhack.modules.movement.Jesus;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.Timer;
+import com.mrzak34.thunderhack.util.phobos.IEntityLivingBase;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.MobEffects;
+import net.minecraft.network.play.client.CPacketAnimation;
 import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraft.network.play.client.CPacketUseEntity;
+import net.minecraft.util.EnumHand;
+import net.minecraft.world.GameType;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
@@ -24,9 +31,6 @@ public class Criticals
     }
 
     Timer timer = new Timer();
-
-
-
 
 
     public Setting<Mode> mode = this.register(new Setting<>("Mode", Mode.FunnyGame));
@@ -71,10 +75,10 @@ public class Criticals
         if (fullNullCheck()) {
             return;
         }
+
         if (mode.getValue() == Mode.FunnyGame) {
             return;
         }
-
         if (!(f4h2.getPacket() instanceof CPacketUseEntity)) {
             return;
         }
@@ -138,8 +142,6 @@ public class Criticals
             }
         }
     }
-
-
 
 
 

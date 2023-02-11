@@ -38,7 +38,7 @@ public class EffectsRemover extends Module{
             return;
         }
 
-        if( timer.passedMs(500) &&  !(mc.player.isPotionActive(Objects.requireNonNull(Potion.getPotionFromResourceLocation("strength")))) && mc.objectMouseOver.typeOfHit != RayTraceResult.Type.BLOCK){
+        if( timer.passedMs(500) &&  !(mc.player.isPotionActive(Objects.requireNonNull(Potion.getPotionFromResourceLocation("strength")))) && mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit != RayTraceResult.Type.BLOCK){
             int hotbarslot = mc.player.inventory.currentItem;
             ItemStack itemStack = Util.mc.player.inventory.getStackInSlot(InventoryUtil.getPowderAtHotbar());
             if (!(itemStack.getItem().getItemStackDisplayName(itemStack).equals("Порох"))) return;

@@ -1,7 +1,9 @@
 package com.mrzak34.thunderhack.command.commands;
 
+import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.manager.EventManager;
+import com.mrzak34.thunderhack.modules.client.MainSettings;
 import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraft.util.math.BlockPos;
 
@@ -23,6 +25,10 @@ public class BackCommand extends Command {
         }
         mc.player.setPosition(pos.getX(), pos.getY() + 1, pos.getZ());
 
-        Command.sendMessage("Телепортируемся на координаты X: " + EventManager.backX + " Y: " + EventManager.backY + " Z: " + EventManager.backZ);
+        if(Thunderhack.moduleManager.getModuleByClass(MainSettings.class).language.getValue() == MainSettings.Language.RU) {
+            Command.sendMessage("Телепортируемся на координаты X: " + EventManager.backX + " Y: " + EventManager.backY + " Z: " + EventManager.backZ);
+        } else {
+            Command.sendMessage("Teleporting to X: " + EventManager.backX + " Y: " + EventManager.backY + " Z: " + EventManager.backZ);
+        }
     }
 }

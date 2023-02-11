@@ -48,6 +48,8 @@ public class ModuleManager extends Feature {
         this.modules.add(new Welcomer());
         this.modules.add(new FastFall());
         this.modules.add(new Search());
+        this.modules.add(new EFly());
+
         this.modules.add(new AutoFlyme());
         this.modules.add(new ReverseStep());
         this.modules.add(new Step());
@@ -224,6 +226,7 @@ public class ModuleManager extends Feature {
         this.modules.add(new AutoCappRegear());
         this.modules.add(new ToolTips());
         this.modules.add(new Macros());
+        this.modules.add(new AutoGApple());
         this.modules.add(new HudEditor());
         this.modules.add(new AutoPot());
         this.modules.add(new MSTSpeed());

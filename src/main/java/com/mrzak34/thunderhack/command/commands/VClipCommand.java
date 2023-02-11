@@ -1,6 +1,8 @@
 package com.mrzak34.thunderhack.command.commands;
 
+import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.command.Command;
+import com.mrzak34.thunderhack.modules.client.MainSettings;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraft.util.text.TextFormatting;
@@ -14,13 +16,23 @@ public class VClipCommand extends Command {
     @Override
     public void execute(String[] commands) {
         if (commands.length == 1) {
-            Command.sendMessage("Попробуй .vclip <число>");
+            if(Thunderhack.moduleManager.getModuleByClass(MainSettings.class).language.getValue() == MainSettings.Language.RU) {
+                Command.sendMessage("Попробуй .vclip <число>");
+            } else {
+                Command.sendMessage("Try .vclip <number>");
+            }
             return;
         }
         if (commands.length == 2) {
             try {
                 int i;
-                Command.sendMessage((Object) TextFormatting.GREEN + "Клипаемся на " + Double.valueOf(commands[0]) + " блоков");
+
+                if(Thunderhack.moduleManager.getModuleByClass(MainSettings.class).language.getValue() == MainSettings.Language.RU) {
+                    Command.sendMessage((Object) TextFormatting.GREEN + "Клипаемся на " + Double.valueOf(commands[0]) + " блоков");
+                } else {
+                    Command.sendMessage((Object)TextFormatting.GREEN + "clipping to  " + Double.valueOf(commands[0]) + " blocks.");
+                }
+
                 for (i = 0; i < 10; ++i) {
                     this.mc.player.connection.sendPacket((Packet)new CPacketPlayer.Position(this.mc.player.posX, this.mc.player.posY, this.mc.player.posZ, false));
                 }

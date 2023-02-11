@@ -50,7 +50,7 @@ public class BackTrack extends Module {
     }
 
     @SubscribeEvent
-    public void onRender3D(Render3DEvent event) {
+    public void onPreRenderEvent(PreRenderEvent event) {
         for (EntityPlayer entity : mc.world.playerEntities) {
             if(entity == mc.player){
                 continue;
@@ -120,32 +120,6 @@ public class BackTrack extends Module {
                         GlStateManager.popMatrix();
                     }
             }
-
-            /*
-            EntityPlayer ghost = (EntityPlayer) target;
-            ghost.prevLimbSwingAmount = target.prevLimbSwingAmount;
-            ghost.limbSwing = target.limbSwing;
-            ghost.limbSwingAmount = target.limbSwingAmount;
-            ghost.hurtTime = target.hurtTime;
-            GlStateManager.pushMatrix();
-
-            boolean BLEND = GL11.glIsEnabled(GL11.GL_BLEND);
-            GlStateManager.enableLighting();
-            GlStateManager.enableBlend();
-            GlStateManager.enableDepth();
-            GL11.glEnable(GL11.GL_TEXTURE_2D);
-
-            try {
-                mc.getRenderManager().renderEntity(ghost, getBacktrackPos().x - mc.getRenderManager().renderPosX, getBacktrackPos().y - mc.getRenderManager().renderPosY, getBacktrackPos().z - mc.getRenderManager().renderPosZ, target.rotationYaw, mc.getRenderPartialTicks(), false);
-            } catch (Exception ignored){}
-
-            GL11.glDisable(GL11.GL_TEXTURE_2D);
-            GlStateManager.disableDepth();
-            GlStateManager.disableLighting();
-            GlStateManager.disableBlend();
-             */
-
-
         }
     }
 

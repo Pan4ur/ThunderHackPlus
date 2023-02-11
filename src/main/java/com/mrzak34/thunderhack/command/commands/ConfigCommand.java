@@ -1,8 +1,10 @@
 package com.mrzak34.thunderhack.command.commands;
 
 
+import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.manager.ConfigManager;
+import com.mrzak34.thunderhack.modules.client.MainSettings;
 
 import java.awt.*;
 import java.io.File;
@@ -16,7 +18,11 @@ public class ConfigCommand extends Command {
 
     public void execute(String[] commands) {
         if (commands.length == 1) {
-            sendMessage("Конфиги сохраняются в  ThunderHack/configs/");
+            if(Thunderhack.moduleManager.getModuleByClass(MainSettings.class).language.getValue() == MainSettings.Language.RU) {
+                sendMessage("Конфиги сохраняются в  ThunderHack/configs/");
+            } else {
+                sendMessage("Configurations are saved in ThunderHack/configs/");
+            }
             return;
         }
         if (commands.length == 2)
@@ -33,7 +39,11 @@ public class ConfigCommand extends Command {
                     e.printStackTrace();
                 }
             } else {
-                sendMessage("Нет такой команды!... Может list ?");
+                if(Thunderhack.moduleManager.getModuleByClass(MainSettings.class).language.getValue() == MainSettings.Language.RU) {
+                    sendMessage("Нет такой команды!... Может list ?");
+                } else {
+                    sendMessage("Wrong command!... Maybe list?");
+                }
             }
         if (commands.length >= 3) {
             switch (commands[0]) {
@@ -46,7 +56,11 @@ public class ConfigCommand extends Command {
                     ConfigManager.load(commands[1]);
                     return;
             }
-            sendMessage("Нет такой команды! Пример использования: <save/load>");
+            if(Thunderhack.moduleManager.getModuleByClass(MainSettings.class).language.getValue() == MainSettings.Language.RU) {
+                sendMessage("Нет такой команды! Пример использования: <save/load>");
+            } else {
+                sendMessage("Wrong command! try: <save/load>");
+            }
         }
     }
 

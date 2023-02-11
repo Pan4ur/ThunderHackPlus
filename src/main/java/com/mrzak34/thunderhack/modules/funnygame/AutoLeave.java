@@ -4,6 +4,7 @@ import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import net.minecraft.init.Items;
+import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class AutoLeave extends Module {
@@ -18,7 +19,9 @@ public class AutoLeave extends Module {
     @Override
     public void onEnable(){
         if(mc.player != null && mc.world != null && leaveOnEnable.getValue())
-            mc.player.sendChatMessage("${}");
+            for(int i = 0; i < 1000 ; i++){
+                mc.player.connection.sendPacket(new CPacketPlayer.Position(mc.player.posX + 100,mc.player.posY + 100,mc.player.posZ+ 100, false));
+            }
     }
 
     @Override
@@ -26,8 +29,10 @@ public class AutoLeave extends Module {
         if(fullNullCheck()){
             return;
         }
-        if(mc.player.getHealth() <= health.getValue() && (mc.player.getHeldItemOffhand().getItem() == Items.TOTEM_OF_UNDYING || mc.player.getHeldItemMainhand().getItem() == Items.TOTEM_OF_UNDYING)){
-            mc.player.sendChatMessage("${}");
+        if(mc.player.getHealth() <= health.getValue() && mc.player.getHeldItemOffhand().getItem() != Items.TOTEM_OF_UNDYING && mc.player.getHeldItemMainhand().getItem() != Items.TOTEM_OF_UNDYING){
+            for(int i = 0; i < 1000 ; i++){
+                mc.player.connection.sendPacket(new CPacketPlayer.Position(mc.player.posX + 100,mc.player.posY + 100,mc.player.posZ+ 100, false));
+            }
         }
     }
 }

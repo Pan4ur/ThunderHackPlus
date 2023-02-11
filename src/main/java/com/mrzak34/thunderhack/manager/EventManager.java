@@ -24,6 +24,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityEnderPearl;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
+import net.minecraft.network.play.client.CPacketEntityAction;
 import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraft.network.play.server.SPacketEntityStatus;
 import net.minecraft.network.play.server.SPacketSoundEffect;
@@ -79,6 +80,7 @@ public class EventManager extends Feature {
         }
     }
 
+    public static boolean serversprint = false;
 
 
     @SubscribeEvent
@@ -97,6 +99,11 @@ public class EventManager extends Feature {
     public void onTick(TickEvent.ClientTickEvent event) {
         if (fullNullCheck())
             return;
+
+        if(event.phase != TickEvent.Phase.END){
+            return;
+        }
+
         Thunderhack.moduleManager.onTick();
         timerAnimation.update();
         if(mc.world != null) {
@@ -138,6 +145,15 @@ public class EventManager extends Feature {
     public void onPacketSend(PacketEvent.Send e){
         if(e.getPacket() instanceof CPacketPlayer.Position || e.getPacket() instanceof CPacketPlayer.PositionRotation || e.getPacket() instanceof CPacketPlayer.Rotation){
             lastPacket.reset();
+        }
+        if(e.getPacket() instanceof CPacketEntityAction){
+            CPacketEntityAction ent = e.getPacket();
+            if(ent.getAction() == CPacketEntityAction.Action.START_SPRINTING) {
+                serversprint = true;
+            }
+            if(ent.getAction() == CPacketEntityAction.Action.STOP_SPRINTING) {
+                serversprint = false;
+            }
         }
     }
 

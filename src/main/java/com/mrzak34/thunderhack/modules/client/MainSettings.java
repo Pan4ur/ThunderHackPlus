@@ -13,10 +13,19 @@ public class MainSettings extends Module {
     public Setting<Boolean> notifyToggles = this.register(new Setting<>("NotifyToggles", false));
     public Setting<Boolean> mainMenu = this.register(new Setting<>("MainMenu", true));
     public Setting<ShaderModeEn> shaderMode = register(new Setting("ShaderMode", ShaderModeEn.Smoke));
+    public Setting<Language> language = register(new Setting("Language", Language.ENG));
 
     public enum ShaderModeEn {
         Smoke,
         WarThunder,
         Dicks
+    }
+
+
+
+
+    public enum Language {
+        RU,
+        ENG
     }
 }

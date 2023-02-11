@@ -57,25 +57,27 @@ public class AntiTPhere extends Module {
                     }
                 }
                 Command.sendMessage(String.valueOf(log));
-                switch (mode.getValue()){
-                    case RTP: {
-                        mc.player.sendChatMessage("/rtp");
-                        break;
-                    }
-                    case Back: {
-                        mc.player.sendChatMessage("/back");
-                        break;
-                    }
-                    case Home: {
-                        mc.player.sendChatMessage("/home");
-                        break;
-                    }
-                    case Spawn: {
-                        mc.player.sendChatMessage("/spawn");
-                        break;
-                    }
 
-                }
+                    switch (mode.getValue()) {
+                        case RTP: {
+                            mc.player.sendChatMessage("/rtp");
+                            break;
+                        }
+                        case Back: {
+                            mc.player.sendChatMessage("/back");
+                            break;
+                        }
+                        case Home: {
+                            mc.player.sendChatMessage("/home");
+                            break;
+                        }
+                        case Spawn: {
+                            mc.player.sendChatMessage("/spawn");
+                            break;
+                        }
+                    }
+                    flag = false;
+
         }
     }
 

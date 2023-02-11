@@ -34,6 +34,7 @@ public class FGTotem extends Module {
     public Setting<Boolean> totem = this.register(new Setting<>("Totem", true));
     public Setting<Boolean> gapple = this.register(new Setting<>("SwordGap", false));
     public Setting<Boolean> crystal = this.register(new Setting<>("Crystal", true));
+    public Setting<Boolean> StopSprint = this.register(new Setting<>("StopSprint", false));
 
     public Setting<Float> delay =this.register( new Setting<>("Delay", 0F, 0F, 5F));
     public Setting<Boolean> hotbarTotem = this.register(new Setting<>("HotbarTotem", false));
@@ -67,6 +68,7 @@ public class FGTotem extends Module {
     @SubscribeEvent
     public void onPacketSend(PacketEvent.Send event) {
         if (event.getPacket() instanceof CPacketClickWindow) {
+            if(!StopSprint.getValue()) return;
             mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.STOP_SPRINTING));
         }
     }

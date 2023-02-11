@@ -2,6 +2,7 @@ package com.mrzak34.thunderhack.modules.movement;
 
 import com.mrzak34.thunderhack.events.*;
 import com.mrzak34.thunderhack.modules.Module;
+import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.math.MatrixStrafeMovement;
 import net.minecraft.network.play.client.CPacketEntityAction;
 import net.minecraft.network.play.server.SPacketPlayerPosLook;
@@ -35,6 +36,7 @@ public class Strafe extends Module {
         }
     }
 
+    public Setting<Float> rang = this.register(new Setting<>("Speed", 1.0f, 1f, 10.0f));
 
     @SubscribeEvent
     public void onSprint(EventSprint e){
@@ -45,6 +47,8 @@ public class Strafe extends Module {
             }
         }
     }
+
+
     @SubscribeEvent
     public void onMove(MatrixMove move){
         if (isInLiquid()) {
@@ -89,6 +93,7 @@ public class Strafe extends Module {
         MatrixStrafeMovement.postMove(move.getHorizontalMove());
     }
 
+
     @SubscribeEvent
     public void onPacketReceive(PacketEvent.Receive e){
         if(e.getPacket() instanceof  SPacketPlayerPosLook){
@@ -114,3 +119,4 @@ public class Strafe extends Module {
     }
 
 }
+//FastWorldLoad

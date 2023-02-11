@@ -66,7 +66,7 @@ public abstract class MixinEntityRenderer
 
     @Inject(method = { "renderItemActivation" },  at = { @At("HEAD") },  cancellable = true)
     public void renderItemActivationHook(final CallbackInfo info) {
-        if (this.itemActivationItem != null && NoRender.getInstance().isOn() && (boolean)NoRender.getInstance().totemPops.getValue() && this.itemActivationItem.getItem() == Items.TOTEM_OF_UNDYING) {
+        if (this.itemActivationItem != null && NoRender.getInstance().isOn() && NoRender.getInstance().totemPops.getValue() && this.itemActivationItem.getItem() == Items.TOTEM_OF_UNDYING) {
             info.cancel();
         }
     }
@@ -75,7 +75,7 @@ public abstract class MixinEntityRenderer
 
     @Inject(method = { "renderItemActivation" },  at = { @At("HEAD") },  cancellable = true)
     public void renderItemActivationHook(int p_190563_1_, int p_190563_2_, float p_190563_3_, CallbackInfo ci) {
-        if (this.itemActivationItem != null && NoRender.getInstance().isOn() && (boolean)NoRender.getInstance().totemPops.getValue() && this.itemActivationItem.getItem() == Items.TOTEM_OF_UNDYING) {
+        if (this.itemActivationItem != null && NoRender.getInstance().isOn() && NoRender.getInstance().totemPops.getValue() && this.itemActivationItem.getItem() == Items.TOTEM_OF_UNDYING) {
             ci.cancel();
         }
     }

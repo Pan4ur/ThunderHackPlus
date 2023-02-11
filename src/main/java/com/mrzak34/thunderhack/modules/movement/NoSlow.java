@@ -29,7 +29,7 @@ public class NoSlow extends Module {
         }
 
         if(Mode.getValue() == mode.StrictNCP || Mode.getValue() == mode.NCP){
-            if(mc.player.isHandActive() && !mc.player.isRiding()) {
+            if(mc.player.isHandActive() && !mc.player.isRiding() && !mc.player.isSneaking()) {
                 if (Mode.getValue() == mode.StrictNCP && (mc.player.getHeldItemMainhand().getItem() instanceof ItemFood  ||  mc.player.getHeldItemOffhand().getItem() instanceof ItemFood))
                     mc.player.connection.sendPacket(new CPacketHeldItemChange(mc.player.inventory.currentItem));
                 mc.player.movementInput.moveForward /= 0.2;

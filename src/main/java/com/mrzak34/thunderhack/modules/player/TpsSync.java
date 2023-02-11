@@ -2,6 +2,7 @@ package com.mrzak34.thunderhack.modules.player;
 
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.modules.Module;
+import com.mrzak34.thunderhack.modules.misc.Timer;
 
 public class TpsSync
         extends Module {
@@ -12,6 +13,9 @@ public class TpsSync
 
     @Override
     public void onUpdate(){
+        if(Thunderhack.moduleManager.getModuleByClass(Timer.class).isEnabled()){
+            return;
+        }
         if(Thunderhack.serverManager.getTPS() > 1) {
             Thunderhack.TICK_TIMER = Thunderhack.serverManager.getTPS() / 20f;
         } else {

@@ -1,5 +1,6 @@
 package com.mrzak34.thunderhack.util.render;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.util.ResourceLocation;
 
@@ -19,24 +20,20 @@ public class ShaderUtil {
             int fragmentShaderID;
             switch (fragmentShaderLoc) {
                 case "roundedRect":
-                    fragmentShaderID =
-                            createShader(new ByteArrayInputStream(roundedRect.getBytes()), GL_FRAGMENT_SHADER);
+                    fragmentShaderID = createShader(new ByteArrayInputStream(roundedRect.getBytes()), GL_FRAGMENT_SHADER);
                     break;
                 case "roundedRectGradient":
-                    fragmentShaderID =
-                            createShader(new ByteArrayInputStream(roundedRectGradient.getBytes()), GL_FRAGMENT_SHADER);
+                    fragmentShaderID = createShader(new ByteArrayInputStream(roundedRectGradient.getBytes()), GL_FRAGMENT_SHADER);
+                    break;
+                case "blurShader":
+                    fragmentShaderID = createShader(new ByteArrayInputStream(blurShader.getBytes()), GL_FRAGMENT_SHADER);
                     break;
                 default:
-                    fragmentShaderID = createShader(
-                            mc.getResourceManager().getResource(new ResourceLocation(fragmentShaderLoc))
-                                    .getInputStream(), GL_FRAGMENT_SHADER);
+                    fragmentShaderID = createShader(mc.getResourceManager().getResource(new ResourceLocation(fragmentShaderLoc)).getInputStream(), GL_FRAGMENT_SHADER);
                     break;
             }
             glAttachShader(program, fragmentShaderID);
-
-            int vertexShaderID = createShader(
-                    mc.getResourceManager().getResource(new ResourceLocation(vertexShaderLoc)).getInputStream(),
-                    GL_VERTEX_SHADER);
+            int vertexShaderID = createShader(mc.getResourceManager().getResource(new ResourceLocation(vertexShaderLoc)).getInputStream(), GL_VERTEX_SHADER);
             glAttachShader(program, vertexShaderID);
 
         } catch (IOException e) {
@@ -90,6 +87,13 @@ public class ShaderUtil {
         int loc = glGetUniformLocation(programID, name);
         if (args.length > 1) glUniform2i(loc, args[0], args[1]);
         else glUniform1i(loc, args[0]);
+    }
+
+    public static void setupRoundedRectUniforms(float x, float y, float width, float height, float radius, ShaderUtil roundedTexturedShader) {
+        ScaledResolution sr = new ScaledResolution(Minecraft.getMinecraft());
+        roundedTexturedShader.setUniformf("location", x * sr.getScaleFactor(), (Minecraft.getMinecraft().displayHeight - (height * sr.getScaleFactor())) - (y * sr.getScaleFactor()));
+        roundedTexturedShader.setUniformf("rectSize", width * sr.getScaleFactor(), height * sr.getScaleFactor());
+        roundedTexturedShader.setUniformf("radius", radius * sr.getScaleFactor());
     }
 
     public static void drawQuads(float x, float y, float width, float height) {
@@ -177,7 +181,8 @@ public class ShaderUtil {
             "    gl_FragColor = vec4(createGradient(st, color1.rgb, color2.rgb, color3.rgb, color4.rgb), smoothedAlpha);\n" +
             "}";
 
-    private final String roundedRect = "#version 120\n" +
+    private final String roundedRect =
+            "#version 120\n" +
             "\n" +
             "uniform vec2 location, rectSize;\n" +
             "uniform vec4 color;\n" +
@@ -198,5 +203,24 @@ public class ShaderUtil {
             "\n" +
             "}";
 
-
+    private final String blurShader =
+            "#version 120\n" +
+            "\n" +
+            "uniform sampler2D textureIn;\n" +
+            "uniform vec2 texelSize, direction;\n" +
+            "uniform float radius;\n" +
+            "uniform float weights[256];\n" +
+            "\n" +
+            "#define offset texelSize * direction\n" +
+            "\n" +
+            "void main() {\n" +
+            "    vec3 blr = texture2D(textureIn, gl_TexCoord[0].st).rgb * weights[0];\n" +
+            "\n" +
+            "    for (float f = 1.0; f <= radius; f++) {\n" +
+            "        blr += texture2D(textureIn, gl_TexCoord[0].st + f * offset).rgb * (weights[int(abs(f))]);\n" +
+            "        blr += texture2D(textureIn, gl_TexCoord[0].st - f * offset).rgb * (weights[int(abs(f))]);\n" +
+            "    }\n" +
+            "\n" +
+            "    gl_FragColor = vec4(blr, 1.0);\n" +
+            "}";
 }

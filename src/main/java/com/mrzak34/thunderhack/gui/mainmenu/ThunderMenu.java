@@ -4,6 +4,7 @@ import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.gui.thundergui.fontstuff.FontRender;
 import com.mrzak34.thunderhack.modules.client.MainSettings;
 import com.mrzak34.thunderhack.util.RoundedShader;
+import com.mrzak34.thunderhack.util.render.BlurUtil;
 import net.minecraft.client.gui.*;
 import net.minecraft.client.renderer.GlStateManager;
 import org.lwjgl.opengl.GL11;
@@ -84,7 +85,8 @@ public class ThunderMenu extends GuiScreen
         float half_w = sr.getScaledWidth() / 2f;
         float halh_h = sr.getScaledHeight() / 2f;
 
-        RoundedShader.drawGradientRound(half_w - 120, halh_h - 80, 240,  140, 15f, color,color,color,color);
+
+            RoundedShader.drawGradientRound(half_w - 120, halh_h - 80, 240,  140, 15f, color,color,color,color);
 
 
         FontRender.drawCentString8("THUNDERHACK" ,(int) half_w - 52, (int) halh_h - 82 - FontRender.getFontHeight8(),-1);

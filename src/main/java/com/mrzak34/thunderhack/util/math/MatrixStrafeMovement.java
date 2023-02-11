@@ -4,6 +4,8 @@ package com.mrzak34.thunderhack.util.math;
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.events.EventSprint;
 import com.mrzak34.thunderhack.events.MatrixMove;
+import com.mrzak34.thunderhack.manager.EventManager;
+import com.mrzak34.thunderhack.modules.movement.EFly;
 import com.mrzak34.thunderhack.modules.movement.Speed;
 import com.mrzak34.thunderhack.modules.movement.Strafe;
 import net.minecraft.client.Minecraft;
@@ -67,14 +69,82 @@ public class MatrixStrafeMovement {
             prevSprint = false;
         }
         if (!fromGround && !toGround) {
-            Strafe.needSprintState = !Strafe.serversprint;
-            Speed.needSprintState = !Speed.serversprint;
+            Strafe.needSprintState = !EventManager.serversprint;
+            Speed.needSprintState = !EventManager.serversprint;
+
         }
         if (toGround && fromGround) {
             Strafe.needSprintState = false;
             Speed.needSprintState = false;
         }
         return max2;
+    }
+
+    public static double calculateSpeed2(MatrixMove move, boolean ely, double speed) {
+        Minecraft mc = Minecraft.getMinecraft();
+        boolean fromGround = mc.player.onGround;
+        boolean toGround = move.toGround();
+        boolean jump = move.getMotionY() > 0;
+        float speedAttributes = getAIMoveSpeed(mc.player);
+        float frictionFactor = getFrictionFactor(mc.player, move);
+        float n6 = 0.91F;
+        if (fromGround) {
+            n6 = frictionFactor;
+        }
+
+        float n7 = 0.16277136F / (n6 * n6 * n6);
+        float n8;
+        if (fromGround) {
+            n8 = speedAttributes * n7;
+            if (jump) {
+                n8 += 0.2F;
+            }
+        } else {
+            n8 = 0.0255F;
+        }
+
+        boolean noslow = false;
+        double max2 = oldSpeed + (double)n8;
+        double max = 0.0;
+        if (mc.player.isHandActive() && !jump) {
+            double n10 = oldSpeed + (double)n8 * 0.5 + 0.004999999888241291;
+            double motionY2 = move.getMotionY();
+            if (motionY2 != 0.0 && Math.abs(motionY2) < 0.08) {
+                n10 += 0.055;
+            }
+
+            if (max2 > (max = Math.max(0.043, n10))) {
+                noslow = true;
+                ++noSlowTicks;
+            } else {
+                noSlowTicks = Math.max(noSlowTicks - 1, 0);
+            }
+        } else {
+            noSlowTicks = 0;
+        }
+
+        if (noSlowTicks > 3) {
+            max2 = max - 0.019;
+        } else {
+            max2 = Math.max(noslow ? 0.0 : 0.25, max2) - (counter++ % 2 == 0 ? 0.001 : 0.002);
+        }
+
+        contextFriction = (double)n6;
+        if (!toGround && !fromGround) {
+            needSwap = true;
+        } else {
+            prevSprint = false;
+        }
+
+        if (!fromGround && !toGround) {
+            EFly.needSprintState = !EventManager.serversprint;
+        }
+
+        if (toGround && fromGround) {
+            EFly.needSprintState = false;
+        }
+
+        return max2 + (ely ? speed : 0.0);
     }
 
     public static void postMove(double horizontal) {

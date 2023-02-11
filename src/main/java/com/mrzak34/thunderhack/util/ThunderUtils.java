@@ -25,32 +25,6 @@ public class ThunderUtils {
 
     private static final Map<String, String> uuidNameCache = Maps.newConcurrentMap();
 
-    public static String uuidtoname(String uuid) {
-        uuid = uuid.replace("-", "");
-        if (uuidNameCache.containsKey(uuid)) {
-            return uuidNameCache.get(uuid);
-        }
-//6770099d-9ae2-3c3e-8c14-272f8c9c3e92
-        final String url = "https://api.mojang.com/user/profiles/" + uuid + "/names";
-        try {
-            final String nameJson = IOUtils.toString(new URL(url));
-            if (nameJson != null && nameJson.length() > 0) {
-                final JSONArray jsonArray = (JSONArray) JSONValue.parseWithException(nameJson);
-                if (jsonArray != null) {
-                    final JSONObject latestName = (JSONObject) jsonArray.get(jsonArray.size() - 1);
-                    if (latestName != null) {
-                        uuidNameCache.put(uuid,latestName.get("name").toString());
-                        return latestName.get("name").toString();
-                    }
-                }
-            }
-        }
-        catch (IOException | ParseException e) {
-            e.printStackTrace();
-        }
-
-        return null;
-    }
 
     public static void saveUserAvatar(String s, String nickname){
         try {

@@ -1,8 +1,12 @@
 package com.mrzak34.thunderhack.modules.movement;
 
+import com.mrzak34.thunderhack.command.Command;
+import com.mrzak34.thunderhack.events.PostPlayerUpdateEvent;
 import com.mrzak34.thunderhack.modules.Module;
+import com.mrzak34.thunderhack.modules.misc.Timer;
 import com.mrzak34.thunderhack.setting.Setting;
 import net.minecraft.client.entity.EntityPlayerSP;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class HighJump extends Module {
 
@@ -12,11 +16,11 @@ public class HighJump extends Module {
     }
 
     public Setting<Float> b = register(new Setting("Motion Y", 1.5f, 1.0f, 5.0f));
-    private Setting<rotmod> a = register(new Setting("Mode", rotmod.Matrix));
+    private Setting<rotmod> mode = register(new Setting("Mode", rotmod.Matrix));
     public Setting<Boolean> c = register(new Setting<>("Only damage", true));
 
     public enum rotmod {
-        Matrix, Default, Jump;
+        Matrix, Default, Jump, NexusGrief;
     }
 
     boolean abobka = false;
@@ -24,14 +28,14 @@ public class HighJump extends Module {
 
     @Override
     public void onEnable() {
-        if (a.getValue() == rotmod.Matrix) {
+        if (mode.getValue() == rotmod.Matrix) {
             EntityPlayerSP entityPlayerSP = mc.player;
             if (entityPlayerSP.onGround) {
                 entityPlayerSP.jump();
             }
-            new HJThread(this, entityPlayerSP).start();
+            new HJThread(entityPlayerSP).start();
         }
-        if (a.getValue() == rotmod.Jump) {
+        if (mode.getValue() == rotmod.Jump) {
             EntityPlayerSP entityPlayerSP = mc.player;
             if (entityPlayerSP.onGround) {
                 entityPlayerSP.jump();
@@ -54,20 +58,20 @@ public class HighJump extends Module {
         if(ticks == 5){
             abobka = true;
         }
-        if (a.getValue() == rotmod.Jump) {
+        if (mode.getValue() == rotmod.Jump) {
             if(abobka) {
-                new HJThread(this, mc.player).start();
+                new HJThread( mc.player).start();
                 toggle();
             }
         }
 
 
-        if (this.a.getValue() == rotmod.Default) {
+        if (mode.getValue() == rotmod.Default) {
             EntityPlayerSP entityPlayerSP = mc.player;
             if (!entityPlayerSP.onGround) {
                 return;
             }
-            if (((Boolean)this.c.getValue()) && entityPlayerSP.hurtTime <= 0) {
+            if (this.c.getValue() && entityPlayerSP.hurtTime <= 0) {
                 return;
             }
             if (!((Boolean)this.c.getValue()) && !mc.gameSettings.keyBindJump.isKeyDown()) {
@@ -77,22 +81,30 @@ public class HighJump extends Module {
         }
     }
 
-    public class HJThread extends Thread {
-        public EntityPlayerSP a;
-        public HighJump b;
+    @SubscribeEvent
+    public void onPostPlayerUpdate(PostPlayerUpdateEvent event) {
+        if(mode.getValue() == rotmod.NexusGrief && mc.player.hurtTime < 5) {
+            event.setCanceled(true);
+            event.setIterations(2);
+            new HJThread( mc.player).start();
+            this.toggle();
+        }
+    }
 
-        public HJThread(HighJump highJump, EntityPlayerSP entityPlayerSP) {
-            this.b = highJump;
-            this.a = entityPlayerSP;
+    public class HJThread extends Thread {
+        public EntityPlayerSP player;
+
+        public HJThread(EntityPlayerSP entityPlayerSP) {
+            this.player = entityPlayerSP;
         }
 
         @Override
         public void run() {
-            this.a.motionY = 9.0;
+            player.motionY = 9.0;
             try {
                 HJThread.sleep(240L);
             }  catch (Exception ignored) {}
-            this.a.motionY = 8.742f;
+            player.motionY = 8.742f;
             super.run();
         }
     }

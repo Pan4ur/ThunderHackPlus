@@ -1,5 +1,6 @@
 package com.mrzak34.thunderhack.modules.client;
 
+import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.events.ConnectToServerEvent;
 import com.mrzak34.thunderhack.events.TotemPopEvent;
 import com.mrzak34.thunderhack.command.Command;
@@ -47,8 +48,7 @@ public class DiscordWebhook extends Module {
     public Setting<Boolean> sendToDiscord = register(new Setting<>("SendToDiscord", true));
     public Setting<Boolean> SDescr = register(new Setting<>("ScreenDescription", true));
 
-    public ByteArrayOutputStream a;
-    public ExecutorService b;
+    public ByteArrayOutputStream byteArrayOutputStream;
 
 
     @Override
@@ -100,11 +100,8 @@ public class DiscordWebhook extends Module {
     @SubscribeEvent
     public void onScreenshotEvent(ScreenshotEvent screenshotEvent) {
         Command.sendMessage("SS Getted!");
-        this.a = new ByteArrayOutputStream();
-        if (this.b == null) {
-            this.b = Executors.newCachedThreadPool();
-        }
-        this.a(screenshotEvent.getImage());
+        byteArrayOutputStream = new ByteArrayOutputStream();
+        uploadToImgur(screenshotEvent.getImage());
     }
 
     @SubscribeEvent
@@ -118,6 +115,20 @@ public class DiscordWebhook extends Module {
             String msg = "```" + mc.player.getName() + " зашёл на сервер " + e.getIp() + "```";
             sendMsg(msg,readurl());
         })).start();
+    }
+
+    int killz = 0;
+
+    @Override
+    public void onUpdate(){
+        if(Aura.target != null) {
+            if (Aura.target.getHealth() <= 0) {
+                if (Aura.target instanceof EntityPlayer) {
+                        ++killz;
+                        sendAuraMsg((EntityPlayer)Aura.target,killz);
+                }
+            }
+        }
     }
 
     private final static String CLIENT_ID = "efce6070269a7f1";
@@ -165,10 +176,8 @@ public class DiscordWebhook extends Module {
     }
 
 
-    public void a(BufferedImage bufferedImage) {
-
-        this.b.execute(() -> {
-            Thread.currentThread().setName("Imgur Image Uploading");
+    public void uploadToImgur(BufferedImage bufferedImage) {
+        (new Thread(() -> {
             try {
                 String string;
                 URL uRL = new URL("https://api.imgur.com/3/image");
@@ -180,9 +189,9 @@ public class DiscordWebhook extends Module {
                 httpURLConnection.setRequestMethod("POST");
                 httpURLConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
                 httpURLConnection.connect();
-                ImageIO.write((RenderedImage)bufferedImage, "png", this.a);
-                this.a.flush();
-                byte[] byArray = this.a.toByteArray();
+                ImageIO.write((RenderedImage)bufferedImage, "png", byteArrayOutputStream);
+                byteArrayOutputStream.flush();
+                byte[] byArray = byteArrayOutputStream.toByteArray();
                 String string2 = Base64.getEncoder().encodeToString(byArray);
                 OutputStreamWriter outputStreamWriter = new OutputStreamWriter(httpURLConnection.getOutputStream());
                 String string3 = URLEncoder.encode("image", "UTF-8") + "=" + URLEncoder.encode(string2, "UTF-8");
@@ -204,9 +213,7 @@ public class DiscordWebhook extends Module {
                 String ip = "ошибка";
                 try{
                     ip = Minecraft.getMinecraft().currentServerData.serverIP;
-                } catch (Exception ignored){
-
-                }
+                } catch (Exception ignored){}
 
                 Date date = new Date(System.currentTimeMillis());
                 String description = "```Скрин сделан игроком " + mc.player.getName() +
@@ -223,20 +230,16 @@ public class DiscordWebhook extends Module {
             catch (Exception exception) {
                 Command.sendMessage(exception.getMessage());
             }
-        });
+        })).start();
     }
 
     @SubscribeEvent
     public void onTotemPop(TotemPopEvent e){
         if(Aura.target == e.getEntity() || C4Aura.target == e.getEntity() || getEntityUnderMouse(100) == e.getEntity()) {
-            if (this.b == null) {
-                this.b = Executors.newCachedThreadPool();
-            }
-            this.b.execute(() -> {
-                Thread.currentThread().setName("TotemPop");
+            (new Thread(() -> {
                 String str = "```" + mc.player.getName() + " " + getWord() + e.getEntity().getName() + "```";
                 sendMsg(str, readurl());
-            });
+            })).start();
         }
     }
 
@@ -262,7 +265,6 @@ public class DiscordWebhook extends Module {
 
     public EntityPlayer getEntityUnderMouse(int range) {
         Entity entity = mc.getRenderViewEntity();
-
         if (entity != null) {
             Vec3d pos = mc.player.getPositionEyes(1F);
             for (float i = 0F; i < range; i += 0.5F) {

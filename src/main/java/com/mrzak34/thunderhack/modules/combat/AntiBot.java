@@ -3,13 +3,22 @@ package com.mrzak34.thunderhack.modules.combat;
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.events.EventPreMotion;
+import com.mrzak34.thunderhack.events.Render2DEvent;
 import com.mrzak34.thunderhack.modules.Module;
+import com.mrzak34.thunderhack.modules.movement.BoatFly;
 import com.mrzak34.thunderhack.setting.Setting;
+import com.mrzak34.thunderhack.util.RoundedShader;
 import com.mrzak34.thunderhack.util.Timer;
+import com.mrzak34.thunderhack.util.render.BlurUtil;
+import net.minecraft.client.entity.EntityOtherPlayerMP;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
+import java.awt.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.UUID;
 
 public class AntiBot extends Module {
     public AntiBot() {
@@ -18,7 +27,15 @@ public class AntiBot extends Module {
 
     public Setting<Boolean> remove = register(new Setting<>("Remove", false));
     public Setting<Boolean> onlyAura = register(new Setting<>("OnlyAura", true));
-    public Setting<Integer> checkticks = register(new Setting("checkTicks", 3, 0, 10));
+    private Setting<Mode> mode  = this.register(new Setting("Mode", Mode.MotionCheck));
+
+    public enum Mode {
+        UUIDCheck, MotionCheck
+    }
+    public Setting<Integer> checkticks = register(new Setting("checkTicks", 3, 0, 10,v-> mode.getValue() == Mode.MotionCheck));
+
+
+
 
 
     public static ArrayList<EntityPlayer> bots = new ArrayList<>();
@@ -33,10 +50,22 @@ public class AntiBot extends Module {
 
         if(!onlyAura.getValue()) {
             for (EntityPlayer player : AntiBot.mc.world.playerEntities) {
-                if (player != null) {
-                    double speed = (player.posX - player.prevPosX) * (player.posX - player.prevPosX) + (player.posZ - player.prevPosZ) * (player.posZ - player.prevPosZ);
-
-                    if (player != mc.player && speed > 0.5 && mc.player.getDistanceSq(player) <= Thunderhack.moduleManager.getModuleByClass(Aura.class).attackDistance.getValue() * Thunderhack.moduleManager.getModuleByClass(Aura.class).attackDistance.getValue() && !bots.contains(player)) {
+                if(mode.getValue() == Mode.MotionCheck) {
+                    if (player != null) {
+                        double speed = (player.posX - player.prevPosX) * (player.posX - player.prevPosX) + (player.posZ - player.prevPosZ) * (player.posZ - player.prevPosZ);
+                        if (player != mc.player && speed > 0.5 && mc.player.getDistanceSq(player) <= Thunderhack.moduleManager.getModuleByClass(Aura.class).attackDistance.getValue() * Thunderhack.moduleManager.getModuleByClass(Aura.class).attackDistance.getValue() && !bots.contains(player)) {
+                            Command.sendMessage(player.getName() + " is a bot!");
+                            ++botsNumber;
+                            bots.add(player);
+                        }
+                    }
+                } else {
+                    if (!player.getUniqueID().equals(UUID.nameUUIDFromBytes(("OfflinePlayer:" + player.getName()).getBytes(StandardCharsets.UTF_8))) && player instanceof EntityOtherPlayerMP) {
+                        Command.sendMessage(player.getName() + " is a bot!");
+                        ++botsNumber;
+                        bots.add(player);
+                    }
+                    if (!player.getUniqueID().equals(UUID.nameUUIDFromBytes(("OfflinePlayer:" + player.getName()).getBytes(StandardCharsets.UTF_8))) && player.isInvisible() && player instanceof EntityOtherPlayerMP) {
                         Command.sendMessage(player.getName() + " is a bot!");
                         ++botsNumber;
                         bots.add(player);
@@ -46,15 +75,29 @@ public class AntiBot extends Module {
         } else {
             if(Aura.target != null){
                 if(Aura.target instanceof EntityPlayer) {
-                    double speed = (Aura.target.posX - Aura.target.prevPosX) * (Aura.target.posX - Aura.target.prevPosX) + (Aura.target.posZ - Aura.target.prevPosZ) * (Aura.target.posZ - Aura.target.prevPosZ);
-                    if (speed > 0.5 && !bots.contains(Aura.target)) {
-                        if(ticks >= checkticks.getValue()) {
+                    if(mode.getValue() == Mode.MotionCheck) {
+                        double speed = (Aura.target.posX - Aura.target.prevPosX) * (Aura.target.posX - Aura.target.prevPosX) + (Aura.target.posZ - Aura.target.prevPosZ) * (Aura.target.posZ - Aura.target.prevPosZ);
+                        if (speed > 0.5 && !bots.contains(Aura.target)) {
+                            if (ticks >= checkticks.getValue()) {
+                                Command.sendMessage(Aura.target.getName() + " is a bot!");
+                                ++botsNumber;
+                                bots.add((EntityPlayer) Aura.target);
+                            }
+                            ticks++;
+                        }
+                    } else {
+                        if (!Aura.target.getUniqueID().equals(UUID.nameUUIDFromBytes(("OfflinePlayer:" + Aura.target.getName()).getBytes(StandardCharsets.UTF_8))) && Aura.target instanceof EntityOtherPlayerMP) {
                             Command.sendMessage(Aura.target.getName() + " is a bot!");
                             ++botsNumber;
                             bots.add((EntityPlayer) Aura.target);
                         }
-                        ticks++;
+                        if (!Aura.target.getUniqueID().equals(UUID.nameUUIDFromBytes(("OfflinePlayer:" + Aura.target.getName()).getBytes(StandardCharsets.UTF_8))) && Aura.target.isInvisible() && Aura.target instanceof EntityOtherPlayerMP) {
+                            Command.sendMessage(Aura.target.getName() + " is a bot!");
+                            ++botsNumber;
+                            bots.add((EntityPlayer) Aura.target);
+                        }
                     }
+
                 }
             }
         }
@@ -69,7 +112,7 @@ public class AntiBot extends Module {
                 }
             }
         }
-        if (timer.passedMs(5000)) {
+        if (timer.passedMs(10000)) {
             bots.clear();
             botsNumber = 0;
             timer.reset();
