@@ -92,6 +92,7 @@ public class ModuleManager extends Feature {
         this.modules.add(new DMGFly());
         this.modules.add(new Sprint());
         this.modules.add(new FreeLook());
+        this.modules.add(new ItemScroller());
         this.modules.add(new Quiver());
         this.modules.add(new NoFall());
         this.modules.add(new AutoReconnect());

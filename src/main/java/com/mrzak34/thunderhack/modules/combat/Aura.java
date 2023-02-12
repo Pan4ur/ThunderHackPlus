@@ -94,8 +94,9 @@ public class Aura extends Module {
     public final Setting<Float> attackDistance = register(new Setting("AttackDistance", 3.4f, 0.0f, 7.0f));
     public final Setting<Float> walldistance = register(new Setting("WallDistance", 3.6f, 0.0f, 7.0f));
     public final Setting<Integer> fov = register(new Setting("FOV", 180, 5, 180));
+    public final Setting<Boolean> rtx = register(new Setting<>("RTX", true));
     public final Setting<Boolean> backTrack = register(new Setting<>("RotateToBackTrack", true));
-    public final Setting<Integer> yawStep = register(new Setting("YawStep", 80, 5, 180));
+    public final Setting<Integer> yawStep = register(new Setting("YawStep", 80, 5, 180, v-> rotation.getValue() == rotmod.Matrix));
     public final Setting<Float> hitboxScale = register(new Setting("HitBoxScale", 2.8f, 0.0f, 3.0f));
     /*-------------------------------------*/
 
@@ -809,7 +810,8 @@ public class Aura extends Module {
                 case Matrix: {
                     float pitchDeltaAbs = Math.abs(pitchDelta);
 
-                    float additionYaw = Math.min(Math.max(yawDeltaAbs, 1), yawStep.getValue());
+                    float randomizeClamp = interpolateRandom(-5.0F, 5.0F);
+                    float additionYaw = Math.min(Math.max(yawDeltaAbs, 1), yawStep.getValue() - randomizeClamp);
                     float additionPitch = Math.max(attackContext ? pitchDeltaAbs : 1, 2);
 
                     if (Math.abs(additionYaw - prevAdditionYaw) <= 3.1f) {

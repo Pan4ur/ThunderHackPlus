@@ -23,13 +23,6 @@ public
 class MixinRenderItem {
 
     private static final ResourceLocation RESOURCE = new ResourceLocation("textures/rainbow.png");
-    private static final ResourceLocation RESOURCE2 = new ResourceLocation("textures/rus.png");
-    private static final ResourceLocation RESOURCE3 = new ResourceLocation("textures/jew.png");
-
-    @Shadow
-    private
-    void renderModel ( IBakedModel model , int color , ItemStack stack ) {
-    }
 
 
     @Redirect(method = "renderEffect", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/texture/TextureManager;bindTexture(Lnet/minecraft/util/ResourceLocation;)V", ordinal = 0))
@@ -50,22 +43,22 @@ class MixinRenderItem {
     @Inject(method = {"renderItemModel"}, at = {@At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/RenderItem;renderItem(Lnet/minecraft/item/ItemStack;Lnet/minecraft/client/renderer/block/model/IBakedModel;)V", shift = At.Shift.BEFORE)})
     private
     void renderItemModel ( ItemStack stack , IBakedModel bakedModel , ItemCameraTransforms.TransformType transform , boolean leftHanded , CallbackInfo ci ) {
-        RenderItemEvent event = new RenderItemEvent (
-                0f , 0f , 0f ,
-                0f, 0f , 0f ,
-                0.0f , 0.0f , 1.0f ,
-                0.0f , 0.0f, 0.0f ,
-                1.0f , 1.0f , 1.0f , 1.0f ,
-                1.0f , 1.0f // , 1.0 , 1.0
+        RenderItemEvent event = new RenderItemEvent(
+                0f, 0f, 0f,
+                0f, 0f, 0f,
+                0.0f, 0.0f, 1.0f,
+                0.0f, 0.0f, 0.0f,
+                1.0f, 1.0f, 1.0f, 1.0f,
+                1.0f, 1.0f // , 1.0 , 1.0
         );
-        MinecraftForge.EVENT_BUS.post ( event );
-        if ( ViewModel.getInstance ( ).isEnabled ( ) ) {
-            if ( ! leftHanded ) {
-                GlStateManager.scale ( event.getMainHandScaleX ( ) , event.getMainHandScaleY ( ) , event.getMainHandScaleZ ( ) );
+        MinecraftForge.EVENT_BUS.post(event);
+        if (ViewModel.getInstance().isEnabled()) {
+            if (!leftHanded) {
+                GlStateManager.scale(event.getMainHandScaleX(), event.getMainHandScaleY(), event.getMainHandScaleZ());
             } else {
-                GlStateManager.scale ( event.getOffHandScaleX ( ) , event.getOffHandScaleY ( ) , event.getOffHandScaleZ ( ) );
+                GlStateManager.scale(event.getOffHandScaleX(), event.getOffHandScaleY(), event.getOffHandScaleZ());
             }
         }
-
     }
+
 }

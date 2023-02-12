@@ -1,6 +1,8 @@
 package com.mrzak34.thunderhack.util.rotations;
 
 
+import com.mrzak34.thunderhack.Thunderhack;
+import com.mrzak34.thunderhack.modules.combat.Aura;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.*;
@@ -120,6 +122,9 @@ public class RayTracingUtils {
     }
 
     public static Entity getMouseOver(Entity target, float yaw, float pitch, double distance, boolean ignoreWalls) {
+        if(!Thunderhack.moduleManager.getModuleByClass(Aura.class).rtx.getValue()){
+            return target;
+        }
         Entity pointedEntity;
         RayTraceResult objectMouseOver;
         Entity entity = mc.getRenderViewEntity();
