@@ -95,6 +95,7 @@ public class ModuleManager extends Feature {
         this.modules.add(new Quiver());
         this.modules.add(new NoFall());
         this.modules.add(new AutoReconnect());
+        this.modules.add(new KeepSprint());
         this.modules.add(new LevitationControl());
         this.modules.add(new CustomEnchants());
         this.modules.add(new HoleESP());

@@ -1,8 +1,10 @@
 package com.mrzak34.thunderhack.mixin.mixins;
 
 import com.mojang.authlib.GameProfile;
+import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.events.EventPlayerTravel;
 import com.mrzak34.thunderhack.mixin.ducks.IEntityPlayer;
+import com.mrzak34.thunderhack.modules.movement.KeepSprint;
 import com.mrzak34.thunderhack.util.Util;
 import com.mrzak34.thunderhack.util.phobos.MotionTracker;
 import net.minecraft.entity.EntityLivingBase;
@@ -13,7 +15,9 @@ import net.minecraftforge.common.MinecraftForge;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 
@@ -90,4 +94,17 @@ public abstract class MixinEntityPlayer extends EntityLivingBase implements IEnt
         }
     }
 
+    @Inject(method = "attackTargetEntityWithCurrentItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/player/EntityPlayer;setSprinting(Z)V", shift = At.Shift.AFTER))
+    public void onAttackTargetEntityWithCurrentItem(CallbackInfo callbackInfo) {
+
+        KeepSprint ks = Thunderhack.moduleManager.getModuleByClass(KeepSprint.class);
+        if (ks.isEnabled()) {
+            final float multiplier = 0.6f + 0.4f * ks.motion.getValue();
+            this.motionX = this.motionX / 0.6 * multiplier;
+            this.motionZ = this.motionZ / 0.6 * multiplier;
+            if (ks.sprint.getValue()) {
+                this.setSprinting(true);
+            }
+        }
+    }
 }
