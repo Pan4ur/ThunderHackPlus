@@ -1,6 +1,7 @@
 package com.mrzak34.thunderhack.modules.render;
 
 import com.mojang.realmsclient.gui.ChatFormatting;
+import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.events.EventPreMotion;
 import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.events.Render2DEvent;
@@ -73,12 +74,12 @@ public class XRay extends Module {
         }
         all = this.toCheck.size();
         done = 0;
-
-        try{
-            Thread.sleep(500);
-        } catch (Exception e){
+        if(wh.getValue() && brutForce.getValue()){
+            wh.setValue(false);
         }
-        mc.renderGlobal.loadRenderers();
+        if(!brutForce.getValue()){
+            mc.renderGlobal.loadRenderers();
+        }
     }
 
 
