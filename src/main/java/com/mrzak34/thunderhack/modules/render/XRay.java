@@ -8,6 +8,7 @@ import com.mrzak34.thunderhack.events.Render3DEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.BlockUtils;
+import com.mrzak34.thunderhack.util.phobos.ThreadUtil;
 import com.mrzak34.thunderhack.util.render.RenderUtil;
 import com.mrzak34.thunderhack.util.Util;
 import net.minecraft.block.Block;
@@ -72,6 +73,11 @@ public class XRay extends Module {
         }
         all = this.toCheck.size();
         done = 0;
+
+        try{
+            Thread.sleep(500);
+        } catch (Exception e){
+        }
         mc.renderGlobal.loadRenderers();
     }
 

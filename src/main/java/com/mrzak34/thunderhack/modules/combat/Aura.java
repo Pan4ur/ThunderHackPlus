@@ -104,7 +104,7 @@ public class Aura extends Module {
     public final Setting<Boolean> criticals = register(new Setting<>("Criticals", true));
     public final Setting<CritMode> critMode = register(new Setting("CritMode", CritMode.WexSide,v -> criticals.getValue()));
     public final Setting<Float> critdist = register(new Setting("FallDistance", 0.15f, 0.0f, 1.0f,v -> criticals.getValue() && critMode.getValue() == CritMode.Simple));;
-    public final Setting<Boolean> criticals_autojump = register(new Setting<>("AutoJump", true,v-> criticals.getValue()));
+    public final Setting<Boolean> criticals_autojump = register(new Setting<>("AutoJump", false,v-> criticals.getValue()));
     public final Setting<Boolean> smartCrit = register(new Setting<>("SmartCrit", true,v-> criticals.getValue()));
     public final Setting<Boolean> watercrits = register(new Setting<>("WaterCrits", false,v-> criticals.getValue()));
     public final Setting<Boolean> weaponOnly = register(new Setting<>("WeaponOnly", true));
