@@ -26,19 +26,4 @@ public class EventPreMotion extends Event {
         this.pitch = pitch;
     }
 
-    private final Deque<Runnable> postEvents = new ArrayDeque<>();
-
-
-    public void addPostEvent(SafeRunnable runnable)
-    {
-        postEvents.add(runnable);
-    }
-
-    /**
-     * @return all PostEvents for this event.
-     */
-    public Deque<Runnable> getPostEvents()
-    {
-        return postEvents;
-    }
 }

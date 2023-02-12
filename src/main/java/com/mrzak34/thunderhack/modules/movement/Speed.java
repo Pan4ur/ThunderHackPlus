@@ -73,7 +73,7 @@ public class Speed extends Module {
         this.Field2015 = 4;
         distance = 0.0;
         FunnyGameStage = 0;
-
+        mc.player.jumpMovementFactor = 0.02f;
         mc.player.speedInAir = 0.02f;
         Thunderhack.TICK_TIMER = 1f;
         velocity = 0;
@@ -95,15 +95,18 @@ public class Speed extends Module {
             if(MovementUtil.isMoving() && !mc.world.getCollisionBoxes(mc.player, mc.player.getEntityBoundingBox().expand(0.5, 0.0, 0.5).offset(0.0, -1.0, 0.0)).isEmpty() && !nexus_flip){
                 mc.player.onGround = true;
                 mc.player.jump();
+                mc.player.jumpMovementFactor = 0.026523f;
             }
         }
-
         if(mc.player.fallDistance > 0){
             nexus_flip = true;
         }
         if(!mc.world.getCollisionBoxes(mc.player, mc.player.getEntityBoundingBox().offset(0.0, -0.2, 0.0)).isEmpty() && nexus_flip){
             nexus_flip = false;
         }
+
+
+
 
         if(strafeBoost.getValue() && isBoosting){
             return;
@@ -385,7 +388,7 @@ public class Speed extends Module {
                 break;
             }
         }
-        if(Mode.getValue() != mode.Default && Mode.getValue() != mode.Matrix && Mode.getValue() != mode.MatrixJumpBoost) {
+        if(Mode.getValue() == mode.StrafeStrict ) {
             event.setCanceled(true);
         }
     }

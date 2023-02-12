@@ -32,7 +32,6 @@ public class BackTrack extends Module {
         super("BackTrack", "BackTrack", Category.COMBAT);
     }
 
-
     public Setting<Integer> btticks = register(new Setting("TrackTicks", 5, 1, 15));
     public Setting<Boolean> hlaura = register(new Setting<>("HighLightAura", true));
 
@@ -46,7 +45,7 @@ public class BackTrack extends Module {
     private Setting<RenderMode> renderMode = register(new Setting("RenderMode", RenderMode.Chams));
 
     public enum RenderMode {
-        Box, Chams;
+        Box, Chams, None;
     }
 
     @SubscribeEvent
@@ -65,7 +64,7 @@ public class BackTrack extends Module {
                         if(Aura.bestBtBox != entAndTrail.get(entity).get(i) && hlaura.getValue()) {
                             if(renderMode.getValue() == RenderMode.Box) {
                                 drawBoundingBox(entAndTrail.get(entity).get(i), 1, color1.getValue().getColorObject());
-                            } else {
+                            } else if(renderMode.getValue() == RenderMode.Chams) {
                                 GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
                                 GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
                                 GlStateManager.glLineWidth(1.5F);
@@ -92,7 +91,7 @@ public class BackTrack extends Module {
                         } else {
                             if(renderMode.getValue() == RenderMode.Box) {
                                 drawBoundingBox(entAndTrail.get(entity).get(i), 1, color2.getValue().getColorObject());
-                            } else {
+                            } else if(renderMode.getValue() == RenderMode.Chams){
                                 GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
                                 GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
                                 GlStateManager.glLineWidth(1.5F);

@@ -858,7 +858,7 @@ public class Aura extends Module {
                 }
 
                 case FunnyGame: {
-                    float[] ncp = SilentRotaionUtil.calcAngle(bestVector);
+                    float[] ncp = SilentRotaionUtil.calcAngle(getVector(base));
                     if(ncp != null && !AutoGApple.stopAura) {
                         mc.player.rotationYaw = ncp[0];
                         mc.player.rotationPitch = ncp[1];

@@ -1,5 +1,6 @@
 package com.mrzak34.thunderhack.util;
 
+import com.mrzak34.thunderhack.command.Command;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;

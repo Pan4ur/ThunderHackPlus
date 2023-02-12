@@ -3,7 +3,8 @@ package com.mrzak34.thunderhack.mixin.mixins;
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.events.FreecamEvent;
 import com.mrzak34.thunderhack.command.commands.ChangeSkinCommand;
-import com.mrzak34.thunderhack.modules.player.PacketRender;
+import com.mrzak34.thunderhack.manager.EventManager;
+import com.mrzak34.thunderhack.modules.client.MainSettings;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import org.spongepowered.asm.mixin.*;
@@ -14,8 +15,9 @@ import org.spongepowered.asm.mixin.injection.*;
 import net.minecraft.client.*;
 import com.mrzak34.thunderhack.modules.render.*;
 import org.lwjgl.opengl.*;
-import net.minecraft.client.renderer.*;
 import com.mrzak34.thunderhack.util.*;
+
+import static com.mrzak34.thunderhack.gui.hud.RadarRewrite.interp;
 
 @Mixin({ RenderPlayer.class })
 public class MixinRenderPlayer
@@ -43,29 +45,24 @@ public class MixinRenderPlayer
             renderYaw,
             renderHeadYaw,
             prevRenderHeadYaw,
-            lastRenderHeadYaw = 0,
-            prevRenderPitch,
-            lastRenderPitch = 0;
-
+            prevRenderPitch;
 
     @Inject(method = "doRender", at = @At("HEAD"))
     private void rotateBegin(AbstractClientPlayer entity, double x, double y, double z, float entityYaw, float partialTicks, CallbackInfo ci) {
-        if (Thunderhack.moduleManager.getModuleByClass(PacketRender.class).isEnabled() && entity == Minecraft.getMinecraft().player) {
+        if (Thunderhack.moduleManager.getModuleByClass(MainSettings.class).renderRotations.getValue() && entity == Minecraft.getMinecraft().player) {
             prevRenderHeadYaw = entity.prevRotationYawHead;
             prevRenderPitch = entity.prevRotationPitch;
             renderPitch = entity.rotationPitch;
             renderYaw = entity.rotationYaw;
             renderHeadYaw = entity.rotationYawHead;
 
-           // float interpYaw = PacketRender.getPrevyaw() + (PacketRender.getYaw()- PacketRender.getPrevyaw()) * mc.getRenderPartialTicks();
-          //  float interpPitch = PacketRender.getPrevpitch() + (PacketRender.getPitch()- PacketRender.getPrevpitch()) * mc.getRenderPartialTicks();
-
-
-                entity.rotationPitch = PacketRender.getPitch();
-                entity.prevRotationPitch = PacketRender.getPitch();
-                entity.rotationYaw = PacketRender.getYaw();
-                entity.rotationYawHead = PacketRender.getYaw();
-                entity.prevRotationYawHead = PacketRender.getYaw();
+            float interpYaw = (float) interp(EventManager.visualYaw,EventManager.prevVisualYaw);
+            float interpPitch = (float) interp(EventManager.visualPitch,EventManager.prevVisualPitch);
+            entity.rotationPitch = interpPitch;
+            entity.prevRotationPitch = interpPitch;
+            entity.rotationYaw = interpYaw;
+            entity.rotationYawHead = interpYaw;
+            entity.prevRotationYawHead = interpYaw;
 
         }
     }
@@ -73,9 +70,7 @@ public class MixinRenderPlayer
 
     @Inject(method = "doRender", at = @At("RETURN"))
     private void rotateEnd(AbstractClientPlayer entity, double x, double y, double z, float entityYaw, float partialTicks, CallbackInfo ci) {
-        if (Thunderhack.moduleManager.getModuleByClass(PacketRender.class).isEnabled() && entity == Minecraft.getMinecraft().player) {
-            lastRenderHeadYaw = entity.rotationYawHead;
-            lastRenderPitch = entity.rotationPitch;
+        if (Thunderhack.moduleManager.getModuleByClass(MainSettings.class).renderRotations.getValue() && entity == Minecraft.getMinecraft().player) {
             entity.rotationPitch = renderPitch;
             entity.rotationYaw = renderYaw;
             entity.rotationYawHead = renderHeadYaw;

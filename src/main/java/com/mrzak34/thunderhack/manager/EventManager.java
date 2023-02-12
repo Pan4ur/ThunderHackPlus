@@ -126,6 +126,7 @@ public class EventManager extends Feature {
     }
 
     public static int backX, backY,backZ;
+    public static float visualYaw, visualPitch, prevVisualYaw, prevVisualPitch;
 
     @SubscribeEvent
     public void onPlayer(EventPreMotion event) {
@@ -171,9 +172,13 @@ public class EventManager extends Feature {
     public void updateRotations() {
         this.yaw = EventManager.mc.player.rotationYaw;
         this.pitch = EventManager.mc.player.rotationPitch;
+        prevVisualPitch = visualPitch;
+        prevVisualYaw = visualYaw;
     }
 
     public void restoreRotations() {
+        visualPitch = mc.player.rotationPitch;
+        visualYaw = mc.player.rotationYaw;
         EventManager.mc.player.rotationYaw = this.yaw;
         EventManager.mc.player.rotationYawHead = this.yaw;
         EventManager.mc.player.rotationPitch = this.pitch;

@@ -96,7 +96,6 @@ public class ModuleManager extends Feature {
         this.modules.add(new NoFall());
         this.modules.add(new AutoReconnect());
         this.modules.add(new LevitationControl());
-        this.modules.add(new PacketRender());
         this.modules.add(new CustomEnchants());
         this.modules.add(new HoleESP());
         this.modules.add(new Skeleton());

@@ -27,7 +27,6 @@ public class CommandManager extends Feature {
         this.commands.add(new ConfigCommand());
         this.commands.add(new CfgCommand());
         this.commands.add(new SearchCommand());
-        this.commands.add(new BullingCommand());
         this.commands.add(new FriendCommand());
         this.commands.add(new ChangeSkinCommand());
         this.commands.add(new HelpCommand());

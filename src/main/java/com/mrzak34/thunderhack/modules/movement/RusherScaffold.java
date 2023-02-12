@@ -309,8 +309,9 @@ public class RusherScaffold extends Module {
                     if (currentblock != null) {
                         if (this.rotate.getValue()) {
                                 float[] rotations = getRotations(currentblock.blockPos, currentblock.enumFacing);
-                                mc.player.rotationYaw = (rotations[0]);
-                                mc.player.rotationPitch = (rotations[1]);
+                                mc.player.rotationYaw = rotations[0];
+                                mc.player.renderYawOffset = rotations[0];
+                                mc.player.rotationPitch = rotations[1];
                         }
                     }
                 }

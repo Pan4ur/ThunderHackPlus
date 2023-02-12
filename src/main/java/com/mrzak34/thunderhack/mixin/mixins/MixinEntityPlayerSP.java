@@ -167,11 +167,6 @@ public abstract class MixinEntityPlayerSP
         MinecraftForge.EVENT_BUS.post(event);
         EventSprint e = new EventSprint(isSprinting());
         MinecraftForge.EVENT_BUS.post(e);
-        if (!event.getPostEvents().isEmpty()) {
-            for (Runnable runnable : event.getPostEvents()) {
-                Minecraft.getMinecraft().addScheduledTask(runnable);
-            }
-        }
         if(event.isCanceled()){
             info.cancel();
         }
