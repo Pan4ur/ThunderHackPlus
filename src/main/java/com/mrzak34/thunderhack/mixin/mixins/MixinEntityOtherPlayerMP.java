@@ -1,8 +1,11 @@
 package com.mrzak34.thunderhack.mixin.mixins;
 
 import com.mojang.authlib.GameProfile;
+import com.mrzak34.thunderhack.Thunderhack;
+import com.mrzak34.thunderhack.modules.combat.Aura;
 import com.mrzak34.thunderhack.modules.render.NoInterp;
 import com.mrzak34.thunderhack.modules.render.ShiftInterp;
+import com.mrzak34.thunderhack.util.rotations.ResolverUtil;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.entity.EntityOtherPlayerMP;
 import net.minecraft.entity.passive.EntityPig;
@@ -111,6 +114,25 @@ public class MixinEntityOtherPlayerMP extends AbstractClientPlayer
     }
 
 
+    private double serverX, serverY, serverZ, prevServerX, prevServerY, prevServerZ;
+
+    @Inject(method = "setPositionAndRotationDirect", at = @At ("HEAD"), cancellable = true)
+    public void setPositionAndRotationDirect(double x, double y, double z, float yaw, float pitch, int posRotationIncrements, boolean teleport, CallbackInfo ci) {
+        this.prevServerX = this.serverX;
+        this.prevServerY = this.serverY;
+        this.prevServerZ = this.serverZ;
+        this.serverX = x;
+        this.serverY = y;
+        this.serverZ = z;
+        if(Aura.target != null && Aura.target == this){
+            ResolverUtil.prevServerX = prevServerX;
+            ResolverUtil.prevServerY = prevServerY;
+            ResolverUtil.prevServerZ = prevServerZ;
+            ResolverUtil.serverX = serverX;
+            ResolverUtil.serverY = serverY;
+            ResolverUtil.serverZ = serverZ;
+        }
+    }
 
     @Inject(method = "onUpdate", at = @At ("HEAD"), cancellable = true)
     public void prikol2(CallbackInfo ci) {
@@ -135,16 +157,10 @@ public class MixinEntityOtherPlayerMP extends AbstractClientPlayer
                 ridingEntity.rotationPitch = rotationPitch;
                 renderYawOffset = rotationYaw;
             }
-
             else {
                 sleeping = false;
                 setSneaking(true);
             }
-
-
-
-
-
             ci.cancel();
         }
     }

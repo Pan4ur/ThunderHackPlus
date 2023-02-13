@@ -80,7 +80,13 @@ public class Velocity
             velocity_.motionZ *= this.horizontal.getValue() / 100f;
         }
 
-
+        if (event.getPacket() instanceof SPacketChat && autoDisable.getValue()) {
+            String text = ((SPacketChat)event.getPacket()).getChatComponent().getFormattedText();
+            if (text.contains("Тебя проверяют на чит АКБ, ник хелпера - ")) {
+                toggle();
+            }
+        }
+        
         if(onlyAura.getValue() && Thunderhack.moduleManager.getModuleByClass(Aura.class).isDisabled()){
             return;
         }
@@ -116,12 +122,6 @@ public class Velocity
                         var4.motionZ = ((int)((double)var4.motionZ * -0.1));
                     }
                 }
-            }
-        }
-        if (event.getPacket() instanceof SPacketChat && autoDisable.getValue()) {
-            String text = ((SPacketChat)event.getPacket()).getChatComponent().getFormattedText();
-            if (text.contains("Тебя проверяют на чит АКБ, ник хелпера - ")) {
-                toggle();
             }
         }
     }

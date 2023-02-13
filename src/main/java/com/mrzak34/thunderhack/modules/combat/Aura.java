@@ -20,6 +20,7 @@ import com.mrzak34.thunderhack.util.math.MathUtil;
 import com.mrzak34.thunderhack.util.phobos.IEntityLivingBase;
 import com.mrzak34.thunderhack.util.rotations.CastHelper;
 import com.mrzak34.thunderhack.util.rotations.RayTracingUtils;
+import com.mrzak34.thunderhack.util.rotations.ResolverUtil;
 import net.minecraft.block.BlockAir;
 import net.minecraft.block.BlockLiquid;
 import net.minecraft.block.material.Material;
@@ -69,7 +70,7 @@ public class Aura extends Module {
     }
 
     public enum rotmod {
-        Matrix, AAC, FunnyGame, Matrix2, SunRise;
+        Matrix, AAC, FunnyGame, Matrix2, SunRise, Matrix3;
     }
     public enum CritMode {
         WexSide, Simple;
@@ -96,6 +97,7 @@ public class Aura extends Module {
     public final Setting<Integer> fov = register(new Setting("FOV", 180, 5, 180));
     public final Setting<Boolean> rtx = register(new Setting<>("RTX", true));
     public final Setting<Boolean> backTrack = register(new Setting<>("RotateToBackTrack", true));
+    public final Setting<Boolean> resolver = register(new Setting<>("Resolver", false));
     public final Setting<Integer> yawStep = register(new Setting("YawStep", 80, 5, 180, v-> rotation.getValue() == rotmod.Matrix));
     public final Setting<Float> hitboxScale = register(new Setting("HitBoxScale", 2.8f, 0.0f, 3.0f));
     /*-------------------------------------*/
@@ -152,6 +154,7 @@ public class Aura extends Module {
     public static BackTrack.Box bestBtBox;
     public static int CPSLimit;
     private Vec3d last_best_vec;
+    private float rotation_smoother;
 
 
     @SubscribeEvent
@@ -171,6 +174,7 @@ public class Aura extends Module {
             }
         }
 
+
         if (CPSLimit > 0) CPSLimit--;
 
         boolean shieldDesyncActive = shieldDesync.getValue();
@@ -181,8 +185,12 @@ public class Aura extends Module {
             mc.playerController.onStoppedUsingItem(mc.player);
         }
         if (target != null) {
+            if(target instanceof EntityOtherPlayerMP && resolver.getValue()){
+                ResolverUtil.resolve((EntityOtherPlayerMP) target);
+            }
             if (!isEntityValid(target, false)) {
                 target = null;
+                ResolverUtil.reset();
             }
         }
         if (Crystalsss.getValue()) {
@@ -200,6 +208,7 @@ public class Aura extends Module {
         }
 
         if (target == null) {
+            ResolverUtil.reset();
             target = findTarget();
         }
 
@@ -237,6 +246,11 @@ public class Aura extends Module {
         attack(target);
         if (!rotatedBefore) {
             rotate(target, false);
+        }
+        if(target != null && resolver.getValue()){
+            if(target instanceof EntityOtherPlayerMP){
+                ResolverUtil.releaseResolver((EntityOtherPlayerMP) target);
+            }
         }
     }
 
@@ -830,9 +844,7 @@ public class Aura extends Module {
                 }
                 case SunRise:
                 case Matrix2: {
-
                     boolean sanik = rotation.getValue()  == rotmod.SunRise;
-
                     float absoluteYaw = MathHelper.abs(yawDelta);
 
                     float randomize = interpolateRandom(-2.0F, 2.0F);
@@ -858,7 +870,43 @@ public class Aura extends Module {
                     mc.player.renderYawOffset = newYaw;
                     break;
                 }
+                case Matrix3: {
+                    float absoluteYaw = MathHelper.abs(yawDelta);
 
+                    float randomize = interpolateRandom(-2.0F, 2.0F);
+                    float randomizeClamp = interpolateRandom(-5.0F, 5.0F);
+
+                    boolean looking_at_box = RayTracingUtils.getMouseOver(base, Thunderhack.rotationManager.getServerYaw(), Thunderhack.rotationManager.getServerPitch(), attackDistance.getValue(), ignoreWalls(base)) == base;
+
+                    if(looking_at_box){
+                        rotation_smoother = 3f;
+                    } else if(rotation_smoother < 45f){
+                        rotation_smoother += 4.2f;
+                    }
+                    float yaw_speed = looking_at_box ? 3f : rotation_smoother;
+                    float pitch_speed = looking_at_box ? 1.5f : 4f;
+                    //1.5- нет ботов  2f - боты
+
+                    float deltaYaw = MathHelper.clamp(absoluteYaw + randomize, -yaw_speed + randomizeClamp, yaw_speed + randomizeClamp);
+                    float deltaPitch = MathHelper.clamp(pitchDelta, -pitch_speed, pitch_speed);
+
+                    float newYaw = Thunderhack.rotationManager.getServerYaw() + (yawDelta > 0 ? deltaYaw : -deltaYaw);
+                    float newPitch  = MathHelper.clamp(Thunderhack.rotationManager.getServerPitch() + deltaPitch, -90.0F, 90.0F);
+
+                    float gcdFix1 = mc.gameSettings.mouseSensitivity * 0.6F + 0.2F;
+                    double gcdFix2 = Math.pow(gcdFix1, 3.0) * 8.0;
+                    double gcdFix = gcdFix2 * 0.15000000596046448;
+
+                    newYaw = (float) (newYaw - (newYaw - Thunderhack.rotationManager.getServerYaw()) % gcdFix);
+                    newPitch = (float)(newPitch - (newPitch - Thunderhack.rotationManager.getServerPitch()) % gcdFix);
+
+
+                    mc.player.rotationYaw = newYaw;
+                    mc.player.rotationPitch = newPitch;
+                    mc.player.rotationYawHead = newYaw;
+                    mc.player.renderYawOffset = newYaw;
+                    break;
+                }
                 case FunnyGame: {
                     float[] ncp = SilentRotaionUtil.calcAngle(getVector(base));
                     if(ncp != null && !AutoGApple.stopAura) {
@@ -889,4 +937,5 @@ public class Aura extends Module {
     public static float interpolateRandom(float var0, float var1) {
         return (float) (var0 + (var1 - var0) * Math.random());
     }
+
 }

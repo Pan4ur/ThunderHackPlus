@@ -70,6 +70,7 @@ public class ModuleManager extends Feature {
         this.modules.add(new PearlBait());
         this.modules.add(new AutoSheep());
         this.modules.add(new BoatFly());
+        this.modules.add(new AirStuck());
         this.modules.add(new TargetHud());
         this.modules.add(new Aura());
         this.modules.add(new NoSlow());

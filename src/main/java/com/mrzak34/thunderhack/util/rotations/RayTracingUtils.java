@@ -2,7 +2,9 @@ package com.mrzak34.thunderhack.util.rotations;
 
 
 import com.mrzak34.thunderhack.Thunderhack;
+import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.modules.combat.Aura;
+import com.mrzak34.thunderhack.util.math.MathUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.*;
@@ -19,32 +21,39 @@ public class RayTracingUtils {
 
 
     public static ArrayList<Vec3d> getHitBoxPoints(Vec3d position, float fakeBoxScale){
-        Vec3d head1 = position.add(-fakeBoxScale, 1.6f, fakeBoxScale);
-        Vec3d head2 = position.add(0, 1.6f, fakeBoxScale);
-        Vec3d head3 = position.add(fakeBoxScale, 1.6f, fakeBoxScale);
-        Vec3d head4 = position.add(-fakeBoxScale, 1.6f, 0);
-        Vec3d head5 = position.add(fakeBoxScale, 1.6f, 0);
-        Vec3d head6 = position.add(-fakeBoxScale, 1.6f, -fakeBoxScale);
-        Vec3d head7 = position.add(0, 1.6f, -fakeBoxScale);
-        Vec3d head8 = position.add(fakeBoxScale, 1.6f, -fakeBoxScale);
 
-        Vec3d chest1 = position.add(-fakeBoxScale, 0.8f, fakeBoxScale);
-        Vec3d chest2 = position.add(0, 0.8f, fakeBoxScale);
-        Vec3d chest3 = position.add(fakeBoxScale, 0.8f, fakeBoxScale);
-        Vec3d chest4 = position.add(-fakeBoxScale,0.8f, 0);
-        Vec3d chest5 = position.add(fakeBoxScale, 0.8f, 0);
-        Vec3d chest6 = position.add(-fakeBoxScale, 0.8f, -fakeBoxScale);
-        Vec3d chest7 = position.add(0, 0.8f, -fakeBoxScale);
-        Vec3d chest8 = position.add(fakeBoxScale, 0.8f, -fakeBoxScale);
 
-        Vec3d legs1 = position.add(-fakeBoxScale, 0.225f, fakeBoxScale);
-        Vec3d legs2 = position.add(0, 0.225f, fakeBoxScale);
-        Vec3d legs3 = position.add(fakeBoxScale, 0.225f, fakeBoxScale);
-        Vec3d legs4 = position.add(-fakeBoxScale,0.225f, 0);
-        Vec3d legs5 = position.add(fakeBoxScale, 0.225f, 0);
-        Vec3d legs6 = position.add(-fakeBoxScale, 0.225f, -fakeBoxScale);
-        Vec3d legs7 = position.add(0, 0.225f, -fakeBoxScale);
-        Vec3d legs8 = position.add(fakeBoxScale, 0.225f, -fakeBoxScale);
+
+        float head_height = 1.6f + interpolateRandom(-0.4f,0.2f);
+        float chest_height = 0.8f + interpolateRandom(-0.2f,0.2f);
+        float leggs_height = 0.225f + interpolateRandom(-0.1f,0.1f);
+
+        Vec3d head1 = position.add(-fakeBoxScale, head_height, fakeBoxScale);
+        Vec3d head2 = position.add(0, head_height, fakeBoxScale);
+        Vec3d head3 = position.add(fakeBoxScale, head_height, fakeBoxScale);
+        Vec3d head4 = position.add(-fakeBoxScale, head_height, 0);
+        Vec3d head5 = position.add(fakeBoxScale, head_height, 0);
+        Vec3d head6 = position.add(-fakeBoxScale, head_height, -fakeBoxScale);
+        Vec3d head7 = position.add(0, head_height, -fakeBoxScale);
+        Vec3d head8 = position.add(fakeBoxScale, head_height, -fakeBoxScale);
+
+        Vec3d chest1 = position.add(-fakeBoxScale, chest_height, fakeBoxScale);
+        Vec3d chest2 = position.add(0, chest_height, fakeBoxScale);
+        Vec3d chest3 = position.add(fakeBoxScale, chest_height, fakeBoxScale);
+        Vec3d chest4 = position.add(-fakeBoxScale,chest_height, 0);
+        Vec3d chest5 = position.add(fakeBoxScale, chest_height, 0);
+        Vec3d chest6 = position.add(-fakeBoxScale, chest_height, -fakeBoxScale);
+        Vec3d chest7 = position.add(0, chest_height, -fakeBoxScale);
+        Vec3d chest8 = position.add(fakeBoxScale, chest_height, -fakeBoxScale);
+
+        Vec3d legs1 = position.add(-fakeBoxScale, leggs_height, fakeBoxScale);
+        Vec3d legs2 = position.add(0, leggs_height, fakeBoxScale);
+        Vec3d legs3 = position.add(fakeBoxScale, leggs_height, fakeBoxScale);
+        Vec3d legs4 = position.add(-fakeBoxScale,leggs_height, 0);
+        Vec3d legs5 = position.add(fakeBoxScale, leggs_height, 0);
+        Vec3d legs6 = position.add(-fakeBoxScale, leggs_height, -fakeBoxScale);
+        Vec3d legs7 = position.add(0, leggs_height, -fakeBoxScale);
+        Vec3d legs8 = position.add(fakeBoxScale, leggs_height, -fakeBoxScale);
 
         return new ArrayList<>(Arrays.asList(
                 head1,  head2,  head3,  head4,  head5,  head6,  head7,  head8,
@@ -53,6 +62,9 @@ public class RayTracingUtils {
         ));
     }
 
+    public static float interpolateRandom(float var0, float var1) {
+        return (float) (var0 + (var1 - var0) * Math.random());
+    }
 
 
     public static Entity getPointedEntity(Vector2f rot, double dst, boolean walls, Entity target) {
