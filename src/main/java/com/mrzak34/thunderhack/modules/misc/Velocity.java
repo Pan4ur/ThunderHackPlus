@@ -92,8 +92,11 @@ public class Velocity
         }
 
         if(mode.getValue() == modeEn.Cancel && event.getPacket() instanceof SPacketEntityVelocity){
-            event.setCanceled(true);
-            return;
+            SPacketEntityVelocity pac = event.getPacket();
+            if(pac.getEntityID() == mc.player.entityId){
+                event.setCanceled(true);
+                return;
+            }
         }
         if(mode.getValue() == modeEn.Custom){
             SPacketEntityVelocity velocity;
