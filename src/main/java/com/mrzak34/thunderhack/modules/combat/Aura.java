@@ -35,6 +35,7 @@ import net.minecraft.entity.item.EntityEnderCrystal;
 import net.minecraft.entity.monster.EntitySlime;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.MobEffects;
+import net.minecraft.inventory.ClickType;
 import net.minecraft.item.*;
 import net.minecraft.network.play.client.*;
 import net.minecraft.network.play.client.CPacketEntityAction.Action;
@@ -118,6 +119,7 @@ public class Aura extends Module {
     public final Setting<Boolean> clientLook = register(new Setting<>("ClientLook", false));
     public final Setting<Boolean> snap = register(new Setting<>("Snap", false));
     public final Setting<Boolean> shieldBreaker = register(new Setting<>("ShieldBreaker", true));
+
     public final Setting<Boolean> offhand = register(new Setting<>("OffHandAttack", false));
     public final Setting<Boolean> teleport = register(new Setting<>("TP", false));
     public final Setting<Float> tpY = register(new Setting("TPY", 3f, -5.0f, 5.0f,v-> teleport.getValue()));
@@ -392,6 +394,7 @@ public class Aura extends Module {
         return RayTracingUtils.getPointedEntity(getRotationForCoord(vector), dst, !ignoreWalls(target), target) == target;
     }
 
+
     public void attack(Entity base) {
         if (base instanceof EntityEnderCrystal || canAttack()) {
             if (getVector(base) != null) {
@@ -400,11 +403,11 @@ public class Aura extends Module {
                         (RayTracingUtils.getMouseOver(base, Thunderhack.rotationManager.getServerYaw(), Thunderhack.rotationManager.getServerPitch(), attackDistance.getValue(), ignoreWalls(base)) == base)
                         || (base instanceof EntityEnderCrystal && mc.player.getDistanceSq(base) <= 20)
                         || (backTrack.getValue() && bestBtBox != null)
+                        || !rtx.getValue()
                 ) {
                     if(teleport.getValue()){
                         mc.player.setPosition(base.posX, base.posY + tpY.getValue(), base.posZ);
                     }
-
                     boolean blocking = mc.player.isHandActive() && mc.player.getActiveItemStack().getItem().getItemUseAction(mc.player.getActiveItemStack()) == EnumAction.BLOCK;
                     if (blocking) {
                         mc.playerController.onStoppedUsingItem(mc.player);
@@ -432,7 +435,6 @@ public class Aura extends Module {
                         mc.player.resetCooldown();
                         mc.player.connection.sendPacket(new CPacketHeldItemChange(mc.player.inventory.currentItem));
                     }
-
                     if (blocking) {
                         mc.player.connection.sendPacket(new CPacketPlayerTryUseItem(mc.player.getActiveHand()));
                     }
@@ -794,9 +796,18 @@ public class Aura extends Module {
 
     public void rotate(Entity base, boolean attackContext) {
         rotatedBefore = true;
+
+
         Vec3d bestVector = getVector(base);
         if (bestVector == null) {
             bestVector = base.getPositionEyes(1);
+        }
+
+        boolean inside_target = mc.player.boundingBox.intersects(target.boundingBox);
+
+
+        if(rotation.getValue() == rotmod.Matrix3 && inside_target){
+            bestVector = base.getPositionVector().add(new Vec3d(0,interpolateRandom(0.1f,0.4f),0));
         }
 
 
@@ -879,13 +890,14 @@ public class Aura extends Module {
                     boolean looking_at_box = RayTracingUtils.getMouseOver(base, Thunderhack.rotationManager.getServerYaw(), Thunderhack.rotationManager.getServerPitch(), attackDistance.getValue(), ignoreWalls(base)) == base;
 
                     if(looking_at_box){
-                        rotation_smoother = 3f;
-                    } else if(rotation_smoother < 45f){
-                        rotation_smoother += 4.2f;
+                        rotation_smoother = 10f;
+                    } else if(rotation_smoother < 60f){
+                        rotation_smoother += 8f;
                     }
-                    float yaw_speed = looking_at_box ? 3f : rotation_smoother;
+
+                    float yaw_speed = (inside_target && attackContext) ? 60f : (looking_at_box ? 6f : rotation_smoother);
                     float pitch_speed = looking_at_box ? 1.5f : 4f;
-                    //1.5- нет ботов  2f - боты
+                    //1.5 - нет ботов  2f - боты
 
                     float deltaYaw = MathHelper.clamp(absoluteYaw + randomize, -yaw_speed + randomizeClamp, yaw_speed + randomizeClamp);
                     float deltaPitch = MathHelper.clamp(pitchDelta, -pitch_speed, pitch_speed);
@@ -933,6 +945,7 @@ public class Aura extends Module {
 
         }
     }
+
 
     public static float interpolateRandom(float var0, float var1) {
         return (float) (var0 + (var1 - var0) * Math.random());

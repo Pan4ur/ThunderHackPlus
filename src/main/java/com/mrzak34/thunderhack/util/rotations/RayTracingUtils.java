@@ -134,9 +134,6 @@ public class RayTracingUtils {
     }
 
     public static Entity getMouseOver(Entity target, float yaw, float pitch, double distance, boolean ignoreWalls) {
-        if(!Thunderhack.moduleManager.getModuleByClass(Aura.class).rtx.getValue()){
-            return target;
-        }
         Entity pointedEntity;
         RayTraceResult objectMouseOver;
         Entity entity = mc.getRenderViewEntity();
