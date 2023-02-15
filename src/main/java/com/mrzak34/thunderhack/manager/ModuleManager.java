@@ -49,7 +49,7 @@ public class ModuleManager extends Feature {
         this.modules.add(new FastFall());
         this.modules.add(new Search());
         this.modules.add(new EFly());
-
+        this.modules.add(new Spammer());
         this.modules.add(new AutoFlyme());
         this.modules.add(new ReverseStep());
         this.modules.add(new Step());
