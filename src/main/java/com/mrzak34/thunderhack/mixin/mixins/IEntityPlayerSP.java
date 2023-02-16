@@ -29,9 +29,6 @@ public interface IEntityPlayerSP {
     @Accessor(value = "autoJumpEnabled")
     void setAutoJumpEnabled(boolean autoJumpEnabled);
 
-    @Accessor(value = "autoJumpEnabled")
-    boolean getAutoJumpEnabled();
-
     @Accessor(value = "lastReportedPosX")
     void setLastReportedPosX(double lastReportedPosX);
 

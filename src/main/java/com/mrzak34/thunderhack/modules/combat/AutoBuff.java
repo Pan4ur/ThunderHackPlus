@@ -37,8 +37,7 @@ public class AutoBuff extends Module {
     public void onEvent(EventPreMotion event) {
             if (Aura.target != null && mc.player.getCooledAttackStrength(1) > 0.5f)
                 return;
-            boolean shouldThrow =
-                        (!mc.player.isPotionActive(MobEffects.SPEED) && isPotionOnHotBar(Potions.SPEED) && speed.getValue())
+            boolean shouldThrow = (!mc.player.isPotionActive(MobEffects.SPEED) && isPotionOnHotBar(Potions.SPEED) && speed.getValue())
                         || (!mc.player.isPotionActive(MobEffects.STRENGTH) && isPotionOnHotBar(Potions.STRENGTH) && strenght.getValue())
                         || (!mc.player.isPotionActive(MobEffects.FIRE_RESISTANCE) && isPotionOnHotBar(Potions.FIRERES) && fire.getValue())
                         || (EntityUtil.getHealth(mc.player)  < health.getValue() && isPotionOnHotBar(Potions.HEAL) && heal.getValue());
@@ -67,8 +66,7 @@ public class AutoBuff extends Module {
                 if (!mc.player.isPotionActive(MobEffects.FIRE_RESISTANCE) && isPotionOnHotBar(Potions.FIRERES) && fire.getValue()) {
                     throwPotion(Potions.FIRERES);
                 }
-                if (EntityUtil.getHealth(mc.player)  < health.getValue() && heal.getValue()
-                        && isPotionOnHotBar(Potions.HEAL)) {
+                if (EntityUtil.getHealth(mc.player)  < health.getValue() && heal.getValue() && isPotionOnHotBar(Potions.HEAL)) {
                     throwPotion(Potions.HEAL);
                 }
                 mc.player.connection.sendPacket(new CPacketHeldItemChange(mc.player.inventory.currentItem));

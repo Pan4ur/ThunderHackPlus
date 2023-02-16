@@ -14,8 +14,7 @@ import org.spongepowered.asm.mixin.Mixin;
 
 
 @Mixin({ SlotShulkerBox.class })
-public class MixinSlotShulkerBox
-{
+public class MixinSlotShulkerBox {
     @Inject(method = { "isItemValid" }, at = { @At("HEAD") }, cancellable = true)
     public void isItemValid(final ItemStack stack, final CallbackInfoReturnable<Boolean> ci) {
         if (Thunderhack.moduleManager.getModuleByClass(Shulkerception.class).isEnabled() && Block.getBlockFromItem(stack.getItem()) instanceof BlockShulkerBox) {

@@ -4,7 +4,6 @@
   "package": "com.mrzak34.thunderhack.mixin.mixins",
   "refmap": "mixins.thunderhack.refmap.json",
   "mixins": [
-    "AccessorKeyBinding",
     "AccessorMinecraft",
     "IChunkProviderClient",
     "ICPacketPlayer",
@@ -42,7 +41,6 @@
     "MixinGuiIngame",
     "MixinGuiMainMenu",
     "MixinGuiMultiplayer",
-    "MixinGuiNewChat",
     "MixinGuiPlayerTabOverlay",
     "MixinGuiScreen",
     "MixinGuiToast",

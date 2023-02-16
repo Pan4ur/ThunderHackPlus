@@ -2,6 +2,7 @@ package com.mrzak34.thunderhack.modules.movement;
 
 import com.mrzak34.thunderhack.events.EventPreMotion;
 import com.mrzak34.thunderhack.modules.Module;
+import com.mrzak34.thunderhack.modules.combat.Aura;
 import com.mrzak34.thunderhack.setting.Setting;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
@@ -34,6 +35,7 @@ public class Spider extends Module {
         Default, Matrix, MatrixNew, Blocks;
     }
     public Setting<Boolean> dropBlocks = this.register(new Setting<>("DropBlocks", false));
+    public final Setting<Integer> delay = register(new Setting("delay", 2, 1, 15));
 
 
 
@@ -46,7 +48,7 @@ public class Spider extends Module {
             mc.player.motionY = 0.2;
             mc.player.isAirBorne = false;
         } else if(a.getValue() == mode.Matrix) {
-            if (mc.player.ticksExisted % 8 == 0) {
+            if (mc.player.ticksExisted % delay.getValue() == 0) {
                 mc.player.onGround = true;
                 mc.player.isAirBorne = false;
             } else {
@@ -68,7 +70,7 @@ public class Spider extends Module {
             mc.player.onGround = true;
             mc.player.motionY = 0.481145141919180;
         }
-        if (mc.player.ticksExisted % 2 == 0 && mc.player.collidedHorizontally && isMoving() && a.getValue() == mode.Blocks) {
+        if (mc.player.ticksExisted % delay.getValue() == 0 && mc.player.collidedHorizontally && isMoving() && a.getValue() == mode.Blocks) {
                 int find = -2;
                 for (int i = 0; i <= 8; i++)
                     if (mc.player.inventory.getStackInSlot(i).getItem() instanceof ItemBlock)

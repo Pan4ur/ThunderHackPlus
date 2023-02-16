@@ -3,7 +3,6 @@ package com.mrzak34.thunderhack.modules.combat;
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
-import com.mrzak34.thunderhack.mixin.mixins.AccessorKeyBinding;
 import com.mrzak34.thunderhack.util.*;
 import com.mrzak34.thunderhack.util.math.MathUtil;
 import net.minecraft.entity.Entity;
@@ -57,7 +56,7 @@ public class AntiBowBomb extends Module {
 
         if (target == null) {
             if (b) {
-                ((AccessorKeyBinding) mc.gameSettings.keyBindUseItem).setPressed(false);
+                mc.gameSettings.keyBindUseItem.pressed = (false);
                 if (old != -1) InventoryUtil.swapToHotbarSlot(old, false);
                 target = null;
                 b = false;
@@ -79,13 +78,9 @@ public class AntiBowBomb extends Module {
             InventoryUtil.switchToHotbarSlot(shield,false);
 
             if (mc.player.getHeldItemMainhand().getItem() instanceof ItemShield) {
-                ((AccessorKeyBinding) mc.gameSettings.keyBindUseItem).setPressed(true);
+                mc.gameSettings.keyBindUseItem.pressed = true;
                 InventoryUtil.swapToHotbarSlot(shield, false);
-
-
                 SilentRotaionUtil.lookAtEntity(target);
-
-
                 b = true;
             }
         }

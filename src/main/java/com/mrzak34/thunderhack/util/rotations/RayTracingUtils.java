@@ -4,6 +4,7 @@ package com.mrzak34.thunderhack.util.rotations;
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.modules.combat.Aura;
+import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.math.MathUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
@@ -20,9 +21,7 @@ import static com.mrzak34.thunderhack.util.Util.mc;
 public class RayTracingUtils {
 
 
-    public static ArrayList<Vec3d> getHitBoxPoints(Vec3d position, float fakeBoxScale){
-
-
+    public static ArrayList<Vec3d> getHitBoxPointsJitter(Vec3d position, float fakeBoxScale){
 
         float head_height = 1.6f + interpolateRandom(-0.4f,0.2f);
         float chest_height = 0.8f + interpolateRandom(-0.2f,0.2f);
@@ -61,6 +60,82 @@ public class RayTracingUtils {
                 legs1,  legs2,  legs3,  legs4,  legs5,  legs6,  legs7,  legs8
         ));
     }
+
+    public static ArrayList<Vec3d> getHitBoxPointsNonJitter(Vec3d position, float fakeBoxScale){
+
+        float head_height = 1.6f;
+        float chest_height = 0.8f;
+        float leggs_height = 0.225f;
+
+        Vec3d head1 = position.add(-fakeBoxScale, head_height, fakeBoxScale);
+        Vec3d head2 = position.add(0, head_height, fakeBoxScale);
+        Vec3d head3 = position.add(fakeBoxScale, head_height, fakeBoxScale);
+        Vec3d head4 = position.add(-fakeBoxScale, head_height, 0);
+        Vec3d head5 = position.add(fakeBoxScale, head_height, 0);
+        Vec3d head6 = position.add(-fakeBoxScale, head_height, -fakeBoxScale);
+        Vec3d head7 = position.add(0, head_height, -fakeBoxScale);
+        Vec3d head8 = position.add(fakeBoxScale, head_height, -fakeBoxScale);
+
+        Vec3d chest1 = position.add(-fakeBoxScale, chest_height, fakeBoxScale);
+        Vec3d chest2 = position.add(0, chest_height, fakeBoxScale);
+        Vec3d chest3 = position.add(fakeBoxScale, chest_height, fakeBoxScale);
+        Vec3d chest4 = position.add(-fakeBoxScale,chest_height, 0);
+        Vec3d chest5 = position.add(fakeBoxScale, chest_height, 0);
+        Vec3d chest6 = position.add(-fakeBoxScale, chest_height, -fakeBoxScale);
+        Vec3d chest7 = position.add(0, chest_height, -fakeBoxScale);
+        Vec3d chest8 = position.add(fakeBoxScale, chest_height, -fakeBoxScale);
+
+        Vec3d legs1 = position.add(-fakeBoxScale, leggs_height, fakeBoxScale);
+        Vec3d legs2 = position.add(0, leggs_height, fakeBoxScale);
+        Vec3d legs3 = position.add(fakeBoxScale, leggs_height, fakeBoxScale);
+        Vec3d legs4 = position.add(-fakeBoxScale,leggs_height, 0);
+        Vec3d legs5 = position.add(fakeBoxScale, leggs_height, 0);
+        Vec3d legs6 = position.add(-fakeBoxScale, leggs_height, -fakeBoxScale);
+        Vec3d legs7 = position.add(0, leggs_height, -fakeBoxScale);
+        Vec3d legs8 = position.add(fakeBoxScale, leggs_height, -fakeBoxScale);
+
+        return new ArrayList<>(Arrays.asList(
+                head1,  head2,  head3,  head4,  head5,  head6,  head7,  head8,
+                chest1, chest2, chest3, chest4, chest5, chest6, chest7, chest8,
+                legs1,  legs2,  legs3,  legs4,  legs5,  legs6,  legs7,  legs8
+        ));
+    }
+
+    public static ArrayList<Vec3d> getHitBoxPointsOldJitter(Vec3d position, float fakeBoxScale){
+
+        float head_height = 1.6f + interpolateRandom(-0.8f,0.2f);
+        float chest_height = 0.8f + interpolateRandom(-0.6f,0.2f);
+        float leggs_height = 0.15f + interpolateRandom(-0.1f,0.1f);
+
+        Vec3d head1 = position.add(0, head_height, 0);
+        Vec3d chest1 = position.add(0, chest_height, 0);
+        Vec3d legs1 = position.add(0, leggs_height, 0);
+
+        return new ArrayList<>(Arrays.asList(
+                head1,
+                chest1,
+                legs1
+        ));
+    }
+
+    public static ArrayList<Vec3d> getHitBoxPointsOld(Vec3d position, float fakeBoxScale){
+
+        float head_height = 1.6f;
+        float chest_height = 0.8f;
+        float leggs_height = 0.15f;
+
+        Vec3d head1 = position.add(0, head_height, 0);
+        Vec3d chest1 = position.add(0, chest_height, 0);
+        Vec3d legs1 = position.add(0, leggs_height, 0);
+
+
+        return new ArrayList<>(Arrays.asList(
+                head1,
+                chest1,
+                legs1
+        ));
+    }
+
 
     public static float interpolateRandom(float var0, float var1) {
         return (float) (var0 + (var1 - var0) * Math.random());
@@ -204,5 +279,20 @@ public class RayTracingUtils {
 
     static Vec3d getLook(float yaw, float pitch) {
         return getVectorForRotation(pitch, yaw);
+    }
+
+    public static ArrayList<Vec3d> getHitBoxPoints(Vec3d position, float fakeBoxScale){
+        Setting<Aura.RayTracingMode> mode = Thunderhack.moduleManager.getModuleByClass(Aura.class).rayTracing;
+        switch (mode.getValue()){
+            case New:
+                return getHitBoxPointsNonJitter(position,fakeBoxScale);
+            case Old:
+                return getHitBoxPointsOld(position,fakeBoxScale);
+            case OldJitter:
+                return getHitBoxPointsOldJitter(position,fakeBoxScale);
+            case NewJitter:
+                return getHitBoxPointsJitter(position,fakeBoxScale);
+        }
+        return getHitBoxPointsNonJitter(position,fakeBoxScale);
     }
 }

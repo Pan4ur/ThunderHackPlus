@@ -21,7 +21,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-import static com.mrzak34.thunderhack.modules.movement.EFly.setSpeed;
+import static com.mrzak34.thunderhack.modules.movement.LegitStrafe.setSpeed;
 
 public class Jesus extends Module {
 

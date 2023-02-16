@@ -27,10 +27,10 @@ public class Velocity
     }
 
     public Setting<Boolean> onlyAura = register(new Setting<>("OnlyAura", false));
-    public Setting<Float> horizontal = this.register(new Setting<Float>("Horizontal", 0.0f, 0.0f, 100.0f,v-> mode.getValue() == modeEn.Custom));
-    public Setting<Float> vertical = this.register(new Setting<Float>("Vertical", 0.0f, 0.0f, 100.0f,v-> mode.getValue() == modeEn.Custom));
-    public Setting<Boolean> ice = this.register(new Setting<Boolean>("Ice", false));
-    public Setting<Boolean> autoDisable = this.register(new Setting<Boolean>("DisableOnVerify", false));
+    public Setting<Float> horizontal = this.register(new Setting<>("Horizontal", 0.0f, 0.0f, 100.0f, v -> mode.getValue() == modeEn.Custom));
+    public Setting<Float> vertical = this.register(new Setting<>("Vertical", 0.0f, 0.0f, 100.0f, v -> mode.getValue() == modeEn.Custom));
+    public Setting<Boolean> ice = this.register(new Setting<>("Ice", false));
+    public Setting<Boolean> autoDisable = this.register(new Setting<>("DisableOnVerify", false));
 
 
 
@@ -67,18 +67,6 @@ public class Velocity
         if(fullNullCheck()) return;
         Entity entity;
         SPacketEntityStatus packet;
-        if (event.getPacket() instanceof SPacketEntityStatus &&  (packet = event.getPacket()).getOpCode() == 31 && (entity = packet.getEntity(Velocity.mc.world)) instanceof EntityFishHook) {
-            EntityFishHook fishHook = (EntityFishHook) entity;
-            if (fishHook.caughtEntity == Velocity.mc.player) {
-                event.setCanceled(true);
-            }
-        }
-        if (event.getPacket() instanceof SPacketExplosion) {
-            SPacketExplosion velocity_ = event.getPacket();
-            velocity_.motionX *= this.horizontal.getValue() / 100f;
-            velocity_.motionY *= this.vertical.getValue() / 100f;
-            velocity_.motionZ *= this.horizontal.getValue() / 100f;
-        }
 
         if (event.getPacket() instanceof SPacketChat && autoDisable.getValue()) {
             String text = ((SPacketChat)event.getPacket()).getChatComponent().getFormattedText();
@@ -86,6 +74,22 @@ public class Velocity
                 toggle();
             }
         }
+
+        if (event.getPacket() instanceof SPacketEntityStatus &&  (packet = event.getPacket()).getOpCode() == 31 && (entity = packet.getEntity(Velocity.mc.world)) instanceof EntityFishHook) {
+            EntityFishHook fishHook = (EntityFishHook) entity;
+            if (fishHook.caughtEntity == Velocity.mc.player) {
+                event.setCanceled(true);
+            }
+        }
+
+        if (event.getPacket() instanceof SPacketExplosion) {
+            SPacketExplosion velocity_ = event.getPacket();
+            velocity_.motionX *= this.horizontal.getValue() / 100f;
+            velocity_.motionY *= this.vertical.getValue() / 100f;
+            velocity_.motionZ *= this.horizontal.getValue() / 100f;
+        }
+
+
         
         if(onlyAura.getValue() && Thunderhack.moduleManager.getModuleByClass(Aura.class).isDisabled()){
             return;
@@ -108,14 +112,14 @@ public class Velocity
         }
         if(mode.getValue() == modeEn.Matrix ){
             if (event.getPacket() instanceof SPacketEntityStatus) {
-                SPacketEntityStatus var9 = (SPacketEntityStatus)event.getPacket();
+                SPacketEntityStatus var9 = event.getPacket();
                 if (var9.getOpCode() == 2 && var9.getEntity(mc.world) == mc.player) {
                     flag = true;
                 }
             }
 
             if (event.getPacket() instanceof SPacketEntityVelocity) {
-                SPacketEntityVelocity var4 = (SPacketEntityVelocity)event.getPacket();
+                SPacketEntityVelocity var4 = event.getPacket();
                 if (var4.getEntityID() == mc.player.entityId) {
                     if (!flag) {
                         event.setCanceled(true);
@@ -140,7 +144,6 @@ public class Velocity
                 mc.player.motionZ = Math.cos(var3) * var5;
                 mc.player.setSprinting(mc.player.ticksExisted % 2 != 0);
             }
-
         }
     }
 

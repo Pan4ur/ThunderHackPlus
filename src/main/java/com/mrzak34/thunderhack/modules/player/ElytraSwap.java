@@ -61,7 +61,7 @@ public class ElytraSwap extends Module{
         }
     }
 
-    public int getChestPlateSlot() {
+    public static int getChestPlateSlot() {
         Item[] items = {Items.DIAMOND_CHESTPLATE, Items.CHAINMAIL_CHESTPLATE, Items.IRON_CHESTPLATE, Items.GOLDEN_CHESTPLATE, Items.LEATHER_CHESTPLATE};
 
         for (Item item : items) {

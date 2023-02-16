@@ -24,20 +24,4 @@ public class MixinNetHandlerPlayClient
             MinecraftForge.EVENT_BUS.post((Event)new DeathEvent(player));
         }
     }
-
-
-    /*
-    disconnect.timeout
-        public static void syncCapes(){
-            try {
-                URL capesList = new URL("https://www.evilinsult.com/generate_insult.php?lang=ru");
-                BufferedReader in = new BufferedReader(new InputStreamReader(capesList.openStream()));
-                String inputLine;
-                while ((inputLine = in.readLine()) != null) {
-                    System.out.println(inputLine);
-                }
-            } catch (Exception ignored) {
-            }
-    }
-     */
 }

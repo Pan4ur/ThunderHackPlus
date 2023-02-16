@@ -85,46 +85,60 @@ public class Aura extends Module {
     public enum TimingMode {
         Default, Old
     }
-
+    public enum RayTracingMode {
+        NewJitter, New, Old, OldJitter
+    }
     /*-------------   AntiCheat  ----------*/
-    private final Setting<rotmod> rotation = register(new Setting("Rotation", rotmod.Matrix));
-    public final Setting<PointsMode> pointsMode = register(new Setting("PointsMode", PointsMode.Distance));
-    public final Setting<TimingMode> timingMode = register(new Setting("Timing", TimingMode.Default));
-    public final Setting<Integer> minCPS = register(new Setting("MinCPS", 10, 1, 20,v -> timingMode.getValue() == TimingMode.Old));
-    public final Setting<Integer> maxCPS = register(new Setting("MaxCPS", 12, 1, 20,v -> timingMode.getValue() == TimingMode.Old));
-    public final Setting<Float> rotateDistance = register(new Setting("RotateDistance", 1f, 0f, 5f));
-    public final Setting<Float> attackDistance = register(new Setting("AttackDistance", 3.4f, 0.0f, 7.0f));
-    public final Setting<Float> walldistance = register(new Setting("WallDistance", 3.6f, 0.0f, 7.0f));
-    public final Setting<Integer> fov = register(new Setting("FOV", 180, 5, 180));
-    public final Setting<Boolean> rtx = register(new Setting<>("RTX", true));
-    public final Setting<Boolean> backTrack = register(new Setting<>("RotateToBackTrack", true));
-    public final Setting<Boolean> resolver = register(new Setting<>("Resolver", false));
-    public final Setting<Integer> yawStep = register(new Setting("YawStep", 80, 5, 180, v-> rotation.getValue() == rotmod.Matrix));
-    public final Setting<Float> hitboxScale = register(new Setting("HitBoxScale", 2.8f, 0.0f, 3.0f));
+    public final  Setting<Parent> antiCheat = register(new Setting<>("AntiCheat", new Parent(false)));
+    public final Setting<Float> rotateDistance = register(new Setting("RotateDistance", 1f, 0f, 5f)).withParent(antiCheat);
+    public final Setting<Float> attackDistance = register(new Setting("AttackDistance", 3.4f, 0.0f, 7.0f)).withParent(antiCheat);
+    private final Setting<rotmod> rotation = register(new Setting("Rotation", rotmod.Matrix)).withParent(antiCheat);
+    public final Setting<RayTracingMode> rayTracing = register(new Setting("RayTracing", RayTracingMode.NewJitter)).withParent(antiCheat);
+    public final Setting<PointsMode> pointsMode = register(new Setting("PointsSort", PointsMode.Distance)).withParent(antiCheat);
+    public final Setting<TimingMode> timingMode = register(new Setting("Timing", TimingMode.Default)).withParent(antiCheat);
+    public final Setting<Boolean> rtx = register(new Setting<>("RTX", true)).withParent(antiCheat);
+    public final Setting<Integer> minCPS = register(new Setting("MinCPS", 10, 1, 20,v -> timingMode.getValue() == TimingMode.Old)).withParent(antiCheat);
+    public final Setting<Integer> maxCPS = register(new Setting("MaxCPS", 12, 1, 20,v -> timingMode.getValue() == TimingMode.Old)).withParent(antiCheat);
+    public final Setting<Float> walldistance = register(new Setting("WallDistance", 3.6f, 0.0f, 7.0f)).withParent(antiCheat);
+    public final Setting<Integer> fov = register(new Setting("FOV", 180, 5, 180)).withParent(antiCheat);
+    public final Setting<Integer> yawStep = register(new Setting("YawStep", 80, 5, 180, v-> rotation.getValue() == rotmod.Matrix)).withParent(antiCheat);
+    public final Setting<Float> hitboxScale = register(new Setting("HitBoxScale", 2.8f, 0.0f, 3.0f)).withParent(antiCheat);
     /*-------------------------------------*/
+
+
+    /*------------   Exploits  ------------*/
+    public final  Setting<Parent> exploits = register(new Setting<>("Exploits", new Parent(false)));
+    public final Setting<Boolean> resolver = register(new Setting<>("Resolver", false)).withParent(exploits);
+    public final Setting<Boolean> shieldDesync = register(new Setting<>("Shield Desync", false)).withParent(exploits);
+    public final Setting<Boolean> backTrack = register(new Setting<>("RotateToBackTrack", true)).withParent(exploits);
+    public final Setting<Boolean> shiftTap = register(new Setting<>("ShiftTap", true)).withParent(exploits);
+
+    /*-------------------------------------*/
+
+
 
 
     /*-------------   Misc  ---------------*/
-    public final Setting<Boolean> criticals = register(new Setting<>("Criticals", true));
-    public final Setting<CritMode> critMode = register(new Setting("CritMode", CritMode.WexSide,v -> criticals.getValue()));
-    public final Setting<Float> critdist = register(new Setting("FallDistance", 0.15f, 0.0f, 1.0f,v -> criticals.getValue() && critMode.getValue() == CritMode.Simple));;
-    public final Setting<Boolean> criticals_autojump = register(new Setting<>("AutoJump", false,v-> criticals.getValue()));
-    public final Setting<Boolean> smartCrit = register(new Setting<>("SmartCrit", true,v-> criticals.getValue()));
-    public final Setting<Boolean> watercrits = register(new Setting<>("WaterCrits", false,v-> criticals.getValue()));
-    public final Setting<Boolean> weaponOnly = register(new Setting<>("WeaponOnly", true));
-    public final Setting<AutoSwitch> autoswitch = register(new Setting("AutoSwitch", AutoSwitch.None));
-    public final Setting<Boolean> firstAxe = register(new Setting<>("FirstAxe", false,v -> autoswitch.getValue() != AutoSwitch.None));
-    public final Setting<Boolean> shieldDesync = register(new Setting<>("Shield Desync", false));
-    public final Setting<Boolean> shieldDesyncOnlyOnAura = register(new Setting<>("Wait Target", true, v->shieldDesync.getValue()));
-    public final Setting<Boolean> clientLook = register(new Setting<>("ClientLook", false));
-    public final Setting<Boolean> snap = register(new Setting<>("Snap", false));
-    public final Setting<Boolean> shieldBreaker = register(new Setting<>("ShieldBreaker", true));
-
-    public final Setting<Boolean> offhand = register(new Setting<>("OffHandAttack", false));
-    public final Setting<Boolean> teleport = register(new Setting<>("TP", false));
-    public final Setting<Float> tpY = register(new Setting("TPY", 3f, -5.0f, 5.0f,v-> teleport.getValue()));
-    public final Setting<Boolean> Debug = register(new Setting<>("HitsDebug", false));
+    public final  Setting<Parent> misc = register(new Setting<>("Misc", new Parent(false)));
+    public final Setting<Boolean> criticals = register(new Setting<>("OnlyCrits", true)).withParent(misc);
+    public final Setting<CritMode> critMode = register(new Setting("CritMode", CritMode.WexSide,v -> criticals.getValue())).withParent(misc);
+    public final Setting<Float> critdist = register(new Setting("FallDistance", 0.15f, 0.0f, 1.0f,v -> criticals.getValue() && critMode.getValue() == CritMode.Simple)).withParent(misc);
+    public final Setting<Boolean> criticals_autojump = register(new Setting<>("AutoJump", false,v-> criticals.getValue())).withParent(misc);
+    public final Setting<Boolean> smartCrit = register(new Setting<>("SpaceOnly", true,v-> criticals.getValue())).withParent(misc);
+    public final Setting<Boolean> watercrits = register(new Setting<>("WaterCrits", false,v-> criticals.getValue())).withParent(misc);
+    public final Setting<Boolean> weaponOnly = register(new Setting<>("WeaponOnly", true)).withParent(misc);
+    public final Setting<AutoSwitch> autoswitch = register(new Setting("AutoSwitch", AutoSwitch.None)).withParent(misc);
+    public final Setting<Boolean> firstAxe = register(new Setting<>("FirstAxe", false,v -> autoswitch.getValue() != AutoSwitch.None)).withParent(misc);
+    public final Setting<Boolean> shieldDesyncOnlyOnAura = register(new Setting<>("Wait Target", true, v->shieldDesync.getValue())).withParent(misc);
+    public final Setting<Boolean> clientLook = register(new Setting<>("ClientLook", false)).withParent(misc);
+    public final Setting<Boolean> snap = register(new Setting<>("Snap", false)).withParent(misc);
+    public final Setting<Boolean> shieldBreaker = register(new Setting<>("ShieldBreaker", true)).withParent(misc);
+    public final Setting<Boolean> offhand = register(new Setting<>("OffHandAttack", false)).withParent(misc);
+    public final Setting<Boolean> teleport = register(new Setting<>("TP", false)).withParent(misc);
+    public final Setting<Float> tpY = register(new Setting("TPY", 3f, -5.0f, 5.0f,v-> teleport.getValue())).withParent(misc);
+    public final Setting<Boolean> Debug = register(new Setting<>("HitsDebug", false)).withParent(misc);
     /*-------------------------------------*/
+
 
 
     /*-------------   Targets  ------------*/
@@ -142,9 +156,11 @@ public class Aura extends Module {
 
 
     /*-------------   Visual  -------------*/
-    public final Setting<Boolean> RTXVisual = register(new Setting<>("RTXVisual", false));
-    public final Setting<Boolean> targetesp = register(new Setting<>("Target Esp", true));//(visual);
-    public final Setting<ColorSetting> shitcollor = this.register(new Setting<>("TargetColor", new ColorSetting(-2009289807)));
+    public final  Setting<Parent> render = register(new Setting<>("Render", new Parent(false)));
+
+    public final Setting<Boolean> RTXVisual = register(new Setting<>("RTXVisual", false)).withParent(render);
+    public final Setting<Boolean> targetesp = register(new Setting<>("Target Esp", true)).withParent(render);//(visual);
+    public final Setting<ColorSetting> shitcollor = this.register(new Setting<>("TargetColor", new ColorSetting(-2009289807))).withParent(render);
     /*-------------------------------------*/
 
 
@@ -418,7 +434,9 @@ public class Aura extends Module {
                         mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, Action.STOP_SPRINTING));
                         needSwap = true;
                     }
-
+                    if (shiftTap.getValue()) {
+                        mc.gameSettings.keyBindSneak.pressed = true;
+                    }
                     mc.playerController.attackEntity(mc.player, base);
                     if(Debug.getValue()){
                         if(target != null && last_best_vec != null) {
@@ -440,6 +458,9 @@ public class Aura extends Module {
                     }
                     if (needSwap) {
                         mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, Action.START_SPRINTING));
+                    }
+                    if (shiftTap.getValue()) {
+                        mc.gameSettings.keyBindSneak.pressed = false;
                     }
                     if(swappedToAxe){
                         swapBack = true;
@@ -636,6 +657,7 @@ public class Aura extends Module {
 
 
             ArrayList<Vec3d> points = RayTracingUtils.getHitBoxPoints(target.getPositionVector(),hitboxScale.getValue()/10f);
+
             points.removeIf(point -> !isPointVisible(target, point, (attackDistance.getValue() + rotateDistance.getValue())));
 
             if (points.isEmpty()) {
@@ -819,8 +841,10 @@ public class Aura extends Module {
         float yawToTarget = (float) wrapDegrees(Math.toDegrees(Math.atan2(z, x)) - 90);
         float pitchToTarget = (float) (-Math.toDegrees(Math.atan2(y, dst)));
 
-        float yawDelta = wrapDegrees(yawToTarget - Thunderhack.rotationManager.getServerYaw());
-        float pitchDelta = (pitchToTarget - Thunderhack.rotationManager.getServerPitch());
+        float sensitivity = 1.0001f;
+
+        float yawDelta = wrapDegrees(yawToTarget - Thunderhack.rotationManager.getServerYaw()) / sensitivity;
+        float pitchDelta = (pitchToTarget - Thunderhack.rotationManager.getServerPitch()) / sensitivity;
 
 
         if (yawDelta > 180) {
@@ -835,16 +859,15 @@ public class Aura extends Module {
                 case Matrix: {
                     float pitchDeltaAbs = Math.abs(pitchDelta);
 
-                    float randomizeClamp = interpolateRandom(-5.0F, 5.0F);
-                    float additionYaw = Math.min(Math.max(yawDeltaAbs, 1), yawStep.getValue() - randomizeClamp);
+                    float additionYaw = Math.min(Math.max(yawDeltaAbs, 1), yawStep.getValue());
                     float additionPitch = Math.max(attackContext ? pitchDeltaAbs : 1, 2);
 
-                    if (Math.abs(additionYaw - prevAdditionYaw) <= 3.1f) {
-                        additionYaw = prevAdditionYaw + 3.0f;
+                    if (Math.abs(additionYaw - prevAdditionYaw) <= 3.0f) {
+                        additionYaw = prevAdditionYaw + 3.1f;
                     }
 
-                    float newYaw = Thunderhack.rotationManager.getServerYaw() + (yawDelta > 0 ? additionYaw : -additionYaw);
-                    float newPitch = clamp(Thunderhack.rotationManager.getServerPitch() + (pitchDelta > 0 ? additionPitch : -additionPitch), -90, 90);
+                    float newYaw = Thunderhack.rotationManager.getServerYaw() + (yawDelta > 0 ? additionYaw : -additionYaw) * sensitivity;
+                    float newPitch = clamp(Thunderhack.rotationManager.getServerPitch() + (pitchDelta > 0 ? additionPitch : -additionPitch)  * sensitivity, -90, 90);
 
                     mc.player.rotationYaw = newYaw;
                     mc.player.rotationPitch = newPitch;
@@ -932,8 +955,8 @@ public class Aura extends Module {
                 case AAC: {
                     if (attackContext) {
                         int pitchDeltaAbs = (int) Math.abs(pitchDelta);
-                        float newYaw = Thunderhack.rotationManager.getServerYaw() + (yawDelta > 0 ? yawDeltaAbs : -yawDeltaAbs);
-                        float newPitch = clamp(Thunderhack.rotationManager.getServerPitch() + (pitchDelta > 0 ? pitchDeltaAbs : -pitchDeltaAbs), -90, 90);
+                        float newYaw = Thunderhack.rotationManager.getServerYaw() + (yawDelta > 0 ? yawDeltaAbs : -yawDeltaAbs) * sensitivity;
+                        float newPitch = clamp(Thunderhack.rotationManager.getServerPitch() + (pitchDelta > 0 ? pitchDeltaAbs : -pitchDeltaAbs) * sensitivity, -90, 90) ;
                         mc.player.rotationYaw = newYaw;
                         mc.player.rotationPitch = newPitch;
                         mc.player.rotationYawHead = newYaw;

@@ -35,9 +35,6 @@ public class AntiBot extends Module {
     public Setting<Integer> checkticks = register(new Setting("checkTicks", 3, 0, 10,v-> mode.getValue() == Mode.MotionCheck));
 
 
-
-
-
     public static ArrayList<EntityPlayer> bots = new ArrayList<>();
 
 
@@ -54,21 +51,27 @@ public class AntiBot extends Module {
                     if (player != null) {
                         double speed = (player.posX - player.prevPosX) * (player.posX - player.prevPosX) + (player.posZ - player.prevPosZ) * (player.posZ - player.prevPosZ);
                         if (player != mc.player && speed > 0.5 && mc.player.getDistanceSq(player) <= Thunderhack.moduleManager.getModuleByClass(Aura.class).attackDistance.getValue() * Thunderhack.moduleManager.getModuleByClass(Aura.class).attackDistance.getValue() && !bots.contains(player)) {
+                            if(!bots.contains(player)) {
+                                Command.sendMessage(player.getName() + " is a bot!");
+                                ++botsNumber;
+                                bots.add(player);
+                            }
+                        }
+                    }
+                } else {
+                    if (!player.getUniqueID().equals(UUID.nameUUIDFromBytes(("OfflinePlayer:" + player.getName()).getBytes(StandardCharsets.UTF_8))) && player instanceof EntityOtherPlayerMP) {
+                        if(!bots.contains(player)) {
                             Command.sendMessage(player.getName() + " is a bot!");
                             ++botsNumber;
                             bots.add(player);
                         }
                     }
-                } else {
-                    if (!player.getUniqueID().equals(UUID.nameUUIDFromBytes(("OfflinePlayer:" + player.getName()).getBytes(StandardCharsets.UTF_8))) && player instanceof EntityOtherPlayerMP) {
-                        Command.sendMessage(player.getName() + " is a bot!");
-                        ++botsNumber;
-                        bots.add(player);
-                    }
                     if (!player.getUniqueID().equals(UUID.nameUUIDFromBytes(("OfflinePlayer:" + player.getName()).getBytes(StandardCharsets.UTF_8))) && player.isInvisible() && player instanceof EntityOtherPlayerMP) {
-                        Command.sendMessage(player.getName() + " is a bot!");
-                        ++botsNumber;
-                        bots.add(player);
+                        if(!bots.contains(player)) {
+                            Command.sendMessage(player.getName() + " is a bot!");
+                            ++botsNumber;
+                            bots.add(player);
+                        }
                     }
                 }
             }
