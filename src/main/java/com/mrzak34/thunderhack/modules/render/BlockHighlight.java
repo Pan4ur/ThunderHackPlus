@@ -40,49 +40,6 @@ public class BlockHighlight extends Module {
 
 
     int boostTicks;
-    /*
-    @Override
-    public void onUpdate() {
-        if (mc.player.onGround) {
-            mc.player.jump();
-        }
-
-        if (mc.player.ticksExisted % 2 == 0) {
-            mc.player.motionX *= 1.0D;
-            mc.player.motionZ *= 1.0D;
-            mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.START_FALL_FLYING));
-        }
-
-        if (mc.player.isElytraFlying()) {
-            ++this.boostTicks;
-            mc.player.capabilities.isFlying = false;
-            mc.player.capabilities.allowFlying = false;
-            if (this.boostTicks > 0) {
-                mc.player.motionX *= 1.5;
-                mc.player.motionZ *= 1.5;
-
-                setSpeed(lineWidth.getValue());
-                if (!isMoving()) {
-                    this.boostTicks = 0;
-                }
-            }
-        }
-    }
-     */
-
-    @SubscribeEvent
-    public void onPacketReceive(PacketEvent.Receive pa){
-        if(fullNullCheck()) return;
-        if(pa.getPacket() instanceof SPacketEntityHeadLook) return;
-        if(pa.getPacket() instanceof SPacketEntity.S15PacketEntityRelMove) return;
-        if(pa.getPacket() instanceof SPacketEntity.S17PacketEntityLookMove) return;
-        if(pa.getPacket() instanceof SPacketEntity.S16PacketEntityLook) return;
-        if(pa.getPacket() instanceof SPacketChunkData) return;
-        if(pa.getPacket() instanceof SPacketEntityVelocity) return;
-
-        Command.sendMessage(pa.getPacket().toString());
-    }
-
 
 }
 
