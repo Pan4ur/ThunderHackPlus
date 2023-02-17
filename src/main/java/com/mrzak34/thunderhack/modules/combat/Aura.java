@@ -111,7 +111,7 @@ public class Aura extends Module {
     public final Setting<Boolean> resolver = register(new Setting<>("Resolver", false)).withParent(exploits);
     public final Setting<Boolean> shieldDesync = register(new Setting<>("Shield Desync", false)).withParent(exploits);
     public final Setting<Boolean> backTrack = register(new Setting<>("RotateToBackTrack", true)).withParent(exploits);
-    public final Setting<Boolean> shiftTap = register(new Setting<>("ShiftTap", true)).withParent(exploits);
+    public final Setting<Boolean> shiftTap = register(new Setting<>("ShiftTap", false)).withParent(exploits);
 
     /*-------------------------------------*/
 
@@ -242,7 +242,7 @@ public class Aura extends Module {
                     for (BackTrack.Box box : bt.entAndTrail.get(BTtarget)) {
                         if(getDistanceBT(box) < best_distance){
                             best_distance = getDistanceBT(box);
-                            if(target != null && best_distance < mc.player.getDistance(target)){
+                            if(target != null && best_distance < mc.player.getDistanceSq(target)){
                                 target = BTtarget;
                             } else if(target == null && best_distance < attackDistance.getPow2Value()){
                                 target = BTtarget;
@@ -549,7 +549,7 @@ public class Aura extends Module {
         }
 
         if(last_best_vec != null){
-            if(mc.player.getDistanceSq(last_best_vec.x,last_best_vec.y,last_best_vec.z) > attackDistance.getPow2Value()){
+            if(getDistanceFromHead( new Vec3d( last_best_vec.x,last_best_vec.y,last_best_vec.z)) > attackDistance.getPow2Value()){
                 return false;
             }
         }
@@ -829,7 +829,7 @@ public class Aura extends Module {
 
 
         if(rotation.getValue() == rotmod.Matrix3 && inside_target){
-            bestVector = base.getPositionVector().add(new Vec3d(0,interpolateRandom(0.1f,0.4f),0));
+            bestVector = base.getPositionVector().add(new Vec3d(0,interpolateRandom(0.7f,0.9f),0));
         }
 
 
@@ -910,17 +910,16 @@ public class Aura extends Module {
                     float randomize = interpolateRandom(-2.0F, 2.0F);
                     float randomizeClamp = interpolateRandom(-5.0F, 5.0F);
 
-                    boolean looking_at_box = RayTracingUtils.getMouseOver(base, Thunderhack.rotationManager.getServerYaw(), Thunderhack.rotationManager.getServerPitch(), attackDistance.getValue(), ignoreWalls(base)) == base;
+                    boolean looking_at_box = RayTracingUtils.getMouseOver(base, Thunderhack.rotationManager.getServerYaw(), Thunderhack.rotationManager.getServerPitch(), attackDistance.getValue() + rotateDistance.getValue(), ignoreWalls(base)) == base;
 
                     if(looking_at_box){
-                        rotation_smoother = 10f;
+                        rotation_smoother = 15f;
                     } else if(rotation_smoother < 60f){
-                        rotation_smoother += 8f;
+                        rotation_smoother += 9f;
                     }
 
-                    float yaw_speed = (inside_target && attackContext) ? 60f : (looking_at_box ? 6f : rotation_smoother);
-                    float pitch_speed = looking_at_box ? 1.5f : 4f;
-                    //1.5 - нет ботов  2f - боты
+                    float yaw_speed = (inside_target && attackContext) ? 60f : rotation_smoother;
+                    float pitch_speed = looking_at_box ? 0.5f : rotation_smoother / 2f;
 
                     float deltaYaw = MathHelper.clamp(absoluteYaw + randomize, -yaw_speed + randomizeClamp, yaw_speed + randomizeClamp);
                     float deltaPitch = MathHelper.clamp(pitchDelta, -pitch_speed, pitch_speed);

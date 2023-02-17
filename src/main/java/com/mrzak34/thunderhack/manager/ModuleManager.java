@@ -182,7 +182,6 @@ public class ModuleManager extends Feature {
         this.modules.add(new ChorusESP());
         this.modules.add(new GroundBoost());
         this.modules.add(new BeakonESP());
-        this.modules.add(new FGTotem());
         this.modules.add(new Speed());
         this.modules.add(new Burrow());
         this.modules.add(new AntiHunger());
