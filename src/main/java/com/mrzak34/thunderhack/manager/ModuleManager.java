@@ -206,6 +206,8 @@ public class ModuleManager extends Feature {
         this.modules.add(new RWKTLeave());
         this.modules.add(new AutoTool());
         this.modules.add(new TargetStrafe());
+        this.modules.add(new SunriseStrafe());
+
         this.modules.add(new EZbowPOP());
         this.modules.add(new BowSpam());
         this.modules.add(new ItemESP());
