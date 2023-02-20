@@ -30,20 +30,12 @@ public class AimAssist extends Module{
     public enum sortEn {
         Distance, HigherArmor, BlockingStatus,LowestArmor, Health,Angle,HurtTime;
     }
-    private Setting<clickModeEn> part = register(new Setting("part", clickModeEn.Random));
-
-    public enum clickModeEn {
-        Chest, Head, Leggings, Boots, Random;
-    }
 
     public Setting<Boolean> players = register(new Setting<>("Players",  true));
     public static EntityLivingBase target;
 
     public Setting<Float> strength = this.register ( new Setting <> ( "Strength", 40.0f, 1.0f, 50.0f ) );
     public Setting<Float> range = this.register ( new Setting <> ( "Range", 6.0f, 0.1f, 10.0f ) );
-
-    public Setting<Boolean> clicker = register(new Setting<>("AutoClicker",  false));
-
 
     public Setting<Boolean> dead = register(new Setting<>("Dead",  false));
     public Setting<Boolean> invisibles = register(new Setting<>("Invisibles",  false));

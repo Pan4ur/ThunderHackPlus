@@ -1,5 +1,7 @@
 package com.mrzak34.thunderhack.modules.render;
 
+import com.mrzak34.thunderhack.events.PostRenderEntitiesEvent;
+import com.mrzak34.thunderhack.events.PreRenderEvent;
 import com.mrzak34.thunderhack.events.Render3DEvent;
 import com.mrzak34.thunderhack.modules.*;
 import com.mrzak34.thunderhack.setting.*;
@@ -77,7 +79,12 @@ class StorageEsp extends Module
     private ArrayList<Storage> storages = new ArrayList<>();
 
     @SubscribeEvent
-    public void onRender3D(final Render3DEvent event) {
+    public void onRenderingShit(PreRenderEvent event) {
+
+
+        boolean depth = GL11.glIsEnabled(GL11.GL_DEPTH);
+        GlStateManager.disableDepth();
+
         if (mode.getValue() == Mode.ShaderBox || mode.getValue() == Mode.ShaderOutline) {
             checkSetupFBO();
         }
@@ -121,6 +128,8 @@ class StorageEsp extends Module
                 GlStateManager.popMatrix();
             }
         }
+        if(depth)
+            GlStateManager.enableDepth();
         storages.clear();
     }
 

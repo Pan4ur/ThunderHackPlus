@@ -1,17 +1,18 @@
 package com.mrzak34.thunderhack.modules.movement;
 
 import com.mrzak34.thunderhack.events.*;
+import com.mrzak34.thunderhack.manager.EventManager;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
+import com.mrzak34.thunderhack.util.InventoryUtil;
+import com.mrzak34.thunderhack.util.MovementUtil;
 import com.mrzak34.thunderhack.util.math.MatrixStrafeMovement;
+import net.minecraft.inventory.ClickType;
 import net.minecraft.network.play.client.CPacketEntityAction;
 import net.minecraft.network.play.server.SPacketPlayerPosLook;
-
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-
-import static com.mrzak34.thunderhack.modules.movement.Jesus.isInLiquid;
-import static com.mrzak34.thunderhack.util.MovementUtil.isMoving;
+import static com.mrzak34.thunderhack.modules.combat.Aura.isInLiquid;
 
 
 public class Strafe extends Module {
@@ -19,31 +20,90 @@ public class Strafe extends Module {
         super("Strafe", "matrix only!!!", Category.MOVEMENT);
     }
 
-    public static boolean serversprint = false;
-    public static boolean needSprintState;
-    int waterTicks;
+
+    private Setting<Mode> mode = this.register (new Setting<>("Mode", Mode.Matrix));
+    private enum Mode {
+        Matrix, SunriseElytra
+    }
+    private  Setting<Float> speed = this.register(new Setting<Float>("Speed", 0.5f, 0.0f, 2f,v -> mode.getValue() == Mode.SunriseElytra));
+    private  Setting<Float> reduction = this.register(new Setting<Float>("Reduction", 0.9f, 0.0f, 1f,v -> mode.getValue() == Mode.SunriseElytra));
+    public Setting<Boolean> onlyDown = register(new Setting<>("OnlyDown", false));
+
+    boolean skip = false;
+
+    @Override
+    public void onEnable(){
+        skip = true;
+    }
 
     @SubscribeEvent
-    public void onPacketSend(PacketEvent.Send e){
-        if(e.getPacket() instanceof CPacketEntityAction){
-            CPacketEntityAction ent = e.getPacket();
-            if(ent.getAction() == CPacketEntityAction.Action.START_SPRINTING) {
-                serversprint = true;
+    public void onUpdate(PlayerUpdateEvent event) {
+        if(mode.getValue() != Mode.SunriseElytra)return;
+        if (mc.player.ticksExisted % 6 == 0) {
+            int elytra = InventoryUtil.getElytra();
+            if (elytra == -1) {
+                this.toggle();
+            } else {
+                mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.STOP_SPRINTING));
+                disabler(elytra);
             }
-            if(ent.getAction() == CPacketEntityAction.Action.STOP_SPRINTING) {
-                serversprint = false;
+        }
+        if(!skip) {
+            if (mc.player.onGround && !mc.gameSettings.keyBindJump.pressed) {
+                mc.player.jump();
+                MovementUtil.setMotion(getSpeed() * reduction.getValue());
+            }
+            if (!mc.world.getCollisionBoxes(mc.player, mc.player.getEntityBoundingBox().offset(0.0, -0.84, 0.0f)).isEmpty() && (!onlyDown.getValue() || mc.player.fallDistance > 0.05))
+                MovementUtil.setMotion(speed.getValue());
+        } else {
+            if(mc.player.onGround)
+                mc.player.jump();
+            if(mc.player.fallDistance > 0.05) {
+                skip = false;
             }
         }
     }
 
-    public Setting<Float> rang = this.register(new Setting<>("Speed", 1.0f, 1f, 10.0f));
+
+    public static float getSpeed() {
+        return (float) Math.sqrt(mc.player.motionX * mc.player.motionX + mc.player.motionZ * mc.player.motionZ);
+    }
+
+
+    public static void disabler(int elytra) {
+        if (elytra != -2) {
+            mc.playerController.windowClick(0, elytra, 1, ClickType.PICKUP, mc.player);
+            mc.playerController.windowClick(0, 6, 1, ClickType.PICKUP, mc.player);
+        }
+        mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.START_FALL_FLYING));
+        mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.START_FALL_FLYING));
+        if (elytra != -2) {
+            mc.playerController.windowClick(0, 6, 1, ClickType.PICKUP, mc.player);
+            mc.playerController.windowClick(0, elytra, 1, ClickType.PICKUP, mc.player);
+        }
+    }
+
+
+    @SubscribeEvent
+    public void onPacketReceive(PacketEvent event) {
+        if(fullNullCheck()) return;
+        if (event.getPacket() instanceof SPacketPlayerPosLook) {
+            this.toggle();
+        }
+    }
+
+
+    public static boolean needSprintState;
+    int waterTicks;
+
+
 
     @SubscribeEvent
     public void onSprint(EventSprint e){
         MatrixStrafeMovement.actionEvent(e);
         if (strafes()) {
-            if (serversprint != needSprintState) {
-                e.setSprintState(!serversprint);
+            if (EventManager.serversprint != needSprintState) {
+                e.setSprintState(!EventManager.serversprint);
             }
         }
     }
@@ -51,6 +111,8 @@ public class Strafe extends Module {
 
     @SubscribeEvent
     public void onMove(MatrixMove move){
+        if(mode.getValue() != Mode.Matrix)return;
+
         if (isInLiquid()) {
             waterTicks = 10;
         } else {
@@ -94,13 +156,6 @@ public class Strafe extends Module {
     }
 
 
-    @SubscribeEvent
-    public void onPacketReceive(PacketEvent.Receive e){
-        if(e.getPacket() instanceof  SPacketPlayerPosLook){
-            MatrixStrafeMovement.oldSpeed = 0;
-        }
-    }
-
 
     public boolean strafes() {
         if (mc.player.isSneaking()) {
@@ -117,6 +172,4 @@ public class Strafe extends Module {
         }
         return !mc.player.capabilities.isFlying;
     }
-
 }
-//FastWorldLoad

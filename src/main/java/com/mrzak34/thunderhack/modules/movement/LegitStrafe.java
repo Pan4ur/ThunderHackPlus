@@ -1,14 +1,10 @@
 package com.mrzak34.thunderhack.modules.movement;
 
-import com.mrzak34.thunderhack.command.Command;
-import com.mrzak34.thunderhack.events.EventMove;
+
 import com.mrzak34.thunderhack.events.PlayerUpdateEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
-import com.mrzak34.thunderhack.util.Timer;
 import net.minecraft.init.Items;
-import net.minecraft.inventory.ClickType;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.client.CPacketEntityAction;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -32,7 +28,7 @@ public class LegitStrafe extends Module {
     @SubscribeEvent
     public void onEvent(PlayerUpdateEvent event) {
 
-        if(mc.player.ticksExisted % 2 == 0) return;
+        if(mc.player.ticksExisted % 2 != 0) return;
         ItemStack itemStack = getItemStack(38);
         if(itemStack == null) return;
         if(mc.player.onGround) return;
@@ -43,25 +39,24 @@ public class LegitStrafe extends Module {
                 clickSlot(38);
                 clickSlot(prevElytraSlot);
             }
-            mc.player.motionY = motion.getValue();
-            if (mc.gameSettings.keyBindJump.pressed) {
-                mc.player.motionY = motion2.getValue();
-            } else if (mc.gameSettings.keyBindSneak.pressed) {
-                mc.player.motionY = -motion2.getValue();
-            }
         } else if (hasItem(Items.ELYTRA)) {
             prevElytraSlot = getSlot(Items.ELYTRA);
             clickSlot(prevElytraSlot);
             clickSlot(38);
             clickSlot(prevElytraSlot);
             mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.START_FALL_FLYING));
+            mc.player.motionY = motion.getValue();
+
+            if (mc.gameSettings.keyBindJump.pressed) {
+                mc.player.motionY = motion2.getValue();
+            } else if (mc.gameSettings.keyBindSneak.pressed) {
+                mc.player.motionY = -motion2.getValue();
+            }
             if(isMoving()) {
                 setSpeed(speed.getValue());
             } else {
                 setSpeed2(0.1f);
             }
-        } else {
-            Command.sendMessage("У тебя нет элитры!");
         }
     }
 
@@ -90,6 +85,8 @@ public class LegitStrafe extends Module {
         mc.player.motionX = (double)(forward * speed) * cos + (double)(strafe * speed) * sin;
         mc.player.motionZ = (double)(forward * speed) * sin - (double)(strafe * speed) * cos;
     }
+
+
 
     public static void setSpeed2(float speed) {
         float yaw = mc.player.rotationYaw;

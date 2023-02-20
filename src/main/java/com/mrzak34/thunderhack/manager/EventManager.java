@@ -132,7 +132,6 @@ public class EventManager extends Feature {
     public void onPlayer(EventPreMotion event) {
         if (fullNullCheck())
             return;
-        Thunderhack.speedManager.updateValues();
         updateRotations();
         if(!lastPacket.passedMs(100)){
             Thunderhack.moduleManager.getModuleByClass(com.mrzak34.thunderhack.modules.misc.Timer.class).m();
@@ -186,16 +185,12 @@ public class EventManager extends Feature {
 
     @SubscribeEvent
     public void onPacketReceive(PacketEvent.Receive event) {
-        Thunderhack.serverManager.onPacketReceived();
         if (event.getPacket() instanceof SPacketEntityStatus) {
             SPacketEntityStatus packet = event.getPacket();
             if (packet.getOpCode() == 35 && packet.getEntity(mc.world) instanceof EntityPlayer) {
                 EntityPlayer player = (EntityPlayer) packet.getEntity(mc.world);
                 MinecraftForge.EVENT_BUS.post(new TotemPopEvent(player));
             }
-        }
-        if (event.getPacket() instanceof net.minecraft.network.play.server.SPacketTimeUpdate) {
-            Thunderhack.serverManager.update();
         }
         if (event.getPacket() instanceof SPacketSoundEffect && ((SPacketSoundEffect)event.getPacket()).getSound() == SoundEvents.ITEM_CHORUS_FRUIT_TELEPORT) {
             if (!this.chorusTimer.passedMs(100L)) {

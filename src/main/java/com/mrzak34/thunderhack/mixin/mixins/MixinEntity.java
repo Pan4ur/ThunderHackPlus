@@ -1,6 +1,7 @@
 package com.mrzak34.thunderhack.mixin.mixins;
 
 import com.mrzak34.thunderhack.Thunderhack;
+import com.mrzak34.thunderhack.events.EventPostMove;
 import com.mrzak34.thunderhack.events.PushEvent;
 import com.mrzak34.thunderhack.events.StepEvent;
 import com.mrzak34.thunderhack.events.TurnEvent;
@@ -65,10 +66,18 @@ public abstract class MixinEntity implements IEntity
     @Shadow
     public float stepHeight;
 
+
+    double prevMatrixX, prevMatrixZ;
+
     // Credit: auto
     @Inject(method = "move", at = @At(value = "INVOKE", target = "Lnet/minecraft/profiler/Profiler;endSection()V", shift = At.Shift.BEFORE, ordinal = 0))
     public void onMove(MoverType type, double x, double y, double z, CallbackInfo info) {
         if (((Entity) (Object) this).equals(mc.player)) {
+
+            double deltaX = this.posX - prevMatrixX;
+            double deltaY = this.posZ - prevMatrixZ;
+            MinecraftForge.EVENT_BUS.post(new EventPostMove(Math.sqrt(deltaX * deltaX + deltaY * deltaY)));
+
             StepEvent event = new StepEvent(getEntityBoundingBox(), stepHeight);
             MinecraftForge.EVENT_BUS.post(event);
             if (event.isCanceled()) {
@@ -77,7 +86,13 @@ public abstract class MixinEntity implements IEntity
         }
     }
 
-
+    @Inject(method = "move", at = @At("HEAD"), cancellable = true)
+    public void onMovePre(MoverType type, double x, double y, double z, CallbackInfo info) {
+        if (((Entity) (Object) this).equals(mc.player)) {
+            prevMatrixX = posX;
+            prevMatrixZ = posZ;
+        }
+    }
 
 
     @Inject(method = "turn", at = @At("HEAD"), cancellable = true)

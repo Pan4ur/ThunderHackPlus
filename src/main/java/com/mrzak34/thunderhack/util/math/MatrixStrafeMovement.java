@@ -1,15 +1,15 @@
 package com.mrzak34.thunderhack.util.math;
 
 
-import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.events.EventSprint;
 import com.mrzak34.thunderhack.events.MatrixMove;
 import com.mrzak34.thunderhack.manager.EventManager;
 import com.mrzak34.thunderhack.modules.movement.Speed;
 import com.mrzak34.thunderhack.modules.movement.Strafe;
-import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.BlockPos;
+
+import static com.mrzak34.thunderhack.util.Util.mc;
 
 
 public class MatrixStrafeMovement {
@@ -18,7 +18,6 @@ public class MatrixStrafeMovement {
     public static int counter, noSlowTicks;
 
     public static double calculateSpeed(MatrixMove move) {
-        Minecraft mc = Minecraft.getMinecraft();
         boolean fromGround = mc.player.onGround;
         boolean toGround = move.toGround();
         boolean jump = move.getMotionY() > 0;
@@ -68,13 +67,14 @@ public class MatrixStrafeMovement {
             prevSprint = false;
         }
         if (!fromGround && !toGround) {
-            Strafe.needSprintState = !EventManager.serversprint;
             Speed.needSprintState = !EventManager.serversprint;
+            Strafe.needSprintState = !EventManager.serversprint;
 
         }
         if (toGround && fromGround) {
-            Strafe.needSprintState = false;
             Speed.needSprintState = false;
+            Strafe.needSprintState = false;
+
         }
         return max2;
     }
@@ -95,12 +95,7 @@ public class MatrixStrafeMovement {
 
     public static void actionEvent(EventSprint eventAction) {
         if (needSwap) {
-            if(Thunderhack.moduleManager.getModuleByClass(Strafe.class).isEnabled()) {
-                eventAction.setSprintState(!Strafe.serversprint);
-            } else {
-                eventAction.setSprintState(!Speed.serversprint);
-
-            }
+            eventAction.setSprintState(!EventManager.serversprint);
             needSwap = false;
         }
     }

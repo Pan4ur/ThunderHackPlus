@@ -85,7 +85,7 @@ public class ModuleManager extends Feature {
         this.modules.add(new BowAim());
         this.modules.add(new Shulkerception());
         this.modules.add(new FunnyClicker());
-        this.modules.add(new Interactions());
+        this.modules.add(new BreakHighLight());
         this.modules.add(new ThirdPersView());
         this.modules.add(new SolidWeb());
         this.modules.add(new NoCom());
@@ -206,8 +206,6 @@ public class ModuleManager extends Feature {
         this.modules.add(new RWKTLeave());
         this.modules.add(new AutoTool());
         this.modules.add(new TargetStrafe());
-        this.modules.add(new SunriseStrafe());
-
         this.modules.add(new EZbowPOP());
         this.modules.add(new BowSpam());
         this.modules.add(new ItemESP());
