@@ -86,7 +86,7 @@ public abstract class MixinEntity implements IEntity
         }
     }
 
-    @Inject(method = "move", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "move", at = @At("HEAD"))
     public void onMovePre(MoverType type, double x, double y, double z, CallbackInfo info) {
         if (((Entity) (Object) this).equals(mc.player)) {
             prevMatrixX = posX;

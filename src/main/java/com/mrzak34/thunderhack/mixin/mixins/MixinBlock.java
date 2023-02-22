@@ -1,15 +1,23 @@
 package com.mrzak34.thunderhack.mixin.mixins;
 
 import com.mrzak34.thunderhack.Thunderhack;
+import com.mrzak34.thunderhack.modules.player.NoClip;
 import com.mrzak34.thunderhack.modules.render.XRay;
 import net.minecraft.block.state.*;
+import net.minecraft.entity.Entity;
 import net.minecraft.world.*;
 import org.spongepowered.asm.mixin.*;
 import net.minecraft.util.math.*;
 import net.minecraft.block.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+import java.util.List;
+import java.util.Objects;
+
+import static com.mrzak34.thunderhack.util.Util.mc;
 
 @Mixin({ Block.class })
 public abstract class MixinBlock
@@ -29,6 +37,13 @@ public abstract class MixinBlock
         catch (Exception ignored) {}
     }
 
+
+    @Inject(method={"addCollisionBoxToList(Lnet/minecraft/block/state/IBlockState;Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/math/AxisAlignedBB;Ljava/util/List;Lnet/minecraft/entity/Entity;Z)V"}, at={@At(value="HEAD")}, cancellable=true)
+    public void addCollisionBoxToListHook(IBlockState state, World worldIn, BlockPos pos, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes,  Entity entityIn, boolean isActualState, CallbackInfo info) {
+        if (entityIn != null && mc.player != null && (entityIn.equals(mc.player) && Thunderhack.moduleManager.getModuleByClass(NoClip.class).isOn()) &&  (mc.gameSettings.keyBindSneak.isKeyDown() ||  (!Objects.equals(pos, new BlockPos(mc.player).add(0,-1,0)) && !Objects.equals(pos, new BlockPos(mc.player).add(0,-2,0))))) {
+            info.cancel();
+        }
+    }
 
 
 /*

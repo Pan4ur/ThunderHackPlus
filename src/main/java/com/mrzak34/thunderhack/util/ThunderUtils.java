@@ -1,16 +1,7 @@
 package com.mrzak34.thunderhack.util;
 
-import com.google.common.collect.Maps;
 import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.command.Command;
-import com.mrzak34.thunderhack.modules.client.DiscordWebhook;
 import com.mrzak34.thunderhack.modules.client.MainSettings;
-import org.apache.commons.io.IOUtils;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
-import org.json.simple.parser.ParseException;
-
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.*;
@@ -23,7 +14,6 @@ import static com.mrzak34.thunderhack.util.Util.mc;
 
 public class ThunderUtils {
 
-    private static final Map<String, String> uuidNameCache = Maps.newConcurrentMap();
 
 
     public static void saveUserAvatar(String s, String nickname){
@@ -75,8 +65,6 @@ public class ThunderUtils {
 
         }
     }
-
-
 
     public static String solvename(String notsolved){
         AtomicReference<String> mb = new AtomicReference<>("err");

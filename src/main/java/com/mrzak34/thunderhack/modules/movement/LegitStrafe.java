@@ -4,11 +4,13 @@ package com.mrzak34.thunderhack.modules.movement;
 import com.mrzak34.thunderhack.events.PlayerUpdateEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
+import com.mrzak34.thunderhack.util.InventoryUtil;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.client.CPacketEntityAction;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
+import static com.mrzak34.thunderhack.modules.movement.Strafe.disabler;
 import static com.mrzak34.thunderhack.modules.player.ElytraSwap.*;
 import static com.mrzak34.thunderhack.modules.player.ElytraSwap.clickSlot;
 import static com.mrzak34.thunderhack.util.MovementUtil.isMoving;
@@ -27,7 +29,6 @@ public class LegitStrafe extends Module {
 
     @SubscribeEvent
     public void onEvent(PlayerUpdateEvent event) {
-
         if(mc.player.ticksExisted % 2 != 0) return;
         ItemStack itemStack = getItemStack(38);
         if(itemStack == null) return;
@@ -58,6 +59,28 @@ public class LegitStrafe extends Module {
                 setSpeed2(0.1f);
             }
         }
+
+        /*
+        if (mc.player.ticksExisted % 6 == 0) {
+            int elytra = InventoryUtil.getElytra();
+            if (elytra == -1) {
+                this.toggle();
+            } else {
+                mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.STOP_SPRINTING));
+                disabler(elytra);
+            }
+            mc.player.motionY = 0;
+            if (mc.gameSettings.keyBindJump.pressed) {
+                mc.player.motionY = 0;
+            } else if (mc.gameSettings.keyBindSneak.pressed) {
+                mc.player.motionY = 0;
+            }
+            if(isMoving()) {
+                setSpeed(speed.getValue());
+            }
+        }
+
+         */
     }
 
 

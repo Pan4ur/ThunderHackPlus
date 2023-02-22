@@ -196,6 +196,8 @@ public class ModuleManager extends Feature {
         this.modules.add(new Flight());
         this.modules.add(new HitBoxes());
         this.modules.add(new NGriefCleaner());
+        this.modules.add(new PearlBlockThrow());
+        this.modules.add(new testMove());
         this.modules.add(new MultiConnect());
         this.modules.add(new RadarRewrite());
         this.modules.add(new com.mrzak34.thunderhack.gui.hud.ArrayList());
@@ -207,6 +209,7 @@ public class ModuleManager extends Feature {
         this.modules.add(new AutoTool());
         this.modules.add(new TargetStrafe());
         this.modules.add(new EZbowPOP());
+        this.modules.add(new NoClip());
         this.modules.add(new BowSpam());
         this.modules.add(new ItemESP());
         this.modules.add(new DMGParticles());

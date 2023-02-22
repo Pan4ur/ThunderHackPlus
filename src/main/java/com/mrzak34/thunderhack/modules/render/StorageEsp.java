@@ -82,7 +82,7 @@ class StorageEsp extends Module
     public void onRenderingShit(PreRenderEvent event) {
 
 
-        boolean depth = GL11.glIsEnabled(GL11.GL_DEPTH);
+        boolean depth = GL11.glIsEnabled(GL11.GL_DEPTH_TEST);
         GlStateManager.disableDepth();
 
         if (mode.getValue() == Mode.ShaderBox || mode.getValue() == Mode.ShaderOutline) {

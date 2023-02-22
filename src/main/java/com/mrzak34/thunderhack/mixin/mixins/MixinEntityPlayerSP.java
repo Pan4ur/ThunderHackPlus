@@ -4,6 +4,7 @@ import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.events.*;
 import com.mrzak34.thunderhack.modules.movement.Speed;
 import com.mrzak34.thunderhack.modules.movement.Strafe;
+import com.mrzak34.thunderhack.modules.movement.testMove;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
@@ -121,11 +122,11 @@ public abstract class MixinEntityPlayerSP
             super.move(type, event.get_x(), event.get_y(), event.get_z());
             info.cancel();
         }
-        if (Thunderhack.moduleManager.getModuleByClass(Strafe.class).isEnabled() || Thunderhack.moduleManager.getModuleByClass(Speed.class).isEnabled()){
+        if (Thunderhack.moduleManager.getModuleByClass(Strafe.class).isEnabled() || Thunderhack.moduleManager.getModuleByClass(Speed.class).isEnabled()|| Thunderhack.moduleManager.getModuleByClass(testMove.class).isEnabled()){
             preX = posX;
             preZ = posZ;
             AxisAlignedBB before = getEntityBoundingBox();
-            boolean predictGround = !mc.world.getCollisionBoxes(mc.player, mc.player.getEntityBoundingBox().offset(0.0, -0.228f, 0.0)).isEmpty() && fallDistance > 0.1f;
+            boolean predictGround = !mc.world.getCollisionBoxes(mc.player, mc.player.getEntityBoundingBox().offset(0.0, -Thunderhack.moduleManager.getModuleByClass(testMove.class).vspeedValue2.getValue(), 0.0)).isEmpty() && fallDistance > 0.1f && !mc.player.onGround;
             MatrixMove move = new MatrixMove(mc.player.posX, mc.player.posY, mc.player.posZ, x, y, z, predictGround, before);
             MinecraftForge.EVENT_BUS.post(move);
             if (move.isCanceled()) {
