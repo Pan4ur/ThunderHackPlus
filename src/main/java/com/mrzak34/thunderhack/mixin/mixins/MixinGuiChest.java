@@ -9,12 +9,10 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(GuiChest.class)
 public abstract class MixinGuiChest{
-
     @Inject(method = {"drawScreen"}, at = {@At(value = "HEAD")}, cancellable = true)
     private void  drawScreenHook(int mouseX, int mouseY, float partialTicks, CallbackInfo ci){
         if(KDShop.cancelRender){
             ci.cancel();
         }
     }
-
 }

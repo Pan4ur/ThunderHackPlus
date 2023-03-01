@@ -1,14 +1,18 @@
 package com.mrzak34.thunderhack.modules.movement;
 
 import com.mrzak34.thunderhack.Thunderhack;
+import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.events.*;
+import com.mrzak34.thunderhack.manager.EventManager;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.MovementUtil;
 import com.mrzak34.thunderhack.util.math.MatrixStrafeMovement;
 import com.mrzak34.thunderhack.util.PlayerUtils;
 import com.mrzak34.thunderhack.util.Timer;
+import net.minecraft.init.Items;
 import net.minecraft.init.MobEffects;
+import net.minecraft.inventory.ClickType;
 import net.minecraft.network.play.client.CPacketEntityAction;
 import net.minecraft.network.play.server.SPacketEntityVelocity;
 import net.minecraft.network.play.server.SPacketExplosion;
@@ -23,6 +27,7 @@ import java.math.RoundingMode;
 import java.util.List;
 import java.util.Objects;
 
+import static com.mrzak34.thunderhack.command.commands.EclipCommand.getSlotIDFromItem;
 import static com.mrzak34.thunderhack.modules.movement.Jesus.isInLiquid;
 import static com.mrzak34.thunderhack.util.MovementUtil.isMoving;
 import static com.mrzak34.thunderhack.util.PyroSpeed.*;
@@ -34,14 +39,12 @@ public class Speed extends Module {
     }
 
     private Setting<mode> Mode = register(new Setting("Mode", mode.Default));
-
-
-    public Setting<Integer> bticks  = this.register(new Setting<>("boostTicks", 10, 1, 40));
-    public Setting<Boolean> strafeBoost = this.register(new Setting<>("StrafeBoost", false));
-    public Setting<Float> reduction  = this.register(new Setting<>("reduction ", 2f, 1f, 10f));
-    public Setting<Boolean> usver = this.register ( new Setting <> ( "calcJumpBoost", false));
+    public Setting<Integer> bticks  = this.register(new Setting<>("boostTicks", 10, 1, 40, v -> Mode.getValue() == mode.Default));
+    public Setting<Boolean> strafeBoost = this.register(new Setting<>("StrafeBoost", false, v -> Mode.getValue() == mode.Default));
+    public Setting<Float> reduction  = this.register(new Setting<>("reduction ", 2f, 1f, 10f, v -> Mode.getValue() == mode.Default));
+    public Setting<Boolean> usver = this.register ( new Setting <> ( "calcJumpBoost", false, v -> Mode.getValue() == mode.Default));
     private Setting<Boolean> autoWalk =this.register( new Setting<>("AutoWalk", false));
-    private Setting<Boolean> uav =this.register( new Setting<>("UseAllVelocity", false));
+    private Setting<Boolean> uav =this.register( new Setting<>("UseAllVelocity", false, v -> Mode.getValue() == mode.Default));
     private Setting<Boolean> str2 =this.register( new Setting<>("Strafe", false, v -> Mode.getValue() == mode.Matrix));
 
     public enum mode {
@@ -57,7 +60,6 @@ public class Speed extends Module {
     int boostticks = 0;
     boolean isBoosting = false;
     private boolean nexus_flip = false;
-    public static boolean serversprint = false;
     public static boolean needSprintState;
     int waterTicks;
     private double strictBaseSpeed = 0.2873D;
@@ -106,21 +108,22 @@ public class Speed extends Module {
         }
 
 
-
-
         if(strafeBoost.getValue() && isBoosting){
             return;
         }
         if(Mode.getValue() == mode.Grief){
             return;
         }
+
         double d2 = mc.player.posX - mc.player.prevPosX;
         double d3 = mc.player.posZ - mc.player.prevPosZ;
         double d4 = d2 * d2 + d3 * d3;
         distance = Math.sqrt(d4);
-        MatrixStrafeMovement.postMove(distance);
     }
 
+
+    @SubscribeEvent
+    public void onPostMove(EventPostMove eventPostMove){ MatrixStrafeMovement.postMove(eventPostMove.getHorizontalMove());}
 
     @SubscribeEvent( priority = EventPriority.HIGHEST)
     public void onPacketReceive(PacketEvent.Receive event) {
@@ -393,26 +396,14 @@ public class Speed extends Module {
         }
     }
 
-    @SubscribeEvent
-    public void onPacketSend(PacketEvent.Send e){
-        if(e.getPacket() instanceof CPacketEntityAction){
-            CPacketEntityAction ent = e.getPacket();
-            if(ent.getAction() == CPacketEntityAction.Action.START_SPRINTING) {
-                serversprint = true;
-            }
-            if(ent.getAction() == CPacketEntityAction.Action.STOP_SPRINTING) {
-                serversprint = false;
-            }
-        }
-    }
 
 
     @SubscribeEvent
     public void onSprint(EventSprint e){
         MatrixStrafeMovement.actionEvent(e);
         if (strafes()) {
-            if (serversprint != needSprintState) {
-                e.setSprintState(!serversprint);
+            if (EventManager.serversprint != needSprintState) {
+                e.setSprintState(!EventManager.serversprint);
             }
         }
     }
@@ -466,7 +457,6 @@ public class Speed extends Module {
         }
         move.setCanceled(true);
     }
-
 
 
     public boolean strafes() {

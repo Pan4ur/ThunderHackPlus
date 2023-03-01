@@ -128,9 +128,6 @@ public class ItemShaders extends Module{
 
 
 
-    //  @EventHandler
-   // private final Listener<RenderHand.PreOutline> preOutline = new Listener<>(event -> {
-
     @SubscribeEvent
     public void onRenderHand(RenderHand.PreOutline event){
         if (mc.world == null || mc.player == null)
@@ -227,6 +224,7 @@ public class ItemShaders extends Module{
         GlStateManager.enableDepth();
         GlStateManager.depthMask(true);
         GlStateManager.enableAlpha();
+
         switch (fillShader.getValue()) {
             case Astral:
                 FlowShader.INSTANCE.startDraw(event.getPartialTicks());
@@ -253,8 +251,6 @@ public class ItemShaders extends Module{
                 PhobosShader.INSTANCE.startDraw(event.getPartialTicks());
                 break;
         }
-
-
     }
 
     @SubscribeEvent

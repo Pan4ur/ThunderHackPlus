@@ -4,6 +4,7 @@ import com.mojang.realmsclient.gui.ChatFormatting;
 import com.mrzak34.thunderhack.events.Render2DEvent;
 import com.mrzak34.thunderhack.gui.thundergui.fontstuff.FontRender;
 import com.mrzak34.thunderhack.modules.Module;
+import com.mrzak34.thunderhack.modules.movement.Strafe;
 import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.setting.PositionSetting;
 import com.mrzak34.thunderhack.setting.Setting;
@@ -20,16 +21,11 @@ public class FpsCounter extends Module {
     }
 
     public final Setting<ColorSetting> color = this.register(new Setting<>("Color", new ColorSetting(0x8800FF00)));
-
     private final Setting<PositionSetting> pos = this.register(new Setting<>("Position", new PositionSetting(0.5f,0.5f)));
-
 
 
     float x1 =0;
     float y1= 0;
-
-    int height = 20;
-    int width = 20;
 
 
     @SubscribeEvent
@@ -38,7 +34,11 @@ public class FpsCounter extends Module {
 
         y1 = e.scaledResolution.getScaledHeight() * pos.getValue().getY();
         x1 = e.scaledResolution.getScaledWidth() * pos.getValue().getX();
+
+
         String fpsText = "FPS " + ChatFormatting.WHITE + Minecraft.debugFPS;
+
+
         FontRender.drawString6(fpsText,x1,y1, color.getValue().getRawColor(),false);
 
         if(mc.currentScreen instanceof GuiChat || mc.currentScreen instanceof HudEditorGui){

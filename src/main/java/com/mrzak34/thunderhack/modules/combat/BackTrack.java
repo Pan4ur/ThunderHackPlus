@@ -72,6 +72,8 @@ public class BackTrack extends Module {
                                 GlStateManager.enableBlend();
                                 GlStateManager.disableLighting();
                                 GlStateManager.enableAlpha();
+
+
                                 entAndTrail.get(entity).get(i).modelPlayer.bipedLeftLegwear.showModel = false;
                                 entAndTrail.get(entity).get(i).modelPlayer.bipedRightLegwear.showModel = false;
                                 entAndTrail.get(entity).get(i).modelPlayer.bipedLeftArmwear.showModel = false;
@@ -79,12 +81,15 @@ public class BackTrack extends Module {
                                 entAndTrail.get(entity).get(i).modelPlayer.bipedBodyWear.showModel = false;
                                 entAndTrail.get(entity).get(i).modelPlayer.bipedHead.showModel = true;
                                 entAndTrail.get(entity).get(i).modelPlayer.bipedHeadwear.showModel = false;
+
                                 GlStateManager.color(color1.getValue().getRed() / 255f, color1.getValue().getGreen() / 255f, color1.getValue().getBlue() / 255f, color1.getValue().getAlpha() / 255f );
                                 GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_FILL);
                                 renderEntity(entAndTrail.get(entity).get(i), entAndTrail.get(entity).get(i).modelPlayer, entAndTrail.get(entity).get(i).limbSwing, entAndTrail.get(entity).get(i).limbSwingAmount, 20, entAndTrail.get(entity).get(i).Yaw, entAndTrail.get(entity).get(i).Pitch, 1, entAndTrail.get(entity).get(i).ent);
                                 GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_LINE);
                                 renderEntity(entAndTrail.get(entity).get(i), entAndTrail.get(entity).get(i).modelPlayer, entAndTrail.get(entity).get(i).limbSwing, entAndTrail.get(entity).get(i).limbSwingAmount, 20, entAndTrail.get(entity).get(i).Yaw, entAndTrail.get(entity).get(i).Pitch, 1, entAndTrail.get(entity).get(i).ent);
                                 GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_FILL);
+
+
                                 GlStateManager.enableTexture2D();
                                 GlStateManager.enableBlend();
                             }

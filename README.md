@@ -5,6 +5,7 @@
 </p>
 
 ## Info:
+- Minecraft version: forge 1.12.2
 - Client version: v2.39
 - Default ClickGui keybind - **"P"**
 - Default prefix  - **"."**

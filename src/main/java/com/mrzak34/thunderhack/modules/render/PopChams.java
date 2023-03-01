@@ -60,6 +60,7 @@ public class PopChams extends Module {
 
     @SubscribeEvent
     public void onRender3D(Render3DEvent e) {
+
         GlStateManager.pushMatrix();
         GL11.glBlendFunc( GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA );
         GlStateManager.tryBlendFuncSeparate( GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO );
@@ -71,6 +72,8 @@ public class PopChams extends Module {
         GlStateManager.disableLighting( );
         GlStateManager.disableCull( );
         GlStateManager.enableAlpha( );
+
+
         popList.forEach( person -> {
             person.update( popList );
             person.modelPlayer.bipedLeftLegwear.showModel = false;
@@ -92,6 +95,8 @@ public class PopChams extends Module {
 
             GL11.glPolygonMode( GL11.GL_FRONT_AND_BACK, GL11.GL_FILL );
         } );
+
+
         GlStateManager.enableCull( );
         GlStateManager.depthMask( true );
         GlStateManager.enableTexture2D( );

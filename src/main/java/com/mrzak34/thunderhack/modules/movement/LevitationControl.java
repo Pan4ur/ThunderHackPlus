@@ -14,8 +14,8 @@ public class LevitationControl  extends Module {
 
 
 
-    private final Setting<Integer> upAmplifier = this.register(new Setting<Integer>("upAmplifier", 1, 1, 3));
-    private final Setting<Integer> downAmplifier = this.register(new Setting<Integer>("downAmplifier", 1, 1, 3));
+    private final Setting<Integer> upAmplifier = this.register(new Setting<>("upAmplifier", 1, 1, 3));
+    private final Setting<Integer> downAmplifier = this.register(new Setting<>("downAmplifier", 1, 1, 3));
 
 
     @Override

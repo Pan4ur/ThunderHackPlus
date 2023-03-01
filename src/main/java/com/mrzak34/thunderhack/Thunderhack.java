@@ -2,6 +2,7 @@ package com.mrzak34.thunderhack;
 
 import com.mrzak34.thunderhack.gui.thundergui.fontstuff.*;
 import com.mrzak34.thunderhack.manager.*;
+import com.mrzak34.thunderhack.manager.ServerManager;
 import com.mrzak34.thunderhack.util.ThunderUtils;
 import com.mrzak34.thunderhack.util.Util;
 import com.mrzak34.thunderhack.util.dism.EntityGib;
@@ -21,7 +22,7 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 
-@Mod(modid = "thunderhack", name = "ThunderHack", version = "2.39")
+@Mod(modid = "thunderhack", name = "ThunderHack", version = "2.39", acceptableRemoteVersions = "*")
 public class Thunderhack {
 
 
@@ -55,7 +56,6 @@ public class Thunderhack {
     public static FriendManager friendManager;
     public static ModuleManager moduleManager;
     public static EventManager eventManager;
-    public static SpeedManager speedManager;
     public static MacroManager macromanager;
     public static Scheduler yahz;
 
@@ -118,7 +118,6 @@ public class Thunderhack {
         moduleManager = new ModuleManager();
         eventManager = new EventManager();
         macromanager = new MacroManager();
-        speedManager = new SpeedManager();
         yahz = new Scheduler();
 
 
@@ -133,6 +132,7 @@ public class Thunderhack {
         combatManager.init();
         switchManager.init();
         eventManager.init();
+        serverManager.init();
         FriendManager.loadFriends();
         yahz.init();
         ConfigManager.load(ConfigManager.getCurrentConfig());
@@ -164,6 +164,7 @@ public class Thunderhack {
             setDeadManager.unload();
             combatManager.unload();
             switchManager.unload();
+            serverManager.unload();
             yahz.unload();
             moduleManager.onUnload();
             ConfigManager.save(ConfigManager.getCurrentConfig());
@@ -174,7 +175,6 @@ public class Thunderhack {
 
         eventManager = null;
         friendManager = null;
-        speedManager = null;
         fontRenderer = null;
         macromanager = null;
         networkHandler = null;
@@ -204,5 +204,6 @@ public class Thunderhack {
         Thunderhack.load();
         MinecraftForge.EVENT_BUS.register(networkHandler);
     }
+
 }
 

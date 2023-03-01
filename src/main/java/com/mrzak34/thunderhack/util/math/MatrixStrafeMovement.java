@@ -1,16 +1,16 @@
 package com.mrzak34.thunderhack.util.math;
 
 
-import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.events.EventSprint;
 import com.mrzak34.thunderhack.events.MatrixMove;
 import com.mrzak34.thunderhack.manager.EventManager;
-import com.mrzak34.thunderhack.modules.movement.EFly;
 import com.mrzak34.thunderhack.modules.movement.Speed;
 import com.mrzak34.thunderhack.modules.movement.Strafe;
-import net.minecraft.client.Minecraft;
+import com.mrzak34.thunderhack.modules.movement.testMove;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.BlockPos;
+
+import static com.mrzak34.thunderhack.util.Util.mc;
 
 
 public class MatrixStrafeMovement {
@@ -19,7 +19,6 @@ public class MatrixStrafeMovement {
     public static int counter, noSlowTicks;
 
     public static double calculateSpeed(MatrixMove move) {
-        Minecraft mc = Minecraft.getMinecraft();
         boolean fromGround = mc.player.onGround;
         boolean toGround = move.toGround();
         boolean jump = move.getMotionY() > 0;
@@ -69,50 +68,45 @@ public class MatrixStrafeMovement {
             prevSprint = false;
         }
         if (!fromGround && !toGround) {
-            Strafe.needSprintState = !EventManager.serversprint;
             Speed.needSprintState = !EventManager.serversprint;
-
+            Strafe.needSprintState = !EventManager.serversprint;
         }
         if (toGround && fromGround) {
-            Strafe.needSprintState = false;
             Speed.needSprintState = false;
+            Strafe.needSprintState = false;
+
         }
         return max2;
     }
-
-    public static double calculateSpeed2(MatrixMove move, boolean ely, double speed) {
-        Minecraft mc = Minecraft.getMinecraft();
+    public static double calculateSpeed(MatrixMove move,boolean ely, float speed) {
         boolean fromGround = mc.player.onGround;
         boolean toGround = move.toGround();
         boolean jump = move.getMotionY() > 0;
         float speedAttributes = getAIMoveSpeed(mc.player);
-        float frictionFactor = getFrictionFactor(mc.player, move);
-        float n6 = 0.91F;
+        final float frictionFactor = getFrictionFactor(mc.player, move);
+        float n6 = 0.91f;
         if (fromGround) {
             n6 = frictionFactor;
         }
-
-        float n7 = 0.16277136F / (n6 * n6 * n6);
+        final float n7 = (float) (0.16277135908603668 / (n6 * n6 * n6));
         float n8;
         if (fromGround) {
             n8 = speedAttributes * n7;
             if (jump) {
-                n8 += 0.2F;
+                n8 += 0.2f;
             }
         } else {
-            n8 = 0.0255F;
+            n8 = 0.0255f;
         }
-
         boolean noslow = false;
-        double max2 = oldSpeed + (double)n8;
+        double max2 = oldSpeed + n8;
         double max = 0.0;
         if (mc.player.isHandActive() && !jump) {
-            double n10 = oldSpeed + (double)n8 * 0.5 + 0.004999999888241291;
+            double n10 = oldSpeed + n8 * 0.5 + 0.004999999888241291;
             double motionY2 = move.getMotionY();
             if (motionY2 != 0.0 && Math.abs(motionY2) < 0.08) {
                 n10 += 0.055;
             }
-
             if (max2 > (max = Math.max(0.043, n10))) {
                 noslow = true;
                 ++noSlowTicks;
@@ -122,30 +116,74 @@ public class MatrixStrafeMovement {
         } else {
             noSlowTicks = 0;
         }
-
         if (noSlowTicks > 3) {
             max2 = max - 0.019;
         } else {
-            max2 = Math.max(noslow ? 0.0 : 0.25, max2) - (counter++ % 2 == 0 ? 0.001 : 0.002);
+            max2 = Math.max(noslow ? 0 : 0.25, max2) - (counter++ % 2 == 0 ? 0.001 : 0.002);
         }
-
-        contextFriction = (double)n6;
+        contextFriction = n6;
         if (!toGround && !fromGround) {
             needSwap = true;
         } else {
             prevSprint = false;
         }
-
         if (!fromGround && !toGround) {
-            EFly.needSprintState = !EventManager.serversprint;
+            Speed.needSprintState = !EventManager.serversprint;
+            Strafe.needSprintState = !EventManager.serversprint;
+            testMove.needSprintState = !testMove.serversprint;
         }
-
         if (toGround && fromGround) {
-            EFly.needSprintState = false;
+            Speed.needSprintState = false;
+            Strafe.needSprintState = false;
+            testMove.needSprintState = false;
+
+        }
+        return max2 + ((ely && toGround) ? speed : 0);
+    }
+
+
+    public static double calculateSpeed2(MatrixMove move,boolean ely, float speed) {
+        boolean var2 = mc.player.onGround;
+        boolean var3 = move.toGround();
+        boolean var4 = move.getMotionY() > 0.0;
+        float var5 = getAIMoveSpeed(mc.player);
+        float var6 = getFrictionFactor(mc.player, move);
+        float var7 = 0.911F;
+        if (var2) {
+            var7 = var6;
         }
 
-        return max2 + (ely ? speed : 0.0);
-    }
+        float var8 = (float)(0.16277135908603668 / Math.pow(var7, 3.0));
+        float var9;
+        if (var2) {
+            var9 = var5 * var8;
+            if (var4) {
+                var9 += 0.13F;
+            }
+        } else {
+            var9 =  0.022F;
+        }
+
+        double var11 = oldSpeed + (double)var9;
+        var11 = Math.max(0.244, var11);
+
+        contextFriction = var7;
+        if (!var3 && !var2) {
+            needSwap = true;
+        } else {
+            prevSprint = false;
+        }
+
+        if (!var2 && !var3) {
+            testMove.needSprintState = !testMove.serversprint;
+        }
+
+        if (var3 && var2) {
+            testMove.needSprintState = false;
+        }
+
+        return var11 + ((ely && move.toGround() && !mc.player.onGround) ? speed : 0);    }
+
 
     public static void postMove(double horizontal) {
         oldSpeed = horizontal * contextFriction;
@@ -161,12 +199,7 @@ public class MatrixStrafeMovement {
 
     public static void actionEvent(EventSprint eventAction) {
         if (needSwap) {
-            if(Thunderhack.moduleManager.getModuleByClass(Strafe.class).isEnabled()) {
-                eventAction.setSprintState(!Strafe.serversprint);
-            } else {
-                eventAction.setSprintState(!Speed.serversprint);
-
-            }
+            eventAction.setSprintState(!EventManager.serversprint);
             needSwap = false;
         }
     }

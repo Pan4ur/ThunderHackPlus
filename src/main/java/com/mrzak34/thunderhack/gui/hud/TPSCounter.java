@@ -41,7 +41,7 @@ public class TPSCounter extends Module{
 
     @SubscribeEvent
     public void onRender2D(Render2DEvent e){
-        String str = "TPS " + ChatFormatting.WHITE + String.valueOf(Double.parseDouble(String.valueOf(Thunderhack.serverManager.getTPS())));
+        String str = "TPS " + ChatFormatting.WHITE + (Thunderhack.serverManager.getTPS());
 
 
         y1 = e.scaledResolution.getScaledHeight() * pos.getValue().getY();

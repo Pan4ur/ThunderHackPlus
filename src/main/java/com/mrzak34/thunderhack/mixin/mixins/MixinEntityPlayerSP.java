@@ -4,6 +4,7 @@ import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.events.*;
 import com.mrzak34.thunderhack.modules.movement.Speed;
 import com.mrzak34.thunderhack.modules.movement.Strafe;
+import com.mrzak34.thunderhack.modules.movement.testMove;
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
@@ -121,44 +122,19 @@ public abstract class MixinEntityPlayerSP
             super.move(type, event.get_x(), event.get_y(), event.get_z());
             info.cancel();
         }
-
-        preX = posX;
-        preZ = posZ;
-        AxisAlignedBB before = getEntityBoundingBox();
-
-        boolean predictGround = false;
-
-        if(Thunderhack.moduleManager.getModuleByClass(Strafe.class).isEnabled() || Thunderhack.moduleManager.getModuleByClass(Speed.class).isEnabled()){
-            final AxisAlignedBB bb =  mc.player.getEntityBoundingBox().contract(0.0d, 0.0d, 0.0d).offset(0.0d, -0.13, 0.0d);
-            int y1 = (int) bb.minY;
-            for (int x2 = MathHelper.floor(bb.minX); x2 < MathHelper.floor(bb.maxX + 1.0D); x2++) {
-                for (int z3 = MathHelper.floor(bb.minZ); z3 < MathHelper.floor(bb.maxZ + 1.0D); z3++) {
-                    final Block block = mc.world.getBlockState(new BlockPos(x2, y1, z3)).getBlock();
-                    if (    block != Blocks.AIR
-                            && block != Blocks.TALLGRASS
-                            && block != Blocks.RED_FLOWER
-                            && block != Blocks.YELLOW_FLOWER
-                            && block != Blocks.DOUBLE_PLANT ) {
-                        predictGround = true;
-                    }
-                }
+        if (Thunderhack.moduleManager.getModuleByClass(Strafe.class).isEnabled() || Thunderhack.moduleManager.getModuleByClass(Speed.class).isEnabled()|| Thunderhack.moduleManager.getModuleByClass(testMove.class).isEnabled()){
+            preX = posX;
+            preZ = posZ;
+            AxisAlignedBB before = getEntityBoundingBox();
+            boolean predictGround = !mc.world.getCollisionBoxes(mc.player, mc.player.getEntityBoundingBox().offset(0.0, -Thunderhack.moduleManager.getModuleByClass(testMove.class).vspeedValue2.getValue(), 0.0)).isEmpty() && fallDistance > 0.1f && !mc.player.onGround;
+            MatrixMove move = new MatrixMove(mc.player.posX, mc.player.posY, mc.player.posZ, x, y, z, predictGround, before);
+            MinecraftForge.EVENT_BUS.post(move);
+            if (move.isCanceled()) {
+                super.move(type, move.getMotionX(), move.getMotionY(), move.getMotionZ());
+                info.cancel();
             }
-
         }
 
-        MatrixMove move = new MatrixMove(mc.player.posX, mc.player.posY, mc.player.posZ,x, y, z, predictGround, before);
-        MinecraftForge.EVENT_BUS.post(move);
-        if (move.isCanceled()) {
-            super.move(type, move.getMotionX(), move.getMotionY(), move.getMotionZ());
-            info.cancel();
-        }
-
-    }
-
-    @Inject(method = "move", at = @At("RETURN"))
-    private void movePost(MoverType type, double x, double y, double z, CallbackInfo info) {
-        double deltaX = posX - preX, deltaZ = posZ - preZ;
-        MinecraftForge.EVENT_BUS.post(new EventPostMove(Math.sqrt(deltaX * deltaX + deltaZ * deltaZ)));
     }
 
     @Inject(method = {"onUpdateWalkingPlayer"}, at = {@At(value = "HEAD")}, cancellable = true)

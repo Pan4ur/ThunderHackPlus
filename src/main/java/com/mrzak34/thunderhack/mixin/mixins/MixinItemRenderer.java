@@ -35,14 +35,7 @@ class MixinItemRenderer {
     @Inject(method = {"transformSideFirstPerson"}, at = {@At(value = "HEAD")}, cancellable = true)
     public
     void transformSideFirstPersonHook ( EnumHandSide hand , float p_187459_2_ , CallbackInfo cancel ) {
-        RenderItemEvent event = new RenderItemEvent (
-                0f , 0f , 0f ,
-                0f , 0f , 0f ,
-                0.0f , 0.0f , 1.0f ,
-                0.0f , 0.0f , 0.0f ,
-                1.0f , 1.0f , 1.0f , 1.0f ,
-                1.0f, 1.0f
-        );
+        RenderItemEvent event = new RenderItemEvent (0f , 0f , 0f , 0f , 0f , 0f , 0.0f , 0.0f , 1.0f , 0.0f , 0.0f , 0.0f , 1.0f , 1.0f , 1.0f , 1.0f , 1.0f, 1.0f);
         MinecraftForge.EVENT_BUS.post ( event );
         if ( ViewModel.getInstance ( ).isEnabled ( ) ) {
             boolean bob = ViewModel.getInstance ( ).isDisabled ( ) || ViewModel.getInstance ( ).doBob.getValue ( );

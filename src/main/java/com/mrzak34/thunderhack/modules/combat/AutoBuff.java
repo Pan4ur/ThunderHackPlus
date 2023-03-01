@@ -4,6 +4,7 @@ import com.mrzak34.thunderhack.events.EventPostMotion;
 import com.mrzak34.thunderhack.events.EventPreMotion;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
+import com.mrzak34.thunderhack.util.EntityUtil;
 import com.mrzak34.thunderhack.util.Timer;
 import net.minecraft.init.Items;
 import net.minecraft.init.MobEffects;
@@ -28,7 +29,7 @@ public class AutoBuff extends Module {
     public Setting<Boolean> speed = register(new Setting<>("Speed", true));
     public Setting<Boolean> fire = register(new Setting<>("FireRes", true));
     public Setting<Boolean> heal = register(new Setting<>("Heal", true));
-    public Setting<Integer> health = register(new Setting<>("Health", 1000, 0, 5000));
+    public Setting<Integer> health = register(new Setting<>("Health", 8, 0, 20));
 
     public Timer timer = new Timer();
 
@@ -36,11 +37,10 @@ public class AutoBuff extends Module {
     public void onEvent(EventPreMotion event) {
             if (Aura.target != null && mc.player.getCooledAttackStrength(1) > 0.5f)
                 return;
-            boolean shouldThrow =
-                        (!mc.player.isPotionActive(MobEffects.SPEED) && isPotionOnHotBar(Potions.SPEED) && speed.getValue())
+            boolean shouldThrow = (!mc.player.isPotionActive(MobEffects.SPEED) && isPotionOnHotBar(Potions.SPEED) && speed.getValue())
                         || (!mc.player.isPotionActive(MobEffects.STRENGTH) && isPotionOnHotBar(Potions.STRENGTH) && strenght.getValue())
                         || (!mc.player.isPotionActive(MobEffects.FIRE_RESISTANCE) && isPotionOnHotBar(Potions.FIRERES) && fire.getValue())
-                        || (mc.player.getHealth() + mc.player.getAbsorptionAmount() < health.getValue() && isPotionOnHotBar(Potions.HEAL) && heal.getValue());
+                        || (EntityUtil.getHealth(mc.player)  < health.getValue() && isPotionOnHotBar(Potions.HEAL) && heal.getValue());
             if (mc.player.ticksExisted > 80 && shouldThrow) {
                     mc.player.rotationPitch = 90;
             }
@@ -55,7 +55,7 @@ public class AutoBuff extends Module {
                     (!mc.player.isPotionActive(MobEffects.SPEED) && isPotionOnHotBar(Potions.SPEED) && speed.getValue())
                             || (!mc.player.isPotionActive(MobEffects.STRENGTH) && isPotionOnHotBar(Potions.STRENGTH) && strenght.getValue())
                             || (!mc.player.isPotionActive(MobEffects.FIRE_RESISTANCE) && isPotionOnHotBar(Potions.FIRERES) && fire.getValue())
-                            || (mc.player.getHealth() + mc.player.getAbsorptionAmount() < health.getValue() && isPotionOnHotBar(Potions.HEAL) && heal.getValue());
+                            || (EntityUtil.getHealth(mc.player) < health.getValue() && isPotionOnHotBar(Potions.HEAL) && heal.getValue());
             if (mc.player.ticksExisted > 80 && shouldThrow && timer.passedMs(1000)) {
                 if (!mc.player.isPotionActive(MobEffects.SPEED) && isPotionOnHotBar(Potions.SPEED) && speed.getValue()) {
                     throwPotion(Potions.SPEED);
@@ -66,8 +66,7 @@ public class AutoBuff extends Module {
                 if (!mc.player.isPotionActive(MobEffects.FIRE_RESISTANCE) && isPotionOnHotBar(Potions.FIRERES) && fire.getValue()) {
                     throwPotion(Potions.FIRERES);
                 }
-                if (mc.player.getHealth() + mc.player.getAbsorptionAmount() < health.getValue() && heal.getValue()
-                        && isPotionOnHotBar(Potions.HEAL)) {
+                if (EntityUtil.getHealth(mc.player)  < health.getValue() && heal.getValue() && isPotionOnHotBar(Potions.HEAL)) {
                     throwPotion(Potions.HEAL);
                 }
                 mc.player.connection.sendPacket(new CPacketHeldItemChange(mc.player.inventory.currentItem));

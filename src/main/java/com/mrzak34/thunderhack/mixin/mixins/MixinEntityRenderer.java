@@ -5,10 +5,10 @@ import com.mrzak34.thunderhack.events.FreecamEvent;
 import com.mrzak34.thunderhack.events.PreRenderEvent;
 import com.mrzak34.thunderhack.events.RenderHand;
 import com.mrzak34.thunderhack.modules.combat.BackTrack;
+import com.mrzak34.thunderhack.modules.movement.LegitStrafe;
 import com.mrzak34.thunderhack.modules.misc.ThirdPersView;
 import com.mrzak34.thunderhack.modules.misc.Weather;
 import net.minecraft.client.multiplayer.WorldClient;
-import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.entity.item.EntityItemFrame;
 import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.player.EntityPlayer;
@@ -725,5 +725,12 @@ public abstract class MixinEntityRenderer
     }
 
 
-
+    @Inject(method = "orientCamera", at = @At("RETURN"))
+    private void orientCameraStoreEyeHeight(float partialTicks, CallbackInfo ci) {
+        if (!Thunderhack.moduleManager.getModuleByClass(LegitStrafe.class).isOn()) return;
+        Entity entity = mc.getRenderViewEntity();
+        if (entity != null) {
+            GlStateManager.translate(0.0f, entity.getEyeHeight() - 0.4f, 0.0f);
+        }
+    }
 }

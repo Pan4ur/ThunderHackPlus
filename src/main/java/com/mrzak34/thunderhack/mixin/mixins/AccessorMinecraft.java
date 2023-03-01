@@ -9,9 +9,6 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 @Mixin(Minecraft.class)
 public interface AccessorMinecraft {
 
-    @Accessor("rightClickDelayTimer")
-    void setRightClickDelayTimer(int rightClickDelayTimer);
-
     @Accessor( value = "leftClickCounter" )
     void setLeftClickCounter( int val );
 

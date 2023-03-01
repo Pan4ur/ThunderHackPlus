@@ -22,9 +22,9 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
 
-public class Interactions extends Module {
+public class BreakHighLight extends Module {
 
-    public Interactions() {
+    public BreakHighLight() {
         super("BreakHighLight", "рендерит ломания-блоков", Category.RENDER);
     }
 
@@ -65,14 +65,12 @@ public class Interactions extends Module {
 
     @SubscribeEvent
     public void onRender3D(Render3DEvent event) {
-        mc.profiler.startSection("oyvey");
         GlStateManager.disableTexture2D();
         GlStateManager.enableBlend();
         GlStateManager.disableAlpha();
         GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
         GlStateManager.shadeModel(7425);
         GlStateManager.disableDepth();
-        GlStateManager.glLineWidth(1.0F);
 
         if (mc.player == null || mc.world == null) return;
 
@@ -127,36 +125,19 @@ public class Interactions extends Module {
 
                 }
                 String name = object.getName();
-               // GlStateManager.disableDepth();
-
-               // GlStateManager.disableLighting();
-               // GL11.glColor4f(1, 1, 1, 1);
-
-
-                //mc.fontRenderer.drawString(name, (int) -(mc.fontRenderer.getStringWidth(name) / 2.0D), -4, -1);
                 FontRender.drawString3(name, (int) -(FontRender.getStringWidth(name) / 2.0D), -4, -1);
-
-
-               // GlStateManager.enableLighting();
-                //     GlStateManager.enableDepth();
                 GlStateManager.popMatrix();
             }
 
         }));
 
-        GlStateManager.glLineWidth(1.0F);
         GlStateManager.shadeModel(7424);
         GlStateManager.disableBlend();
         GlStateManager.enableAlpha();
-        GlStateManager.enableTexture2D();
         GlStateManager.enableDepth();
-        GlStateManager.enableCull();
-        GlStateManager.enableCull();
         GlStateManager.depthMask(true);
         GlStateManager.enableTexture2D();
         GlStateManager.enableBlend();
-        GlStateManager.enableDepth();
-        mc.profiler.endSection();
     }
 
     private void renderGlobalBreakage(DestroyBlockProgress destroyBlockProgress) {

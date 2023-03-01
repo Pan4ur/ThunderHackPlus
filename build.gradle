@@ -31,6 +31,7 @@ compileJava.options.encoding = 'UTF-8'
 version project.modVersion
 group project.modGroup //http://maven.apache.org/guides/mini/guide-naming-conventions.html
 
+
 sourceCompatibility = targetCompatibility = '1.8'
 compileJava {
     sourceCompatibility = targetCompatibility = '1.8'
@@ -40,7 +41,7 @@ minecraft {
     version = project.forgeVersion
     runDir = 'run'
     mappings = project.mcpVersion
-    coreMod = 'com.mrzak34.thunderhack.THLoader'
+    coreMod = 'com.mrzak34.thunderhack.mixin.THLoader'
     makeObfSourceJar = false
 }
 

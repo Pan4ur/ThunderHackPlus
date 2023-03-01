@@ -185,6 +185,24 @@ public class ClanInvite extends Module {
         return 0;
     }
 
+    public boolean helper(String nick){
+        NetHandlerPlayClient nethandlerplayclient = this.mc.player.connection;
+        List<NetworkPlayerInfo> list = ENTRY_ORDERING.sortedCopy(nethandlerplayclient.getPlayerInfoMap());
+        for (NetworkPlayerInfo networkplayerinfo : list) {
+            if (getPlayerName2(networkplayerinfo).contains(nick)) {
+                String raw = getPlayerName2(networkplayerinfo);
+                if(check(raw.toLowerCase())){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    public boolean check(String name) {
+        return name.contains("helper") || name.contains("moder") || name.contains("бог") || name.contains("admin") || name.contains("owner") || name.contains("curator") || name.contains("хелпер") || name.contains("модер") || name.contains("админ") || name.contains("куратор");
+    }
+
     int aboba = 0;
     @SubscribeEvent
     public void onPacketReceive(PacketEvent.Receive e){

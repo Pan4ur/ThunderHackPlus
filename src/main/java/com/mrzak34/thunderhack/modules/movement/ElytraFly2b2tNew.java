@@ -2,10 +2,7 @@ package com.mrzak34.thunderhack.modules.movement;
 
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.command.Command;
-import com.mrzak34.thunderhack.events.EventPlayerTravel;
-import com.mrzak34.thunderhack.events.EventPreMotion;
-import com.mrzak34.thunderhack.events.PacketEvent;
-import com.mrzak34.thunderhack.events.TurnEvent;
+import com.mrzak34.thunderhack.events.*;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import net.minecraft.client.audio.PositionedSoundRecord;
@@ -114,9 +111,16 @@ public class ElytraFly2b2tNew extends Module {
         if (shouldSwing()) {
             mc.player.prevLimbSwingAmount = mc.player.limbSwingAmount;
             mc.player.limbSwing += 1.3;
-            float speedRatio = (float) (Thunderhack.speedManager.getSpeedKpH() / speedControl.getValue()); //TODO BETTER SPEED
+            float speedRatio = (float) (current_speed / speedControl.getValue()); //TODO BETTER SPEED
             mc.player.limbSwingAmount += ((speedRatio * 1.2) - mc.player.limbSwingAmount) * 0.4f;
         }
+    }
+
+    double current_speed;
+
+    @SubscribeEvent
+    public void onPostMove(EventPostMove e){
+        current_speed = e.getHorizontalMove();
     }
 
     private void reset2(boolean cancelflu) {

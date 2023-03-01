@@ -592,5 +592,25 @@ public class InventoryUtil implements Util {
         return -1;
     }
 
+
+    public static int getElytra() {
+        for (ItemStack stack : mc.player.getArmorInventoryList()) {
+            if (stack.getItem() == Items.ELYTRA) {
+                return -2;
+            }
+        }
+        int slot = -1;
+        for (int i = 0; i < 36; i++) {
+            ItemStack s = mc.player.inventory.getStackInSlot(i);
+            if (s.getItem() == Items.ELYTRA) {
+                slot = i;
+                break;
+            }
+        }
+        if (slot < 9 && slot != -1) {
+            slot = slot + 36;
+        }
+        return slot;
+    }
 }
 

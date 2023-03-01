@@ -27,7 +27,6 @@ public abstract class MixinBlockCarpet extends Block {
     public void getCollisionBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos, CallbackInfoReturnable<AxisAlignedBB> cir) {
         if(Thunderhack.moduleManager.getModuleByClass(GroundBoost.class).isEnabled()){
             AxisAlignedBB CARPET_AABB = new AxisAlignedBB(0.0, 0.0, 0.0, 1.0, 0., 1.0);
-
             cir.setReturnValue(CARPET_AABB);
         }
     }

@@ -1,15 +1,23 @@
 package com.mrzak34.thunderhack.mixin.mixins;
 
 import com.mrzak34.thunderhack.Thunderhack;
+import com.mrzak34.thunderhack.modules.player.NoClip;
 import com.mrzak34.thunderhack.modules.render.XRay;
 import net.minecraft.block.state.*;
+import net.minecraft.entity.Entity;
 import net.minecraft.world.*;
 import org.spongepowered.asm.mixin.*;
 import net.minecraft.util.math.*;
 import net.minecraft.block.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+import java.util.List;
+import java.util.Objects;
+
+import static com.mrzak34.thunderhack.util.Util.mc;
 
 @Mixin({ Block.class })
 public abstract class MixinBlock
@@ -18,27 +26,24 @@ public abstract class MixinBlock
     @Deprecated
     public abstract float getBlockHardness(final IBlockState p0,  final World p1,  final BlockPos p2);
 
-    /*
-    @Inject(method = { "addCollisionBoxToList(Lnet/minecraft/block/state/IBlockState;Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/math/AxisAlignedBB;Ljava/util/List;Lnet/minecraft/entity/Entity;Z)V" },  at = { @At("HEAD") },  cancellable = true)
-    public void addCollisionBoxToListHook(final IBlockState state,  final World worldIn,  final BlockPos pos,  final AxisAlignedBB entityBox,  final List<AxisAlignedBB> collidingBoxes,  @Nullable final Entity entityIn,  final boolean isActualState,  final CallbackInfo info) {
-        if (entityIn != null && Util.mc.player != null && (entityIn.equals((Object)Util.mc.player) || (Util.mc.player.getRidingEntity() != null && entityIn.equals((Object)Util.mc.player.getRidingEntity()))) && Thunderhack.moduleManager.getModuleByClass(Phase.class).isOn()) {
-            info.cancel();
-        }
-    }
-*/
+
     @Inject(method = { "isFullCube" },  at = { @At("HEAD") },  cancellable = true)
     public void isFullCubeHook(final IBlockState blockState,  final CallbackInfoReturnable<Boolean> info) {
     try{
             if (Thunderhack.moduleManager.getModuleByClass(XRay.class).isOn() && Thunderhack.moduleManager.getModuleByClass(XRay.class).wh.getValue() ) {
                 info.setReturnValue(Thunderhack.moduleManager.getModuleByClass(XRay.class).shouldRender(Block.class.cast(this)));
             }
-   //     if (Thunderhack.moduleManager.getModuleByClass(PvPOptimization.class).isOn() ) {
-    //        info.setReturnValue(Thunderhack.moduleManager.getModuleByClass(PvPOptimization.class).shouldRender(pos));
-   //     }
     }
         catch (Exception ignored) {}
     }
 
+
+    @Inject(method={"addCollisionBoxToList(Lnet/minecraft/block/state/IBlockState;Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/math/AxisAlignedBB;Ljava/util/List;Lnet/minecraft/entity/Entity;Z)V"}, at={@At(value="HEAD")}, cancellable=true)
+    public void addCollisionBoxToListHook(IBlockState state, World worldIn, BlockPos pos, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes,  Entity entityIn, boolean isActualState, CallbackInfo info) {
+        if (entityIn != null && mc.player != null && (entityIn.equals(mc.player) && Thunderhack.moduleManager.getModuleByClass(NoClip.class).isOn()) &&  (mc.gameSettings.keyBindSneak.isKeyDown() ||  (!Objects.equals(pos, new BlockPos(mc.player).add(0,-1,0)) && !Objects.equals(pos, new BlockPos(mc.player).add(0,-2,0))))) {
+            info.cancel();
+        }
+    }
 
 
 /*

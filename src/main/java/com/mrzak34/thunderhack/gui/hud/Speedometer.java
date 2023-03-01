@@ -2,6 +2,9 @@ package com.mrzak34.thunderhack.gui.hud;
 
 import com.mojang.realmsclient.gui.ChatFormatting;
 import com.mrzak34.thunderhack.Thunderhack;
+import com.mrzak34.thunderhack.events.EventPostMotion;
+import com.mrzak34.thunderhack.events.EventPostMove;
+import com.mrzak34.thunderhack.events.EventPreMotion;
 import com.mrzak34.thunderhack.events.Render2DEvent;
 import com.mrzak34.thunderhack.gui.thundergui.fontstuff.FontRender;
 import com.mrzak34.thunderhack.modules.Module;
@@ -10,8 +13,13 @@ import com.mrzak34.thunderhack.setting.PositionSetting;
 import com.mrzak34.thunderhack.setting.Setting;
 import net.minecraft.client.gui.GuiChat;
 import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.util.math.MathHelper;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.input.Mouse;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 public class Speedometer extends Module{
     public Speedometer() {
@@ -30,15 +38,11 @@ public class Speedometer extends Module{
     @SubscribeEvent
     public void onRender2D(Render2DEvent e){
         ScaledResolution sr = new ScaledResolution(mc);
-
-        double mx = mc.player.motionX;
-        double mz = mc.player.motionZ;
-        double motion = Math.hypot(mx, mz) * 20;
         String str ="";
         if(!bps.getValue()) {
-            str = "Speed " + ChatFormatting.WHITE + Thunderhack.speedManager.getSpeedKpH() + " km/h";
+            str = "Speed " + ChatFormatting.WHITE + round( getSpeedKpH()) + " km/h";
         } else {
-            str = String.format("Speed %.1f", motion);
+            str = String.format("Speed " + ChatFormatting.WHITE +  round(getSpeedMpS()) + " b/s");
         }
         y1 = sr.getScaledHeight() * pos.getValue().getY();
         x1 = sr.getScaledWidth() * pos.getValue().getX();
@@ -77,5 +81,40 @@ public class Speedometer extends Module{
 
     public boolean isHovering(){
         return normaliseX() > x1 - 10 && normaliseX()< x1 + 50 && normaliseY() > y1 &&  normaliseY() < y1 + 10;
+    }
+
+
+    private float round(double value) {
+        BigDecimal bd = new BigDecimal(value);
+        bd = bd.setScale(1, RoundingMode.HALF_UP);
+        return bd.floatValue();
+    }
+
+    public double speedometerCurrentSpeed = 0.0;
+
+
+    @SubscribeEvent
+    public void updateValues(EventPreMotion e) {
+        double distTraveledLastTickX = mc.player.posX - mc.player.prevPosX;
+        double distTraveledLastTickZ = mc.player.posZ - mc.player.prevPosZ;
+        this.speedometerCurrentSpeed = distTraveledLastTickX * distTraveledLastTickX + distTraveledLastTickZ * distTraveledLastTickZ;
+    }
+
+
+
+    public double turnIntoKpH(double input) {
+        return (double) MathHelper.sqrt(input) * 71.2729367892;
+    }
+
+    public double getSpeedKpH() {
+        double speedometerkphdouble = this.turnIntoKpH(this.speedometerCurrentSpeed);
+        speedometerkphdouble = (double) Math.round(10.0 * speedometerkphdouble) / 10.0;
+        return speedometerkphdouble;
+    }
+
+    public double getSpeedMpS() {
+        double speedometerMpsdouble = this.turnIntoKpH(this.speedometerCurrentSpeed) / 3.6;
+        speedometerMpsdouble = (double) Math.round(10.0 * speedometerMpsdouble) / 10.0;
+        return speedometerMpsdouble;
     }
 }

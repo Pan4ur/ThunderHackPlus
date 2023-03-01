@@ -101,7 +101,6 @@ public class ElytraFlight extends Module {
             if (!mc.player.isCreative()) mc.player.capabilities.allowFlying = false;
             mc.player.capabilities.isFlying = false;
         }
-       // KonasGlobals.INSTANCE.timerManager.resetTimer(this); //TODO
         Thunderhack.TICK_TIMER = 1.0f;
         hasElytra = false;
     }

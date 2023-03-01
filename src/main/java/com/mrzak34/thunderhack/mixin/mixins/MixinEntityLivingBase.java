@@ -53,8 +53,6 @@ public abstract class MixinEntityLivingBase
         return lowestDura;
     }
 
-
-
     @Override
     @Accessor(value = "ticksSinceLastSwing")
     public abstract int getTicksSinceLastSwing();

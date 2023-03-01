@@ -40,8 +40,7 @@ public class ParentElement extends AbstractElement {
 
         Drawable.drawTexture(new ResourceLocation("textures/arrow.png"), x + width - 10, y + 5.5f, 6, 6);
         GlStateManager.popMatrix();
-
-        FontRender.drawString5(setting.getName(), (float) (x + 3), (float) (y + height / 2 - (FontRender.getFontHeight5() / 2f)), -1);
+        FontRender.drawString5(setting.getName(), (float) (x + 3), (float) (y + height / 2 - (FontRender.getFontHeight5() / 2f)) + 3, -1);
     }
 
 

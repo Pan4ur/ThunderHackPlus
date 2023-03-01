@@ -15,7 +15,7 @@ public class KillEffect extends Module {
         super("KillEffect", "KillEffect", Module.Category.RENDER);
 
     }
-    private final Setting<Boolean> sound = this.register(new Setting<Boolean>("Sound", false));
+    private final Setting<Boolean> sound = this.register(new Setting<>("Sound", false));
 
     private Timer timer = new Timer();
 

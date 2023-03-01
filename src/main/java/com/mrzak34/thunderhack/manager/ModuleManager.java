@@ -48,8 +48,7 @@ public class ModuleManager extends Feature {
         this.modules.add(new Welcomer());
         this.modules.add(new FastFall());
         this.modules.add(new Search());
-        this.modules.add(new EFly());
-
+        this.modules.add(new Spammer());
         this.modules.add(new AutoFlyme());
         this.modules.add(new ReverseStep());
         this.modules.add(new Step());
@@ -70,6 +69,7 @@ public class ModuleManager extends Feature {
         this.modules.add(new PearlBait());
         this.modules.add(new AutoSheep());
         this.modules.add(new BoatFly());
+        this.modules.add(new AirStuck());
         this.modules.add(new TargetHud());
         this.modules.add(new Aura());
         this.modules.add(new NoSlow());
@@ -85,13 +85,14 @@ public class ModuleManager extends Feature {
         this.modules.add(new BowAim());
         this.modules.add(new Shulkerception());
         this.modules.add(new FunnyClicker());
-        this.modules.add(new Interactions());
+        this.modules.add(new BreakHighLight());
         this.modules.add(new ThirdPersView());
         this.modules.add(new SolidWeb());
         this.modules.add(new NoCom());
         this.modules.add(new DMGFly());
         this.modules.add(new Sprint());
         this.modules.add(new FreeLook());
+        this.modules.add(new ItemScroller());
         this.modules.add(new Quiver());
         this.modules.add(new NoFall());
         this.modules.add(new AutoReconnect());
@@ -181,7 +182,6 @@ public class ModuleManager extends Feature {
         this.modules.add(new ChorusESP());
         this.modules.add(new GroundBoost());
         this.modules.add(new BeakonESP());
-        this.modules.add(new FGTotem());
         this.modules.add(new Speed());
         this.modules.add(new Burrow());
         this.modules.add(new AntiHunger());
@@ -196,6 +196,8 @@ public class ModuleManager extends Feature {
         this.modules.add(new Flight());
         this.modules.add(new HitBoxes());
         this.modules.add(new NGriefCleaner());
+        this.modules.add(new PearlBlockThrow());
+        this.modules.add(new testMove());
         this.modules.add(new MultiConnect());
         this.modules.add(new RadarRewrite());
         this.modules.add(new com.mrzak34.thunderhack.gui.hud.ArrayList());
@@ -207,6 +209,7 @@ public class ModuleManager extends Feature {
         this.modules.add(new AutoTool());
         this.modules.add(new TargetStrafe());
         this.modules.add(new EZbowPOP());
+        this.modules.add(new NoClip());
         this.modules.add(new BowSpam());
         this.modules.add(new ItemESP());
         this.modules.add(new DMGParticles());

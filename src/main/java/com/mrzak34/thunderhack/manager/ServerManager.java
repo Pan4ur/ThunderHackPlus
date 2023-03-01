@@ -1,78 +1,97 @@
 package com.mrzak34.thunderhack.manager;
 
-import com.mrzak34.thunderhack.util.Timer;
+import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.modules.Feature;
+import com.mrzak34.thunderhack.util.Timer;
+import com.mrzak34.thunderhack.util.Util;
+import net.minecraft.network.play.server.SPacketChat;
+import net.minecraft.network.play.server.SPacketTimeUpdate;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-import java.text.DecimalFormat;
-import java.util.Arrays;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.ArrayDeque;
 import java.util.Objects;
 
 public class ServerManager extends Feature {
-    private final float[] tpsCounts = new float[10];
-    private final DecimalFormat format = new DecimalFormat("##.00#");
-    private final Timer timer = new Timer();
-    private float TPS = 20.0f;
-    private long lastUpdate = -1L;
 
-    public void onPacketReceived() {
-        this.timer.reset();
+    private final Timer timeDelay;
+    private final ArrayDeque<Float> tpsResult;
+    private long time;
+    private float tps;
+
+    public void setTPS(float tps) {
+        this.tps = tps;
     }
 
-
-
-    long timeDiff;
-
-    public void update() {
-        float tps;
-        long currentTime = System.currentTimeMillis();
-        if (this.lastUpdate == -1L) {
-            this.lastUpdate = currentTime;
-            return;
-        }
-        timeDiff = currentTime - this.lastUpdate;
-        float tickTime = (float) timeDiff / 20.0f;
-        if (tickTime == 0.0f) {
-            tickTime = 50.0f;
-        }
-        if ((tps = 1000.0f / tickTime) > 20.0f) {
-            tps = 20.0f;
-        }
-        System.arraycopy(this.tpsCounts, 0, this.tpsCounts, 1, this.tpsCounts.length - 1);
-        this.tpsCounts[0] = tps;
-        double total = 0.0;
-        for (float f : this.tpsCounts) {
-            total += f;
-        }
-        if ((total /= this.tpsCounts.length) > 20.0) {
-            total = 20.0;
-        }
-        this.TPS = Float.parseFloat(this.format.format(total));
-        this.lastUpdate = currentTime;
+    public Timer getDelayTimer() {
+        return timeDelay;
     }
 
-
-    public void resetServerManager() {
-        Arrays.fill(this.tpsCounts, 20.0f);
-        this.TPS = 20.0f;
+    public ServerManager() {
+        this.tpsResult = new ArrayDeque<>(20);
+        this.timeDelay = new Timer();
     }
 
-    public float getTpsFactor() {
-        return 20.0f / this.TPS;
+    public long getTime() {
+        return time;
+    }
+
+    public void setTime(long time) {
+        this.time = time;
     }
 
     public float getTPS() {
-        return this.TPS;
+        return round(this.tps);
+    }
+    private float round(double value) {
+        BigDecimal bd = new BigDecimal(value);
+        bd = bd.setScale(2, RoundingMode.HALF_UP);
+        return bd.floatValue();
+    }
+
+    public ArrayDeque<Float> getTPSResults() {
+        return tpsResult;
     }
 
     public int getPing() {
-        if (ServerManager.fullNullCheck()) {
+        if (Util.mc.world == null || Util.mc.player == null) {
             return 0;
         }
         try {
-            return Objects.requireNonNull(mc.getConnection()).getPlayerInfo(mc.getConnection().getGameProfile().getId()).getResponseTime();
+            return Objects.requireNonNull(Util.mc.getConnection()).getPlayerInfo(Util.mc.getConnection().getGameProfile().getId()).getResponseTime();
         } catch (Exception e) {
             return 0;
         }
     }
-}
 
+    @SubscribeEvent
+    public void onPacketReceive(PacketEvent.Receive event) {
+        if (!(event.getPacket() instanceof SPacketChat)) {
+            getDelayTimer().reset();
+        }
+        if (event.getPacket() instanceof SPacketTimeUpdate) {
+            if (getTime() != 0L) {
+                if (getTPSResults().size() > 20) {
+                    getTPSResults().poll();
+                }
+                getTPSResults().add(20.0f * (1000.0f / (float) (System.currentTimeMillis() - getTime())));
+                float f = 0.0f;
+                for(Float value : getTPSResults()) {
+                    f += Math.max(0.0f, Math.min(20.0f, value));
+                }
+                setTPS(f /= (float) getTPSResults().size());
+            }
+            setTime( System.currentTimeMillis());
+        }
+    }
+
+    public void init(){
+        MinecraftForge.EVENT_BUS.register(this);
+    }
+
+    public void unload(){
+        MinecraftForge.EVENT_BUS.register(this);
+    }
+}

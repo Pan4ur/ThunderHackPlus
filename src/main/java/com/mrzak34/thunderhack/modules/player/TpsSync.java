@@ -22,5 +22,11 @@ public class TpsSync
             Thunderhack.TICK_TIMER = 1f;
         }
     }
+
+
+    @Override
+    public void onDisable(){
+        Thunderhack.TICK_TIMER = 1f;
+    }
 }
 

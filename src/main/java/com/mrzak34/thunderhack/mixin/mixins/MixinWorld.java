@@ -110,53 +110,5 @@ public void updateEntitiesHook(CallbackInfo ci)
         nigga2 = entityIn.posY;
         nigga3 = entityIn.posZ;
     }
-
-    /*
-    @Inject(method = "updateEntityWithOptionalForce",
-            at = @At(value = "INVOKE",
-            target = "Lnet/minecraft/world/World;updateEntityWithOptionalForce(Lnet/minecraft/entity/Entity;Z)V",
-            shift = At.Shift.AFTER))
-    public void updateEntityWithOptionalForceHookPost(Entity entityIn, boolean forceUpdate, CallbackInfo ci) {
-        if (nigga1 != entityIn.posX || nigga2 != entityIn.posY || nigga3 != entityIn.posZ) {
-            EventEntityMove event = new EventEntityMove(entityIn, new Vec3d(nigga1, nigga2, nigga3));
-            MinecraftForge.EVENT_BUS.post(event);
-        }
-    }
-
-     */
-
-/*
-
-
-		if (forceUpdate && entityIn.addedToChunk) {
-			++entityIn.ticksExisted;
-
-			if (entityIn.isRiding()) {
-				entityIn.updateRidden();
-			} else {
-				double prevPosX = entityIn.posX;
-				double prevPosY = entityIn.posY;
-				double prevPosZ = entityIn.posZ;
-				entityIn.onUpdate();
-				if (prevPosX != entityIn.posX || prevPosY != entityIn.posY || prevPosZ != entityIn.posZ) {
-					EventEntityMove eem = new EventEntityMove(entityIn, new Vec3d(prevPosX, prevPosY, prevPosZ));
-					EventManager.call(eem);
-				}
-
-			}
-
-
-
-        if (forceUpdate && entityIn.addedToChunk) {
-            ++entityIn.ticksExisted;
-            if (entityIn.isRiding()) {
-                entityIn.updateRidden();
-            } else if (!entityIn.updateBlocked) {
-                entityIn.onUpdate();
-            }
-        }
-
-
- */
 }
 
