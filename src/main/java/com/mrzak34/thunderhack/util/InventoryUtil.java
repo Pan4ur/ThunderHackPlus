@@ -470,6 +470,16 @@ public class InventoryUtil implements Util {
         return -1;
     }
 
+    public static int getOzeraAtHotbar(){
+        for (int i = 0; i < 9; ++i) {
+            ItemStack itemStack = Util.mc.player.inventory.getStackInSlot(i);
+            if (!(itemStack.getItem() == Items.POTIONITEM)) continue;
+            if (!(itemStack.getDisplayName().contains("Родные озёра"))) continue;
+            return i;
+        }
+        return -1;
+    }
+
     public static ItemStack getPotionItemStack() {
         for (int i = 0; i < 9; ++i) {
             ItemStack itemStack = Util.mc.player.inventory.getStackInSlot(i);

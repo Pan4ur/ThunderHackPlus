@@ -77,6 +77,7 @@ public class ModuleManager extends Feature {
         this.modules.add(new Spider());
         this.modules.add(new AutoExplosion());
         this.modules.add(new AutoAmericano());
+        this.modules.add(new AutoOzera());
         this.modules.add(new BlockHighlight());
         this.modules.add(new TickShift());
         this.modules.add(new StorageEsp());

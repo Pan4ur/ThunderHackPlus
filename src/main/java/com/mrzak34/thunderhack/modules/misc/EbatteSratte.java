@@ -1,4 +1,5 @@
 package com.mrzak34.thunderhack.modules.misc;
+
 import com.mrzak34.thunderhack.events.AttackEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
@@ -10,29 +11,29 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class EbatteSratte extends Module {
     public EbatteSratte() {
-        super("Ebatte Sratte", "авто токсик", Module.Category.MISC);
+        super("Ebatte Sratte", "авто токсик и не только xD", Module.Category.MISC);
     }
-    Timer timer = new Timer();
-    String chatprefix = " ";
 
-    public Setting <Integer> delay = this.register ( new Setting <> ( "Delay", 500, 1, 1000 ) );
+    Timer timer = new Timer();
+    String chatprefix = "";
+
+    public Setting<Integer> delay = this.register(new Setting<>("Delay", 500, 1, 1000));
 
 
     private Setting<mode> Mode = register(new Setting("Server", mode.FunnyGame));
 
     public enum mode {
-        FunnyGame, DirectMessage, OldServer;
+        FunnyGame, DirectMessage, OldServer, Local;
     }
 
     private Setting<mode2> Mode2 = register(new Setting("Mode", mode2.Hard));
 
     public enum mode2 {
-        ARSIK2005,Friendly, Lite, Hard, ThunderHack;
+        ARSIK2005, Friendly, Lite, Hard, Erp;
     }
 
 
-
-    String[] FriendlyString = new String[]{"Помурчи в дискордике пжжжж","ты сегодня такая няшечка мммммм","Котик извини", "Скинь ножки пжжжжжжж", "Скинь кфг пжжжж"};
+    String[] FriendlyString = new String[]{"Помурчи в дискордике пжжжж", "ты сегодня такая няшечка мммммм", "Котик извини", "Скинь ножки пжжжжжжж", "Скинь кфг пжжжж"};
 
     String[] Lite = new String[]{"Блять киллку настрой она же мисает я ебал АХАХААХ", "Блять удаляй чит он же нихуя не бустит", "Че так слабо АХАХАХАХ", "Сука как будто с ботом пехаюсь", "Блять включи киллку хоть заебал сосать", "Сука ты за этот чит бабки отдал лошара", "Ебать я тебя Вращаю на хуе"};
 
@@ -66,11 +67,11 @@ public class EbatteSratte extends Module {
             "Your mom owned by Thunderhack",
             "АЛО БОМЖАТИНА БЕЗ МАТЕРИ Я ТВОЮ МАТЬ ОБ СТОЛ УБИЛ ЧЕРЕП ЕЙ РАЗБИЛ НОГОЙ БАТЮ ТВОЕГО С ОКНА ВЫКИНУЛ СУКА ЧМО ЕБАННОЕ ОТВЕТЬ ЧМО ЕБЛАН ТВАРЬ ШАЛАВА"
     };
-
+    String[] Erp = new String[]{"Помурчи пж", "Я ТЕБЯ ЛЮБЛЮ", "А ты меня любишь?", "i love u", "Мурчи громче блин", "Сейчас на Земле официально 7 999 999 999 людей, которые мне нравятся меньше тебя", "Ты милый. Можно тебя оставить себе?", "Мурлычу от любви", "Ты самая лучшая в моей жизни", "Ты очень красивая", "Люблю тебя всем сердцем и душой", "Я не смогу жить без тебя"};
 
     @SubscribeEvent
     public void onAttackEntity(AttackEvent event) {
-        if(event.getEntity() instanceof EntityPlayer) {
+        if (event.getEntity() instanceof EntityPlayer) {
             if (timer.passedMs(delay.getValue() * 10)) {
                 Entity entity = event.getEntity();
                 if (entity == null) {
@@ -79,19 +80,21 @@ public class EbatteSratte extends Module {
 
                 int n = 0;
 
-                if(Mode2.getValue() == mode2.Hard) {
+                if (Mode2.getValue() == mode2.Hard) {
 
                     n = (int) Math.floor(Math.random() * myString.length);
 
 
-                } else if(Mode2.getValue() == mode2.Lite){
+                } else if (Mode2.getValue() == mode2.Lite) {
                     n = (int) Math.floor(Math.random() * Lite.length);
-                } else if(Mode2.getValue() == mode2.Friendly){
+                } else if (Mode2.getValue() == mode2.Friendly) {
                     n = (int) Math.floor(Math.random() * FriendlyString.length);
-
-                } else if(Mode2.getValue() == mode2.ARSIK2005){
+                } else if (Mode2.getValue() == mode2.ARSIK2005) {
                     n = (int) Math.floor(Math.random() * Arsik2005.length);
+                } else if (Mode2.getValue() == mode2.Erp) {
+                    n = (int) Math.floor(Math.random() * Erp.length);
                 }
+
 
                 if (Mode.getValue() == mode.FunnyGame) {
                     chatprefix = ("!");
@@ -103,17 +106,17 @@ public class EbatteSratte extends Module {
                     chatprefix = ("/w ");
                 }
 
-
-                if(Mode2.getValue() == mode2.Hard) {
+                if (Mode2.getValue() == mode2.Hard) {
                     mc.player.sendChatMessage(chatprefix + entity.getName() + " " + myString[n]);
-                } else if(Mode2.getValue() == mode2.Lite){
+                } else if (Mode2.getValue() == mode2.Lite) {
                     mc.player.sendChatMessage(chatprefix + entity.getName() + " " + Lite[n]);
-                } else if(Mode2.getValue() == mode2.Friendly){
+                } else if (Mode2.getValue() == mode2.Friendly) {
                     mc.player.sendChatMessage(chatprefix + entity.getName() + " " + FriendlyString[n]);
-                } else if(Mode2.getValue() == mode2.ARSIK2005){
+                } else if (Mode2.getValue() == mode2.ARSIK2005) {
                     mc.player.sendChatMessage(chatprefix + entity.getName() + " " + Arsik2005[n]);
+                } else if (Mode2.getValue() == mode2.Erp) {
+                    mc.player.sendChatMessage(chatprefix + entity.getName() + " " + Erp[n]);
                 }
-
                 timer.reset();
             }
 
