@@ -1,16 +1,24 @@
 package com.mrzak34.thunderhack.modules.movement;
 
 
+import com.mrzak34.thunderhack.command.Command;
+import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.events.PlayerUpdateEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.InventoryUtil;
+import com.mrzak34.thunderhack.util.Timer;
+import com.mrzak34.thunderhack.util.render.RenderUtil;
 import net.minecraft.init.Items;
+import net.minecraft.inventory.ClickType;
+import net.minecraft.inventory.EntityEquipmentSlot;
+import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.client.CPacketEntityAction;
+import net.minecraft.network.play.server.SPacketPlayerPosLook;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-import static com.mrzak34.thunderhack.modules.movement.Strafe.disabler;
+import static com.mrzak34.thunderhack.modules.movement.Strafe.findNullSlot;
 import static com.mrzak34.thunderhack.modules.player.ElytraSwap.*;
 import static com.mrzak34.thunderhack.modules.player.ElytraSwap.clickSlot;
 import static com.mrzak34.thunderhack.util.MovementUtil.isMoving;
@@ -21,68 +29,150 @@ public class LegitStrafe extends Module {
         super("GlideFly", "флай на саник-хуй пососаник", Category.MOVEMENT);
     }
 
-    public Setting<Float> motion =this.register( new Setting<>("motionY", 0.2F, 0F, 0.42F));
-    public Setting<Float> motion2 =this.register( new Setting<>("motionY2", 0.42F, 0F, 0.84F));
+    public Setting<Float> motion2 =this.register( new Setting<>("motionY", 0.42F, 0F, 0.84F));
+
     public Setting<Float> speed =this.register( new Setting<>("Speed", 0.8F, 0.1F, 3F));
+    public Setting<Float> speedM =this.register( new Setting<>("MaxSpeed", 0.8F, 0.1F, 3F));
+    public Setting<Integer> acceleration =this.register( new Setting<>("Acceleration", 60, 0, 100));
+
+
+    public Setting<Boolean> onlyDown = register(new Setting<>("Silent", true));
+    public Setting<Float> jitterY =this.register( new Setting<>("JitterY", 0.2F, 0F, 0.42));
 
     int prevElytraSlot = -1;
+    private Timer timer = new Timer();
+    private Timer fixTimer = new Timer();
+    int acceleration_ticks = 0;
+
 
     @SubscribeEvent
-    public void onEvent(PlayerUpdateEvent event) {
-        if(mc.player.ticksExisted % 2 != 0) return;
-        ItemStack itemStack = getItemStack(38);
-        if(itemStack == null) return;
-        if(mc.player.onGround) return;
+    public void onEvent222(PlayerUpdateEvent event) {
+        if(!onlyDown.getValue()) {
+            if (mc.player.ticksExisted % 2 != 0) return;
+            ItemStack itemStack = getItemStack(38);
+            if (itemStack == null) return;
+            if (mc.player.onGround) return;
 
-        if (itemStack.getItem() == Items.ELYTRA) {
-            if (prevElytraSlot != -1) {
+            if (itemStack.getItem() == Items.ELYTRA) {
+                if (prevElytraSlot != -1) {
+                    clickSlot(prevElytraSlot);
+                    clickSlot(38);
+                    clickSlot(prevElytraSlot);
+                }
+            } else if (hasItem(Items.ELYTRA)) {
+                prevElytraSlot = getSlot(Items.ELYTRA);
                 clickSlot(prevElytraSlot);
                 clickSlot(38);
                 clickSlot(prevElytraSlot);
-            }
-        } else if (hasItem(Items.ELYTRA)) {
-            prevElytraSlot = getSlot(Items.ELYTRA);
-            clickSlot(prevElytraSlot);
-            clickSlot(38);
-            clickSlot(prevElytraSlot);
-            mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.START_FALL_FLYING));
-            mc.player.motionY = motion.getValue();
+                mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.START_FALL_FLYING));
 
-            if (mc.gameSettings.keyBindJump.pressed) {
-                mc.player.motionY = motion2.getValue();
-            } else if (mc.gameSettings.keyBindSneak.pressed) {
-                mc.player.motionY = -motion2.getValue();
-            }
-            if(isMoving()) {
-                setSpeed(speed.getValue());
-            } else {
-                setSpeed2(0.1f);
-            }
-        }
+                mc.player.motionY = jitterY.getValue();
 
-        /*
-        if (mc.player.ticksExisted % 6 == 0) {
-            int elytra = InventoryUtil.getElytra();
+                if (mc.gameSettings.keyBindJump.pressed) {
+                    mc.player.motionY = motion2.getValue();
+                } else if (mc.gameSettings.keyBindSneak.pressed) {
+                    mc.player.motionY = -motion2.getValue();
+                }
+                if (isMoving()) {
+                    setSpeed(speed.getValue());
+                } else {
+                    setSpeed2(0.1f);
+                }
+            }
+        } else {
+            int elytra =  getElly();
+
             if (elytra == -1) {
-                this.toggle();
-            } else {
-                mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.STOP_SPRINTING));
-                disabler(elytra);
+                Command.sendMessage("Нет элитр!");
+                toggle();
+                return;
             }
-            mc.player.motionY = 0;
-            if (mc.gameSettings.keyBindJump.pressed) {
-                mc.player.motionY = 0;
-            } else if (mc.gameSettings.keyBindSneak.pressed) {
-                mc.player.motionY = 0;
-            }
-            if(isMoving()) {
-                setSpeed(speed.getValue());
-            }
-        }
 
-         */
+            if (mc.player.onGround) {
+                mc.player.jump();
+                timer.reset();
+                acceleration_ticks = 0;
+            } else if (timer.passedMs(350)) {
+
+                if (mc.player.ticksExisted % 2 == 0) {
+                    disabler2(elytra);
+                }
+
+                mc.player.motionY = mc.player.ticksExisted % 2 != 0 ? -0.25 : 0.25;
+
+
+                if (!mc.player.isSneaking() && mc.gameSettings.keyBindJump.pressed) {
+                    mc.player.motionY = motion2.getValue();
+                }
+                if (mc.gameSettings.keyBindSneak.isKeyDown()) {
+                    mc.player.motionY = -motion2.getValue();
+                }
+                if (isMoving()) {
+                    setSpeed((float) RenderUtil.interpolate(speedM.getValue(),speed.getValue(),((float) Math.min(acceleration_ticks,acceleration.getValue()) / (float) acceleration.getValue())));
+                } else {
+                    acceleration_ticks = 0;
+                    setSpeed2(0.1f);
+                }
+            }
+        }acceleration_ticks++;
+        fixElytra();
     }
 
+    public void fixElytra() {
+        ItemStack stack = mc.player.inventory.getItemStack();
+        if (stack != null && stack.getItem() instanceof ItemArmor && fixTimer.passed(300)) {
+            ItemArmor ia = (ItemArmor) stack.getItem();
+            if (ia.armorType == EntityEquipmentSlot.CHEST && mc.player.inventory.armorItemInSlot(2).getItem() == Items.ELYTRA) {
+                mc.playerController.windowClick(0, 6, 1, ClickType.PICKUP, mc.player);
+                int nullSlot = findNullSlot();
+                boolean needDrop = nullSlot == 999;
+                if (needDrop) {
+                    nullSlot = 9;
+                }
+                mc.playerController.windowClick(0, nullSlot, 1, ClickType.PICKUP, mc.player);
+                if (needDrop) {
+                    mc.playerController.windowClick(0, -999, 1, ClickType.PICKUP, mc.player);
+                }
+                fixTimer.reset();
+            }
+        }
+    }
+
+    public void disabler2(int elytra) {
+        if (elytra != -2) {
+            mc.playerController.windowClick(0, elytra, 1, ClickType.PICKUP, mc.player);
+            mc.playerController.windowClick(0, 6, 1, ClickType.PICKUP, mc.player);
+        }
+
+        if(!onlyDown.getValue())
+            mc.getConnection().sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.START_FALL_FLYING));
+        mc.getConnection().sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.START_FALL_FLYING));
+
+        if (elytra != -2) {
+            mc.playerController.windowClick(0, 6, 1, ClickType.PICKUP, mc.player);
+            mc.playerController.windowClick(0, elytra, 1, ClickType.PICKUP, mc.player);
+        }
+    }
+
+    public static int getElly() {
+        for (ItemStack stack : mc.player.getArmorInventoryList()) {
+            if (stack.getItem() == Items.ELYTRA) {
+                return -2;
+            }
+        }
+        int slot = -1;
+        for (int i = 0; i < 36; i++) {
+            ItemStack s = mc.player.inventory.getStackInSlot(i);
+            if (s.getItem() == Items.ELYTRA) {
+                slot = i;
+                break;
+            }
+        }
+        if (slot < 9 && slot != -1) {
+            slot = slot + 36;
+        }
+        return slot;
+    }
 
     public static void setSpeed(float speed) {
         float yaw = mc.player.rotationYaw;
@@ -118,6 +208,18 @@ public class LegitStrafe extends Module {
         double sin = Math.sin(Math.toRadians((double)(yaw + 90.0F)));
         mc.player.motionX = (double)(forward * speed) * cos;
         mc.player.motionZ = (double)(forward * speed) * sin;
+    }
+
+    @Override
+    public void onEnable(){
+        acceleration_ticks = 0;
+    }
+
+    @SubscribeEvent
+    public void onPacketReceive(PacketEvent.Receive e){
+        if(e.getPacket() instanceof SPacketPlayerPosLook){
+            acceleration_ticks = 0;
+        }
     }
 
 }

@@ -2,7 +2,8 @@ package com.mrzak34.thunderhack.gui.hud;
 
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.events.Render2DEvent;
-import com.mrzak34.thunderhack.gui.thundergui.fontstuff.FontRender;
+import com.mrzak34.thunderhack.gui.fontstuff.FontRender;
+import com.mrzak34.thunderhack.gui.thundergui2.ThunderGui2;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.setting.PositionSetting;
@@ -33,7 +34,7 @@ public class KeyBinds extends Module{
     public final Setting<ColorSetting> oncolor = this.register(new Setting<>("OnColor", new ColorSetting(0xBEBEBE)));
     public final Setting<ColorSetting> offcolor = this.register(new Setting<>("OffColor", new ColorSetting(0x646464)));
 
-    private Setting<Float> psize = this.register( new Setting<>("Size", 1f, 0.1f, 2f));
+    private final Setting<Float> psize = this.register( new Setting<>("Size", 1f, 0.1f, 2f));
 
 
     float x1 =0;
@@ -76,7 +77,7 @@ public class KeyBinds extends Module{
 
         GlStateManager.popMatrix();
 
-        if(mc.currentScreen instanceof GuiChat || mc.currentScreen instanceof HudEditorGui){
+        if(mc.currentScreen instanceof GuiChat || mc.currentScreen instanceof HudEditorGui || mc.currentScreen instanceof ThunderGui2){
             if(isHovering()){
                 if(Mouse.isButtonDown(0) && mousestate){
                     pos.getValue().setX( (float) (normaliseX() - dragX) /  e.scaledResolution.getScaledWidth());

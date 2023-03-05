@@ -16,7 +16,7 @@ import java.util.Comparator;
 
 public class AutoSheep extends Module {
     public AutoSheep() {
-        super("AutoSheep", "AutoSheep", Category.MISC);
+        super("AutoSheep", "стрегет овец", Category.MISC);
     }
 
     public Setting<Boolean> Rotate = this.register(new Setting<>("Rotate", true));

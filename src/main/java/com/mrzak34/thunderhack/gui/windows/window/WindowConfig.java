@@ -1,7 +1,6 @@
 package com.mrzak34.thunderhack.gui.windows.window;
 
-import com.mrzak34.thunderhack.gui.thundergui.components.items.buttons.TConfigComponent;
-import com.mrzak34.thunderhack.gui.thundergui.fontstuff.FontRender;
+import com.mrzak34.thunderhack.gui.fontstuff.FontRender;
 import com.mrzak34.thunderhack.gui.windows.window.parts.ConfigPart;
 import com.mrzak34.thunderhack.manager.ConfigManager;
 import com.mrzak34.thunderhack.util.render.RenderUtil;
@@ -12,12 +11,9 @@ import org.lwjgl.opengl.GL11;
 import java.awt.*;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
-import static com.mrzak34.thunderhack.gui.thundergui.ThunderGui.removeLastChar;
+import static com.mrzak34.thunderhack.gui.clickui.elements.SliderElement.removeLastChar;
 import static com.mrzak34.thunderhack.util.Util.mc;
 
 public class WindowConfig {

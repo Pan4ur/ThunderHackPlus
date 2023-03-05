@@ -5,6 +5,6 @@ import com.mrzak34.thunderhack.modules.Module;
 public class AntiDisconnect extends Module {
 
     public AntiDisconnect() {
-        super("AntiDisconnect", "Защита от случайного выхода", Category.CLIENT);
+        super("AntiDisconnect", "Защита от случайного-выхода", Category.CLIENT);
     }
 }

@@ -6,7 +6,7 @@ import com.mrzak34.thunderhack.events.EntityAddedEvent;
 import com.mrzak34.thunderhack.events.EntityRemovedEvent;
 import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.notification.NotificationManager;
-import com.mrzak34.thunderhack.notification.NotificationType;
+import com.mrzak34.thunderhack.notification.Notification;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -98,16 +98,16 @@ public class VisualRange extends Module {
         }
 
         if (enter) {
-            message += ChatFormatting.GREEN + " был обнаружен!";
+            message += ChatFormatting.GREEN + " was found!";
         } else {
-            message += ChatFormatting.RED + " ушел!";
+            message += ChatFormatting.RED + " left!";
         }
 
         if (Mode.getValue() == mode.Chat) {
             Command.sendMessage(message);
         }
         if (Mode.getValue() == mode.Notification) {
-            NotificationManager.publicity("VisualRange", message,2, NotificationType.WARNING);
+            NotificationManager.publicity(message,2, Notification.Type.WARNING);
         }
 
         if (soundpl.getValue()) {

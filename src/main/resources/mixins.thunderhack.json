@@ -26,7 +26,6 @@
     "MixinBlockModelRenderer",
     "MixinBlockRendererDispatcher",
     "MixinBlockSnow",
-    "MixinBlockVine",
     "MixinBlockWeb",
     "MixinEntity",
     "MixinEntityArrow",

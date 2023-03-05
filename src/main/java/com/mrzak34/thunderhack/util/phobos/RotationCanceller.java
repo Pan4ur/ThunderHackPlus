@@ -47,7 +47,8 @@ public class RotationCanceller
                 return;
             }
 
-            reset(); // Send last Packet if it hasn't been yet
+            reset();
+
             if (Thunderhack.rotationManager.isBlocking()) {
                 return;
             }

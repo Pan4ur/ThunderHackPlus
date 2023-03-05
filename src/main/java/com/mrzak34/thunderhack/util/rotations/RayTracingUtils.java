@@ -2,19 +2,16 @@ package com.mrzak34.thunderhack.util.rotations;
 
 
 import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.modules.combat.Aura;
 import com.mrzak34.thunderhack.setting.Setting;
-import com.mrzak34.thunderhack.util.math.MathUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.math.*;
 
-import javax.annotation.Nullable;
 import javax.vecmath.Vector2f;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 import static com.mrzak34.thunderhack.util.Util.mc;
 
@@ -292,7 +289,40 @@ public class RayTracingUtils {
                 return getHitBoxPointsOldJitter(position,fakeBoxScale);
             case NewJitter:
                 return getHitBoxPointsJitter(position,fakeBoxScale);
+            default:
+                return getHitBoxPointsNonJitter(position,fakeBoxScale);
         }
-        return getHitBoxPointsNonJitter(position,fakeBoxScale);
+    }
+
+    public static Vec3d getVecTarget(Entity target, double distance) {
+        Vec3d vec = target.getPositionVector().add(new Vec3d(0, MathHelper.clamp(target.getEyeHeight() * (mc.player.getDistance(target) / (distance + target.width)), 0.2, mc.player.getEyeHeight()), 0));
+        if (!isHitBoxVisible(vec)) {
+            for (double i = target.width * 0.05; i <= target.width * 0.95; i += target.width * 0.9 / 8f) {
+                for (double j = target.width * 0.05; j <= target.width * 0.95; j += target.width * 0.9 / 8f) {
+                    for (double k = 0; k <= target.height; k += target.height / 8f) {
+                        if (isHitBoxVisible(new Vec3d(i, k, j).add(target.getPositionVector().add(new Vec3d(-target.width / 2, 0, -target.width / 2))))) {
+                            vec = new Vec3d(i, k, j).add(target.getPositionVector().add(new Vec3d(-target.width / 2, 0, -target.width / 2)));
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        if(getDistanceFromHead(vec) > distance * distance){
+            return null;
+        }
+        return vec;
+    }
+
+    public static boolean isHitBoxVisible(Vec3d vec3d) {
+        final Vec3d eyesPos = new Vec3d(mc.player.posX, mc.player.getEntityBoundingBox().minY + mc.player.getEyeHeight(), mc.player.posZ);
+        return mc.world.rayTraceBlocks(eyesPos, vec3d, false, true, false) == null;
+    }
+
+    public static float getDistanceFromHead(Vec3d d1) {
+        double x = d1.x - mc.player.posX;
+        double y = d1.y - mc.player.getPositionEyes(1).y;
+        double z = d1.z - mc.player.posZ;
+        return (float) (Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z,2));
     }
 }

@@ -1,11 +1,9 @@
-package com.mrzak34.thunderhack.gui.thundergui.fontstuff;
+package com.mrzak34.thunderhack.gui.fontstuff;
 
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.util.Util;
 import net.minecraft.client.renderer.GlStateManager;
 import org.lwjgl.opengl.GL11;
-
-import java.awt.*;
 
 
 public class FontRender{
@@ -51,10 +49,19 @@ public class FontRender{
     }
 
     public static float drawString2(String text, int x, int y, int color) {
-        if (isCustomFontEnabled())
-            return Thunderhack.fontRenderer2.drawString(text, x, y, color);
+        return Thunderhack.fontRenderer2.drawString(text, x, y, color);
+    }
 
-        return Util.mc.fontRenderer.drawString(text, x, y, color);
+    public static float drawIcon(String id, int x, int y, int color) {
+        return Thunderhack.icons.drawString(id, x, y, color);
+    }
+
+    public static float drawMidIcon(String id, int x, int y, int color) {
+        return Thunderhack.middleicons.drawString(id, x, y, color);
+    }
+
+    public static float drawBigIcon(String id, int x, int y, int color) {
+        return Thunderhack.BIGicons.drawString(id, x, y, color);
     }
 
     public static float drawString3(String text, float x, float y, int color) {

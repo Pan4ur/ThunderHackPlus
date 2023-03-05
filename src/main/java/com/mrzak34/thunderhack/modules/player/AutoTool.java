@@ -2,6 +2,7 @@ package com.mrzak34.thunderhack.modules.player;
 
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
+import net.minecraft.block.BlockAir;
 import net.minecraft.block.BlockEnderChest;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.init.Enchantments;
@@ -74,6 +75,7 @@ public class AutoTool extends Module {
                 final float digSpeed = EnchantmentHelper.getEnchantmentLevel(Enchantments.EFFICIENCY, stack);
                 final float destroySpeed = stack.getDestroySpeed(mc.world.getBlockState(pos));
 
+                if(mc.world.getBlockState(pos).getBlock() instanceof BlockAir) return -1;
                 if (mc.world.getBlockState(pos).getBlock() instanceof BlockEnderChest && echestSilk.getValue()) {
                     if (EnchantmentHelper.getEnchantmentLevel(Enchantments.SILK_TOUCH, stack) > 0 && digSpeed + destroySpeed > CurrentFastest) {
                         CurrentFastest = digSpeed + destroySpeed;

@@ -4,7 +4,6 @@ import com.mojang.realmsclient.gui.ChatFormatting;
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.modules.client.MainSettings;
-import net.minecraft.util.text.TextFormatting;
 
 public class PrefixCommand
         extends Command {

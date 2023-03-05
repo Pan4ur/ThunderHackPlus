@@ -1,11 +1,8 @@
 package com.mrzak34.thunderhack.modules.funnygame;
 
-import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
-import com.mrzak34.thunderhack.notification.NotificationManager;
-import com.mrzak34.thunderhack.notification.NotificationType;
 import com.mrzak34.thunderhack.util.Timer;
 import com.mrzak34.thunderhack.util.Util;
 import net.minecraft.network.play.server.SPacketChat;
@@ -70,12 +67,8 @@ public class PhotoMath extends Module {
         if(out.contains("победил!") && check){
             nigger = 0;
             ez = true;
-            if(Thunderhack.moduleManager.getModuleByClass(NotificationManager.class).isEnabled()){
-                NotificationManager.publicity("PhotoMath","Боже, вот бы на егэ так просто было",2, NotificationType.SUCCESS);
-            }
             check = false;
         }
-
         return true;
     }
 

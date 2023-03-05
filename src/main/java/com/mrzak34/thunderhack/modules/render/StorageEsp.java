@@ -47,7 +47,7 @@ class StorageEsp extends Module
 
 
     public StorageEsp() {
-        super("StorageESP", "Highlights Containers.", Module.Category.RENDER);
+        super("StorageESP", "подсвечивает контейнеры", Module.Category.RENDER);
     }
 
 

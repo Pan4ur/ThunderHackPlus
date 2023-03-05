@@ -5,7 +5,7 @@ import com.mrzak34.thunderhack.events.Render2DEvent;
 import com.mrzak34.thunderhack.events.RenderAttackIndicatorEvent;
 import com.mrzak34.thunderhack.util.render.RenderUtil;
 import com.mrzak34.thunderhack.util.RoundedShader;
-import com.mrzak34.thunderhack.gui.thundergui.fontstuff.FontRender;
+import com.mrzak34.thunderhack.gui.fontstuff.FontRender;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.modules.combat.EZbowPOP;
 import com.mrzak34.thunderhack.setting.ColorSetting;
@@ -107,7 +107,7 @@ public class CoolCrosshair extends Module {
             RenderUtil.glScissor(x1 - animation, y1 - 3f, x1 + animation*2, x1 + 6, event.scaledResolution);
             GL11.glEnable(GL11.GL_SCISSOR_TEST);
 
-            if(EZbowPOP.delayTimer.getPassedTimeMs() > (float)Thunderhack.moduleManager.getModuleByClass(EZbowPOP.class).delay.getValue() * 666f){
+            if(EZbowPOP.delayTimer.getPassedTimeMs() > (float) Thunderhack.moduleManager.getModuleByClass(EZbowPOP.class).delay.getValue() * 666f){
                 FontRender.drawCentString5("charging.  ",x1,y1 - 0.5f,-1);
             } else if(EZbowPOP.delayTimer.getPassedTimeMs() > Thunderhack.moduleManager.getModuleByClass(EZbowPOP.class).delay.getValue() * 333f){
                 FontRender.drawCentString5("charging.. ",x1,y1 - 0.5f,-1);

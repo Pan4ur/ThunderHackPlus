@@ -15,7 +15,9 @@ public class MainSettings extends Module {
     public Setting<Boolean> renderRotations = this.register(new Setting<>("RenderRotations", true));
 
     public Setting<ShaderModeEn> shaderMode = register(new Setting("ShaderMode", ShaderModeEn.Smoke));
-    public Setting<Language> language = register(new Setting("Language", Language.ENG));
+    public Setting<Language> language = register(new Setting("Language", Language.RU));
+
+
 
     public enum ShaderModeEn {
         Smoke,

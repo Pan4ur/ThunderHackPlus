@@ -5,6 +5,7 @@ import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.events.EventPlayerTravel;
 import com.mrzak34.thunderhack.mixin.ducks.IEntityPlayer;
 import com.mrzak34.thunderhack.modules.movement.KeepSprint;
+import com.mrzak34.thunderhack.modules.movement.LegitStrafe;
 import com.mrzak34.thunderhack.util.Util;
 import com.mrzak34.thunderhack.util.phobos.MotionTracker;
 import net.minecraft.entity.EntityLivingBase;
@@ -15,10 +16,9 @@ import net.minecraftforge.common.MinecraftForge;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 
 @Mixin(value={EntityPlayer.class})
@@ -29,53 +29,42 @@ public abstract class MixinEntityPlayer extends EntityLivingBase implements IEnt
 
 
     @Unique
-    private MotionTracker motionTracker;
+    private MotionTracker motionTrackerT;
     @Unique
-    private MotionTracker breakMotionTracker;
+    private MotionTracker breakMotionTrackerT;
     @Unique
-    private MotionTracker blockMotionTracker;
-    @Unique
-    private int ticksWithoutMotionUpdate;
+    private MotionTracker blockMotionTrackerT;
 
     @Override
-    public void setMotionTracker(MotionTracker motionTracker) {
-        this.motionTracker = motionTracker;
+    public void setMotionTrackerT(MotionTracker motionTracker) {
+        this.motionTrackerT = motionTracker;
     }
 
     @Override
-    public MotionTracker getMotionTracker() {
-        return motionTracker;
+    public MotionTracker getMotionTrackerT() {
+        return motionTrackerT;
     }
 
     @Override
-    public MotionTracker getBreakMotionTracker() {
-        return breakMotionTracker;
+    public MotionTracker getBreakMotionTrackerT() {
+        return breakMotionTrackerT;
     }
 
     @Override
-    public void setBreakMotionTracker(MotionTracker breakMotionTracker) {
-        this.breakMotionTracker = breakMotionTracker;
+    public void setBreakMotionTrackerT(MotionTracker breakMotionTracker) {
+        this.breakMotionTrackerT = breakMotionTracker;
     }
 
     @Override
-    public MotionTracker getBlockMotionTracker() {
-        return blockMotionTracker;
+    public MotionTracker getBlockMotionTrackerT() {
+        return blockMotionTrackerT;
     }
 
     @Override
-    public void setBlockMotionTracker(MotionTracker blockMotionTracker) {
-        this.blockMotionTracker = blockMotionTracker;
+    public void setBlockMotionTrackerT(MotionTracker blockMotionTracker) {
+        this.blockMotionTrackerT = blockMotionTracker;
     }
 
-    @Override
-    public int getTicksWithoutMotionUpdate() {
-        return ticksWithoutMotionUpdate;
-    }
-
-    @Override
-    public void setTicksWithoutMotionUpdate(int ticksWithoutMotionUpdate) {
-        this.ticksWithoutMotionUpdate = ticksWithoutMotionUpdate;
-    }
 
     @Inject(method = { "travel" }, at = { @At("HEAD") }, cancellable = true)
     public void travel(final float strafe, final float vertical, final float forward, final CallbackInfo info) {
@@ -107,4 +96,5 @@ public abstract class MixinEntityPlayer extends EntityLivingBase implements IEnt
             }
         }
     }
+
 }

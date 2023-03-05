@@ -8,7 +8,7 @@ public class ShiftInterp extends Module {
     private static ShiftInterp INSTANCE = new ShiftInterp();
 
     public ShiftInterp() {
-        super("ShiftInterp", "ShiftInterp", Category.RENDER);
+        super("ShiftInterp", "все игроки будут-на шифте", Category.RENDER);
         this.setInstance();
     }
 

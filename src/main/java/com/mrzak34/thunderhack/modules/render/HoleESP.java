@@ -59,15 +59,6 @@ public class HoleESP
     private List<TwoBlockHole> obiHolesTwoBlock = new ArrayList<>();
     private List<TwoBlockHole> bedrockHolesTwoBlock = new ArrayList<>();
 
-
-    // private final Setting<ColorSetting> bRockHoleColor = new Setting<>("BedrockColor", new ColorSetting(0x8800FF00)).withVisibility(bedrock::getValue);
-    // private final Setting<ColorSetting> bRockLineColor = new Setting<>("BedrockLineColor", new ColorSetting(0xFF00FF00)).withVisibility(bedrock::getValue);
-    // private final Setting<ColorSetting> obiHoleColor = new Setting<>("ObiColor", new ColorSetting(0x88FF0000)).withVisibility(obsidian::getValue);              конса момент
-    // private final Setting<ColorSetting> obiLineHoleColor = new Setting<>("ObiLineColor", new ColorSetting(0xFFFF0000)).withVisibility(obsidian::getValue);
-    // private final Setting<ColorSetting> vunerableColor = new Setting<>("VunColor", new ColorSetting(0x66FF00FF)).withVisibility(vunerable::getValue);
-    // private final Setting<ColorSetting> vunerableLineColor = new Setting<>("VunLineColor", new ColorSetting(0xFFFF00FF)).withVisibility(vunerable::getValue);
-
-
     private final Setting<ColorSetting> bRockHoleColor = this.register(new Setting<>("bRockHoleColor", new ColorSetting(0x8800FF00)));
     private final Setting<ColorSetting> bRockLineColor = this.register(new Setting<>("bRockLineColor", new ColorSetting(0x88FF0000)));
     private final Setting<ColorSetting> obiHoleColor = this.register(new Setting<>("obiHoleColor", new ColorSetting(0x8800FF00)));
@@ -80,7 +71,7 @@ public class HoleESP
     }
 
     public HoleESP() {
-        super("HoleESP", "Surrounds you with Obsidian", Category.RENDER);
+        super("HoleESP", "рендерить безопасные-холки", Category.RENDER);
     }
 
     private enum Mode {
@@ -615,7 +606,7 @@ public class HoleESP
         GlStateManager.enableBlend();
         GlStateManager.disableLighting();
         GlStateManager.disableCull();
-        //GlStateManager.color(1, 1, 1, 1); из за этого ломаеца прозрачность хз
+        GlStateManager.color(1, 1, 1, 1);
     }
 
     /**
@@ -623,7 +614,7 @@ public class HoleESP
      * Also came from Kami
      */
     public static void endRender() {
-        //GlStateManager.resetColor();
+        GlStateManager.resetColor();
         GlStateManager.enableCull();
         GlStateManager.enableLighting();
         GlStateManager.disableBlend();

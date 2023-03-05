@@ -1,7 +1,7 @@
 package com.mrzak34.thunderhack.gui.windows.window.parts;
 
 import com.mrzak34.thunderhack.command.Command;
-import com.mrzak34.thunderhack.gui.thundergui.fontstuff.FontRender;
+import com.mrzak34.thunderhack.gui.fontstuff.FontRender;
 import com.mrzak34.thunderhack.manager.ConfigManager;
 import com.mrzak34.thunderhack.util.render.RenderUtil;
 import net.minecraft.client.renderer.GlStateManager;
@@ -9,7 +9,7 @@ import net.minecraft.util.ResourceLocation;
 
 import java.awt.*;
 
-import static com.mrzak34.thunderhack.gui.thundergui.components.items.buttons.TFriendComponent.drawImage;
+import static com.mrzak34.thunderhack.gui.windows.window.parts.FriendPart.drawImage;
 import static com.mrzak34.thunderhack.modules.player.ElytraSwap.drawCompleteImage;
 import static com.mrzak34.thunderhack.util.Util.mc;
 

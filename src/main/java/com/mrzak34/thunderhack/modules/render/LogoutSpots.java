@@ -58,7 +58,6 @@ public class LogoutSpots extends Module {
     @SubscribeEvent
     public void onPacketReceive(PacketEvent.Receive event){
 
-
         try {
             final SPacketPlayerListItem packet = event.getPacket();
             if (packet.getEntries().size() <= 1)
@@ -165,7 +164,7 @@ public class LogoutSpots extends Module {
     }
 
 
-    private void renderNameTag(final double x,  final double y,  final double z,  final float delta,String displayTag) {
+    private void renderNameTag(final double x, final double y, final double z, final float delta, String displayTag) {
         double tempY = y;
         tempY +=  0.7;
         final Entity camera = NameTags.mc.getRenderViewEntity();

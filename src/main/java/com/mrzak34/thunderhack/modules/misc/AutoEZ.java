@@ -17,7 +17,7 @@ import java.util.Random;
 
 public class AutoEZ extends Module {
     public AutoEZ() {
-        super("AutoEZ", "Пишет изи убил убил - после килла", Category.MISC);
+        super("AutoEZ", "Пишет изи убил убил - после килла","only for-mcfunny.su", Category.MISC);
         loadEZ();
     }
 

@@ -4,9 +4,11 @@ package com.mrzak34.thunderhack.gui.hud;
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.events.Render2DEvent;
-import com.mrzak34.thunderhack.gui.thundergui.fontstuff.FontRender;
+import com.mrzak34.thunderhack.gui.fontstuff.FontRender;
+import com.mrzak34.thunderhack.gui.thundergui2.ThunderGui2;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.modules.combat.Aura;
+import com.mrzak34.thunderhack.modules.combat.AutoCrystal;
 import com.mrzak34.thunderhack.modules.combat.AutoExplosion;
 import com.mrzak34.thunderhack.modules.funnygame.C4Aura;
 import com.mrzak34.thunderhack.modules.misc.NameProtect;
@@ -88,6 +90,7 @@ public class TargetHud extends Module {
     int dragX, dragY = 0;
     boolean mousestate = false;
     public BetterAnimation animation = new BetterAnimation();
+
     public static BetterDynamicAnimation healthanimation = new BetterDynamicAnimation();
     public static BetterDynamicAnimation ebaloAnimation = new BetterDynamicAnimation();
 
@@ -136,7 +139,10 @@ public class TargetHud extends Module {
         } else  if(AutoExplosion.trgt != null){
             target = AutoExplosion.trgt ;
             direction = true;
-        } else if(mc.currentScreen instanceof GuiChat || mc.currentScreen instanceof HudEditorGui){
+        } else if(Thunderhack.moduleManager.getModuleByClass(AutoCrystal.class).getTarget() != null){
+                target = Thunderhack.moduleManager.getModuleByClass(AutoCrystal.class).getTarget();
+                direction = true;
+        } else if(mc.currentScreen instanceof GuiChat || mc.currentScreen instanceof HudEditorGui || (mc.currentScreen instanceof ThunderGui2 && ThunderGui2.getInstance().current_category == Category.HUD && ThunderGui2.currentMode == ThunderGui2.CurrentMode.Modules)){
             if(isHovering()){
                 if(Mouse.isButtonDown(0) && mousestate){
                     pos.getValue().setX( (float) (normaliseX() - dragX) /  e.scaledResolution.getScaledWidth());
@@ -197,6 +203,8 @@ public class TargetHud extends Module {
                 else
                     renderCustomTexture(xPos + 50, yPos, 0, 0, 100, 50, 100, 50, 100, 50);
                 Stencil.dispose();
+
+
                 GL11.glPopMatrix();
                 GlStateManager.resetColor();
               //  GL11.glColor4f(1F, 1F, 1F, 1F);

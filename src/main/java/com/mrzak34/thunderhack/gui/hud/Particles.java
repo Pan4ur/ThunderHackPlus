@@ -1,5 +1,8 @@
 package com.mrzak34.thunderhack.gui.hud;
 
+import com.mrzak34.thunderhack.Thunderhack;
+import com.mrzak34.thunderhack.modules.client.ThunderHackGui;
+import com.mrzak34.thunderhack.util.render.RenderUtil;
 import net.minecraft.client.renderer.GlStateManager;
 import org.lwjgl.opengl.GL11;
 
@@ -64,6 +67,7 @@ public class Particles {
         GL11.glColor4d(red, green, blue, alpha);
     }
     public static void roundedRect(final double x, final double y, double width, double height, final double edgeRadius, final Color color) {
+
         final double halfRadius = edgeRadius / 2;
         width -= halfRadius;
         height -= halfRadius;

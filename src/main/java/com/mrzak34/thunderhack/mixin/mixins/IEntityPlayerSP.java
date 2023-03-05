@@ -20,6 +20,9 @@ public interface IEntityPlayerSP {
     @Accessor(value = "serverSprintState")
     boolean getServerSprintState();
 
+    @Accessor(value = "wasFallFlying")
+    boolean wasFallFlying();
+
     @Accessor(value = "prevOnGround")
     void setPrevOnGround(boolean prevOnGround);
 
@@ -67,4 +70,5 @@ public interface IEntityPlayerSP {
 
     @Invoker(value = "onUpdateWalkingPlayer")
     void invokeOnUpdateWalkingPlayer();
+
 }

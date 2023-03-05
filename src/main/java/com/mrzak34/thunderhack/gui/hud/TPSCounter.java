@@ -4,7 +4,8 @@ import com.mojang.realmsclient.gui.ChatFormatting;
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.events.Render2DEvent;
-import com.mrzak34.thunderhack.gui.thundergui.fontstuff.FontRender;
+import com.mrzak34.thunderhack.gui.fontstuff.FontRender;
+import com.mrzak34.thunderhack.gui.thundergui2.ThunderGui2;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.setting.PositionSetting;
@@ -48,7 +49,7 @@ public class TPSCounter extends Module{
         x1 = e.scaledResolution.getScaledWidth() * pos.getValue().getX();
 
         FontRender.drawString6(str,x1,y1, color.getValue().getRawColor(),false);
-        if(mc.currentScreen instanceof GuiChat || mc.currentScreen instanceof HudEditorGui){
+        if(mc.currentScreen instanceof GuiChat || mc.currentScreen instanceof HudEditorGui || mc.currentScreen instanceof ThunderGui2){
             if(isHovering()){
                 if(Mouse.isButtonDown(0) && mousestate){
                     pos.getValue().setX( (float) (normaliseX() - dragX) /  e.scaledResolution.getScaledWidth());

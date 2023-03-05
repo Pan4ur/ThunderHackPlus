@@ -16,6 +16,7 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.common.MinecraftForge;
+import org.lwjgl.Sys;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.gen.Accessor;
@@ -60,10 +61,17 @@ public abstract class MixinPlayerControllerMP implements IPlayerControllerMP {
 
     @Inject(method = "attackEntity", at = @At(value = "HEAD"), cancellable = true)
     public void attackEntityPre(EntityPlayer playerIn, Entity targetEntity, CallbackInfo info) {
-        AttackEvent event = new AttackEvent(targetEntity);
-
+        AttackEvent event = new AttackEvent(targetEntity, (short) 0);
         MinecraftForge.EVENT_BUS.post(event);
 
+        if (event.isCanceled())
+            info.cancel();
+    }
+
+    @Inject(method = "attackEntity", at = @At(value = "RETURN"), cancellable = true)
+    public void attackEntityPost(EntityPlayer playerIn, Entity targetEntity, CallbackInfo info) {
+        AttackEvent event = new AttackEvent(targetEntity, (short) 1);
+        MinecraftForge.EVENT_BUS.post(event);
         if (event.isCanceled())
             info.cancel();
     }

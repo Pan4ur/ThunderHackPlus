@@ -622,5 +622,14 @@ public class InventoryUtil implements Util {
         }
         return slot;
     }
+
+    public static int getFireWorks() {
+        for (int i = 0; i < 9; i++) {
+            if (mc.player.inventory.getStackInSlot(i).getItem() instanceof ItemFirework) {
+                return i;
+            }
+        }
+        return -1;
+    }
 }
 

@@ -121,84 +121,89 @@ public class Jesus extends Module {
             }
         }
 
-            if (mode.getValue() == Mode.NexusFast) {
-                if (mc.player.isInWater()) {
-                    mc.player.jump();
-                    mc.player.motionY /= 1.6f;
-                    mc.player.motionX /= 4.23f;
-                    mc.player.motionZ /= 4.23f;
-                } else if (mc.player.fallDistance > 0.0467f) {
-                    mc.player.motionY = -0.1844f;
-                    mc.player.motionY /= 0.46f;
-                    mc.player.motionX /= 0.23f;
-                    mc.player.motionZ /= 0.23f;
+        if (mode.getValue() == Mode.NexusFast &&(
+                mc.world.getBlockState(new BlockPos(mc.player.posX,mc.player.posY,mc.player.posZ)).getBlock() == Blocks.WATER ||
+                        mc.world.getBlockState(new BlockPos(mc.player.posX,mc.player.posY - 1,mc.player.posZ)).getBlock() == Blocks.WATER ||
+                        mc.world.getBlockState(new BlockPos(mc.player.posX,mc.player.posY - 2,mc.player.posZ)).getBlock() == Blocks.WATER
+
+        )) {
+            if (mc.player.isInWater()) {
+                mc.player.jump();
+                mc.player.motionY /= 1.6f;
+                mc.player.motionX /= 4.23f;
+                mc.player.motionZ /= 4.23f;
+            } else if (mc.player.fallDistance > 0.0467f) {
+                mc.player.motionY = -0.1844f;
+                mc.player.motionY /= 0.46f;
+                mc.player.motionX /= 0.23f;
+                mc.player.motionZ /= 0.23f;
+            } else {
+                mc.player.motionX /= 1.5;
+                mc.player.motionZ /= 1.5;
+            }
+        }
+
+        if(mode.getValue() == Mode.NCP){
+            double x = mc.player.posX;
+            double y = mc.player.posY;
+            double z = mc.player.posZ;
+            Thunderhack.TICK_TIMER = 1f;
+            if (
+                    mc.world.getBlockState(new BlockPos(x,y,z)).getBlock() == Blocks.WATER ||
+                            mc.world.getBlockState(new BlockPos(x+0.3,y,z)).getBlock() == Blocks.WATER ||
+                            mc.world.getBlockState(new BlockPos(x-0.3,y,z)).getBlock() == Blocks.WATER ||
+                            mc.world.getBlockState(new BlockPos(x,y,z+0.3)).getBlock() == Blocks.WATER ||
+                            mc.world.getBlockState(new BlockPos(x,y,z-0.3)).getBlock() == Blocks.WATER ||
+                            mc.world.getBlockState(new BlockPos(x+0.3,y,z+0.3)).getBlock() == Blocks.WATER ||
+                            mc.world.getBlockState(new BlockPos(x-0.3,y,z-0.3)).getBlock() == Blocks.WATER ||
+                            mc.world.getBlockState(new BlockPos(x-0.3,y,z+0.3)).getBlock() == Blocks.WATER ||
+                            mc.world.getBlockState(new BlockPos(x+0.3,y,z-0.3)).getBlock() == Blocks.WATER ||
+                            mc.world.getBlockState(new BlockPos(x,y,z)).getBlock() == Blocks.LAVA ||
+                            mc.world.getBlockState(new BlockPos(x+0.3,y,z)).getBlock() == Blocks.LAVA ||
+                            mc.world.getBlockState(new BlockPos(x-0.3,y,z)).getBlock() == Blocks.LAVA ||
+                            mc.world.getBlockState(new BlockPos(x,y,z+0.3)).getBlock() == Blocks.LAVA ||
+                            mc.world.getBlockState(new BlockPos(x,y,z-0.3)).getBlock() == Blocks.LAVA ||
+                            mc.world.getBlockState(new BlockPos(x+0.3,y,z+0.3)).getBlock() == Blocks.LAVA ||
+                            mc.world.getBlockState(new BlockPos(x-0.3,y,z-0.3)).getBlock() == Blocks.LAVA ||
+                            mc.world.getBlockState(new BlockPos(x-0.3,y,z+0.3)).getBlock() == Blocks.LAVA ||
+                            mc.world.getBlockState(new BlockPos(x+0.3,y,z-0.3)).getBlock() == Blocks.LAVA
+            ) {
+                if (mc.player.movementInput.jump || mc.player.collidedHorizontally) {
+                    if (mc.player.collidedHorizontally) {
+                        mc.player.setPosition(x, y + 0.2, z);
+                    }
+                    mc.player.onGround = true;
+                }
+
+                mc.player.motionX = 0;
+                mc.player.motionY = 0.04;
+                mc.player.motionZ = 0;
+
+                if (!(mc.world.getBlockState(new BlockPos(x, y, z)).getBlock() == Blocks.LAVA)) {
+                    if (mc.player.fallDistance != 0 && mc.player.motionX == 0 && mc.player.motionZ == 0) {
+                        mc.player.setPosition(x, y - 0.0400005, z);
+                        if(mc.player.fallDistance < 0.08) {
+                            mc.player.setPosition(x, y + 0.2, z);
+                        }
+                    }
+                }
+
+                if(mc.player.isPotionActive(Potion.getPotionById(1))) {
+                    mc.player.jumpMovementFactor = 0.4005f;
                 } else {
-                    mc.player.motionX /= 1.5;
-                    mc.player.motionZ /= 1.5;
+                    mc.player.jumpMovementFactor = 0.2865f;
                 }
             }
-
-         if(mode.getValue() == Mode.NCP){
-             double x = mc.player.posX;
-             double y = mc.player.posY;
-             double z = mc.player.posZ;
-             Thunderhack.TICK_TIMER = 1f;
-             if (
-                     mc.world.getBlockState(new BlockPos(x,y,z)).getBlock() == Blocks.WATER ||
-                             mc.world.getBlockState(new BlockPos(x+0.3,y,z)).getBlock() == Blocks.WATER ||
-                             mc.world.getBlockState(new BlockPos(x-0.3,y,z)).getBlock() == Blocks.WATER ||
-                             mc.world.getBlockState(new BlockPos(x,y,z+0.3)).getBlock() == Blocks.WATER ||
-                             mc.world.getBlockState(new BlockPos(x,y,z-0.3)).getBlock() == Blocks.WATER ||
-                             mc.world.getBlockState(new BlockPos(x+0.3,y,z+0.3)).getBlock() == Blocks.WATER ||
-                             mc.world.getBlockState(new BlockPos(x-0.3,y,z-0.3)).getBlock() == Blocks.WATER ||
-                             mc.world.getBlockState(new BlockPos(x-0.3,y,z+0.3)).getBlock() == Blocks.WATER ||
-                             mc.world.getBlockState(new BlockPos(x+0.3,y,z-0.3)).getBlock() == Blocks.WATER ||
-                             mc.world.getBlockState(new BlockPos(x,y,z)).getBlock() == Blocks.LAVA ||
-                             mc.world.getBlockState(new BlockPos(x+0.3,y,z)).getBlock() == Blocks.LAVA ||
-                             mc.world.getBlockState(new BlockPos(x-0.3,y,z)).getBlock() == Blocks.LAVA ||
-                             mc.world.getBlockState(new BlockPos(x,y,z+0.3)).getBlock() == Blocks.LAVA ||
-                             mc.world.getBlockState(new BlockPos(x,y,z-0.3)).getBlock() == Blocks.LAVA ||
-                             mc.world.getBlockState(new BlockPos(x+0.3,y,z+0.3)).getBlock() == Blocks.LAVA ||
-                             mc.world.getBlockState(new BlockPos(x-0.3,y,z-0.3)).getBlock() == Blocks.LAVA ||
-                             mc.world.getBlockState(new BlockPos(x-0.3,y,z+0.3)).getBlock() == Blocks.LAVA ||
-                             mc.world.getBlockState(new BlockPos(x+0.3,y,z-0.3)).getBlock() == Blocks.LAVA
-             ) {
-                 if (mc.player.movementInput.jump || mc.player.collidedHorizontally) {
-                     if (mc.player.collidedHorizontally) {
-                         mc.player.setPosition(x, y + 0.2, z);
-                     }
-                     mc.player.onGround = true;
-                 }
-
-                 mc.player.motionX = 0;
-                 mc.player.motionY = 0.04;
-                 mc.player.motionZ = 0;
-
-                 if (!(mc.world.getBlockState(new BlockPos(x, y, z)).getBlock() == Blocks.LAVA)) {
-                     if (mc.player.fallDistance != 0 && mc.player.motionX == 0 && mc.player.motionZ == 0) {
-                         mc.player.setPosition(x, y - 0.0400005, z);
-                         if(mc.player.fallDistance < 0.08) {
-                             mc.player.setPosition(x, y + 0.2, z);
-                         }
-                     }
-                 }
-
-                 if(mc.player.isPotionActive(Potion.getPotionById(1))) {
-                     mc.player.jumpMovementFactor = 0.4005f;
-                 } else {
-                     mc.player.jumpMovementFactor = 0.2865f;
-                 }
-             }
-             setSpeed((float) MovementUtil.getSpeed());
-             if (!mc.gameSettings.keyBindJump.isKeyDown() && (mc.player.isInWater() || mc.player.isInLava())) {
-                 mc.player.motionY = 0.12;
-                 Thunderhack.TICK_TIMER = 1.5f;
-                 if (mc.player.isInWater() && mc.world.getBlockState(new BlockPos(x, y + 0.9, z)).getBlock() == Blocks.WATER && mc.world.getBlockState(new BlockPos(x, y + 1, z)).getBlock() == Blocks.AIR && !(mc.world.getBlockState(new BlockPos(x, y - 1, z)).getBlock() == Blocks.WATER)) {
-                     mc.player.posY += 0.1;
-                     mc.player.motionY = 0.42;
-                 }
-             }
-         }
+            setSpeed((float) MovementUtil.getSpeed());
+            if (!mc.gameSettings.keyBindJump.isKeyDown() && (mc.player.isInWater() || mc.player.isInLava())) {
+                mc.player.motionY = 0.12;
+                Thunderhack.TICK_TIMER = 1.5f;
+                if (mc.player.isInWater() && mc.world.getBlockState(new BlockPos(x, y + 0.9, z)).getBlock() == Blocks.WATER && mc.world.getBlockState(new BlockPos(x, y + 1, z)).getBlock() == Blocks.AIR && !(mc.world.getBlockState(new BlockPos(x, y - 1, z)).getBlock() == Blocks.WATER)) {
+                    mc.player.posY += 0.1;
+                    mc.player.motionY = 0.42;
+                }
+            }
+        }
 
 
         if (mode.getValue() == Mode.TRAMPOLINE) {

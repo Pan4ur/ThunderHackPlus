@@ -1,6 +1,6 @@
 package com.mrzak34.thunderhack;
 
-import com.mrzak34.thunderhack.gui.thundergui.fontstuff.*;
+import com.mrzak34.thunderhack.gui.fontstuff.*;
 import com.mrzak34.thunderhack.manager.*;
 import com.mrzak34.thunderhack.manager.ServerManager;
 import com.mrzak34.thunderhack.util.ThunderUtils;
@@ -22,11 +22,8 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 
-@Mod(modid = "thunderhack", name = "ThunderHack", version = "2.39", acceptableRemoteVersions = "*")
+@Mod(modid = "thunderhack", name = "ThunderHack", version = "2.40", acceptableRemoteVersions = "*")
 public class Thunderhack {
-
-
-
 
     @Mod.Instance
     public static Thunderhack INSTANCE;
@@ -36,6 +33,7 @@ public class Thunderhack {
     public static java.util.List<String> alts = new ArrayList<>();
     public static long initTime;
     public static BlockPos gps_position;
+    public static Color copy_color;
 
 
     /*-----------------    Managers  ---------------------*/
@@ -74,6 +72,9 @@ public class Thunderhack {
     public static CFontRenderer fontRenderer6;
     public static CFontRenderer fontRenderer7;
     public static CFontRenderer fontRenderer8;
+    public static CFontRenderer icons;
+    public static CFontRenderer middleicons;
+    public static CFontRenderer BIGicons;
 
     /*--------------------------------------------------------*/
 
@@ -90,14 +91,17 @@ public class Thunderhack {
         ConfigManager.init();
 
         try {
-            fontRenderer = new CFontRenderer( Font.createFont( Font.TRUETYPE_FONT, Objects.requireNonNull(Thunderhack.class.getResourceAsStream("/fonts/ThunderFont2.ttf"))).deriveFont( 24.f ), true, true );
-            fontRenderer2 = new CFontRenderer( Font.createFont( Font.TRUETYPE_FONT, Objects.requireNonNull(Thunderhack.class.getResourceAsStream("/fonts/ThunderFont3.ttf"))).deriveFont( 36.f ), true, true );
-            fontRenderer3 = new CFontRenderer( Font.createFont( Font.TRUETYPE_FONT, Objects.requireNonNull(Thunderhack.class.getResourceAsStream("/fonts/ThunderFont2.ttf"))).deriveFont( 18.f ), true, true );
-            fontRenderer4 = new CFontRenderer( Font.createFont( Font.TRUETYPE_FONT, Objects.requireNonNull(Thunderhack.class.getResourceAsStream("/fonts/ThunderFont2.ttf"))).deriveFont( 50.f ), true, true );
-            fontRenderer5 = new CFontRenderer( Font.createFont( Font.TRUETYPE_FONT, Objects.requireNonNull(Thunderhack.class.getResourceAsStream("/fonts/Monsterrat.ttf"))).deriveFont( 12.f ), true, true );
-            fontRenderer6 = new CFontRenderer( Font.createFont( Font.TRUETYPE_FONT, Objects.requireNonNull(Thunderhack.class.getResourceAsStream("/fonts/Monsterrat.ttf"))).deriveFont( 14.f ), true, true );
-            fontRenderer7 = new CFontRenderer( Font.createFont( Font.TRUETYPE_FONT, Objects.requireNonNull(Thunderhack.class.getResourceAsStream("/fonts/Monsterrat.ttf"))).deriveFont( 10.f ), true, true );
-            fontRenderer8 = new CFontRenderer( Font.createFont( Font.TRUETYPE_FONT, Objects.requireNonNull(Thunderhack.class.getResourceAsStream("/fonts/ThunderFont3.ttf"))).deriveFont( 62.f ), true, true );
+            fontRenderer = new CFontRenderer( Font.createFont( Font.PLAIN, Objects.requireNonNull(Thunderhack.class.getResourceAsStream("/fonts/ThunderFont2.ttf"))).deriveFont( 24.f ), true, true );
+            fontRenderer2 = new CFontRenderer( Font.createFont( Font.PLAIN, Objects.requireNonNull(Thunderhack.class.getResourceAsStream("/fonts/ThunderFont3.ttf"))).deriveFont( 28.f ), true, true );
+            fontRenderer3 = new CFontRenderer( Font.createFont( Font.PLAIN, Objects.requireNonNull(Thunderhack.class.getResourceAsStream("/fonts/ThunderFont2.ttf"))).deriveFont( 18.f ), true, true );
+            fontRenderer4 = new CFontRenderer( Font.createFont( Font.PLAIN, Objects.requireNonNull(Thunderhack.class.getResourceAsStream("/fonts/ThunderFont2.ttf"))).deriveFont( 50.f ), true, true );
+            fontRenderer5 = new CFontRenderer( Font.createFont( Font.PLAIN, Objects.requireNonNull(Thunderhack.class.getResourceAsStream("/fonts/Monsterrat.ttf"))).deriveFont( 12.f ), true, true );
+            fontRenderer6 = new CFontRenderer( Font.createFont( Font.PLAIN, Objects.requireNonNull(Thunderhack.class.getResourceAsStream("/fonts/Monsterrat.ttf"))).deriveFont( 14.f ), true, true );
+            fontRenderer7 = new CFontRenderer( Font.createFont( Font.PLAIN, Objects.requireNonNull(Thunderhack.class.getResourceAsStream("/fonts/Monsterrat.ttf"))).deriveFont( 10.f ), true, true );
+            fontRenderer8 = new CFontRenderer( Font.createFont( Font.PLAIN, Objects.requireNonNull(Thunderhack.class.getResourceAsStream("/fonts/ThunderFont3.ttf"))).deriveFont( 62.f ), true, true );
+            icons = new CFontRenderer( Font.createFont( Font.PLAIN, Objects.requireNonNull(Thunderhack.class.getResourceAsStream("/fonts/icons.ttf"))).deriveFont( 20.f ), true, true );
+            middleicons = new CFontRenderer( Font.createFont( Font.PLAIN, Objects.requireNonNull(Thunderhack.class.getResourceAsStream("/fonts/icons.ttf"))).deriveFont( 46.f ), true, true );
+            BIGicons = new CFontRenderer( Font.createFont( Font.PLAIN, Objects.requireNonNull(Thunderhack.class.getResourceAsStream("/fonts/icons.ttf"))).deriveFont( 72.f ), true, true );
         } catch ( Exception e ) {
             e.printStackTrace( );
         }
@@ -119,8 +123,6 @@ public class Thunderhack {
         eventManager = new EventManager();
         macromanager = new MacroManager();
         yahz = new Scheduler();
-
-
 
         noMotionUpdateService.init();
         positionManager.init();

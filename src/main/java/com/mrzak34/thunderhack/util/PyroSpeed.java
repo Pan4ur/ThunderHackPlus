@@ -1,6 +1,7 @@
 package com.mrzak34.thunderhack.util;
 
 import com.mrzak34.thunderhack.events.EventMove;
+import com.mrzak34.thunderhack.util.math.MathUtil;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.MovementInput;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -108,6 +109,8 @@ public class PyroSpeed {
         MovementInput movementInput = mc.player.movementInput;
         double d2 = movementInput.moveForward;
         double d3 = movementInput.moveStrafe;
+
+        d3 = MathUtil.clamp(d3,-1,1);
 
         float f = mc.player.rotationYaw;
         if (d2 == 0.0 && d3 == 0.0) {

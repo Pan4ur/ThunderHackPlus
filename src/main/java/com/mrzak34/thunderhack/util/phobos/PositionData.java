@@ -21,8 +21,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static com.mrzak34.thunderhack.util.Util.mc;
-
 public class PositionData extends BasePath
         implements Util, Comparable<PositionData>
 {
@@ -334,11 +332,11 @@ public class PositionData extends BasePath
                 if (!dead)
                 {
                     boolean crystalIsDead = entity.isDead;
-                    boolean crystalIsPseudoDead = ((IEntity) entity).isPseudoDead();
+                    boolean crystalIsPseudoDead = ((IEntity) entity).isPseudoDeadT();
                     if (crystalIsDead || crystalIsPseudoDead)
                     {
                         if (crystalIsDead && Thunderhack.setDeadManager.passedDeathTime(entity, deathTime)
-                                || crystalIsPseudoDead && ((IEntity) entity).getPseudoTime().passedMs(deathTime))
+                                || crystalIsPseudoDead && ((IEntity) entity).getPseudoTimeT().passedMs(deathTime))
                         {
                             continue; // Entity is like very dead now
                         }

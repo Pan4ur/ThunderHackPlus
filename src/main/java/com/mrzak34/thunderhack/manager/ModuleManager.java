@@ -4,8 +4,8 @@ import com.mrzak34.thunderhack.events.Render2DEvent;
 import com.mrzak34.thunderhack.events.Render3DEvent;
 import com.mrzak34.thunderhack.gui.clickui.ClickUI;
 import com.mrzak34.thunderhack.gui.hud.*;
-import com.mrzak34.thunderhack.gui.thundergui.ThunderGui;
-import com.mrzak34.thunderhack.gui.thundergui.fontstuff.FontRender;
+import com.mrzak34.thunderhack.gui.fontstuff.FontRender;
+import com.mrzak34.thunderhack.gui.thundergui2.ThunderGui2;
 import com.mrzak34.thunderhack.gui.windows.WindowsGui;
 import com.mrzak34.thunderhack.modules.client.*;
 import com.mrzak34.thunderhack.modules.client.Particles;
@@ -48,12 +48,13 @@ public class ModuleManager extends Feature {
         this.modules.add(new Welcomer());
         this.modules.add(new FastFall());
         this.modules.add(new Search());
+        this.modules.add(new Tracers());
+        this.modules.add(new SilentBow());
         this.modules.add(new Spammer());
         this.modules.add(new AutoFlyme());
         this.modules.add(new ReverseStep());
         this.modules.add(new Step());
         this.modules.add(new NoInteract());
-        this.modules.add(new Strafe());
         this.modules.add(new ClanInvite());
         this.modules.add(new AntiBadEffects());
         this.modules.add(new Dismemberment());
@@ -78,6 +79,8 @@ public class ModuleManager extends Feature {
         this.modules.add(new AutoExplosion());
         this.modules.add(new AutoAmericano());
         this.modules.add(new AutoOzera());
+        this.modules.add(new NoCameraClip());
+        this.modules.add(new SpawnerNameTag());
         this.modules.add(new BlockHighlight());
         this.modules.add(new TickShift());
         this.modules.add(new StorageEsp());
@@ -110,7 +113,7 @@ public class ModuleManager extends Feature {
         this.modules.add(new ThunderHackGui());
         this.modules.add(new ElytraSwap());
         this.modules.add(new VisualRange());
-        this.modules.add(new StashFinder());
+        this.modules.add(new StashLogger());
         this.modules.add(new PearlESP());
         this.modules.add(new EntityESP());
         this.modules.add(new AutoFish());
@@ -179,7 +182,6 @@ public class ModuleManager extends Feature {
         this.modules.add(new InvManager());
         this.modules.add(new FastPlace2());
         this.modules.add(new AutoArmor());
-        this.modules.add(new PacketCounter());
         this.modules.add(new ChorusESP());
         this.modules.add(new GroundBoost());
         this.modules.add(new BeakonESP());
@@ -198,7 +200,7 @@ public class ModuleManager extends Feature {
         this.modules.add(new HitBoxes());
         this.modules.add(new NGriefCleaner());
         this.modules.add(new PearlBlockThrow());
-        this.modules.add(new testMove());
+        this.modules.add(new Strafe());
         this.modules.add(new MultiConnect());
         this.modules.add(new RadarRewrite());
         this.modules.add(new com.mrzak34.thunderhack.gui.hud.ArrayList());
@@ -206,7 +208,6 @@ public class ModuleManager extends Feature {
         this.modules.add(new DiscordWebhook());
         this.modules.add(new KillEffect());
         this.modules.add(new PacketFly2());
-        this.modules.add(new RWKTLeave());
         this.modules.add(new AutoTool());
         this.modules.add(new TargetStrafe());
         this.modules.add(new EZbowPOP());
@@ -233,6 +234,8 @@ public class ModuleManager extends Feature {
         this.modules.add(new AutoGApple());
         this.modules.add(new HudEditor());
         this.modules.add(new AutoPot());
+        this.modules.add(new StaffBoard());
+
         this.modules.add(new MSTSpeed());
         this.modules.add(new Animations());
         this.modules.add(new C4Aura());
@@ -287,33 +290,23 @@ public class ModuleManager extends Feature {
         });
         return modulesCategory;
     }
-    public ArrayList<Module> getModulesByCategory(ThunderGui.Categories aboba) {
-        ArrayList<Module> gingerbread = null;
-        if (aboba == ThunderGui.Categories.FUNNYGAME) {
-            gingerbread = getModulesByCategory(Module.Category.FUNNYGAME);
-        }
-        if (aboba == ThunderGui.Categories.COMBAT) {
-            gingerbread = getModulesByCategory(Module.Category.COMBAT);
-        }
-        if (aboba == ThunderGui.Categories.MOVEMENT) {
-            gingerbread = getModulesByCategory(Module.Category.MOVEMENT);
-        }
-        if (aboba == ThunderGui.Categories.MISC) {
-            gingerbread = getModulesByCategory(Module.Category.MISC);
-        }
-        if (aboba == ThunderGui.Categories.CLIENT) {
-            gingerbread = getModulesByCategory(Module.Category.CLIENT);
-        }
-        if (aboba == ThunderGui.Categories.RENDER) {
-            gingerbread = getModulesByCategory(Module.Category.RENDER);
-        }
-        if (aboba == ThunderGui.Categories.PLAYER) {
-            gingerbread = getModulesByCategory(Module.Category.PLAYER);
-        }
-        if (aboba == ThunderGui.Categories.HUD) {
-            gingerbread = getModulesByCategory(Module.Category.HUD);
-        }
-        return gingerbread;
+
+
+    public ArrayList<Module> getModulesSearch(String string) {
+        ArrayList<Module> modulesCategory = new ArrayList<Module>();
+        this.modules.forEach(module -> {
+            if (module.getName().toLowerCase().contains(string.toLowerCase())) {
+                modulesCategory.add(module);
+            }
+        });
+
+        this.modules.forEach(module -> {
+            if (module.getDescription().toLowerCase().contains(string.toLowerCase())) {
+                modulesCategory.add(module);
+            }
+        });
+
+        return modulesCategory;
     }
 
     public List<Module.Category> getCategories() {
@@ -372,7 +365,7 @@ public class ModuleManager extends Feature {
     }
 
     public void onKeyPressed(int eventKey) {
-        if (eventKey == 0 || !Keyboard.getEventKeyState() || ModuleManager.mc.currentScreen instanceof ClickUI || ModuleManager.mc.currentScreen instanceof ThunderGui || ModuleManager.mc.currentScreen instanceof WindowsGui) {
+        if (eventKey == 0 || !Keyboard.getEventKeyState() || ModuleManager.mc.currentScreen instanceof ClickUI || ModuleManager.mc.currentScreen instanceof ThunderGui2 || ModuleManager.mc.currentScreen instanceof WindowsGui) {
             return;
         }
         this.modules.forEach(module -> {

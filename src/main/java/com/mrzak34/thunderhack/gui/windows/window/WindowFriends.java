@@ -1,7 +1,7 @@
 package com.mrzak34.thunderhack.gui.windows.window;
 
 import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.gui.thundergui.fontstuff.FontRender;
+import com.mrzak34.thunderhack.gui.fontstuff.FontRender;
 import com.mrzak34.thunderhack.gui.windows.window.parts.FriendPart;
 import com.mrzak34.thunderhack.util.render.RenderUtil;
 import net.minecraft.client.gui.ScaledResolution;
@@ -12,7 +12,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.Objects;
 
-import static com.mrzak34.thunderhack.gui.thundergui.ThunderGui.removeLastChar;
+import static com.mrzak34.thunderhack.gui.clickui.elements.SliderElement.removeLastChar;
 import static com.mrzak34.thunderhack.util.Util.mc;
 
 public class WindowFriends {

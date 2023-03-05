@@ -10,15 +10,6 @@ import net.minecraft.client.renderer.GlStateManager;
 
 public class ColorUtil {
 
-    public static Color healthColor(float health, float maxHealth) {
-        float[] fractions = { 0.0F, 0.5F, 1.0F };
-        Color[] colors = { new Color(0xFFFF0C0C), new Color(0xFFFFE90C), new Color(0xFF0CFF2B) };
-        float progress = health / maxHealth;
-        return blendColors(fractions, colors, progress).brighter();
-    }
-
-
-
     public static int fade(Color color, int delay) {
         float[] hsb = new float[3];
         Color.RGBtoHSB(color.getRed(), color.getGreen(), color.getBlue(), hsb);
@@ -384,9 +375,11 @@ public class ColorUtil {
         return applyOpacity(old, opacity).getRGB();
     }
 
-    // Opacity value ranges from 0-1
     public static Color applyOpacity(Color color, float opacity) {
+
         opacity = Math.min(1, Math.max(0, opacity));
+
+
         return new Color(color.getRed(), color.getGreen(), color.getBlue(), (int) (color.getAlpha() * opacity));
     }
 
@@ -400,11 +393,6 @@ public class ColorUtil {
         int b = color.getBlue();
         int alpha = color.getAlpha();
 
-        /*
-         * From 2D group: 1. black.brighter() should return grey 2. applying brighter to
-         * blue will always return blue, brighter 3. non pure color (non zero rgb) will
-         * eventually return white
-         */
         int i = (int) (1.0 / (1.0 - FACTOR));
         if (r == 0 && g == 0 && b == 0) {
             return new Color(i, i, i, alpha);
@@ -420,10 +408,6 @@ public class ColorUtil {
                 Math.min((int) (b / FACTOR), 255), alpha);
     }
 
-    /**
-     * This method gets the average color of an image performance of this goes as
-     * O((width * height) / step)
-     */
     public static Color averageColor(BufferedImage bi, int width, int height, int pixelStep) {
         int[] color = new int[3];
         for (int x = 0; x < width; x += pixelStep) {
@@ -488,7 +472,6 @@ public class ColorUtil {
                 interpolateInt(color1.getAlpha(), color2.getAlpha(), amount));
     }
 
-    // Fade a color in and out with a specified alpha value ranging from 0-1
     public static Color fade(int speed, int index, Color color, float alpha) {
         float[] hsb = Color.RGBtoHSB(color.getRed(), color.getGreen(), color.getBlue(), null);
         int angle = (int) ((System.currentTimeMillis() / speed + index) % 360);
@@ -496,8 +479,7 @@ public class ColorUtil {
 
         Color colorHSB = new Color(Color.HSBtoRGB(hsb[0], hsb[1], angle / 360f));
 
-        return new Color(colorHSB.getRed(), colorHSB.getGreen(), colorHSB.getBlue(),
-                Math.max(0, Math.min(255, (int) (alpha * 255))));
+        return new Color(colorHSB.getRed(), colorHSB.getGreen(), colorHSB.getBlue(), Math.max(0, Math.min(255, (int) (alpha * 255))));
     }
 
     private static float getAnimationEquation(int index, int speed) {

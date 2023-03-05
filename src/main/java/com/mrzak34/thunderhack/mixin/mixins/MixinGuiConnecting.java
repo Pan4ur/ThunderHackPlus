@@ -1,6 +1,5 @@
 package com.mrzak34.thunderhack.mixin.mixins;
 
-
 import com.mrzak34.thunderhack.events.ConnectToServerEvent;
 import net.minecraft.client.multiplayer.GuiConnecting;
 import net.minecraftforge.common.MinecraftForge;

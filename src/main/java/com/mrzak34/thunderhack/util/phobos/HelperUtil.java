@@ -26,7 +26,7 @@ public class HelperUtil
     {
         if (module.existed.getValue() != 0
                 && System.currentTimeMillis()
-                - ((IEntity) crystal).getTimeStamp()
+                - ((IEntity) crystal).getTimeStampT()
                 + (module.pingExisted.getValue()
                 ? Thunderhack.serverManager.getPing() / 2.0
                 : 0)
@@ -88,7 +88,7 @@ public class HelperUtil
             {
                 if (module.pseudoSetDead.getValue())
                 {
-                    ((IEntity) entity).setPseudoDead(true);
+                    ((IEntity) entity).setPseudoDeadT(true);
                 }
                 else
                 {

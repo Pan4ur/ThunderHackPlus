@@ -1,29 +1,15 @@
 package com.mrzak34.thunderhack.modules.misc;
 
-import com.google.common.collect.ComparisonChain;
-import com.google.common.collect.Ordering;
-import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.command.Command;
-import com.mrzak34.thunderhack.events.EventPlayer;
 import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.modules.Module;
-import com.mrzak34.thunderhack.modules.funnygame.ClanInvite;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.Timer;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.network.NetHandlerPlayClient;
 import net.minecraft.client.network.NetworkPlayerInfo;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.play.server.SPacketPlayerListItem;
-import net.minecraft.scoreboard.ScorePlayerTeam;
-import net.minecraft.world.GameType;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 public class Welcomer extends Module {
     public Welcomer() {
@@ -79,11 +65,6 @@ public class Welcomer extends Module {
             for (SPacketPlayerListItem.AddPlayerData item : pck.getEntries()) {
                 switch (pck.getAction()) {
                     case REMOVE_PLAYER:
-
-                        String name = String.valueOf(item.getProfile().getId());
-                        if (name != null) {
-                            Command.sendMessage(name    + " vanis");
-                        }
                         if (!nameMap.containsKey(item.getProfile().getId())) {
                             return;
                         }

@@ -3,7 +3,6 @@ package com.mrzak34.thunderhack.command.commands;
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.modules.client.MainSettings;
-import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraft.util.math.BlockPos;
 
 import java.util.Objects;

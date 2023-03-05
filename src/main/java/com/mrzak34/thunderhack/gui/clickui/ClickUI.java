@@ -1,11 +1,9 @@
 package com.mrzak34.thunderhack.gui.clickui;
 
-import java.awt.Color;
 import java.io.IOException;
 import java.util.List;
 
 import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.gui.clickui.base.AbstractWindow;
 import com.mrzak34.thunderhack.gui.clickui.window.ModuleWindow;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.modules.client.ClickGui;
@@ -20,21 +18,16 @@ import com.google.common.collect.Lists;
 
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
-import net.minecraft.client.renderer.GlStateManager;
 
 
 /**
  * Created by sprayD on 06/09/2021. edited 15.05.2022
  */
 public class ClickUI extends GuiScreen {
-
-	private Animation openAnimation, bgAnimation, rAnimation;
-	private final List<AbstractWindow> windows;
+	private final List<ModuleWindow> windows;
 
 	private double scrollSpeed;
 	private boolean firstOpen;
-	private double dWheel;
-	private double mamer;
 
 	public ClickUI() {
 		windows = Lists.newArrayList();
@@ -62,9 +55,6 @@ public class ClickUI extends GuiScreen {
 
 	@Override
 	public void initGui() {
-		openAnimation = new EaseBackIn(270, .4f, 1.13f);
-		rAnimation = new DecelerateAnimation(300, 1f);
-		bgAnimation = new DecelerateAnimation(300, 1f);
 		if (firstOpen) {
 			double x = 20, y = 20;
 			double offset = 0;
@@ -86,7 +76,7 @@ public class ClickUI extends GuiScreen {
 			firstOpen = false;
 		}
 
-		windows.forEach(AbstractWindow::init);
+		windows.forEach(ModuleWindow::init);
 
 		super.initGui();
 	}
@@ -94,43 +84,15 @@ public class ClickUI extends GuiScreen {
 
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float delta) {
-
-
-
-
-
-
-
-
-		if (openAnimation.isDone() && openAnimation.getDirection().equals(Direction.BACKWARDS)) {
-			windows.forEach(AbstractWindow::onClose);
-			//Wrapper.getConfig().saveDefault();
-			//DragManager.saveDragData();
-			mc.currentScreen = null;
-			mc.displayGuiScreen(null);
-		}
-
-		dWheel = Mouse.getDWheel();
-
+		double dWheel = Mouse.getDWheel();
 
 		if (dWheel > 0)
 			scrollSpeed += 14;
 		else if (dWheel < 0)
 			scrollSpeed -= 14;
 
-		double anim = (openAnimation.getOutput() + .6f);
 
-
-		GlStateManager.pushMatrix();
-
-		double centerX = width >> 1;
-		double centerY = height >> 1;
-
-		GlStateManager.translate(centerX, centerY, 0);
-		GlStateManager.scale(anim, anim, 1);
-		GlStateManager.translate(-centerX, -centerY, 0);
-
-		for (AbstractWindow window : windows) {
+		for (ModuleWindow window : windows) {
 			if (Keyboard.isKeyDown(Keyboard.KEY_DOWN))
 				window.setY(window.getY() + 2);
 			else if (Keyboard.isKeyDown(Keyboard.KEY_UP))
@@ -143,12 +105,20 @@ public class ClickUI extends GuiScreen {
 				window.setY(window.getY() + scrollSpeed);
 			else
 				scrollSpeed = 0;
-
-			window.render(mouseX, mouseY, delta, ClickGui.getInstance().hcolor1.getValue().getColorObject(), openAnimation.isDone() && openAnimation.getDirection() == Direction.FORWARDS);
+			window.render(mouseX, mouseY, delta, ClickGui.getInstance().hcolor1.getValue().getColorObject(), true);
+		}
+/*
+		GlStateManager.pushMatrix();
+		if(EventManager.hoveredModule != null){
+			RenderUtil.drawBlurredShadow(mouseX,mouseY, FontRender.getStringWidth6(EventManager.hoveredModule.getDescription()) + 20, 20, 20, new Color(0xA61E1E1E, true));
+			RoundedShader.drawRound(mouseX,mouseY, FontRender.getStringWidth6(EventManager.hoveredModule.getDescription()) + 20, 20, 6f, new Color(0xA61E1E1E, true));
+			FontRender.drawString6(EventManager.hoveredModule.getDescription(), mouseX + 6,mouseY, -1,false);
+			EventManager.hoveredModule = null;
 		}
 		GlStateManager.popMatrix();
 
-		super.drawScreen(mouseX, mouseY, delta);
+ */
+
 	}
 
 	@Override
@@ -158,7 +128,7 @@ public class ClickUI extends GuiScreen {
 
 	@Override
 	public void updateScreen() {
-		windows.forEach(AbstractWindow::tick);
+		windows.forEach(ModuleWindow::tick);
 		super.updateScreen();
 	}
 
@@ -200,9 +170,8 @@ public class ClickUI extends GuiScreen {
 		});
 
 		if (keyCode == 1 || keyCode == Thunderhack.moduleManager.getModuleByClass(ClickGui.class).getBind().getKey()) {
-			bgAnimation.setDirection(Direction.BACKWARDS);
-			rAnimation.setDirection(Direction.BACKWARDS);
-			openAnimation.setDirection(Direction.BACKWARDS);
+			mc.currentScreen = null;
+			mc.displayGuiScreen(null);
 		}
 	}
 

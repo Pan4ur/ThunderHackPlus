@@ -3,6 +3,7 @@ package com.mrzak34.thunderhack.gui.hud;
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.events.Render2DEvent;
 import com.mrzak34.thunderhack.gui.clickui.ColorUtil;
+import com.mrzak34.thunderhack.gui.thundergui2.ThunderGui2;
 import com.mrzak34.thunderhack.util.math.AstolfoAnimation;
 import com.mrzak34.thunderhack.util.render.Drawable;
 import com.mrzak34.thunderhack.modules.Module;
@@ -88,7 +89,7 @@ public class RadarRewrite extends Module {
 
     @SubscribeEvent
     public void onRender2D(Render2DEvent event) {
-        if(mc.currentScreen instanceof GuiChat || mc.currentScreen instanceof HudEditorGui){
+        if(mc.currentScreen instanceof GuiChat || mc.currentScreen instanceof HudEditorGui || mc.currentScreen instanceof ThunderGui2){
             if(isHovering()){
                 if(Mouse.isButtonDown(0) && mousestate){
                     pos.getValue().setX( (float) (normaliseX() - dragX) /  event.scaledResolution.getScaledWidth());

@@ -108,9 +108,8 @@ public class BowAim extends Module {
 
     @SubscribeEvent
     public void onRender3D( Render3DEvent event) {
-
         if (BowAim.mc.player.getHeldItemMainhand().getItem() instanceof ItemBow && target != null) {
-            RenderHelper.drawEntityBox((Entity)target, new Color(PaletteHelper.astolfo(false, 12).getRGB()), false, 255.0f);
+            RenderHelper.drawEntityBox((Entity)target, new Color(PaletteHelper.astolfo(false, 12).getRGB()),new Color(PaletteHelper.astolfo(false, 12).getRGB()), false, 255.0f);
         }
     }
 }

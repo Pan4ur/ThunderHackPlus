@@ -16,7 +16,6 @@ import net.minecraft.init.Items;
 import net.minecraft.item.ItemFood;
 import net.minecraft.network.play.client.CPacketHeldItemChange;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.input.Mouse;
 
@@ -26,36 +25,29 @@ public class MiddleClick extends Module{
     }
 
 
-
-    private  Setting<Action> action = register(new Setting<>("Action", Action.FRIEND));
-    public Setting<Boolean> fm = register(new Setting("FriendMessage", true));
+    public Setting<Boolean> fm = register(new Setting<>("FriendMessage", true));
+    public Setting<Boolean> friend = register(new Setting<>("Friend", true));
+    public Setting<Boolean> rocket = register(new Setting<>("Rocket", false));
+    public Setting<Boolean> ep = register(new Setting<>("Pearl", true));
+    public Setting<Boolean> xp = register(new Setting<>("XP", false));
+    public Setting<Boolean> feetExp = register(new Setting<>("FeetXP", false));
+    public Setting<Boolean> silent = register(new Setting<>("SilentXP", true));
+    public Setting<Boolean> whileEating = register(new Setting<>("WhileEating", true));
+    public Setting<Boolean> pickBlock = register(new Setting<>("CancelMC", true));
 
 
     public Timer timr = new Timer();
 
 
-    public Setting<Boolean> rocket = register(new Setting("Rocket", false));
-    public Setting<Boolean> ep = register(new Setting("EP", false));
-    public Setting<Boolean> xp = register(new Setting("XP", false));
-
-    public Setting<Boolean> xpInHoles = register(new Setting("XPInHoles", false, v-> xp.getValue()));
-    public Setting<Boolean> feetExp = register(new Setting<>("FeetExp", false));
-    public Setting<Boolean> silent = register(new Setting<>("Silent", true));
-    public Setting<Boolean> whileEating = register(new Setting<>("WhileEating", true));
-    public Setting<Boolean> pickBlock = register(new Setting<>("CancelMC", true));
-
-
-    private enum Action {
-         FRIEND, MISC,
-    }
-
-
-
-
-    @Override
-    public void onUpdate() {
+    @SubscribeEvent
+    public void onPreMotion(EventPreMotion event){
         if (mc.player == null || mc.world == null) return;
-        if (action.getValue() == Action.FRIEND && mc.objectMouseOver != null && mc.objectMouseOver.entityHit != null) { //TODO
+
+        if (feetExp.getValue() && Mouse.isButtonDown(2)) {
+            mc.player.rotationPitch = 90f;
+        }
+
+        if (friend.getValue() && mc.objectMouseOver != null && mc.objectMouseOver.entityHit != null) {
             if (!Mouse.isButtonDown(2)) return;
             Entity entity = mc.objectMouseOver.entityHit;
             if (entity instanceof EntityPlayer && timr.passedMs(2500)) {
@@ -92,11 +84,10 @@ public class MiddleClick extends Module{
             }
         }
 
-        if (ep.getValue() && (!xp.getValue() || (xpInHoles.getValue() && !BlockUtils.isHole(new BlockPos(mc.player))))) {
+        if (ep.getValue() && timr.passedMs(500) && mc.currentScreen == null) {
             if (!Mouse.isButtonDown(2)) return;
             int epSlot = findEPSlot();
             int originalSlot = mc.player.inventory.currentItem;
-
             if (epSlot != -1) {
                 mc.player.inventory.currentItem = epSlot;
                 mc.player.connection.sendPacket(new CPacketHeldItemChange(epSlot));
@@ -106,53 +97,31 @@ public class MiddleClick extends Module{
                 mc.player.inventory.currentItem = originalSlot;
                 mc.player.connection.sendPacket(new CPacketHeldItemChange(originalSlot));
             }
+            timr.reset();
         }
-    }
 
-
-    @SubscribeEvent
-    public void onPreMotion(EventPreMotion event){
-        if(!xp.getValue()) return;
-        if (feetExp.getValue() && (InventoryUtil.isHolding(Items.EXPERIENCE_BOTTLE) && Mouse.isButtonDown(1) || Mouse.isButtonDown(2)))
-        {
-            mc.player.rotationPitch = 90f;
-        }
     }
 
     @SubscribeEvent
     public void onPostMotion(EventPostMotion event) {
         if (xp.getValue()) {
-            if (Mouse.isButtonDown(2) && (whileEating.getValue() || !(mc.player.getActiveItemStack().getItem() instanceof ItemFood)))
-            {
+            if (Mouse.isButtonDown(2) && (whileEating.getValue() || !(mc.player.getActiveItemStack().getItem() instanceof ItemFood))) {
                 int slot = InventoryUtil.findItemAtHotbar(Items.EXPERIENCE_BOTTLE);
-                if (slot != -1)
-                {
+                if (slot != -1) {
+                    int lastSlot = mc.player.inventory.currentItem;
+                    InventoryUtil.switchTo(slot);
+                    mc.playerController.processRightClick(mc.player, mc.world, InventoryUtil.getHand(slot));
 
-                        int lastSlot = mc.player.inventory.currentItem;
-
-
-                        InventoryUtil.switchTo(slot);
-
-                        mc.playerController.processRightClick(
-                                mc.player,
-                                mc.world,
-                                InventoryUtil.getHand(slot));
-
-                        if (silent.getValue())
-                        {
-                            InventoryUtil.switchTo(lastSlot);
-                        }
-                }
-                else if (lastSlot != -1)
-                {
+                    if (silent.getValue()) {
                         InventoryUtil.switchTo(lastSlot);
-                        lastSlot = -1;
-                }
-            }
-            else if (lastSlot != -1)
-            {
+                    }
+                } else if (lastSlot != -1) {
                     InventoryUtil.switchTo(lastSlot);
                     lastSlot = -1;
+                }
+            } else if (lastSlot != -1) {
+                InventoryUtil.switchTo(lastSlot);
+                lastSlot = -1;
             }
         }
     }
@@ -204,33 +173,12 @@ public class MiddleClick extends Module{
     @SubscribeEvent
     public void onMiddleClick(ClickMiddleEvent event) {
         if(!xp.getValue()) return;
-        if (pickBlock.getValue())
-        {
+        if (pickBlock.getValue()) {
             int slot = InventoryUtil.findItemAtHotbar(Items.EXPERIENCE_BOTTLE);
-            if (slot != -1 && slot != -2 && slot != mc.player.inventory.currentItem)
-            {
+            if (slot != -1 && slot != -2 && slot != mc.player.inventory.currentItem) {
                 event.setCanceled(true);
             }
         }
     }
-
-    protected int lastSlot = -1;
-
-
-
-    @Override
-    public void onEnable()
-    {
-        lastSlot = -1;
-    }
-
-    @Override
-    public void onDisable()
-    {
-        if (lastSlot != -1)
-        {
-            InventoryUtil.switchTo(lastSlot);
-            lastSlot = -1;
-        }
-    }
+    private int lastSlot = -1;
 }

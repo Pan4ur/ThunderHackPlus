@@ -8,10 +8,11 @@ import java.util.List;
 import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.gui.clickui.ColorUtil;
 import com.mrzak34.thunderhack.gui.clickui.elements.*;
+import com.mrzak34.thunderhack.manager.EventManager;
 import com.mrzak34.thunderhack.setting.*;
 import com.mrzak34.thunderhack.util.render.Drawable;
 import com.mrzak34.thunderhack.gui.clickui.base.AbstractElement;
-import com.mrzak34.thunderhack.gui.thundergui.fontstuff.FontRender;
+import com.mrzak34.thunderhack.gui.fontstuff.FontRender;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.modules.client.ClickGui;
 import com.mrzak34.thunderhack.notification.Animation;
@@ -24,7 +25,6 @@ import com.mojang.realmsclient.gui.ChatFormatting;
 public class ModuleButton {
 
 	private final Animation animation = new DecelerateAnimation(260, 1f, Direction.BACKWARDS);
-	public final Animation openAnimation = new DecelerateAnimation(200, 1f, Direction.BACKWARDS);
 	private final Animation enableAnimation = new DecelerateAnimation(180, 1f, Direction.BACKWARDS);
 
 	private final List<AbstractElement> elements;
@@ -69,8 +69,16 @@ public class ModuleButton {
 	}
 
 	public void render(int mouseX, int mouseY, float delta, Color color, boolean finished) {
+
+
+
+
 		hovered = Drawable.isHovered(mouseX, mouseY, x, y, width, height);
-		float fontSize = 0.9f;
+
+		if(hovered){
+			EventManager.hoveredModule = this.module;
+		}
+
 		double ix = x + 5;
 		double iy = y + height / 2 - (FontRender.getFontHeight6() / 2f);
 		enableAnimation.setDirection(module.isEnabled() ? Direction.BACKWARDS : Direction.FORWARDS);
@@ -108,15 +116,12 @@ public class ModuleButton {
 
 					if (combobox.isOpen()) {
 						offsetY += (combobox.getSetting().getModes().length * 12);
-					element.setHeight(element.getHeight() + (combobox.getSetting().getModes().length * 12) + 3);
-
-				}
-					else
+						element.setHeight(element.getHeight() + (combobox.getSetting().getModes().length * 12) + 3);
+					} else {
 						element.setHeight(17);
+					}
 				}
-
 				element.render(mouseX, mouseY, delta);
-
 				offsetY += element.getHeight();
 			}
 
@@ -148,8 +153,6 @@ public class ModuleButton {
 			FontRender.drawString6("Keybind: " + (module.getBind().toString()), (float) ix,(float) iy, 0xFFEAEAEA,true);
 		} else
 			FontRender.drawString6(module.getName(), (float) ix + scale, (float) iy + 3, 0xFFEAEAEA,true);
-
-
 	}
 
 	public void mouseClicked(int mouseX, int mouseY, int button) {

@@ -2,16 +2,13 @@ package com.mrzak34.thunderhack.gui.hud;
 
 import com.google.common.collect.Lists;
 import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.gui.clickui.ClickUI;
 import com.mrzak34.thunderhack.gui.clickui.EaseBackIn;
-import com.mrzak34.thunderhack.gui.clickui.base.AbstractWindow;
 import com.mrzak34.thunderhack.gui.clickui.window.ModuleWindow;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.modules.client.ClickGui;
 import com.mrzak34.thunderhack.notification.Animation;
 import com.mrzak34.thunderhack.notification.DecelerateAnimation;
 import com.mrzak34.thunderhack.notification.Direction;
-import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
@@ -24,7 +21,7 @@ import java.util.List;
 public class HudEditorGui extends GuiScreen {
 
     private Animation openAnimation, bgAnimation, rAnimation;
-    private final List<AbstractWindow> windows;
+    private final List<ModuleWindow> windows;
 
     private double scrollSpeed;
     private boolean firstOpen;
@@ -81,7 +78,7 @@ public class HudEditorGui extends GuiScreen {
             firstOpen = false;
         }
 
-        windows.forEach(AbstractWindow::init);
+        windows.forEach(ModuleWindow::init);
 
         super.initGui();
     }
@@ -90,7 +87,7 @@ public class HudEditorGui extends GuiScreen {
     @Override
     public void drawScreen(int mouseX, int mouseY, float delta) {
         if (openAnimation.isDone() && openAnimation.getDirection().equals(Direction.BACKWARDS)) {
-            windows.forEach(AbstractWindow::onClose);
+            windows.forEach(ModuleWindow::onClose);
             mc.currentScreen = null;
             mc.displayGuiScreen(null);
         }
@@ -115,7 +112,7 @@ public class HudEditorGui extends GuiScreen {
         GlStateManager.scale(anim, anim, 1);
         GlStateManager.translate(-centerX, -centerY, 0);
 
-        for (AbstractWindow window : windows) {
+        for (ModuleWindow window : windows) {
             if (Keyboard.isKeyDown(Keyboard.KEY_DOWN))
                 window.setY(window.getY() + 2);
             else if (Keyboard.isKeyDown(Keyboard.KEY_UP))
@@ -143,7 +140,7 @@ public class HudEditorGui extends GuiScreen {
 
     @Override
     public void updateScreen() {
-        windows.forEach(AbstractWindow::tick);
+        windows.forEach(ModuleWindow::tick);
         super.updateScreen();
     }
 

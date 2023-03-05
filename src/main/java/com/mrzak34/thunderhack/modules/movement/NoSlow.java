@@ -21,6 +21,7 @@ public class NoSlow extends Module {
     }
     public Setting <Integer> speed = this.register ( new Setting <> ( "Speed", 100, 1, 100) );
 
+
     @SubscribeEvent
     public void onInput(InputUpdateEvent e){
         if(!(Mode.getValue() == mode.StrictNCP && Mode.getValue() == mode.NCP) && mc.player.isHandActive() && !mc.player.isRiding()){

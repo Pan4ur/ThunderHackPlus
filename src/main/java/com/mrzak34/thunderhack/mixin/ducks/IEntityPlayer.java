@@ -4,20 +4,16 @@ package com.mrzak34.thunderhack.mixin.ducks;
 import com.mrzak34.thunderhack.util.phobos.MotionTracker;
 
 public interface IEntityPlayer {
-    void setMotionTracker(MotionTracker motionTracker);
+    void setMotionTrackerT(MotionTracker motionTracker);
 
-    MotionTracker getMotionTracker();
+    MotionTracker getMotionTrackerT();
 
-    void setBreakMotionTracker(MotionTracker motionTracker);
+    void setBreakMotionTrackerT(MotionTracker motionTracker);
 
-    MotionTracker getBreakMotionTracker();
+    MotionTracker getBreakMotionTrackerT();
 
-    void setBlockMotionTracker(MotionTracker motionTracker);
+    void setBlockMotionTrackerT(MotionTracker motionTracker);
 
-    MotionTracker getBlockMotionTracker();
-
-    int getTicksWithoutMotionUpdate();
-
-    void setTicksWithoutMotionUpdate(int ticksWithoutMotionUpdate);
+    MotionTracker getBlockMotionTrackerT();
 
 }

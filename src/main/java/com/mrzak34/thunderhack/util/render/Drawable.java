@@ -194,7 +194,6 @@ public class Drawable {
         GlStateManager.enableTexture2D();
     }
 
-    private static HashMap<Integer, Integer> shadowCache2 = new HashMap<Integer, Integer>();
 
     public static boolean isHovered(double mouseX, double mouseY, double x, double y, double width, double height) {
         return mouseX >= x && mouseX - width <= x && mouseY >= y && mouseY - height <= y;

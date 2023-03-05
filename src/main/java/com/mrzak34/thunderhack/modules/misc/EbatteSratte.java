@@ -67,10 +67,25 @@ public class EbatteSratte extends Module {
             "Your mom owned by Thunderhack",
             "АЛО БОМЖАТИНА БЕЗ МАТЕРИ Я ТВОЮ МАТЬ ОБ СТОЛ УБИЛ ЧЕРЕП ЕЙ РАЗБИЛ НОГОЙ БАТЮ ТВОЕГО С ОКНА ВЫКИНУЛ СУКА ЧМО ЕБАННОЕ ОТВЕТЬ ЧМО ЕБЛАН ТВАРЬ ШАЛАВА"
     };
-    String[] Erp = new String[]{"Помурчи пж", "Я ТЕБЯ ЛЮБЛЮ", "А ты меня любишь?", "i love u", "Мурчи громче блин", "Сейчас на Земле официально 7 999 999 999 людей, которые мне нравятся меньше тебя", "Ты милый. Можно тебя оставить себе?", "Мурлычу от любви", "Ты самая лучшая в моей жизни", "Ты очень красивая", "Люблю тебя всем сердцем и душой", "Я не смогу жить без тебя"};
+
+    String[] Erp = new String[]{
+            "Помурчи пж",
+            "Я ТЕБЯ ЛЮБЛЮ",
+            "А ты меня любишь?",
+            "i love u",
+            "Мурчи громче блин",
+            "Сейчас на Земле официально 7 999 999 999 людей, которые мне нравятся меньше тебя",
+            "Ты милый. Можно тебя оставить себе?",
+            "Мурлычу от любви",
+            "Ты самая лучшая в моей жизни",
+            "Ты очень красивая",
+            "Люблю тебя всем сердцем и душой",
+            "Я не смогу жить без тебя"
+    };
 
     @SubscribeEvent
     public void onAttackEntity(AttackEvent event) {
+        if(event.getStage() == 1) return;
         if (event.getEntity() instanceof EntityPlayer) {
             if (timer.passedMs(delay.getValue() * 10)) {
                 Entity entity = event.getEntity();
@@ -81,10 +96,7 @@ public class EbatteSratte extends Module {
                 int n = 0;
 
                 if (Mode2.getValue() == mode2.Hard) {
-
                     n = (int) Math.floor(Math.random() * myString.length);
-
-
                 } else if (Mode2.getValue() == mode2.Lite) {
                     n = (int) Math.floor(Math.random() * Lite.length);
                 } else if (Mode2.getValue() == mode2.Friendly) {
@@ -94,7 +106,6 @@ public class EbatteSratte extends Module {
                 } else if (Mode2.getValue() == mode2.Erp) {
                     n = (int) Math.floor(Math.random() * Erp.length);
                 }
-
 
                 if (Mode.getValue() == mode.FunnyGame) {
                     chatprefix = ("!");

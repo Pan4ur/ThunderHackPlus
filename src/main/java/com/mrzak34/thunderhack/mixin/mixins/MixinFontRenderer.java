@@ -3,7 +3,6 @@ package com.mrzak34.thunderhack.mixin.mixins;
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.modules.misc.NameProtect;
 import com.mrzak34.thunderhack.modules.misc.PasswordHider;
-import com.mrzak34.thunderhack.util.Util;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiChat;
 import org.spongepowered.asm.mixin.Mixin;

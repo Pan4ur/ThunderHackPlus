@@ -415,7 +415,7 @@ public abstract class AbstractCalculation<T extends CrystalData> extends Finisha
         List<List<EntityPlayer>> split = CollectionUtil.split(raw, p -> p == null
                         || (EntityUtil.isDead(p))
                         || p.equals(mc.player)
-                        || p.getDistanceSq(mc.player) > MathUtil.square(module.targetRange.getValue()), Thunderhack.friendManager::isFriend,Thunderhack.friendManager::isEnemy);
+                        || p.getDistanceSq(mc.player) > MathUtil.square(module.targetRange.getValue()), Thunderhack.friendManager::isFriend, Thunderhack.friendManager::isEnemy);
         // split.get(0) are the invalid players.
         this.friends = split.get(1);
         this.enemies = split.get(2);
@@ -475,9 +475,9 @@ public abstract class AbstractCalculation<T extends CrystalData> extends Finisha
 
                 mc.player.connection.sendPacket(new CPacketUseEntity(entity));
 
-                if (module.pseudoSetDead.getValue()) //TODO SETDED MISSING
+                if (module.pseudoSetDead.getValue())
                 {
-                    ((IEntity) entity).setPseudoDead(true);
+                    ((IEntity) entity).setPseudoDeadT(true);
                 }
                 else if (module.setDead.getValue())
                 {
@@ -837,8 +837,6 @@ public abstract class AbstractCalculation<T extends CrystalData> extends Finisha
         if (module.basePlaceOnly.getValue()) {
             return;
         }
-       // Command.sendMessage(timercheckerfg.getPassedTimeMs() + "  da"); //TODO TUTA NE KRUTA
-       // timercheckerfg.reset();
 
         if (liquidBreak != null) {
             module.liquidTimer.reset();

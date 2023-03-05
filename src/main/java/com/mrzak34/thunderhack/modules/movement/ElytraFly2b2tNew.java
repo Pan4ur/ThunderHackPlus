@@ -119,8 +119,10 @@ public class ElytraFly2b2tNew extends Module {
     double current_speed;
 
     @SubscribeEvent
-    public void onPostMove(EventPostMove e){
-        current_speed = e.getHorizontalMove();
+    public void updateValues(EventPreMotion e) {
+        double distTraveledLastTickX = mc.player.posX - mc.player.prevPosX;
+        double distTraveledLastTickZ = mc.player.posZ - mc.player.prevPosZ;
+        current_speed = (Math.sqrt(distTraveledLastTickX * distTraveledLastTickX + distTraveledLastTickZ * distTraveledLastTickZ));
     }
 
     private void reset2(boolean cancelflu) {

@@ -10,7 +10,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class NoInteract extends Module {
     public NoInteract() {
-        super("NoInteract", "не посылать пакеты использования-блоков", Category.PLAYER);
+        super("NoInteract", "не посылать пакеты-использования блоков", Category.PLAYER);
     }
 
 

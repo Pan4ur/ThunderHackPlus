@@ -19,8 +19,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import static com.mrzak34.thunderhack.util.Util.mc;
-
 @Mixin(value={EntityLivingBase.class})
 public abstract class MixinEntityLivingBase
         extends Entity implements  IEntityLivingBase

@@ -2,7 +2,7 @@ package com.mrzak34.thunderhack.notification;
 
 import com.mrzak34.thunderhack.util.Timer;
 
-public class Animation {
+public abstract class Animation {
 
     public Timer timerUtil = new Timer();
     protected int duration;
@@ -25,28 +25,12 @@ public class Animation {
         return isDone() && this.direction.equals(direction);
     }
 
-    public double getLinearOutput() {
-        return 1 - ((timerUtil.getPassedTimeMs() / (double) duration) * endPoint);
-    }
-
-    public double getEndPoint() {
-        return endPoint;
-    }
-
-    public void setEndPoint(double endPoint) {
-        this.endPoint = endPoint;
-    }
-
     public void reset() {
         timerUtil.reset();
     }
 
     public boolean isDone() {
         return timerUtil.passedMs(duration);
-    }
-
-    public void changeDirection() {
-        setDirection(direction.opposite());
     }
 
     public Direction getDirection() {
@@ -59,17 +43,8 @@ public class Animation {
             timerUtil.setMs(System.currentTimeMillis() - (duration - Math.min(duration, timerUtil.getPassedTimeMs())));
         }
     }
-
-    public void setDuration(int duration) {
-        this.duration = duration;
-    }
-
     protected boolean correctOutput() {
         return false;
-    }
-
-    public long getTimePassed() {
-        return timerUtil.getPassedTimeMs();
     }
 
     public double getOutput() {
@@ -86,7 +61,8 @@ public class Animation {
         }
     }
 
-    protected double getEquation(double x) {
-        return 0;
-    }
+
+
+    protected abstract double getEquation(double x);
+
 }

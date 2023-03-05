@@ -2,7 +2,6 @@ package com.mrzak34.thunderhack.modules.combat;
 
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.modules.Module;
-import com.mrzak34.thunderhack.modules.movement.ElytraFlight;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.HoleUtil;
 import com.mrzak34.thunderhack.util.InventoryUtil;

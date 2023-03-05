@@ -470,7 +470,7 @@ public class HelperRotation
 
             if (module.pseudoSetDead.getValue())
             {
-                ((IEntity) entity).setPseudoDead(true);
+                ((IEntity) entity).setPseudoDeadT(true);
             }
 
             if (module.setDead.getValue())

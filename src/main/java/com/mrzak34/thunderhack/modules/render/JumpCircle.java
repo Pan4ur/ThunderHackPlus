@@ -16,6 +16,8 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
+import static net.minecraft.client.renderer.GlStateManager.resetColor;
+
 public class JumpCircle extends Module {
 
 
@@ -63,25 +65,23 @@ public class JumpCircle extends Module {
 
     @SubscribeEvent
     public void onRender3D(Render3DEvent event) {
+
+     //   boolean depth = GL11.glIsEnabled(GL11.GL_DEPTH_TEST);
+     //   GlStateManager.disableDepth();
         GlStateManager.pushMatrix();
+        GL11.glDisable(GL11.GL_TEXTURE_2D);
+        GL11.glEnable(GL11.GL_BLEND);
+        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+        GL11.glDisable(GL11.GL_DEPTH_TEST);
+        GL11.glDisable(GL11.GL_ALPHA_TEST);
+        GL11.glEnable(GL11.GL_LINE_SMOOTH);
+        GlStateManager.resetColor();
         double ix = -(mc.player.lastTickPosX + (mc.player.posX - mc.player.lastTickPosX) * (double)mc.getRenderPartialTicks());
         double iy = -(mc.player.lastTickPosY + (mc.player.posY - mc.player.lastTickPosY) * (double)mc.getRenderPartialTicks());
         double iz = -(mc.player.lastTickPosZ + (mc.player.posZ - mc.player.lastTickPosZ) * (double)mc.getRenderPartialTicks());
         GL11.glTranslated(ix, iy, iz);
 
 
-        boolean gl1 = GL11.glIsEnabled(2884);
-        boolean gl2 = GL11.glIsEnabled(3042);
-        boolean gl3 = GL11.glIsEnabled(3553);
-        boolean gl4 = GL11.glIsEnabled(3008);
-
-        GL11.glDisable(2884);
-        GL11.glEnable(3042);
-        GL11.glDisable(3553);
-        GL11.glDisable(3008);
-
-        GL11.glBlendFunc(770, 771);
-        GL11.glShadeModel(7425);
         Collections.reverse(circles);
         try {
             for (Circle c : circles) {
@@ -125,23 +125,16 @@ public class JumpCircle extends Module {
         } catch (Exception e){
 
         }
+        GL11.glEnable(GL11.GL_TEXTURE_2D);
+        GL11.glEnable(GL11.GL_DEPTH_TEST);
+        GL11.glDisable(GL11.GL_LINE_SMOOTH);
+        GL11.glEnable(GL11.GL_ALPHA_TEST);
+        GlStateManager.resetColor();
         Collections.reverse(circles);
-
-        if(gl3)
-            GL11.glEnable(3553);
-
-        if(!gl2)
-            GL11.glDisable(3042);
-
-        GL11.glShadeModel(7424);
-
-        if(gl1)
-            GL11.glEnable(2884);
-
-        if(gl4)
-            GL11.glEnable(3008);
-
         GlStateManager.popMatrix();
+
+        //if(depth)
+      //      GlStateManager.enableDepth();
 
     }
     public static AstolfoAnimation astolfo = new AstolfoAnimation();

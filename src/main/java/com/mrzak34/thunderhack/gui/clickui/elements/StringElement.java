@@ -2,9 +2,8 @@ package com.mrzak34.thunderhack.gui.clickui.elements;
 
 import com.mojang.realmsclient.gui.ChatFormatting;
 import com.mrzak34.thunderhack.gui.clickui.base.AbstractElement;
-import com.mrzak34.thunderhack.gui.thundergui.fontstuff.FontRender;
+import com.mrzak34.thunderhack.gui.fontstuff.FontRender;
 import com.mrzak34.thunderhack.setting.Setting;
-import com.mrzak34.thunderhack.setting.SubBind;
 import net.minecraft.util.ChatAllowedCharacters;
 
 import static com.mrzak34.thunderhack.gui.clickui.elements.SliderElement.removeLastChar;

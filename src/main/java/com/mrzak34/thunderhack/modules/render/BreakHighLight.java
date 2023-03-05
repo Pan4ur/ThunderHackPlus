@@ -1,7 +1,7 @@
 package com.mrzak34.thunderhack.modules.render;
 
 import com.mrzak34.thunderhack.events.Render3DEvent;
-import com.mrzak34.thunderhack.gui.thundergui.fontstuff.FontRender;
+import com.mrzak34.thunderhack.gui.fontstuff.FontRender;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.setting.Setting;
@@ -20,6 +20,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
+
+import java.awt.*;
 
 
 public class BreakHighLight extends Module {
@@ -219,6 +221,16 @@ public class BreakHighLight extends Module {
             BlockRenderUtil.releaseGL();
         }
     }
+
+    public static void renderBreakingBB2(AxisAlignedBB bb, Color fill, Color outline) {
+            BlockRenderUtil.prepareGL();
+            TessellatorUtil.drawBox(bb, fill);
+            BlockRenderUtil.releaseGL();
+            BlockRenderUtil.prepareGL();
+            TessellatorUtil.drawBoundingBox(bb, 1, outline);
+            BlockRenderUtil.releaseGL();
+    }
+
 
     private void renderTracer(double x, double y, double z, double x2, double y2, double z2, int color){
         GL11.glBlendFunc(770, 771);

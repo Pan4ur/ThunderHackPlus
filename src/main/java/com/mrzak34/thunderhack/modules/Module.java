@@ -4,8 +4,8 @@ import com.mojang.realmsclient.gui.ChatFormatting;
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.events.Render2DEvent;
 import com.mrzak34.thunderhack.events.Render3DEvent;
-import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.modules.client.MainSettings;
+import com.mrzak34.thunderhack.notification.Notification;
 import com.mrzak34.thunderhack.setting.Bind;
 import com.mrzak34.thunderhack.setting.Setting;
 import net.minecraft.init.SoundEvents;
@@ -13,7 +13,6 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.common.MinecraftForge;
 import com.mrzak34.thunderhack.notification.NotificationManager;
-import com.mrzak34.thunderhack.notification.NotificationType;
 
 import java.util.Objects;
 
@@ -22,6 +21,9 @@ import static com.mrzak34.thunderhack.util.PlayerUtils.getPlayerPos;
 public class Module extends Feature {
 
     private final String description;
+    private final String eng_description;
+
+
     private final Category category;
     public Setting<Boolean> enabled = this.register(new Setting<>("Enabled", false));
     public Setting<String> displayName;
@@ -35,6 +37,16 @@ public class Module extends Feature {
         super(name);
         this.displayName = this.register(new Setting<String>("DisplayName", name));
         this.description = description;
+        this.category = category;
+        this.eng_description = "no english_description";
+    }
+
+
+    public Module(String name, String description,String eng_description, Category category) {
+        super(name);
+        this.displayName = this.register(new Setting<String>("DisplayName", name));
+        this.description = description;
+        this.eng_description = eng_description;
         this.category = category;
     }
 
@@ -111,14 +123,13 @@ public class Module extends Feature {
         this.onEnable();
 
         if((Objects.equals(this.getDisplayName(), "ThunderGui") || (Objects.equals(this.getDisplayName(), "ClickGUI")))){
-            mc.world.playSound(getPlayerPos(), SoundEvents.BLOCK_ENDERCHEST_OPEN, SoundCategory.AMBIENT, 150.0f, 1.5F, true);
         }else {
             mc.world.playSound(getPlayerPos(), SoundEvents.BLOCK_NOTE_XYLOPHONE, SoundCategory.AMBIENT, 150.0f, 2.0F, true);
         }
 
 
         if((!Objects.equals(this.getDisplayName(), "ElytraSwap")  && (!Objects.equals(this.getDisplayName(), "ClickGui"))&& (!Objects.equals(this.getDisplayName(), "ThunderGui")) && (!Objects.equals(this.getDisplayName(), "Windows")))) {
-            NotificationManager.publicity(this.getDisplayName(), "was enabled!", 2, NotificationType.INFO);
+            NotificationManager.publicity(this.getDisplayName()  + " was enabled!", 2, Notification.Type.ENABLED);
         }
         if (Thunderhack.moduleManager.getModuleByClass(MainSettings.class).notifyToggles.getValue()) {
             TextComponentString text = new TextComponentString(Thunderhack.commandManager.getClientMessage() + " " + ChatFormatting.GREEN + this.getDisplayName() + " toggled on.");
@@ -135,7 +146,6 @@ public class Module extends Feature {
             return;
         }
         if((Objects.equals(this.getDisplayName(), "ThunderGui") || (Objects.equals(this.getDisplayName(), "ClickGUI")))){
-            mc.world.playSound(getPlayerPos(), SoundEvents.BLOCK_ENDERCHEST_CLOSE, SoundCategory.AMBIENT, 150.0f, 1.0F, true);
         } else {
             mc.world.playSound(getPlayerPos(), SoundEvents.BLOCK_NOTE_XYLOPHONE, SoundCategory.AMBIENT, 150.0f, 1.0F, true);
 
@@ -143,7 +153,7 @@ public class Module extends Feature {
 
         this.enabled.setValue(false);
         if((!Objects.equals(this.getDisplayName(), "ElytraSwap") && (!Objects.equals(this.getDisplayName(), "ThunderGui")) && (!Objects.equals(this.getDisplayName(), "ClickGui"))  && (!Objects.equals(this.getDisplayName(), "Windows")))) {
-            NotificationManager.publicity(this.getDisplayName(), "was disabled!", 2, NotificationType.INFO);
+            NotificationManager.publicity(this.getDisplayName() + " was disabled!", 2, Notification.Type.DISABLED);
         }
         if (Thunderhack.moduleManager.getModuleByClass(MainSettings.class).notifyToggles.getValue()) {
             TextComponentString text = new TextComponentString(Thunderhack.commandManager.getClientMessage() + " " + ChatFormatting.RED + this.getDisplayName() + " toggled off.");
@@ -169,7 +179,15 @@ public class Module extends Feature {
 
 
     public String getDescription() {
-        return this.description;
+        if(Thunderhack.moduleManager.getModuleByClass(MainSettings.class).language.getValue() == MainSettings.Language.RU) {
+            return this.description;
+        } else {
+            if(!Objects.equals(eng_description, "english_description")) {
+                return this.eng_description;
+            } else {
+                return this.description;
+            }
+        }
     }
 
     public boolean isDrawn() {

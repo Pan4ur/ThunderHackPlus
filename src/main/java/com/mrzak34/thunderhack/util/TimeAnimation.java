@@ -5,8 +5,6 @@ import net.minecraft.util.math.MathHelper;
 
 
 public class TimeAnimation {
-
-    // length in ms
     private final long length;
     private double start;
     private double end;
@@ -50,26 +48,14 @@ public class TimeAnimation {
         lastTime = System.currentTimeMillis();
     }
 
-    public TimeAnimation(long length, double start, double end, boolean backwards, boolean reverseOnEnd, AnimationMode mode) {
-        this(length, start, end, backwards, mode);
-        this.reverseOnEnd = reverseOnEnd;
-    }
 
     public void add(float partialTicks) {
         if (playing) {
             if (mode == AnimationMode.LINEAR) {
                 current = start + progress;
-                // current = start + (per * ((System.currentTimeMillis() - startTime)));
                 progress += per * (System.currentTimeMillis() - lastTime);
-                // lastTime = System.currentTimeMillis();
-                // progress = (backwards ? -1 : 1) * (per * ((System.currentTimeMillis() - startTime)));
             } else if (mode == AnimationMode.EXPONENTIAL) {
-                /*current = start + per;
-                if (lastDif != dif) {
-                    Earthhack.getLogger().info("per " + per);
-                    per *= 1.0d + per;
-                    if (flag && per > 0) per *= -1;
-                }*/
+
             }
             current = MathHelper.clamp(current, start, end);
             if (current >= end || (backwards && current <= start)) {
@@ -112,10 +98,6 @@ public class TimeAnimation {
         this.mode = mode;
     }
 
-    public boolean isPlaying() {
-        return playing;
-    }
-
     public void play() {
         playing = true;
     }
@@ -123,14 +105,6 @@ public class TimeAnimation {
     public void stop() {
         playing = false;
     }
-
-    public boolean isBackwards() {
-        return backwards;
-    }
-
-    /*public void setBackwards(boolean backwards) {
-        this.backwards = backwards;
-    }*/
 
     public void reverse() {
         backwards = !backwards;

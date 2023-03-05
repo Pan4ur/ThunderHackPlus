@@ -1,5 +1,6 @@
 package com.mrzak34.thunderhack.modules.funnygame;
 
+
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.InventoryUtil;

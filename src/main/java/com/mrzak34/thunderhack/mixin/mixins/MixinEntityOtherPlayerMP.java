@@ -1,15 +1,18 @@
 package com.mrzak34.thunderhack.mixin.mixins;
 
 import com.mojang.authlib.GameProfile;
-import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.modules.combat.Aura;
 import com.mrzak34.thunderhack.modules.render.NoInterp;
 import com.mrzak34.thunderhack.modules.render.ShiftInterp;
 import com.mrzak34.thunderhack.util.rotations.ResolverUtil;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.entity.EntityOtherPlayerMP;
 import net.minecraft.entity.passive.EntityPig;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -17,6 +20,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import static com.mrzak34.thunderhack.util.Util.mc;
 
@@ -49,13 +53,16 @@ public class MixinEntityOtherPlayerMP extends AbstractClientPlayer
 
 
 
-    /**
-     * @cope
-     */
+    @Inject(method = { "onLivingUpdate" }, at = { @At("HEAD") }, cancellable = true)
+    public void onLivingUpdate(CallbackInfo ci) {
+        if(NoInterp.getInstance().isEnabled())
+        {
+            ci.cancel();
+            onLivingUpdateCustom();
+        }
+    }
 
-    @Overwrite
-    public void onLivingUpdate()
-    {
+    public void onLivingUpdateCustom() {
         if (this.otherPlayerMPPosRotationIncrements > 0)
         {
             double d0, d1, d2;

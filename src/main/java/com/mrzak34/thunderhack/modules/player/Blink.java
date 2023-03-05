@@ -22,7 +22,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Blink extends Module {
     public Blink() {
-        super("Blink", "Отменяет пакеты движения", Category.MISC);
+        super("Blink", "Отменяет пакеты-движения", Category.MISC);
     }
 
     private Setting<Boolean> pulse = this.register(new Setting<>("Pulse", false));
@@ -120,6 +120,7 @@ public class Blink extends Module {
 
     @SubscribeEvent
     public void onPacket(PacketEvent.Send event) {
+        if(fullNullCheck()) return;
         Packet packet = event.getPacket();
         if (sending.get()) return;
         if (pulse.getValue()) {
@@ -148,6 +149,10 @@ public class Blink extends Module {
 
     @Override
     public void onUpdate() {
+        if (mc.player == null || mc.world == null || mc.isIntegratedServerRunning()) {
+            this.toggle();
+            return;
+        }
         if (pulse.getValue() && mc.player != null && mc.world != null) {
             if (storedPackets.size() >= factor.getValue() * 10F) {
                 sending.set(true);

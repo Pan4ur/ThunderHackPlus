@@ -16,7 +16,7 @@ public class Rotation{
     }
 
 
-    public static Rotation c(Rotation var0, float var1, float var2, int var3, Object var4) {
+    public static Rotation c(Rotation var0, float var1, float var2, int var3) {
         if ((var3 & 1) != 0) {
             var1 = var0.yaw;
         }
@@ -53,19 +53,12 @@ public class Rotation{
 
 
 
-    public String toString() {
-        return "Rotation(yaw=" + this.yaw + ", pitch=" + this.pitch + ")";
-    }
-
-
 
     public boolean equals(Object var1) {
         if (this != var1) {
             if (var1 instanceof Rotation) {
                 Rotation var2 = (Rotation)var1;
-                if (Float.compare(this.yaw, var2.yaw) == 0 && Float.compare(this.pitch, var2.pitch) == 0) {
-                    return true;
-                }
+                return Float.compare(this.yaw, var2.yaw) == 0 && Float.compare(this.pitch, var2.pitch) == 0;
             }
 
             return false;

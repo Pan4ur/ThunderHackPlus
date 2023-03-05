@@ -6,11 +6,11 @@ import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.gui.misc.GuiScanner;
 import com.mrzak34.thunderhack.modules.Module;
+import com.mrzak34.thunderhack.notification.Notification;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.setting.SubBind;
 import com.mrzak34.thunderhack.mixin.mixins.IChunkProviderClient;
 import com.mrzak34.thunderhack.notification.NotificationManager;
-import com.mrzak34.thunderhack.notification.NotificationType;
 import com.mrzak34.thunderhack.util.PlayerUtils;
 import com.mrzak34.thunderhack.util.Util;
 import net.minecraft.network.play.client.CPacketPlayerDigging;
@@ -174,7 +174,7 @@ public class NoCom extends Module {
                 rerun(x,z);
             }
             if(Thunderhack.moduleManager.getModuleByClass(NotificationManager.class).isEnabled()){
-                NotificationManager.publicity("NoCom",shittytext,3, NotificationType.SUCCESS);
+                NotificationManager.publicity(shittytext,3, Notification.Type.INFO);
             }
         }
     }
