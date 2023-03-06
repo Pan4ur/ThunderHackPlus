@@ -26,17 +26,17 @@ public class Criticals extends Module {
     public Setting<Mode> mode = this.register(new Setting<>("Mode", Mode.FunnyGame));
 
     private enum Mode {
-        OldNCP, Strict, Nurik, FunnyGame,Deadcode,SunriseElytra
+        OldNCP, Strict, Nurik, FunnyGame,Deadcode
     }
 
 
     @SubscribeEvent
     public void onAttack(AttackEvent e){
         if(e.getStage() == 1){
-            mc.player.motionY = -0.42;
             return;
         }
-        boolean reasonToReturn = mc.player.fallDistance > 0.0f || mc.player.isInLava() || mc.player.isInWeb || mc.player.isRiding() || mc.player.isOnLadder() || e.getEntity() instanceof EntityEnderCrystal;
+
+        boolean reasonToReturn = mc.player.fallDistance > 0.08f || mc.player.isInLava() || mc.player.isInWeb || mc.player.isRiding() || mc.player.isOnLadder() || e.getEntity() instanceof EntityEnderCrystal;
 
         if(reasonToReturn){
             return;
@@ -54,10 +54,8 @@ public class Criticals extends Module {
         }
         if(mode.getValue() == Mode.Nurik){
             if (mc.player.onGround) {
-                double[] var8 = new double[]{0.0625 + (double)interpolateRandom(-0.09F, 0.09F), 0.001 - Math.random() / 10000.0};
-                for (double var12 : var8) {
-                    mc.player.connection.sendPacket(new CPacketPlayer.Position(mc.player.posX, mc.player.posY + var12, mc.player.posZ, false));
-                }
+                mc.player.connection.sendPacket(new CPacketPlayer.Position(mc.player.posX, mc.player.posY + 0.0625 + (double)interpolateRandom(-0.09F, 0.09F), mc.player.posZ, false));
+                mc.player.connection.sendPacket(new CPacketPlayer.Position(mc.player.posX, mc.player.posY + (0.001 - Math.random() / 10000.0), mc.player.posZ, false));
             }
         }
         if(mode.getValue() == Mode.FunnyGame){
