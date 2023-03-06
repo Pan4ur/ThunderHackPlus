@@ -1,10 +1,7 @@
 package com.mrzak34.thunderhack.mixin.mixins;
 
 import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.events.EventPostMove;
-import com.mrzak34.thunderhack.events.PushEvent;
-import com.mrzak34.thunderhack.events.StepEvent;
-import com.mrzak34.thunderhack.events.TurnEvent;
+import com.mrzak34.thunderhack.events.*;
 import com.mrzak34.thunderhack.modules.combat.HitBoxes;
 import com.mrzak34.thunderhack.util.Timer;
 import com.mrzak34.thunderhack.util.phobos.EntityType;
@@ -15,7 +12,6 @@ import net.minecraft.entity.*;
 import net.minecraft.util.math.*;
 import net.minecraftforge.common.*;
 import net.minecraftforge.fml.common.eventhandler.*;
-import net.minecraft.util.*;
 
 import java.util.function.Supplier;
 
@@ -61,36 +57,18 @@ public abstract class MixinEntity implements IEntity
 
 
     @Shadow
-    public abstract boolean isInWater();
-
-    @Shadow
     public float stepHeight;
 
-
-    double prevMatrixX, prevMatrixZ;
 
     // Credit: auto
     @Inject(method = "move", at = @At(value = "INVOKE", target = "Lnet/minecraft/profiler/Profiler;endSection()V", shift = At.Shift.BEFORE, ordinal = 0))
     public void onMove(MoverType type, double x, double y, double z, CallbackInfo info) {
         if (((Entity) (Object) this).equals(mc.player)) {
-
-            double deltaX = this.posX - prevMatrixX;
-            double deltaY = this.posZ - prevMatrixZ;
-            MinecraftForge.EVENT_BUS.post(new EventPostMove(Math.sqrt(deltaX * deltaX + deltaY * deltaY)));
-
             StepEvent event = new StepEvent(getEntityBoundingBox(), stepHeight);
             MinecraftForge.EVENT_BUS.post(event);
             if (event.isCanceled()) {
                 stepHeight = event.getHeight();
             }
-        }
-    }
-
-    @Inject(method = "move", at = @At("HEAD"))
-    public void onMovePre(MoverType type, double x, double y, double z, CallbackInfo info) {
-        if (((Entity) (Object) this).equals(mc.player)) {
-            prevMatrixX = posX;
-            prevMatrixZ = posZ;
         }
     }
 
@@ -104,19 +82,14 @@ public abstract class MixinEntity implements IEntity
         }
     }
 
-    //749
-
-
     @Redirect(method = { "applyEntityCollision" },  at = @At(value = "INVOKE",  target = "Lnet/minecraft/entity/Entity;addVelocity(DDD)V"))
     public void addVelocityHook(final Entity entity,  final double x,  final double y,  final double z) {
-        final PushEvent event = new PushEvent(entity,  x,  y,  z,  true);
+        final PushEvent event = new PushEvent();
         MinecraftForge.EVENT_BUS.post((Event)event);
     }
 
     @Inject(method = "getCollisionBorderSize", at = @At("HEAD"), cancellable = true)
     private void getCollisionBorderSize(final CallbackInfoReturnable<Float> callbackInfoReturnable) {
-
-
         if (Thunderhack.moduleManager.getModuleByClass(HitBoxes.class).isEnabled())
             callbackInfoReturnable.setReturnValue(0.1F + Thunderhack.moduleManager.getModuleByClass(HitBoxes.class).expand.getValue());
     }
@@ -124,40 +97,34 @@ public abstract class MixinEntity implements IEntity
 
     @Shadow
     public double prevPosX;
-    @Shadow
-    public double prevPosY;
+
     @Shadow
     public double prevPosZ;
+
     @Shadow
     public double lastTickPosX;
+
     @Shadow
     public double lastTickPosY;
+
     @Shadow
     public double lastTickPosZ;
 
     @Shadow
     public boolean isDead;
+
     @Shadow
     public float width;
+
     @Shadow
     public float prevRotationYaw;
-    @Shadow
-    public float prevRotationPitch;
+
     @Shadow
     public float height;
 
-    @Unique
-    private long oldServerX;
-    @Unique
-    private long oldServerY;
-    @Unique
-    private long oldServerZ;
-
     private final Timer pseudoTimer= new Timer();
-    private Supplier<EntityType> type;
     private boolean pseudoDead;
     private long stamp;
-    private boolean dummy;
 
     @Shadow
     public abstract boolean equals(Object p_equals_1_);
@@ -165,51 +132,9 @@ public abstract class MixinEntity implements IEntity
     @Shadow
     public abstract String getName();
 
-    @Override
-    @Accessor(value = "isInWeb")
-    public abstract boolean inWeb();
 
     @Override
-    public EntityType getType()
-    {
-        return type.get();
-    }
-
-    @Override
-    public long getDeathTime()
-    {
-        // TODO!!!
-        return 0;
-    }
-
-    @Override
-    public void setOldServerPos(long x, long y, long z)
-    {
-        this.oldServerX = x;
-        this.oldServerY = y;
-        this.oldServerZ = z;
-    }
-
-    @Override
-    public long getOldServerPosX()
-    {
-        return oldServerX;
-    }
-
-    @Override
-    public long getOldServerPosY()
-    {
-        return oldServerY;
-    }
-
-    @Override
-    public long getOldServerPosZ()
-    {
-        return oldServerZ;
-    }
-
-    @Override
-    public boolean isPseudoDead()
+    public boolean isPseudoDeadT()
     {
         if (pseudoDead && !isDead && pseudoTimer.passedMs(500))
         {
@@ -220,7 +145,7 @@ public abstract class MixinEntity implements IEntity
     }
 
     @Override
-    public void setPseudoDead(boolean pseudoDead)
+    public void setPseudoDeadT(boolean pseudoDead)
     {
         this.pseudoDead = pseudoDead;
         if (pseudoDead)
@@ -230,33 +155,21 @@ public abstract class MixinEntity implements IEntity
     }
 
     @Override
-    public Timer getPseudoTime()
+    public Timer getPseudoTimeT()
     {
         return pseudoTimer;
     }
 
     @Override
-    public long getTimeStamp()
+    public long getTimeStampT()
     {
         return stamp;
-    }
-
-    @Override
-    public boolean isDummy()
-    {
-        return dummy;
-    }
-
-    @Override
-    public void setDummy(boolean dummy)
-    {
-        this.dummy = dummy;
     }
 
     @Inject(method = "<init>", at = @At("RETURN"))
     public void ctrHook(CallbackInfo info)
     {
-        this.type = EntityType.getEntityType(Entity.class.cast(mc.player));
+       // this.type = EntityType.getEntityType(Entity.class.cast(mc.player));
         this.stamp = System.currentTimeMillis();
     }
 
@@ -275,6 +188,7 @@ public abstract class MixinEntity implements IEntity
             ((IEntityNoInterp) mc.player).setNoInterpZ(z);
         }
     }
+
 
 
 

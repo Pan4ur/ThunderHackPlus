@@ -3,20 +3,18 @@ package com.mrzak34.thunderhack.manager;
 import com.google.gson.*;
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.command.Command;
-import com.mrzak34.thunderhack.gui.mainmenu.GuiAltManager;
-import com.mrzak34.thunderhack.macro.Macro;
 import com.mrzak34.thunderhack.modules.render.Search;
 import com.mrzak34.thunderhack.setting.*;
 import com.mrzak34.thunderhack.util.Util;
 import com.mrzak34.thunderhack.modules.Module;
 import net.minecraft.block.Block;
-import net.minecraft.init.Blocks;
 import net.minecraft.util.ResourceLocation;
 
 
 import java.io.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
 
@@ -61,6 +59,18 @@ public class ConfigManager implements Util {
     public static File currentConfig = null;
 
 
+    public static String getConfigDate(String name){
+        File file = new File(ConfigsFolder, name + ".th");
+        if (!file.exists()) {
+            return "none";
+        }
+        long x = file.lastModified();
+        DateFormat obj = new SimpleDateFormat("dd MMM yyyy HH:mm");
+        Date sol = new Date(x);
+        return obj.format(sol);
+    }
+
+
     public static void load(String name) {
         File file = new File(ConfigsFolder, name + ".th");
         if (!file.exists()) {
@@ -76,11 +86,11 @@ public class ConfigManager implements Util {
         Thunderhack.moduleManager.onUnloadPost();
         load(file);
         Thunderhack.moduleManager.onLoad();
-
     }
 
     public static void load(File config) {
-        if (!config.exists()) save(config);
+        if (!config.exists())
+            save(config);
         try {
             FileReader reader = new FileReader(config);
             JsonParser parser = new JsonParser();
@@ -99,6 +109,7 @@ public class ConfigManager implements Util {
             } catch (Exception e) {
                 System.err.println("Module Array not found, skipping!");
             }
+
             if (modules != null) {
                 modules.forEach(m -> {
                     try {
@@ -115,7 +126,6 @@ public class ConfigManager implements Util {
         currentConfig = config;
         saveCurrentConfig();
     }
-
 
     public static void save(String name) {
         File file = new File(ConfigsFolder, name + ".th");
@@ -220,6 +230,14 @@ public class ConfigManager implements Util {
             }
         }
     }
+
+
+    private static String parseLastServer(JsonObject object) throws NullPointerException {
+        Command.sendMessage(object.getAsString());
+            JsonObject mobject = object.getAsJsonObject("ClientSettings");
+            return mobject.getAsJsonPrimitive("LastConfigServer").getAsString().replace("_", " ");
+    }
+
 
     private static JsonArray getModuleArray() {
         JsonArray modulesArray = new JsonArray();

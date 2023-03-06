@@ -2,7 +2,6 @@ package com.mrzak34.thunderhack.command.commands;
 
 import com.mojang.realmsclient.gui.ChatFormatting;
 import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.manager.FriendManager;
 import com.mrzak34.thunderhack.command.Command;
 
 public class FriendCommand extends Command {

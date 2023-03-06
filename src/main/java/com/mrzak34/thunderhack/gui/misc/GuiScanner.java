@@ -1,7 +1,7 @@
 package com.mrzak34.thunderhack.gui.misc;
 
 import com.mrzak34.thunderhack.command.Command;
-import com.mrzak34.thunderhack.gui.thundergui.fontstuff.FontRender;
+import com.mrzak34.thunderhack.gui.fontstuff.FontRender;
 import com.mrzak34.thunderhack.modules.misc.NoCom;
 import com.mrzak34.thunderhack.util.render.RenderUtil;
 import net.minecraft.client.gui.GuiScreen;

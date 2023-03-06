@@ -18,10 +18,12 @@ public class AutoLeave extends Module {
 
     @Override
     public void onEnable(){
-        if(mc.player != null && mc.world != null && leaveOnEnable.getValue())
-            for(int i = 0; i < 1000 ; i++){
-                mc.player.connection.sendPacket(new CPacketPlayer.Position(mc.player.posX + 100,mc.player.posY + 100,mc.player.posZ+ 100, false));
+        if(mc.player != null && mc.world != null && leaveOnEnable.getValue()) {
+            for (int i = 0; i < 1000; i++) {
+                mc.player.connection.sendPacket(new CPacketPlayer.Position(mc.player.posX + 100, mc.player.posY + 100, mc.player.posZ + 100, false));
             }
+            this.toggle();
+        }
     }
 
     @Override
@@ -33,6 +35,7 @@ public class AutoLeave extends Module {
             for(int i = 0; i < 1000 ; i++){
                 mc.player.connection.sendPacket(new CPacketPlayer.Position(mc.player.posX + 100,mc.player.posY + 100,mc.player.posZ+ 100, false));
             }
+            this.toggle();
         }
     }
 }

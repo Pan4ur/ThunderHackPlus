@@ -2,7 +2,7 @@ package com.mrzak34.thunderhack.util.render;
 
 import com.mrzak34.thunderhack.util.Util;
 import com.mrzak34.thunderhack.util.gaussianblur.GaussianFilter;
-import com.mrzak34.thunderhack.gui.thundergui.fontstuff.FontRender;
+import com.mrzak34.thunderhack.gui.fontstuff.FontRender;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
@@ -145,7 +145,7 @@ public class RenderHelper{
 
 
 
-    public static void drawEntityBox(Entity entity, Color color, boolean fullBox, float alpha) {
+    public static void drawEntityBox(Entity entity, Color color,Color color2, boolean fullBox, float alpha) {
         GlStateManager.pushMatrix();
         GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
         GL11.glEnable(GL11.GL_BLEND);
@@ -163,7 +163,7 @@ public class RenderHelper{
         GlStateManager.color(color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, alpha);
         if (fullBox) {
             drawColorBox(axisAlignedBB2, color.getRed() / 255F, color.getGreen() / 255F, color.getBlue() / 255F, alpha);
-            GlStateManager.color(0, 0, 0, 0.50F);
+            GlStateManager.color(color2.getRed() / 255F, color2.getGreen() / 255F, color2.getBlue() / 255F, alpha);
         }
         drawSelectionBoundingBox(axisAlignedBB2);
         GlStateManager.glLineWidth(2);
@@ -178,7 +178,6 @@ public class RenderHelper{
     public static void drawSelectionBoundingBox(AxisAlignedBB boundingBox) {
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder builder = tessellator.getBuffer();
-
 
         builder.begin(3, DefaultVertexFormats.POSITION);
         builder.pos(boundingBox.minX, boundingBox.minY, boundingBox.minZ).endVertex();

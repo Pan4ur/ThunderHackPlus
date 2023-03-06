@@ -1,6 +1,5 @@
 package com.mrzak34.thunderhack.modules.client;
 
-import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.events.ConnectToServerEvent;
 import com.mrzak34.thunderhack.events.TotemPopEvent;
 import com.mrzak34.thunderhack.command.Command;
@@ -30,8 +29,6 @@ import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.Base64;
 import java.util.Date;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import javax.imageio.ImageIO;
 

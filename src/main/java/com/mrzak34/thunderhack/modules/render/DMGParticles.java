@@ -1,15 +1,13 @@
 package com.mrzak34.thunderhack.modules.render;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.ibm.icu.math.BigDecimal;
 import com.mrzak34.thunderhack.events.DeathEvent;
 import com.mrzak34.thunderhack.events.Render3DEvent;
-import com.mrzak34.thunderhack.gui.thundergui.fontstuff.FontRender;
+import com.mrzak34.thunderhack.gui.fontstuff.FontRender;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.setting.Setting;
-import com.mrzak34.thunderhack.util.Timer;
 import com.mrzak34.thunderhack.util.Util;
 
 import java.awt.Color;
@@ -17,7 +15,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.opengl.GL11;

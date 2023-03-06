@@ -1,6 +1,5 @@
 package com.mrzak34.thunderhack.command.commands;
 
-import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.modules.client.DiscordWebhook;
 

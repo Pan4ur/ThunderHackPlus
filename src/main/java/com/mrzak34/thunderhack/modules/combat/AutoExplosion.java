@@ -29,7 +29,7 @@ import static com.mrzak34.thunderhack.util.RotationUtil.calcAngle;
 public class AutoExplosion extends Module {
 
     public AutoExplosion() {
-        super("AutoExplosion", "более тупая кристалка-для кринж серверов", Category.COMBAT);
+        super("AutoExplosion", "более тупая кристалка-для кринж серверов","don't use-this shit", Category.COMBAT);
     }
 
     private Setting<Mode> mode = register(new Setting("Mode", Mode.FullAuto));

@@ -80,7 +80,7 @@ public class PistonAura extends Module {
 
 
     public PistonAura() {
-        super("PistonAura", "Поршни вталкивают кристал-в чела (Охуенная хуйня)", Category.COMBAT);
+        super("PistonAura", "Поршни вталкивают-кристал в чела-(Охуенная хуйня)", Category.COMBAT);
         this.setInstance();
     }
 

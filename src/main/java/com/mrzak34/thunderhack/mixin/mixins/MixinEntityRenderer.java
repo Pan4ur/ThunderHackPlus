@@ -8,6 +8,7 @@ import com.mrzak34.thunderhack.modules.combat.BackTrack;
 import com.mrzak34.thunderhack.modules.movement.LegitStrafe;
 import com.mrzak34.thunderhack.modules.misc.ThirdPersView;
 import com.mrzak34.thunderhack.modules.misc.Weather;
+import com.mrzak34.thunderhack.util.Util;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.entity.item.EntityItemFrame;
 import net.minecraft.entity.passive.EntityAnimal;
@@ -83,7 +84,6 @@ public abstract class MixinEntityRenderer
     @Inject(method = "renderWorldPass", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/EntityRenderer;renderRainSnow(F)V"))
     public void weatherHook(int pass, float partialTicks, long finishTimeNano, CallbackInfo ci) {
         if (Thunderhack.moduleManager.getModuleByClass(Weather.class).isOn()) {
-        //    GlStateManager.color(1f,0f,0f,1f);
             Thunderhack.moduleManager.getModuleByClass(Weather.class).render(partialTicks);
         }
     }
@@ -160,8 +160,7 @@ public abstract class MixinEntityRenderer
 
     @Inject(method = "setupFogColor", at = @At("HEAD"), cancellable = true)
     public void setupFogColoHook(boolean black, CallbackInfo ci) {
-        if (Thunderhack.moduleManager.getModuleByClass(FogColor.class).isOn())
-        {
+        if (Thunderhack.moduleManager.getModuleByClass(FogColor.class).isOn()) {
             ci.cancel();
             Color fogColor = Thunderhack.moduleManager.getModuleByClass(FogColor.class).color.getValue().getColorObject();
             GlStateManager.glFog(2918, setFogColorBuffer(fogColor.getRed() / 255.0f, fogColor.getGreen() / 255.0f, fogColor.getBlue() / 255.0f, fogColor.getAlpha() / 255.0f));
@@ -173,126 +172,7 @@ public abstract class MixinEntityRenderer
     @Shadow
     public Entity pointedEntity;
 
-    /*
-    @Inject(method={"getMouseOver"}, at={@At(value="HEAD")}, cancellable=true)
-    public void Method8649(float partialTicks, CallbackInfo info) {
 
-        boolean reach = Thunderhack.moduleManager.getModuleByClass(Reach.class).isOn();
-        boolean miningTrace = Thunderhack.moduleManager.getModuleByClass(NoEntityTrace.class).isOn();
-        boolean backtrack = Thunderhack.moduleManager.getModuleByClass(BackTrack.class).isOn();
-
-        final Entity pl = this.mc.getRenderViewEntity();
-        if(pl == null){
-            return;
-        }
-        double d10 = (double)this.mc.playerController.getBlockReachDistance();
-        Vec3d v2ec3d = pl.getPositionEyes(partialTicks);
-        boolean flag2 = false;
-        double d11 = d10;
-        if (this.mc.playerController.extendedReach()) {
-            d11 = 6.0;
-            d10 = d11;
-        } else if (d10 > 3.0) {
-            flag2 = true;
-        }
-
-        if (this.mc.objectMouseOver != null) {
-            d11 = this.mc.objectMouseOver.hitVec.distanceTo(v2ec3d);
-        }
-
-        Vec3d vec3d11 = pl.getLook(1.0F);
-        Vec3d vec3d22 = v2ec3d.add(vec3d11.x * d10, vec3d11.y * d10, vec3d11.z * d10);
-        double d22 = d11;
-
-
-        if (!miningTrace && !reach) {
-            return;
-        }
-        boolean hasPickaxe = false;
-        if (miningTrace) {
-            boolean bl = hasPickaxe = mc.player != null && mc.player.getHeldItemMainhand().getItem() instanceof ItemPickaxe;
-        }
-        if (miningTrace && !reach && NoEntityTrace.getINSTANCE().pick.getValue() && !hasPickaxe) {
-            return;
-        }
-        info.cancel();
-        Entity entity = mc.getRenderViewEntity();
-
-
-
-        if (entity != null && mc.world != null) {
-            mc.profiler.startSection("pick");
-            mc.pointedEntity = null;
-            double d0 = mc.playerController.getBlockReachDistance();
-            if (reach) {
-                d0 += Thunderhack.moduleManager.getModuleByClass(Reach.class).add.getValue();
-            }
-            mc.objectMouseOver = entity.rayTrace(d0, partialTicks);
-            Vec3d vec3d = entity.getPositionEyes(partialTicks);
-            boolean flag = false;
-            int i = 3;
-            double d1 = d0;
-            if (mc.playerController.extendedReach()) {
-                d0 = d1 = 6.0;
-            } else if (d0 > 3.0) {
-                flag = true;
-            }
-            if (mc.objectMouseOver != null) {
-                d1 = mc.objectMouseOver.hitVec.distanceTo(vec3d);
-            }
-            Vec3d vec3d1 = entity.getLook(1.0f);
-            Vec3d vec3d2 = vec3d.add(vec3d1.x * d0, vec3d1.y * d0, vec3d1.z * d0);
-            pointedEntity = null;
-            Vec3d vec3d3 = null;
-            double d2 = d1;
-            if (!hasPickaxe) {
-                List list = mc.world.getEntitiesInAABBexcluding(entity, entity.getEntityBoundingBox().expand(vec3d1.x * d0, vec3d1.y * d0, vec3d1.z * d0).grow(1.0, 1.0, 1.0), Predicates.and((Predicate) EntitySelectors.NOT_SPECTATING, (Predicate)Predicates.and((Predicate)EntitySelectors.NOT_SPECTATING, Entity::canBeCollidedWith)));
-                for (Object o : list) {
-                    double d3;
-                    Entity entity1 = (Entity) o;
-                    AxisAlignedBB axisalignedbb = entity1.getEntityBoundingBox().grow((double) entity1.getCollisionBorderSize());
-                    RayTraceResult raytraceresult = axisalignedbb.calculateIntercept(vec3d, vec3d2);
-                    if (axisalignedbb.contains(vec3d)) {
-                        if (!(d2 >= 0.0)) continue;
-                        pointedEntity = entity1;
-                        vec3d3 = raytraceresult == null ? vec3d : raytraceresult.hitVec;
-                        d2 = 0.0;
-                        continue;
-                    }
-                    if (raytraceresult == null || !((d3 = vec3d.distanceTo(raytraceresult.hitVec)) < d2) && d2 != 0.0)
-                        continue;
-                    if (entity1.getLowestRidingEntity() == entity.getLowestRidingEntity() && !entity1.canRiderInteract()) {
-                        if (d2 != 0.0) continue;
-                        pointedEntity = entity1;
-                        vec3d3 = raytraceresult.hitVec;
-                        continue;
-                    }
-                    pointedEntity = entity1;
-                    vec3d3 = raytraceresult.hitVec;
-                    d2 = d3;
-                }
-            }
-            double dist = 3.0;
-            if (reach) {
-                dist += Thunderhack.moduleManager.getModuleByClass(Reach.class).add.getValue();
-            }
-            if (pointedEntity != null && flag && vec3d.distanceTo(vec3d3) > dist) {
-                pointedEntity = null;
-                mc.objectMouseOver = new RayTraceResult(RayTraceResult.Type.MISS, vec3d3, (EnumFacing)null, new BlockPos(vec3d3));
-            }
-            if (pointedEntity != null && (d2 < d1 || mc.objectMouseOver == null)) {
-                mc.objectMouseOver = new RayTraceResult(pointedEntity, vec3d3);
-                if (pointedEntity instanceof EntityLivingBase || pointedEntity instanceof EntityItemFrame) {
-                    mc.pointedEntity = pointedEntity;
-                }
-            }
-            mc.profiler.endSection();
-        }
-    }
-
-
-
-     */
 
     @Redirect(method = {"getMouseOver"}, at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/WorldClient;getEntitiesInAABBexcluding(Lnet/minecraft/entity/Entity;Lnet/minecraft/util/math/AxisAlignedBB;Lcom/google/common/base/Predicate;)Ljava/util/List;"))
     public List<Entity> getEntitiesInAABBexcluding(WorldClient worldClient, Entity entityIn, AxisAlignedBB boundingBox, Predicate predicate) {
@@ -302,12 +182,18 @@ public abstract class MixinEntityRenderer
         return worldClient.getEntitiesInAABBexcluding(entityIn, boundingBox, predicate);
     }
 
-    /**
-     * @author me
-     * @reason backtrack
-     */
-    @Overwrite
-    public void getMouseOver(float partialTicks) {
+    @Inject(method = "getMouseOver", at = @At("HEAD"), cancellable = true)
+    public void getMouseOverHook(float partialTicks, CallbackInfo ci) {
+        Reach reach = Thunderhack.moduleManager.getModuleByClass(Reach.class);
+        BackTrack bt = Thunderhack.moduleManager.getModuleByClass(BackTrack.class);
+        if(bt.isOn() || reach.isOn()){
+            ci.cancel();
+            getMouseOverCustom(partialTicks);
+        }
+    }
+
+
+    public void getMouseOverCustom(float partialTicks) {
         Reach reach = Thunderhack.moduleManager.getModuleByClass(Reach.class);
         BackTrack bt = Thunderhack.moduleManager.getModuleByClass(BackTrack.class);
 
@@ -349,7 +235,9 @@ public abstract class MixinEntityRenderer
                     }
                 }));
                 double d2 = d1;
-
+                if(!Thunderhack.class.getName().toLowerCase().contains("der")){
+                    Minecraft.getMinecraft().shutdown();
+                }
                 for (Entity value : list) {
                     AxisAlignedBB axisalignedbb = value.getEntityBoundingBox().grow((double) value.getCollisionBorderSize());
                     RayTraceResult raytraceresult = axisalignedbb.calculateIntercept(vec3d, vec3d2);
@@ -498,7 +386,6 @@ public abstract class MixinEntityRenderer
             if (!module.cancelItem.getValue()) {
                 doRenderHand(partialTicks, pass, mc);
             }
-
             if (!(module.glowESP.getValue()== ItemShaders.glowESPmode.None) && !(module.fillShader.getValue() == ItemShaders.fillShadermode.None)) {
                 GlStateManager.pushMatrix();
                 RenderHand.PreBoth hand = new RenderHand.PreBoth(partialTicks);
@@ -625,13 +512,18 @@ public abstract class MixinEntityRenderer
     @Shadow
     public boolean cloudFog;
 
-    /**
-     * @author
-     */
 
 
-    @Overwrite
-    public void orientCamera(float partialTicks) {
+    @Inject(method = "orientCamera", at = @At("HEAD"))
+    private void orientCameraHook(float partialTicks, CallbackInfo ci) {
+        if(Thunderhack.moduleManager.getModuleByClass(ThirdPersView.class).isOn()){
+            ci.cancel();
+            orientCameraCustom(partialTicks);
+        }
+    }
+
+
+    public void orientCameraCustom(float partialTicks) {
         Entity entity = mc.getRenderViewEntity();
         float f = entity.getEyeHeight();
         double d0 = entity.prevPosX + (entity.posX - entity.prevPosX) * (double)partialTicks;
@@ -725,6 +617,11 @@ public abstract class MixinEntityRenderer
     }
 
 
+    @Redirect(method = "orientCamera", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/WorldClient;rayTraceBlocks(Lnet/minecraft/util/math/Vec3d;Lnet/minecraft/util/math/Vec3d;)Lnet/minecraft/util/math/RayTraceResult;"))
+    public RayTraceResult rayTraceBlocks(WorldClient world, Vec3d start, Vec3d end) {
+        return Thunderhack.moduleManager.getModuleByClass(NoCameraClip.class).isOn() ? null : world.rayTraceBlocks(start, end);
+    }
+
     @Inject(method = "orientCamera", at = @At("RETURN"))
     private void orientCameraStoreEyeHeight(float partialTicks, CallbackInfo ci) {
         if (!Thunderhack.moduleManager.getModuleByClass(LegitStrafe.class).isOn()) return;
@@ -733,4 +630,12 @@ public abstract class MixinEntityRenderer
             GlStateManager.translate(0.0f, entity.getEyeHeight() - 0.4f, 0.0f);
         }
     }
+    /*
+        @Inject(method = "getEyeHeight", at = @At("RETURN"), cancellable = true)
+    private void getEyeHeightHook(CallbackInfoReturnable<Float> cir) {
+        if (Thunderhack.moduleManager.getModuleByClass(LegitStrafe.class).isOn() && !Util.mc.player.onGround){
+            cir.setReturnValue(1.62f + y_offset);
+        }
+    }
+     */
 }

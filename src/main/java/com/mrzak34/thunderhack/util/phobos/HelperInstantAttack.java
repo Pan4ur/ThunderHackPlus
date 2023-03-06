@@ -136,7 +136,7 @@ public class HelperInstantAttack
                 Entity entity = mc.world.getEntityByID(packet.getEntityID());
                 if (entity != null)
                 {
-                    ((IEntity) entity).setPseudoDead(true);
+                    ((IEntity) entity).setPseudoDeadT(true);
                 }
             });
 

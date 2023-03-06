@@ -5,7 +5,12 @@ import com.mrzak34.thunderhack.events.FreecamEvent;
 import com.mrzak34.thunderhack.command.commands.ChangeSkinCommand;
 import com.mrzak34.thunderhack.manager.EventManager;
 import com.mrzak34.thunderhack.modules.client.MainSettings;
+import com.mrzak34.thunderhack.modules.misc.SolidWeb;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.common.MinecraftForge;
 import org.spongepowered.asm.mixin.*;
 import net.minecraft.client.renderer.entity.*;
@@ -80,88 +85,33 @@ public class MixinRenderPlayer
     }
 
 
-
-
-/*
-
-
-    @Redirect(method = "renderRightArm", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GlStateManager;color(FFF)V"))
-    public void renderRightArmHook(float colorRed, float colorGreen, float colorBlue) {
-        if (HandChams.getInstance().isEnabled() && HandChams.getInstance().Mode.getValue() == HandChams.ChamsMode.Gradient) {
-            GlStateManager.color(1.0f, 1.0f, 1.0f, HandChams.getInstance().coloralpha.getValue() / 255.0f);
-
-        }
-    }
-
- */
-
-    /*
-    @Inject(method = "doRender", at = @At("HEAD"))
-    public void doRender(AbstractClientPlayer entity, double x, double y, double z, float entityYaw, float partialTicks, CallbackInfo ci) {
-        if(EzingKids.INSTANCE.isEnabled()) {
-
-           // GlStateManager.pushMatrix();
-            GlStateManager.scale((float) EzingKids.INSTANCE.scale.getValue(), (float) EzingKids.INSTANCE.scale.getValue(), (float) EzingKids.INSTANCE.scale.getValue());
-           // doRender(entity, x, y, z, entityYaw, partialTicks, ci);
-           // GlStateManager.scale(1.0f / (float)CrystalModifier.INSTANCE.scale.getValue(),  1.0f / (float)CrystalModifier.INSTANCE.scale.getValue(),  1.0f / (float)CrystalModifier.INSTANCE.scale.getValue());
-          //  GlStateManager.popMatrix();
-          //  model.render(entity,  limbSwing,  limbSwingAmount,  ageInTicks,  netHeadYaw,  headPitch,  scale);
-
-           // GlStateManager.scale(1.0f / (float) EzingKids.INSTANCE.scale.getValue(), 1.0f / (float) EzingKids.INSTANCE.scale.getValue(), 1.0f / (float) EzingKids.INSTANCE.scale.getValue());
-
-        }
-    }
-
-
-     */
-
-/*
-    @Redirect(method = "renderLeftArm", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/GlStateManager;color(FFF)V"))
-    public void renderLeftArmHook(float colorRed, float colorGreen, float colorBlue) {
-        if (HandChams.getInstance().isEnabled() && HandChams.getInstance().Mode.getValue() == HandChams.ChamsMode.Gradient) {
-            GlStateManager.color(1.0f, 1.0f, 1.0f, HandChams.getInstance().coloralpha.getValue() / 255.0f);
-        }
-    }
-
- */
-
     private final ResourceLocation amogus = new ResourceLocation("textures/amogus.png");
     private final ResourceLocation rabbit = new ResourceLocation("textures/rabbit.png");
     private final ResourceLocation fred = new ResourceLocation("textures/freddy.png");
 
 
-    /**
-     * @hzchtoeto
-     */
-
-
-
-    @Overwrite
-    public ResourceLocation getEntityTexture(AbstractClientPlayer entity){
-
+    @Inject(method = { "getEntityTexture" }, at = { @At("HEAD") }, cancellable = true)
+    public void getEntityTexture(AbstractClientPlayer entity,CallbackInfoReturnable<ResourceLocation> ci){
         if(Thunderhack.moduleManager.getModuleByClass(Models.class).isEnabled() && (!Thunderhack.moduleManager.getModuleByClass(Models.class).onlySelf.getValue() || entity == Minecraft.getMinecraft().player || Thunderhack.friendManager.isFriend(entity.getName()) && Thunderhack.moduleManager.getModuleByClass(Models.class).friends.getValue())){
             if (Thunderhack.moduleManager.getModuleByClass(Models.class).Mode.getValue() == Models.mode.Amogus) {
-                return amogus;
-
-                //return new ResourceLocation("assets/minecraft/textures/amogus.png");
+                ci.setReturnValue(amogus);
             }
 
             if (Thunderhack.moduleManager.getModuleByClass(Models.class).Mode.getValue() == Models.mode.Rabbit) {
-                return rabbit;
+                ci.setReturnValue(rabbit);
             }
             if (Thunderhack.moduleManager.getModuleByClass(Models.class).Mode.getValue() == Models.mode.Freddy) {
-                return fred;
+                ci.setReturnValue(fred);
             }
         } else {
             if (ChangeSkinCommand.getInstance().changedplayers.contains(entity.getName())) {
                 GL11.glColor4f(1f, 1f, 1f, 1f);
-                return PNGtoResourceLocation.getTexture3(entity.getName(), "png");
+                ci.setReturnValue(PNGtoResourceLocation.getTexture3(entity.getName(), "png"));
+
             } else {
                 GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-                return entity.getLocationSkin();
+                ci.setReturnValue(entity.getLocationSkin());
             }
         }
-        return entity.getLocationSkin();
     }
-
 }

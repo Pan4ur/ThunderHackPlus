@@ -4,24 +4,21 @@ import com.mojang.realmsclient.gui.ChatFormatting;
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.events.*;
 import com.mrzak34.thunderhack.gui.hud.RadarRewrite;
-import com.mrzak34.thunderhack.gui.thundergui.fontstuff.FontRender;
+import com.mrzak34.thunderhack.gui.fontstuff.FontRender;
+import com.mrzak34.thunderhack.gui.thundergui2.ThunderGui2;
 import com.mrzak34.thunderhack.macro.Macro;
+import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.modules.client.ClickGui;
 import com.mrzak34.thunderhack.modules.misc.Macros;
 import com.mrzak34.thunderhack.modules.render.PearlESP;
-import com.mrzak34.thunderhack.setting.Bind;
 import com.mrzak34.thunderhack.util.*;
 import com.mrzak34.thunderhack.modules.Feature;
 import com.mrzak34.thunderhack.command.Command;
-import com.mrzak34.thunderhack.util.math.MathUtil;
 import com.mrzak34.thunderhack.util.render.RenderUtil;
 import com.mrzak34.thunderhack.util.shaders.BetterDynamicAnimation;
-import net.minecraft.block.Block;
 import net.minecraft.client.gui.GuiGameOver;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.item.EntityEnderPearl;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.network.play.client.CPacketEntityAction;
@@ -44,7 +41,6 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
-import java.util.Objects;
 
 import static com.mrzak34.thunderhack.modules.misc.Timer.TwoColoreffect;
 import static com.mrzak34.thunderhack.util.MovementUtil.isMoving;
@@ -52,6 +48,7 @@ import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_TEST;
 
 public class EventManager extends Feature {
+    public static Module hoveredModule;
     private final Timer logoutTimer = new Timer();
     private final Timer chorusTimer= new Timer();
     public void init() {
@@ -66,9 +63,6 @@ public class EventManager extends Feature {
     @SubscribeEvent
     public void onUpdate(LivingEvent.LivingUpdateEvent event) {
         if (!fullNullCheck() && (event.getEntity().getEntityWorld()).isRemote && event.getEntityLiving().equals(mc.player)) {
-            if(mc.player != null && mc.player.getName().equals("Hell_Raider")){
-                Thunderhack.unload(true);
-            }
             Thunderhack.moduleManager.onUpdate();
             Thunderhack.moduleManager.sortModules(true);
         }
@@ -105,6 +99,8 @@ public class EventManager extends Feature {
         }
 
         Thunderhack.moduleManager.onTick();
+        ThunderGui2.getInstance().onTick();
+
         timerAnimation.update();
         if(mc.world != null) {
             try {
@@ -140,6 +136,7 @@ public class EventManager extends Feature {
 
     com.mrzak34.thunderhack.util.Timer lastPacket = new com.mrzak34.thunderhack.util.Timer();
 
+    public static boolean lock_sprint = false;
 
     @SubscribeEvent
     public void onPacketSend(PacketEvent.Send e){
@@ -149,9 +146,17 @@ public class EventManager extends Feature {
         if(e.getPacket() instanceof CPacketEntityAction){
             CPacketEntityAction ent = e.getPacket();
             if(ent.getAction() == CPacketEntityAction.Action.START_SPRINTING) {
+                if(lock_sprint){
+                    e.setCanceled(true);
+                    return;
+                }
                 serversprint = true;
             }
             if(ent.getAction() == CPacketEntityAction.Action.STOP_SPRINTING) {
+                if(lock_sprint){
+                    e.setCanceled(true);
+                    return;
+                }
                 serversprint = false;
             }
         }

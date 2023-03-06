@@ -1,16 +1,19 @@
 package com.mrzak34.thunderhack.modules.misc;
 
 import com.mojang.authlib.GameProfile;
-import com.mrzak34.thunderhack.command.Command;
-import com.mrzak34.thunderhack.events.PacketEvent;
+import com.mojang.realmsclient.gui.ChatFormatting;
+import com.mrzak34.thunderhack.events.Render2DEvent;
+import com.mrzak34.thunderhack.gui.fontstuff.FontRender;
 import com.mrzak34.thunderhack.modules.Module;
-import net.minecraft.client.gui.GuiPlayerTabOverlay;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.network.play.server.SPacketPlayerListItem;
+import net.minecraft.client.network.NetworkPlayerInfo;
+import net.minecraft.scoreboard.ScorePlayerTeam;
+import net.minecraft.world.GameType;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-import java.util.LinkedHashMap;
-import java.util.UUID;
+import java.util.*;
+import java.util.List;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class StaffAlert extends Module {
     public StaffAlert() {
@@ -25,104 +28,94 @@ public class StaffAlert extends Module {
         nameMap.clear();
     }
 
-/*
-    @SubscribeEvent
-    public void onPacketReceive(PacketEvent.Receive e) {
-        if (e.getPacket() instanceof SPacketPlayerListItem) {
-            SPacketPlayerListItem pck = e.getPacket();
+
+    private static final Pattern validUserPattern = Pattern.compile("^\\w{3,16}$");
+    List<String> players = new ArrayList<>();
+    List<String> notSpec = new ArrayList<>();
 
 
-            for (SPacketPlayerListItem.AddPlayerData item : pck.getEntries()) {
-                switch (pck.getAction()) {
-                    case REMOVE_PLAYER:
-                        if(item.getProfile().getId() != null) {
-                            EntityPlayer player = mc.world.getPlayerEntityByUUID(item.getProfile().getId());
-                            if (player != null) {
-                                Command.sendMessage(player.getDisplayName().getFormattedText() + " vanish");
-                            }
-                        }
-                        if (!nameMap.containsKey(item.getProfile().getId())) {
-                            return;
-                        }
-                        if(antiBot(nameMap.get(item.getProfile().getId()))){
-                            return;
-                        }
-
-                        Command.sendMessage(nameMap.get(item.getProfile().getId()));
-
-
-
-                        nameMap.remove(item.getProfile().getId());
-                        break;
-                    case ADD_PLAYER:
-                        if(antiBot(item.getProfile().getName())){
-                            return;
-                        }
-
-
-                        EntityPlayer player = mc.world.getPlayerEntityByUUID(item.getProfile().getId());
-                        if(player != null)
-                            Command.sendMessage(player.getDisplayName().getFormattedText());
-
-                        nameMap.put(item.getProfile().getId(), item.getProfile().getName());
-                        break;
-                    default:
-                        return;
-                }
-            }
+    @Override
+    public void onUpdate(){
+        if (mc.player.ticksExisted % 10 == 0) {
+            players = getVanish();
+            notSpec = getOnlinePlayerD();
+            players.sort(String::compareTo);
+            notSpec.sort(String::compareTo);
         }
     }
-
-    public boolean antiBot(String s) {
-        for (int i = 0; i < s.length(); i++) {
-            if (Character.UnicodeBlock.of(s.charAt(i)).equals(Character.UnicodeBlock.CYRILLIC)) {
-                return true;
-            }
-        }
-        return false;
-    }*/
-
 
     @SubscribeEvent
-    public void onPacketReceive(PacketEvent.Receive event) {
-        if (event.getPacket() instanceof SPacketPlayerListItem) {
-            SPacketPlayerListItem pac = (SPacketPlayerListItem) event.getPacket();
-            for (SPacketPlayerListItem.AddPlayerData item : pac.getEntries()) {
-                SPacketPlayerListItem.Action action = pac.getAction();
-                if (item != null && item.getDisplayName() != null && item.getDisplayName().getFormattedText() != null && item.getProfile() != null && item.getProfile().getName() != null) {
-                    String displayName = item.getDisplayName().getFormattedText();
-                    boolean havePerm = havePermission(item.getProfile(), displayName);
-                    if (havePerm) {
-                        if (action == SPacketPlayerListItem.Action.ADD_PLAYER) {
-                            Command.sendMessage("Администратор " + displayName + " зашел на сервер/вышел из ваниша.");
-                        } else if (action == SPacketPlayerListItem.Action.REMOVE_PLAYER) {
-                            Command.sendMessage("Администратор " + displayName + " вышел с сервера/зашел в ваниш.");
-                        }
-                    }
+    public void onRender2D(Render2DEvent er){
+        if (players.isEmpty() && notSpec.isEmpty()) return;
+        List<String> all = new ArrayList<>();
+        all.addAll(players);
+        all.addAll(notSpec);
+
+
+
+        int staffY = 11;
+        for (String player : all) {
+            String a = player.split(":")[1].equalsIgnoreCase("vanish") ? ChatFormatting.RED + "VANISH" : player.split(":")[1].equalsIgnoreCase("gm3") ? ChatFormatting.RED + "VANISH " + ChatFormatting.YELLOW + "(GM 3)" : ChatFormatting.GREEN + "ACTIVE";
+            FontRender.drawString6(player.split(":")[0] + " " + a, 10 + 3, 200 + 4 + staffY, -1,false);
+            staffY += 13;
+        }
+    }
+
+
+
+    public static List<String> getOnlinePlayer() {
+        return mc.player.connection.getPlayerInfoMap().stream()
+                .map(NetworkPlayerInfo::getGameProfile)
+                .map(GameProfile::getName)
+                .filter(profileName -> validUserPattern.matcher(profileName).matches())
+                .collect(Collectors.toList());
+    }
+
+    // StaffCommand equals
+    public static List<String> getOnlinePlayerD() {
+        List<String> S = new ArrayList<>();
+        for (NetworkPlayerInfo player : mc.player.connection.getPlayerInfoMap()) {
+            if (mc.isSingleplayer() || player.getPlayerTeam() == null) break;
+            String prefix = player.getPlayerTeam().getPrefix();
+
+            if (check(ChatFormatting.stripFormatting(prefix).toLowerCase())
+                   // || CommandStaff.staffNames.toString().toLowerCase().contains(player.getGameProfile().getName().toLowerCase())
+                    || player.getGameProfile().getName().toLowerCase().contains("1danil_mansoru1") || player.getPlayerTeam().getPrefix().contains("YT")) {
+                String name = Arrays.asList(player.getPlayerTeam().getMembershipCollection().stream().toArray()).toString().replace("[", "").replace("]", "");
+
+                if (player.getGameType() == GameType.SPECTATOR) {
+                    S.add(player.getPlayerTeam().getPrefix() + name + ":gm3");
+                    continue;
                 }
+                S.add(player.getPlayerTeam().getPrefix() + name + ":active");
             }
         }
+        return S;
     }
 
-    public boolean havePermission(GameProfile gameProfile, String displayName) {
-        StringBuilder builder = new StringBuilder();
-        char[] buffer = displayName.toCharArray();
-        for (int i = 0; i < buffer.length; i++) {
-            char c = buffer[i];
-            if (c == '§') {
-                i++;
-            } else {
-                builder.append(c);
-            }
+    public List<String> getVanish() {
+        List<String> list = new ArrayList<>();
+        for (ScorePlayerTeam s : mc.world.getScoreboard().getTeams()) {
+            if (s.getPrefix().length() == 0 || mc.isSingleplayer()) continue;
+            String name = Arrays.asList(s.getMembershipCollection().stream().toArray()).toString().replace("[", "").replace("]", "");
+
+            if (getOnlinePlayer().contains(name) || name.isEmpty())
+                continue;
+           // if (CommandStaff.staffNames.toString().toLowerCase().contains(name.toLowerCase()) && check(s.getPrefix().toLowerCase()) || check(s.getPrefix().toLowerCase()) || name.toLowerCase().contains("1danil_mansoru1") || s.getColorPrefix().contains("YT"))
+           //     list.add(s.getPrefix() + name + ":vanish");
+            if (check(s.getPrefix().toLowerCase()) || name.toLowerCase().contains("1danil_mansoru1") || s.getPrefix().contains("YT"))
+                list.add(s.getPrefix() + name + ":vanish");
         }
-        return havePermissionFixed(builder.toString().toLowerCase().replace(gameProfile.getName().toLowerCase(), ""));
+        return list;
     }
 
-    private boolean havePermissionFixed(String displayName) {
-        return displayName.contains("helper") || displayName.contains("хелпер") || displayName.contains("модер")
-                || displayName.contains("moder") || displayName.contains("куратор") || displayName.contains("админ")
-                || displayName.contains("admin") || displayName.contains("yt") || displayName.contains("yt+") || displayName.contains("бог");
+    public static boolean check(String name) {
+        return name.contains("helper") || name.contains("moder") || name.contains("admin") || name.contains("owner") || name.contains("curator") || name.contains("������") || name.contains("�����") || name.contains("�����") || name.contains("�������");
     }
+
+
+
+
 
     // 1. заходим на сервер гетаем лист по пакету
     // 2. через пару секунд прочекиваем с табом

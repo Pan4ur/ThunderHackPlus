@@ -4,7 +4,6 @@ import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.events.PostPlayerUpdateEvent;
 import com.mrzak34.thunderhack.modules.Module;
-import com.mrzak34.thunderhack.modules.movement.FastFall;
 import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.setting.Setting;
 import net.minecraft.util.math.MathHelper;

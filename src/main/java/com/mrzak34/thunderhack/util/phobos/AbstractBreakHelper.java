@@ -39,7 +39,7 @@ public abstract class AbstractBreakHelper<T extends CrystalData> implements IBre
         BreakData<T> data = newData(dataSet);
         for (Entity crystal : entities)
         {
-            if (!(crystal instanceof EntityEnderCrystal) || EntityUtil.isDead(crystal) && (!module.countDeadCrystals.getValue() || module.countDeathTime.getValue() && (EntityUtil.isDead(crystal) && Thunderhack.setDeadManager.passedDeathTime(crystal, module.getDeathTime()) || ((IEntity) crystal).isPseudoDead() && ((IEntity) crystal).getPseudoTime().passedMs(module.getDeathTime()))))
+            if (!(crystal instanceof EntityEnderCrystal) || EntityUtil.isDead(crystal) && (!module.countDeadCrystals.getValue() || module.countDeathTime.getValue() && (EntityUtil.isDead(crystal) && Thunderhack.setDeadManager.passedDeathTime(crystal, module.getDeathTime()) || ((IEntity) crystal).isPseudoDeadT() && ((IEntity) crystal).getPseudoTimeT().passedMs(module.getDeathTime()))))
             {
                 continue;
             }

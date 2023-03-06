@@ -6,7 +6,6 @@ import com.mrzak34.thunderhack.modules.client.MainSettings;
 import com.mrzak34.thunderhack.util.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.Session;
-import net.minecraft.util.text.TextFormatting;
 
 import java.lang.reflect.Field;
 

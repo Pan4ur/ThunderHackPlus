@@ -1,7 +1,6 @@
 package com.mrzak34.thunderhack.mixin.mixins;
 
 import com.mrzak34.thunderhack.Thunderhack;
-import net.minecraft.entity.player.EntityPlayer;
 import org.spongepowered.asm.mixin.*;
 import net.minecraft.client.renderer.entity.layers.*;
 import net.minecraft.entity.*;

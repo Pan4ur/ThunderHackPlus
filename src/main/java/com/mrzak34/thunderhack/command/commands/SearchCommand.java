@@ -1,7 +1,6 @@
 package com.mrzak34.thunderhack.command.commands;
 
 import com.mojang.realmsclient.gui.ChatFormatting;
-import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.modules.render.Search;
 import net.minecraft.block.Block;

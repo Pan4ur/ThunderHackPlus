@@ -32,13 +32,10 @@ public class ItemESP extends Module{
     }
     private final Setting<Boolean> entityName = (Setting<Boolean>)this.register(new Setting("Name", true));
     private final Setting<Boolean> fullBox = (Setting<Boolean>)this.register(new Setting("Full Box", true));
-
-
-   // public Setting <Integer> cca = this.register ( new Setting <> ( "CustomA", 255, 0, 255));
-   public Setting<Float> scalefactor = register(new Setting("Raytrace", 2.0F, 0.1F, 4.0F));
+    public Setting<Float> scalefactor = register(new Setting("Raytrace", 2.0F, 0.1F, 4.0F));
     public Setting<Float> rads = register(new Setting("radius", 2.0F, 0.1F, 1.0F));
-
-    private final Setting<ColorSetting> cc = this.register(new Setting<>("CustomColor", new ColorSetting(0x8800FF00)));
+    private final Setting<ColorSetting> cc = this.register(new Setting<>("Color", new ColorSetting(0x8800FF00)));
+    private final Setting<ColorSetting> cc2 = this.register(new Setting<>("Color2", new ColorSetting(0x8800FF00)));
 
 
     private final int black = Color.BLACK.getRGB();
@@ -50,14 +47,11 @@ public class ItemESP extends Module{
     public enum mode {
         render2D, render3D, Circle;
     }
-    private Setting<mode2> Mode2 = register(new Setting("Color Mode", mode2.Rainbow));
+    private Setting<mode2> Mode2 = register(new Setting("Color Mode", mode2.Astolfo));
 
     public enum mode2 {
-        Custom, Rainbow, Astolfo;
+        Custom, Astolfo;
     }
-
-    private final Setting<Boolean> astolfo = this.register(new Setting<>("Astolfo", true));
-
 
 
 
@@ -66,23 +60,19 @@ public class ItemESP extends Module{
         for (Entity item : mc.world.loadedEntityList) {
             if (item instanceof EntityItem) {
                 int color = 0;
-                if(Mode2.getValue() == mode2.Astolfo) {
-                        color = PaletteHelper.astolfo(false, (int) item.height).getRGB();
+                if(Mode2.getValue() == mode2.Custom) {
+                    color = cc.getValue().getColor();
                 }
-                if(Mode2.getValue() == mode2.Rainbow) {
-                        color = PaletteHelper.rainbow(300, 1, 1).getRGB();
+                if(Mode2.getValue() == mode2.Astolfo) {
+                    color = PaletteHelper.astolfo(false, (int) item.height).getRGB();
                 }
                 if (Mode.getValue() == mode.render3D) {
                     GlStateManager.pushMatrix();
-                    RenderHelper.drawEntityBox(item, new Color(color), fullBox.getValue(), fullBox.getValue() ? 0.15F : 0.90F);
+                    RenderHelper.drawEntityBox(item, new Color(color), cc2.getValue().getColorObject(), fullBox.getValue(), fullBox.getValue() ? 0.15F : 0.90F);
                     GlStateManager.popMatrix();
                 }
                 if (Mode.getValue() == mode.Circle) {
-                    if(!astolfo.getValue()) {
-                        RenderHelper.drawCircle3D(item, rads.getValue(), event.getPartialTicks(), 32, 2, new Color(0, 255, 135).getRGB(), false);
-                    } else {
-                        RenderHelper.drawCircle3D(item, rads.getValue(), event.getPartialTicks(), 32, 2, new Color(0, 255, 135).getRGB(), true);
-                    }
+                    RenderHelper.drawCircle3D(item, rads.getValue(), event.getPartialTicks(), 32, 2, color, Mode2.getValue() == mode2.Astolfo);
                 }
             }
         }
@@ -90,8 +80,6 @@ public class ItemESP extends Module{
 
     @SubscribeEvent
     public void onRender2D(Render2DEvent event) {
-
-
         float partialTicks = mc.timer.renderPartialTicks;
         Float scaleFactor = scalefactor.getValue();
         double scaling = scaleFactor / Math.pow(scaleFactor, 2);
@@ -105,12 +93,7 @@ public class ItemESP extends Module{
             if(Mode2.getValue() == mode2.Astolfo) {
                 color = PaletteHelper.astolfo(false, 1).getRGB();
             }
-            if(Mode2.getValue() == mode2.Rainbow) {
-                color = PaletteHelper.rainbow(300, 1, 1).getRGB();
-            }
-
         float scale = 1;
-
         for (Entity entity : mc.world.loadedEntityList) {
             if (isValid(entity) && RenderHelper.isInViewFrustum(entity)) {
                 EntityItem entityItem = (EntityItem) entity;
@@ -151,7 +134,6 @@ public class ItemESP extends Module{
                         RectHelper.drawRect(posX, endPosY - 0.5, endPosX, endPosY, color);
                         RectHelper.drawRect(posX - 0.5, posY, endPosX, posY + 0.5, color);
                         RectHelper.drawRect(endPosX - 0.5, posY, endPosX, endPosY, color);
-
                     }
 
                     float diff = (float) (endPosX - posX) / 2;

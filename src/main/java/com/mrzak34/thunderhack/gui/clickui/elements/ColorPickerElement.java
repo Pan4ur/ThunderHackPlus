@@ -4,7 +4,7 @@ import com.mrzak34.thunderhack.util.render.Drawable;
 import com.mrzak34.thunderhack.util.render.RenderUtil;
 import com.mrzak34.thunderhack.util.RoundedShader;
 import com.mrzak34.thunderhack.gui.clickui.base.AbstractElement;
-import com.mrzak34.thunderhack.gui.thundergui.fontstuff.FontRender;
+import com.mrzak34.thunderhack.gui.fontstuff.FontRender;
 import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.math.MathUtil;
@@ -38,12 +38,6 @@ public class ColorPickerElement extends AbstractElement {
         this.colorSetting = setting;
         prevColor = getColorSetting().getColorObject();
         updatePos();
-        
-        double cx = x + 4;
-        double cy = y + 17;
-        double cw = width - 34;
-        double ch = height - 20;
-        
         firstInit = true;
     }
 

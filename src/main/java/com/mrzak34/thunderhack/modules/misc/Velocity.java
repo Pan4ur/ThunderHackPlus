@@ -5,6 +5,7 @@ import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.events.EventPreMotion;
 import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.events.PushEvent;
+import com.mrzak34.thunderhack.mixin.mixins.IEntityPlayerSP;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.modules.combat.Aura;
 import com.mrzak34.thunderhack.setting.Setting;
@@ -31,9 +32,6 @@ public class Velocity
     public Setting<Float> vertical = this.register(new Setting<>("Vertical", 0.0f, 0.0f, 100.0f, v -> mode.getValue() == modeEn.Custom));
     public Setting<Boolean> ice = this.register(new Setting<>("Ice", false));
     public Setting<Boolean> autoDisable = this.register(new Setting<>("DisableOnVerify", false));
-
-
-
 
 
 
@@ -84,9 +82,15 @@ public class Velocity
 
         if (event.getPacket() instanceof SPacketExplosion) {
             SPacketExplosion velocity_ = event.getPacket();
-            velocity_.motionX *= this.horizontal.getValue() / 100f;
-            velocity_.motionY *= this.vertical.getValue() / 100f;
-            velocity_.motionZ *= this.horizontal.getValue() / 100f;
+            if(mode.getValue() == modeEn.Custom) {
+                velocity_.motionX *= this.horizontal.getValue() / 100f;
+                velocity_.motionY *= this.vertical.getValue() / 100f;
+                velocity_.motionZ *= this.horizontal.getValue() / 100f;
+            } else if (mode.getValue() == modeEn.Cancel) {
+                velocity_.motionX = 0;
+                velocity_.motionZ = 0;
+                velocity_.motionY = 0;
+            }
         }
 
 

@@ -1,11 +1,13 @@
 package com.mrzak34.thunderhack.modules.combat;
 
 import com.mrzak34.thunderhack.events.EventEntityMove;
+import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.events.PreRenderEvent;
 import com.mrzak34.thunderhack.events.Render3DEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.setting.Setting;
+import com.mrzak34.thunderhack.util.phobos.ThreadUtil;
 import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelPlayer;
 import net.minecraft.client.renderer.BufferBuilder;
@@ -14,6 +16,8 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.network.play.client.CPacketConfirmTransaction;
+import net.minecraft.network.play.client.CPacketKeepAlive;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
@@ -29,11 +33,12 @@ public class BackTrack extends Module {
 
 
     public BackTrack() {
-        super("BackTrack", "BackTrack", Category.COMBAT);
+        super("BackTrack", "откатывает позицию-врагов", "rolls back the-position of enemies" , Category.COMBAT);
     }
 
     public Setting<Integer> btticks = register(new Setting("TrackTicks", 5, 1, 15));
     public Setting<Boolean> hlaura = register(new Setting<>("HighLightAura", true));
+    public Setting<Boolean> holdPackets = register(new Setting<>("ServerSync", true));
 
 
     public final Setting<ColorSetting> color1 = this.register(new Setting<>("Color", new ColorSetting(-2009289807)));
@@ -127,9 +132,41 @@ public class BackTrack extends Module {
         }
     }
 
+    long skip_packet_ka;
+    long skip_packet_ct;
+    long skip_packet_cwt;
 
 
+    @SubscribeEvent
+    public void onPacketSend(PacketEvent.Send event){
+        if(!holdPackets.getValue())return;
+        if(fullNullCheck()) return;
+        if (event.getPacket() instanceof CPacketKeepAlive) {
+            if (((CPacketKeepAlive) event.getPacket()).getKey() == skip_packet_ka) {
+                return;
+            }
+            event.setCanceled(true);
+            ThreadUtil.run(() -> {
+                skip_packet_ka = ((CPacketKeepAlive) event.getPacket()).getKey();
+                mc.player.connection.sendPacket(event.getPacket());
+            }, (long) btticks.getValue() * 50);
 
+        }
+        if (event.getPacket() instanceof CPacketConfirmTransaction) {
+            if (((CPacketConfirmTransaction) event.getPacket()).getUid() == skip_packet_ct) {
+                return;
+            }
+            if (((CPacketConfirmTransaction) event.getPacket()).getWindowId() == skip_packet_cwt) {
+                return;
+            }
+            event.setCanceled(true);
+            ThreadUtil.run(() -> {
+                skip_packet_ct = ((CPacketConfirmTransaction) event.getPacket()).getUid();
+                skip_packet_cwt = ((CPacketConfirmTransaction) event.getPacket()).getWindowId();
+                mc.player.connection.sendPacket(event.getPacket());
+            }, (long) btticks.getValue() * 50);
+        }
+    }
 
 
     @SubscribeEvent

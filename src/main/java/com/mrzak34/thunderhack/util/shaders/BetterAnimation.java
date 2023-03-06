@@ -26,7 +26,7 @@ public class BetterAnimation {
 
     public static double dropAnimation(double value) {
         double c1 = 1.70158;
-        double c3 = c1 + 1;
+        double c3 = 2.70158;
         return 1 + c3 * Math.pow(value - 1, 3) + c1 * Math.pow(value - 1, 2);
     }
 }

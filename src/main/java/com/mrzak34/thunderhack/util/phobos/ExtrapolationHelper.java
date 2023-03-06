@@ -19,9 +19,9 @@ public class ExtrapolationHelper extends Feature {
 
         //TODO SUBSCRIBEp
         for (EntityPlayer player : mc.world.playerEntities) {
-            MotionTracker tracker = ((IEntityPlayer) player).getMotionTracker();
-            MotionTracker breakTracker = ((IEntityPlayer) player).getBreakMotionTracker();
-            MotionTracker blockTracker = ((IEntityPlayer) player).getBlockMotionTracker();
+            MotionTracker tracker = ((IEntityPlayer) player).getMotionTrackerT();
+            MotionTracker breakTracker = ((IEntityPlayer) player).getBreakMotionTrackerT();
+            MotionTracker blockTracker = ((IEntityPlayer) player).getBlockMotionTrackerT();
             if (player.getHealth() <= 0 || mc.player.getDistanceSq(player) > 400
                     || !Thunderhack.moduleManager.getModuleByClass(AutoCrystal.class).selfExtrapolation.getValue()
                     && player.equals(mc.player)) {
@@ -42,17 +42,17 @@ public class ExtrapolationHelper extends Feature {
 
             if (tracker == null && Thunderhack.moduleManager.getModuleByClass(AutoCrystal.class).extrapol.getValue() != 0) {
                 tracker = new MotionTracker(mc.world, player);
-                ((IEntityPlayer) player).setMotionTracker(tracker);
+                ((IEntityPlayer) player).setMotionTrackerT(tracker);
             }
 
             if (breakTracker == null && Thunderhack.moduleManager.getModuleByClass(AutoCrystal.class).bExtrapol.getValue() != 0) {
                 breakTracker = new MotionTracker(mc.world, player);
-                ((IEntityPlayer) player).setBreakMotionTracker(breakTracker);
+                ((IEntityPlayer) player).setBreakMotionTrackerT(breakTracker);
             }
 
             if (blockTracker == null && Thunderhack.moduleManager.getModuleByClass(AutoCrystal.class).blockExtrapol.getValue() != 0) {
                 blockTracker = new MotionTracker(mc.world, player);
-                ((IEntityPlayer) player).setBlockMotionTracker(blockTracker);
+                ((IEntityPlayer) player).setBlockMotionTrackerT(blockTracker);
             }
 
             updateTracker(tracker, Thunderhack.moduleManager.getModuleByClass(AutoCrystal.class).extrapol.getValue());
@@ -80,15 +80,15 @@ public class ExtrapolationHelper extends Feature {
     }
 
     public MotionTracker getTrackerFromEntity(Entity player) {
-        return ((IEntityPlayer) player).getMotionTracker();
+        return ((IEntityPlayer) player).getMotionTrackerT();
     }
 
     public MotionTracker getBreakTrackerFromEntity(Entity player) {
-        return ((IEntityPlayer) player).getBreakMotionTracker();
+        return ((IEntityPlayer) player).getBreakMotionTrackerT();
     }
 
     public MotionTracker getBlockTracker(Entity player) {
-        return ((IEntityPlayer) player).getBlockMotionTracker();
+        return ((IEntityPlayer) player).getBlockMotionTrackerT();
     }
 
 }

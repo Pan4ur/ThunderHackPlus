@@ -8,7 +8,6 @@ import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.modules.Feature;
 import com.mrzak34.thunderhack.modules.Module;
-import com.mrzak34.thunderhack.manager.ConfigManager;
 import com.mrzak34.thunderhack.setting.*;
 
 import java.util.Objects;

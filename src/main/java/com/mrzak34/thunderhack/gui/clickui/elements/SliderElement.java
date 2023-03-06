@@ -6,7 +6,7 @@ import java.util.Objects;
 import com.mrzak34.thunderhack.util.render.RenderUtil;
 import com.mrzak34.thunderhack.util.RoundedShader;
 import com.mrzak34.thunderhack.gui.clickui.base.AbstractElement;
-import com.mrzak34.thunderhack.gui.thundergui.fontstuff.FontRender;
+import com.mrzak34.thunderhack.gui.fontstuff.FontRender;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.math.MathUtil;
 
@@ -34,8 +34,7 @@ public class SliderElement extends AbstractElement {
 
 
 
-		double currentPos = (((Number)setting.getValue()).floatValue() - min)
-				/ (max - min);
+		double currentPos = (((Number)setting.getValue()).floatValue() - min) / (max - min);
 		stranimation = stranimation + (((Number) setting.getValue()).floatValue() * 100 / 100 - stranimation) / 2.0D;
 		animation = RenderUtil.scrollAnimate(animation, (float) currentPos, .5f);
 
@@ -47,7 +46,11 @@ public class SliderElement extends AbstractElement {
 
 		if(!listening) {
 			FontRender.drawString5(setting.getName(), (float) (x + 4), (float) (y + 4), -1);
-			FontRender.drawString5(value, (float) (x + width - 4 - FontRender.getStringWidth6(value)), (float) y + 5, -1);
+			if(setting.getValue() instanceof Float)
+				FontRender.drawString5(String.valueOf(MathUtil.round((Float)setting.getValue(), 2)), (float) (x + width - 4 - FontRender.getStringWidth6(value)), (float) y + 5, -1);
+			if(setting.getValue() instanceof Integer)
+				FontRender.drawString5(String.valueOf(MathUtil.round((Integer)setting.getValue(), 2)), (float) (x + width - 4 - FontRender.getStringWidth6(value)), (float) y + 5, -1);
+
 		} else {
 			FontRender.drawString5(setting.getName(), (float) (x + 4), (float) (y + 4), -1);
 			if(Objects.equals(Stringnumber, "")) {

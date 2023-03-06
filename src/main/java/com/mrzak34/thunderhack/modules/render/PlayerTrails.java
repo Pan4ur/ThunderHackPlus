@@ -23,7 +23,7 @@ import com.mrzak34.thunderhack.events.Render3DEvent;
 public class PlayerTrails extends Module{
 
     public PlayerTrails() {
-        super("PlayerTrails", "PlayerTrails", Category.RENDER);
+        super("PlayerTrails", "трейлы позади-игроков", Category.RENDER);
     }
 
 

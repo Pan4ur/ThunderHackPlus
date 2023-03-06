@@ -20,7 +20,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class PopChams extends Module {
 
     public PopChams() {
-        super("PopChams", "Renders when some1 pops", Category.RENDER);
+        super("PopChams", "рендерит юз-тотема", Category.RENDER);
     }
 
 

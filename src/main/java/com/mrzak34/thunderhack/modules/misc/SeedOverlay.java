@@ -3,9 +3,9 @@ package com.mrzak34.thunderhack.modules.misc;
 import com.mrzak34.thunderhack.events.Render3DEvent;
 import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.modules.Module;
+import com.mrzak34.thunderhack.notification.Notification;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.notification.NotificationManager;
-import com.mrzak34.thunderhack.notification.NotificationType;
 import com.mrzak34.thunderhack.util.render.RenderUtil;
 import com.mrzak34.thunderhack.util.Timer;
 import com.mrzak34.thunderhack.util.seedoverlay.WorldLoader;
@@ -23,11 +23,10 @@ import java.util.concurrent.Executors;
 
 public class SeedOverlay extends Module{
     public SeedOverlay() {
-    super("SeedOverlay", "рендерит фейковый мир-для поиска несоответсвий", Module.Category.MISC);
+    super("SeedOverlay", "рендерит фейковый-мир для поиска-несоответсвий", Module.Category.MISC);
     }
 
 
-    public Setting <Integer> BlockLimit = this.register ( new Setting <> ( "Chance", 200, 0, 5000 ) );
     public Setting <Integer> Distance = this.register ( new Setting <> ( "Distance", 6, 0, 15 ) );
     public Setting <Integer> renderDistance = this.register ( new Setting <> ( "RenderDistance", 120, 0, 256 ) );
 
@@ -83,12 +82,11 @@ public class SeedOverlay extends Module{
     public void onEnable() {
         WorldLoader.seed = Long.parseLong(sd.getValue());
         try {
-            NotificationManager.publicity("SeedOverlay", "настроен на " + WorldLoader.seed, 3, NotificationType.INFO);
+            NotificationManager.publicity("Current seed: " + WorldLoader.seed, 3, Notification.Type.INFO);
         } catch (Exception e){}
-        //  executor = Executors.newSingleThreadExecutor();
-       // executor2 = Executors.newSingleThreadExecutor();
+
         if (mc.isSingleplayer()) {
-            Command.sendMessage("только в мультиплеере дебил тупой конч безмамный");
+            Command.sendMessage("Only in multiplayer");
             this.toggle();
         }
         if (WorldLoader.seed == 44776655) {

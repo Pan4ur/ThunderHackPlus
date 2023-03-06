@@ -1,14 +1,11 @@
 package com.mrzak34.thunderhack.util;
 
-import com.mojang.realmsclient.gui.ChatFormatting;
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.util.phobos.IEntity;
 import net.minecraft.block.*;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemAxe;
-import net.minecraft.item.ItemSword;
 import net.minecraft.network.play.client.CPacketUseEntity;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
@@ -16,8 +13,6 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 
 import java.awt.*;
-import java.math.RoundingMode;
-import java.text.DecimalFormat;
 import java.util.List;
 import java.util.*;
 
@@ -40,7 +35,7 @@ public class EntityUtil
     public static boolean isDead(Entity entity)
     {
         return entity.isDead
-                || ((IEntity) entity).isPseudoDead()
+                || ((IEntity) entity).isPseudoDeadT()
                 || entity instanceof EntityLivingBase
                 && ((EntityLivingBase) entity).getHealth() <= 0.0f;
     }
@@ -57,8 +52,13 @@ public class EntityUtil
     }
 
     public static Vec3d interpolateEntity(Entity entity, float time) {
-        return new Vec3d(entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * (double) time, entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * (double) time, entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * (double) time);
+        return new Vec3d(
+                entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * (double) time,
+                entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * (double) time,
+                entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * (double) time);
     }
+
+
 
     public static Vec3d getInterpolatedAmount(Entity entity, double x, double y, double z) {
         return new Vec3d((entity.posX - entity.lastTickPosX) * x, (entity.posY - entity.lastTickPosY) * y, (entity.posZ - entity.lastTickPosZ) * z);

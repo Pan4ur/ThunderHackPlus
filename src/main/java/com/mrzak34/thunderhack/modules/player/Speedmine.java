@@ -2,352 +2,85 @@ package com.mrzak34.thunderhack.modules.player;
 
 import com.mrzak34.thunderhack.events.DamageBlockEvent;
 import com.mrzak34.thunderhack.events.EventPreMotion;
+import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.events.Render3DEvent;
-import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.modules.Module;
+import com.mrzak34.thunderhack.modules.render.BreakHighLight;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.*;
-import com.mrzak34.thunderhack.util.render.RenderUtil;
+import com.mrzak34.thunderhack.util.math.MathUtil;
+import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.init.Blocks;
+import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.init.Enchantments;
 import net.minecraft.init.Items;
+import net.minecraft.init.MobEffects;
+import net.minecraft.inventory.ClickType;
 import net.minecraft.item.ItemAxe;
 import net.minecraft.item.ItemPickaxe;
-import net.minecraft.network.play.client.CPacketPlayer;
-import net.minecraft.network.play.client.CPacketPlayerDigging;
+import net.minecraft.item.ItemStack;
+import net.minecraft.network.play.client.*;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockAir;
-import net.minecraft.item.Item;
-import net.minecraft.network.play.client.CPacketHeldItemChange;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
-
 import java.awt.*;
 
 
-public class Speedmine
-        extends Module {
+public class Speedmine extends Module {
 
-    public Speedmine() {super("Speedmine", "пакетмайн", Module.Category.PLAYER);}
+    //https://github.com/momentumdevelopment/cosmos/
 
-
-
+    public Speedmine() {super("Speedmine", "позволяет быстро-копать","Allows you to dig-quickly", Module.Category.PLAYER);}
 
     private Setting<Mode> mode = register(new Setting("Mode", Mode.Packet));
 
     public enum Mode {
-        Packet, Damage, Instant, Breaker, PacketRebreak,NexusGrief
+        Packet, Damage, Creative,NexusGrief
     }
 
+    private final Setting<Float> startDamage = this.register(new Setting<Float>("StartDamage", 0.1f, 0.0f, 1.0f, v -> mode.getValue() == Mode.Damage));
+    private final Setting<Float> endDamage = this.register(new Setting<Float>("EndDamage", 0.9f, 0.0f, 1.0f, v -> mode.getValue() == Mode.Damage));
+    public Setting<Boolean> rotate  = this.register(new Setting<Boolean>("Rotate", false));
+    public Setting<Boolean> strict  = this.register(new Setting<Boolean>("Strict", false));
+    public Setting<Boolean> strictReMine  = this.register(new Setting<Boolean>("StrictBreak", false));
+    private final Setting<Float> range = this.register(new Setting<Float>("Range", 4.2f, 3.0f, 10.0f));
+    public Setting<Boolean> render  = this.register(new Setting<Boolean>("Render", false));
 
 
 
-
-//    ColorSetting progressColor = registerColor("Progress Color", new GSColor(255, 255, 255), () -> (mode.getValue().equals("Breaker") || mode.getValue().equals("Packet")) && showProgress.getValue());
-// ColorSetting blockColor = registerColor("Block Color", new GSColor(255, 0, 0), () -> (mode.getValue().equals("Breaker") || mode.getValue().equals("Packet")) && display.getValue());
-//    ColorSetting doneColor = registerColor("Done Color", new GSColor(0, 255, 0), () -> (mode.getValue().equals("Breaker") || mode.getValue().equals("Packet")) && display.getValue());
-
-
-    private final Setting<Float> startDamage = this.register(new Setting<Float>("Start Damage", Float.valueOf(0.1f), Float.valueOf(0.0f), Float.valueOf(1.0f) , v -> mode.getValue() == Mode.Damage));
-    private final Setting<Float> endDamage = this.register(new Setting<Float>("End Damage", Float.valueOf(0.9f), Float.valueOf(0.0f), Float.valueOf(1.0f), v -> mode.getValue() == Mode.Damage));
-    public Setting<Boolean> display  = this.register(new Setting<Boolean>("Display", false));
-    public Setting<Boolean> forceRotation = this.register(new Setting<Boolean>("Force Rotation", false, v -> mode.getValue() == Mode.Breaker ||mode.getValue() == Mode.Packet));
-    public Setting<Boolean> startPick = this.register(new Setting<Boolean>("Start Pick", false, v -> mode.getValue() == Mode.Breaker));
-    public Setting<Boolean> onlyOnPick = this.register(new Setting<Boolean>("Only On Pick", false, v -> mode.getValue() == Mode.Breaker));
-    public Setting<Boolean> ignoreChecks = this.register(new Setting<Boolean>("Spammer", false, v -> mode.getValue() == Mode.Breaker));
-    public Setting<Boolean> spammer = this.register(new Setting<Boolean>("Rotate", true, v -> mode.getValue() == Mode.Breaker));
-    public Setting<Boolean> silentSwitch = this.register(new Setting<Boolean>("Silent Switch", false, v -> mode.getValue() == Mode.Breaker ||mode.getValue() == Mode.Packet ));
-    public Setting< Boolean > placeCrystal = this.register ( new Setting <> ( "PlaceCrystal" , false ) );
-
-    public Setting<Boolean> stopEating = this.register(new Setting<Boolean>("Stop Eating", false, v -> (mode.getValue() == Mode.Breaker ||mode.getValue() == Mode.Packet) && silentSwitch.getValue() ));
-    public Setting<Boolean> switchBack = this.register(new Setting<Boolean>("Switch Back", false, v -> mode.getValue() == Mode.Breaker ||mode.getValue() == Mode.Packet ));
-    public Setting<Boolean> switchPick = this.register(new Setting<Boolean>("Switch Pick", false, v -> mode.getValue() == Mode.Breaker ||mode.getValue() == Mode.Packet ));
-    public Setting<Boolean> continueBreaking = this.register(new Setting<Boolean>("Continue Breaking", true));
-    public Setting<Boolean> showProgress = this.register(new Setting<Boolean>("Show Progress", true, v -> mode.getValue() == Mode.Breaker ||mode.getValue() == Mode.Packet));
-
-    public Setting<Boolean> continueBreakingAlways = this.register(new Setting<Boolean>("Always Continue", false, v-> continueBreaking.getValue()));
-    public Setting<Boolean> disableContinueShift = this.register(new Setting<Boolean>("Disable Continue Shift", true, v -> continueBreaking.getValue()));
-
-
-   // private final Setting<Integer> width = this.register(new Setting<Integer>("Width", 1, 1, 10));
-    private final Setting<Integer> rangeDisableBreaker = this.register(new Setting<Integer>("Range Disable Breaker", 15, 6, 50, v -> mode.getValue() == Mode.Breaker ));
-    private final Setting<Integer> breakerTickDelay = this.register(new Setting<Integer>("Breaker Delay", 0, 0, 75 , v -> mode.getValue() == Mode.Breaker));
-    private final Setting<Integer> spammerTickDelay = this.register(new Setting<Integer>("Spammer Delay", 0, 0, 75, v -> mode.getValue() == Mode.Breaker));
-    private final Setting<Integer> pickStill = this.register(new Setting<Integer>("Pick Switch Still", 20, 0, 30, v -> mode.getValue() == Mode.Breaker ||mode.getValue() == Mode.Packet));
-    private final Setting<Integer> pickTickSwitch = this.register(new Setting<Integer>("Pick Switch Destroy", 75, 0, 200, v -> mode.getValue() == Mode.Breaker ||mode.getValue() == Mode.Packet));
-    private final Setting<Integer> resetTickDestroy = this.register(new Setting<Integer>("Tick Reset Destroy", 0, 0, 50, v -> mode.getValue() == Mode.Breaker ||mode.getValue() == Mode.Packet));
-
-
-    private int tick = 99;
-    private int tickSpammer = 0;
-    private int oldslot;
-    private int breakTick = 0;
-    private int wait = 100;
-
-
-    private BlockPos lastBlock = null;
-    private BlockPos continueBlock = null;
-    private boolean pickStillBol = false,
-            ready = false;
-    private EnumFacing direction;
-    private boolean minedBefore = false;
-    private int reseTick;
-
-    private Vec3d lastHitVec = null;
-
-
-
-    @SubscribeEvent
-    public void onUpdateWalkingPlayer(EventPreMotion event) {
-        if (lastHitVec == null || !forceRotation.getValue() || lastBlock == null)
-            return;
-        Vec2f rotation = RotationUtil.getRotationTo(lastHitVec);
-        Util.mc.player.connection.sendPacket(new CPacketPlayer.Rotation(rotation.x,rotation.y,Speedmine.mc.player.onGround));
-    }
-
-    boolean broke = false;
-
-    boolean needplacecrys = true;
+    private BlockPos minePosition;
+    private EnumFacing mineFacing;
+    private static float mineDamage;
+    private int mineBreaks;
 
     @Override
     public void onUpdate() {
-
-        if(lastBlock == null){
-            needplacecrys = true;
-        }
-        if(lastBlock != null && placeCrystal.getValue() && needplacecrys) {
-            if (mc.world.getBlockState(lastBlock).getBlock() == Blocks.AIR){
-                Vec3d vec = new Vec3d(lastBlock).add(0.0, -1.0, 0.0);
-                SilentRotaionUtil.lookAtVector(vec);
-                int crystalSlot = CrystalUtils.getCrystalSlot();
-                if (crystalSlot == -1) {
-                    Command.sendMessage("No crystals found!");
-                    toggle();
-                    return;
-                }
-
-                if (mc.player.inventory.currentItem != crystalSlot) {
-                    mc.player.inventory.currentItem = crystalSlot;
-                    mc.playerController.updateController();
-                }
-                BlockUtils.rightClickBlock(lastBlock.add(0.0,-1.0,0.0), mc.player.getPositionVector().add(0, mc.player.getEyeHeight(), 0), EnumHand.MAIN_HAND, EnumFacing.UP, true);
-                needplacecrys = false;
-            }
-        }
-
-
-        if (continueBreaking.getValue()) {
-            if (continueBlock != null) {
-                if (disableContinueShift.getValue() && mc.gameSettings.keyBindSneak.isKeyDown())
-                    continueBlock = null;
-                else {
-                    if (BlockUtils.getBlockgs(continueBlock) instanceof BlockAir) {
-                        broke = true;
-                    }
-                    if (!(BlockUtils.getBlockgs(continueBlock) instanceof BlockAir) && (broke || continueBreakingAlways.getValue())) {
-                        mc.player.swingArm(EnumHand.MAIN_HAND);
-                        mc.playerController.onPlayerDamageBlock(continueBlock, EnumFacing.UP);
-                        broke = false;
-                    }
+        if (!mc.player.capabilities.isCreativeMode) {
+            if (minePosition != null) {
+                double mineDistance =  mc.player.getDistanceSq(minePosition.add(0.5,0.5,0.5));
+                if (mineBreaks >= 2 && strictReMine.getValue() || mineDistance > range.getPow2Value()) {
+                    minePosition = null;
+                    mineFacing = null;
+                    mineDamage = 0;
+                    mineBreaks = 0;
                 }
             }
-        }
-
-        if (tick != 99) {
-            if (tick++ >= wait) {
-                int prev = mc.player.inventory.currentItem;
-                ready = true;
-                if (switchPick.getValue() && oldslot != -1) {
-                    if (silentSwitch.getValue()) {
-                        mc.player.connection.sendPacket(new CPacketHeldItemChange(oldslot));
-                        mc.playerController.updateController();
-                        if (lastBlock != null && direction != null)
-                            mc.player.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.STOP_DESTROY_BLOCK, lastBlock, direction));
-                        if (stopEating.getValue() && mc.player.isHandActive())
-                            mc.player.stopActiveHand();
-                    }
-                    else
-                        mc.player.inventory.currentItem = oldslot;
-                    oldslot = -1;
-                }
-                // If we have to change
-                if (!pickStillBol) {
-                    // So, in case we have to switch back
-                    if (pickTickSwitch.getValue() != 0 && switchPick.getValue()) {
-                        // New wait
-                        wait = pickStill.getValue();
-                        // Reset tick
-                        tick = 0;
-                        // New oldslot
-                        oldslot = prev;
-                        // do not enter this if again basically
-                        pickStillBol = true;
-                    } else {
-                        // Else, just finish
-                        tick = 99;
-                        if (silentSwitch.getValue()) {
-                            mc.player.connection.sendPacket(new CPacketHeldItemChange(prev));
-                            mc.playerController.updateController();
-                        }
-                        else {
-                            mc.player.inventory.currentItem = prev;
-                        }
-                    }
-                    // Just finish in case we have not to switch
-                } else
-                    tick = 99;
-            }
-        }
-
-        mc.playerController.blockHitDelay = 0;
-        if (!onlyOnPick.getValue() || mc.player.getHeldItemMainhand().getItem() instanceof ItemPickaxe)
-            if (mode.getValue() == Mode.Breaker) {
-                if (lastBlock != null && ((spammer.getValue() && tickSpammer++ >= spammerTickDelay.getValue()))) {
-                    tickSpammer = 0;
-                    if (BlockUtils.getBlockgs(lastBlock) instanceof BlockAir) {
-                        minedBefore = true;
-                        reseTick = 0;
-                        lastHitVec = null;
-                    }
-                    // If we have mined it before
-                    if (minedBefore) {
-                        if (resetTickDestroy.getValue() != 0 && reseTick++ >= resetTickDestroy.getValue() && !(BlockUtils.getBlockgs(lastBlock) instanceof BlockAir)) {
-                            mc.player.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.START_DESTROY_BLOCK, lastBlock, direction));
-                            breakerBreak();
-                            reseTick = 0;
-                            minedBefore = false;
-                            return;
-                        }
-                        if (ignoreChecks.getValue() || !(BlockUtils.getBlockgs(lastBlock) instanceof BlockAir)) {
-                            if (forceRotation.getValue())
-                                setVec3d(lastBlock, direction);
-                            // Get distance, if it's >=, then delete it
-                            if (mc.player.getDistanceSq(lastBlock) >= rangeDisableBreaker.getValue())
-                                lastBlock = null;
-                            else {
-                                // Finally break it
-                                breakerBreak();
-                            }
-                        }
-                    }
-                }
-            }
-    }
-
-    private void breakerBreak() {
-        // Get item
-        Item item = mc.player.inventory.getCurrentItem().getItem();
-        // OldSlot
-        int oldSlot = -1;
-        // Switch to pick
-        if (!(item instanceof ItemPickaxe) && minedBefore && (switchBack.getValue() || switchPick.getValue())) {
-            oldSlot = mc.player.inventory.currentItem;
-            int slot = InventoryUtil.findFirstItemSlot(ItemPickaxe.class, 0, 9);
-            // Who know? Do you want to get kicked?
-            if (slot != -1)
-                mc.player.inventory.currentItem = slot;
-        }
-        // Send STOP_DESTROY_BLOCK
-        mc.player.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.STOP_DESTROY_BLOCK,
-                lastBlock, direction));
-        // If oldSlot != -1, so we have switchback
-        if (oldSlot != -1 && switchBack.getValue()) {
-            // Allow to switchback
-            tick = 0;
-            oldslot = oldSlot;
-            // Since we use it for both packet and breaker, we have to do these checks
-            if (!minedBefore || mode.getValue() == Mode.Packet || mode.getValue() == Mode.PacketRebreak) {
-                wait = pickTickSwitch.getValue();
-                pickStillBol = !switchBack.getValue();
-            } else
-                wait = pickStill.getValue();
-        }
-
-    }
-
-    boolean first = true;
-
-    @SubscribeEvent
-    public void onBreakBlock(DamageBlockEvent event){
-
-        if (mc.world == null || mc.player == null) return;
-        if (!canBreak(event.getBlockPos()) || event.getBlockPos() == null) return;
-
-
-        if (forceRotation.getValue())
-            setVec3d(event.getBlockPos(), event.getEnumFacing());
-
-        if (continueBreaking.getValue())
-            continueBlock = event.getBlockPos();
-
-        switch (mode.getValue()) {
-            case Packet: {
-                    mc.player.swingArm(EnumHand.MAIN_HAND);
-                    mc.player.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.START_DESTROY_BLOCK, event.getBlockPos(), event.getEnumFacing()));
-                    mc.player.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.STOP_DESTROY_BLOCK, event.getBlockPos(), event.getEnumFacing()));
-                    event.setCanceled(true);
-                    lastBlock = event.getBlockPos();
-                    direction = event.getEnumFacing();
-                    oldslot = InventoryUtil.findFirstItemSlot(ItemPickaxe.class, 0, 9);
-                    tick = 0;
-                    wait = pickTickSwitch.getValue();
-                    ready = false;
-                    pickStillBol = false;
-                    first = false;
-                break;
-            }
-
-            case PacketRebreak: {
-                if(first) {
-                    Command.sendMessage("1");
-                    mc.player.swingArm(EnumHand.MAIN_HAND);
-                    mc.player.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.START_DESTROY_BLOCK, event.getBlockPos(), event.getEnumFacing()));
-                    mc.player.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.STOP_DESTROY_BLOCK, event.getBlockPos(), event.getEnumFacing()));
-                    event.setCanceled(true);
-                    lastBlock = event.getBlockPos();
-                    direction = event.getEnumFacing();
-                    oldslot = InventoryUtil.findFirstItemSlot(ItemPickaxe.class, 0, 9);
-                    tick = 0;
-                    wait = pickTickSwitch.getValue();
-                    ready = false;
-                    pickStillBol = false;
-                    first = false;
-                } else {
-                    Command.sendMessage("2");
-                    mc.player.swingArm(EnumHand.MAIN_HAND);
-                    mc.player.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.STOP_DESTROY_BLOCK, event.getBlockPos(), event.getEnumFacing()));
-                    mc.player.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.START_DESTROY_BLOCK, event.getBlockPos(), event.getEnumFacing()));
-                    mc.player.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.STOP_DESTROY_BLOCK, event.getBlockPos(), event.getEnumFacing()));
-                    event.setCanceled(true);
-                    lastBlock = event.getBlockPos();
-                    direction = event.getEnumFacing();
-                    oldslot = InventoryUtil.findFirstItemSlot(ItemPickaxe.class, 0, 9);
-                    tick = 0;
-                    wait = pickTickSwitch.getValue();
-                    ready = false;
-                    pickStillBol = false;
-                    first = true;
-                }
-                break;
-            }
-            case Damage: {
+            if (mode.getValue() == Mode.Damage) {
                 if (mc.playerController.curBlockDamageMP < startDamage.getValue())
-                    mc.playerController.curBlockDamageMP = startDamage.getValue().floatValue();
+                    mc.playerController.curBlockDamageMP = startDamage.getValue();
 
                 if (mc.playerController.curBlockDamageMP >= endDamage.getValue()) {
                     mc.playerController.curBlockDamageMP = 1.0f;
                 }
-                break;
-            }
-            case NexusGrief: {
+            } else if (mode.getValue() == Mode.NexusGrief) {
                 if(mc.player.getHeldItemMainhand().getItem() instanceof ItemPickaxe) {
                     if (mc.playerController.curBlockDamageMP < 0.17f)
                         mc.playerController.curBlockDamageMP = 0.17f;
@@ -370,56 +103,221 @@ public class Speedmine
                         mc.playerController.curBlockDamageMP = 1.0f;
                     }
                 }
-                break;
+            } else if (mode.getValue() == Mode.Packet) {
+                if (minePosition != null && !mc.world.isAirBlock(minePosition)) {
+                    if (mineDamage >= 1) {
+                         int previousSlot = mc.player.inventory.currentItem;
+                            int swapSlot = getTool(minePosition);
+                            if(swapSlot == -1) return;
+                            if (strict.getValue()) {
+                                short nextTransactionID = mc.player.openContainer.getNextTransactionID(mc.player.inventory);
+                                ItemStack itemstack = mc.player.openContainer.slotClick(swapSlot, mc.player.inventory.currentItem, ClickType.SWAP, mc.player);
+                                mc.player.connection.sendPacket(new CPacketClickWindow(mc.player.inventoryContainer.windowId, swapSlot, mc.player.inventory.currentItem, ClickType.SWAP, itemstack, nextTransactionID));
+                            } else {
+                                mc.player.connection.sendPacket(new CPacketHeldItemChange(swapSlot));
+                            }
+
+                            mc.player.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.STOP_DESTROY_BLOCK, minePosition, mineFacing));
+                            mc.player.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.ABORT_DESTROY_BLOCK, minePosition, EnumFacing.UP));
+
+                            if (strict.getValue()) {
+                                mc.player.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.START_DESTROY_BLOCK, minePosition, mineFacing));
+                            }
+                            mc.player.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.STOP_DESTROY_BLOCK, minePosition, mineFacing));
+                            if (previousSlot != -1) {
+                                if (strict.getValue()) {
+                                    short nextTransactionID = mc.player.openContainer.getNextTransactionID(mc.player.inventory);
+                                    ItemStack itemstack = mc.player.openContainer.slotClick(swapSlot, mc.player.inventory.currentItem, ClickType.SWAP, mc.player);
+                                    mc.player.connection.sendPacket(new CPacketClickWindow(mc.player.inventoryContainer.windowId, swapSlot, mc.player.inventory.currentItem, ClickType.SWAP, itemstack, nextTransactionID));
+                                    mc.player.connection.sendPacket(new CPacketConfirmTransaction(mc.player.inventoryContainer.windowId, nextTransactionID, true));
+                                } else {
+                                    mc.player.connection.sendPacket(new CPacketHeldItemChange(previousSlot));
+                                }
+                            }
+                            mineDamage = 0;
+                            mineBreaks++;
+                    }
+                    mineDamage += getBlockStrength(mc.world.getBlockState(minePosition), minePosition);                }
+                else {
+                    mineDamage = 0;
+                }
             }
-            case Instant: {
+        }
+    }
+
+    public float getBlockStrength(IBlockState state, BlockPos position) {
+        float hardness = state.getBlockHardness(mc.world, position);
+        if (hardness < 0) {
+            return 0;
+        }
+        if (!canBreak(position)) {
+            return getDigSpeed(state) / hardness / 100F;
+        } else {
+            return getDigSpeed(state) / hardness / 30F;
+        }
+    }
+
+    public float getDigSpeed(IBlockState state) {
+        float digSpeed = getDestroySpeed(state);
+        if (digSpeed > 1) {
+            ItemStack itemstack = getTool2(state);
+            int efficiencyModifier = EnchantmentHelper.getEnchantmentLevel(Enchantments.EFFICIENCY, itemstack);
+            if (efficiencyModifier > 0 && !itemstack.isEmpty()) {
+                digSpeed += StrictMath.pow(efficiencyModifier, 2) + 1;
+            }
+        }
+        if (mc.player.isPotionActive(MobEffects.HASTE)) {
+            digSpeed *= 1 + (mc.player.getActivePotionEffect(MobEffects.HASTE).getAmplifier() + 1) * 0.2F;
+        }
+        if (mc.player.isPotionActive(MobEffects.MINING_FATIGUE)) {
+            float fatigueScale;
+            switch (mc.player.getActivePotionEffect(MobEffects.MINING_FATIGUE).getAmplifier()) {
+                case 0:
+                    fatigueScale = 0.3F;
+                    break;
+                case 1:
+                    fatigueScale = 0.09F;
+                    break;
+                case 2:
+                    fatigueScale = 0.0027F;
+                    break;
+                case 3:
+                default:
+                    fatigueScale = 8.1E-4F;
+            }
+
+            digSpeed *= fatigueScale;
+        }
+        if (mc.player.isInsideOfMaterial(Material.WATER) && !EnchantmentHelper.getAquaAffinityModifier(mc.player)) {
+            digSpeed /= 5;
+        }
+        if (!mc.player.onGround) {
+            digSpeed /= 5;
+        }
+        return (digSpeed < 0 ? 0 : digSpeed);
+    }
+
+    public float getDestroySpeed(IBlockState state) {
+        float destroySpeed = 1;
+        if (getTool2(state) != null && !getTool2(state).isEmpty()) {
+            destroySpeed *= getTool2(state).getDestroySpeed(state);
+        }
+        return destroySpeed;
+    }
+
+    @Override
+    public void onDisable() {
+        minePosition = null;
+        mineFacing = null;
+        mineDamage = 0;
+        mineBreaks = 0;
+    }
+
+    @SubscribeEvent
+    public void onRender3D(Render3DEvent e) {
+        if (mode.getValue() == Mode.Packet) {
+            if (minePosition != null && !mc.world.isAirBlock(minePosition)) {
+                GlStateManager.disableTexture2D();
+                GlStateManager.enableBlend();
+                GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
+                GlStateManager.shadeModel(7425);
+                GlStateManager.disableDepth();
+                AxisAlignedBB mineBox = mc.world.getBlockState(minePosition).getSelectedBoundingBox(mc.world, minePosition);
+                Vec3d mineCenter = mineBox.getCenter();
+                AxisAlignedBB shrunkMineBox = new AxisAlignedBB(mineCenter.x, mineCenter.y, mineCenter.z, mineCenter.x, mineCenter.y, mineCenter.z);
+                BreakHighLight.renderBreakingBB2(shrunkMineBox.shrink(MathUtil.clamp(mineDamage, 0, 1) * 0.5), mineDamage >= 0.95 ? new Color(47, 255, 0, 120) : new Color(255, 0, 0, 120), mineDamage >= 0.95 ? new Color(0, 255, 13, 120) : new Color(255, 0, 0, 120));
+                GlStateManager.shadeModel(7424);
+                GlStateManager.disableBlend();
+                GlStateManager.enableDepth();
+                GlStateManager.depthMask(true);
+                GlStateManager.enableTexture2D();
+                GlStateManager.enableBlend();
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public void onLeftClickBlock(DamageBlockEvent event) {
+        if (canBreak(event.getBlockPos()) && !mc.player.capabilities.isCreativeMode) {
+            if (mode.getValue() == Mode.Creative) {
                 mc.player.swingArm(EnumHand.MAIN_HAND);
                 mc.player.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.START_DESTROY_BLOCK, event.getBlockPos(), event.getEnumFacing()));
                 mc.player.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.STOP_DESTROY_BLOCK, event.getBlockPos(), event.getEnumFacing()));
                 mc.playerController.onPlayerDestroyBlock(event.getBlockPos());
                 mc.world.setBlockToAir(event.getBlockPos());
-                break;
             }
-            case Breaker: {
-                breakerAlgo(event);
-                break;
+            if (mode.getValue() == Mode.Packet) {
+                if (!event.getBlockPos().equals(minePosition)) {
+                    minePosition = event.getBlockPos();
+                    mineFacing = event.getEnumFacing();
+                    mineDamage = 0;
+                    mineBreaks = 0;
+                    if (minePosition != null && mineFacing != null) {
+                        mc.player.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.START_DESTROY_BLOCK, minePosition, mineFacing));
+                        mc.player.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.ABORT_DESTROY_BLOCK, minePosition, EnumFacing.UP));
+                    }
+                }
             }
         }
     }
 
-    private void setVec3d(BlockPos pos, EnumFacing side) {
-        BlockPos neighbour = pos.offset(side);
-        EnumFacing opposite = side.getOpposite();
-        lastHitVec = new Vec3d(neighbour).add(0.5, 0.5, 0.5).add(new Vec3d(opposite.getDirectionVec()).scale(0.5));
+    @SubscribeEvent
+    public void onEntitySync(EventPreMotion event) {
+        if (rotate.getValue()) {
+            if (mineDamage > 0.95) {
+                if (minePosition != null) {
+                    float[] angle = SilentRotaionUtil.calcAngle(mc.player.getPositionEyes(mc.getRenderPartialTicks()), new Vec3d(minePosition.add(0.5, 0.5, 0.5)));
+                    mc.player.rotationYaw = angle[0];
+                    mc.player.rotationPitch = angle[1];
+                }
+            }
+        }
     }
 
-    private void breakerAlgo(DamageBlockEvent event) {
-        // Checks if we have already entered here
-        if (lastBlock == null || event.getBlockPos().x != lastBlock.x || event.getBlockPos().y != lastBlock.y || event.getBlockPos().z != lastBlock.z) {
-            if (startPick.getValue()) {
-                int pick = InventoryUtil.findFirstItemSlot(ItemPickaxe.class, 0, 9);
-                if (pick != -1)
-                    mc.player.inventory.currentItem = pick;
+
+    @SubscribeEvent
+    public void onPacketSend(PacketEvent.Send event) {
+        if (event.getPacket() instanceof CPacketHeldItemChange) {
+            if (strict.getValue()) {
+                mineDamage = 0;
             }
-            // Start breaking normally
-            minedBefore = false;
-            mc.player.swingArm(EnumHand.MAIN_HAND);
-            mc.player.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.START_DESTROY_BLOCK, event.getBlockPos(), event.getEnumFacing()));
-            lastBlock = event.getBlockPos();
-            direction = event.getEnumFacing();
         }
-        if (breakerTickDelay.getValue() <= breakTick++) {
-            breakerBreak();
-            event.setCanceled(true);
-            breakTick = 0;
+    }
+
+
+    private int getTool(final BlockPos pos) {
+        int index = -1;
+        float CurrentFastest = 1.0f;
+        for (int i = 0; i < 9; ++i) {
+            final ItemStack stack = mc.player.inventory.getStackInSlot(i);
+            if (stack != ItemStack.EMPTY) {
+                final float digSpeed = EnchantmentHelper.getEnchantmentLevel(Enchantments.EFFICIENCY, stack);
+                final float destroySpeed = stack.getDestroySpeed(mc.world.getBlockState(pos));
+                if (digSpeed + destroySpeed > CurrentFastest) {
+                    CurrentFastest = digSpeed + destroySpeed;
+                    index = i;
+                }
+            }
         }
-        wait = pickTickSwitch.getValue();
-        ready = false;
-        tick = 0;
-        if (switchPick.getValue()) {
-            oldslot = InventoryUtil.findFirstItemSlot(ItemPickaxe.class, 0, 9);
-            pickStillBol = !switchBack.getValue();
+        return index;
+    }
+
+    private ItemStack getTool2(final IBlockState pos) {
+        ItemStack itemStack = null;
+        float CurrentFastest = 1.0f;
+        for (int i = 0; i < 9; ++i) {
+            final ItemStack stack = mc.player.inventory.getStackInSlot(i);
+            if (stack != ItemStack.EMPTY) {
+                final float digSpeed = EnchantmentHelper.getEnchantmentLevel(Enchantments.EFFICIENCY, stack);
+                final float destroySpeed = stack.getDestroySpeed(pos);
+
+            if (digSpeed + destroySpeed > CurrentFastest) {
+                    CurrentFastest = digSpeed + destroySpeed;
+                    itemStack = stack;
+                }
+            }
         }
+        return itemStack;
     }
 
     private boolean canBreak(BlockPos pos) {
@@ -427,42 +325,5 @@ public class Speedmine
         final Block block = blockState.getBlock();
         return block.getBlockHardness(blockState, mc.world, pos) != -1;
     }
-
-    public void onDisable() {
-        breakTick = 0;
-        continueBlock = null;
-        first = true;
-    }
-
-    public void onRender3D(Render3DEvent event) {
-        if (lastBlock != null)
-            if (mc.player.getDistanceSq(lastBlock) >= rangeDisableBreaker.getValue()) {
-                lastBlock = null;
-            } else if (display.getValue()) {
-                if (mode.getValue() == Mode.Breaker || (mode.getValue() == Mode.Packet || mode.getValue() == Mode.PacketRebreak && !(BlockUtils.getBlockgs(lastBlock) instanceof BlockAir)) || (mode.getValue()== Mode.Packet || mode.getValue() == Mode.PacketRebreak)) {
-                    RenderUtil.drawBlockOutline(lastBlock, new Color(175, 175, 255), 2f, false,0);
-                    if (showProgress.getValue()) {
-                        int prognum = (int) ((((float) tick / pickTickSwitch.getValue() * 100) / Blocks.OBSIDIAN.blockHardness) * mc.world.getBlockState(lastBlock).getBlock().blockHardness);
-                        GlStateManager.pushMatrix();
-                        try {
-                            RenderUtil.glBillboardDistanceScaled((float) lastBlock.getX() + 0.5f, (float) lastBlock.getY() + 0.5f, (float) lastBlock.getZ() + 0.5f, mc.player, 1);
-                        } catch (Exception ignored) {
-
-                        }
-                        GlStateManager.disableDepth();
-                        GlStateManager.disableLighting();
-                        GL11.glColor4f(1, 1, 1, 1);
-                        mc.fontRenderer.drawStringWithShadow(String.valueOf(prognum), (int) -(mc.fontRenderer.getStringWidth(String.valueOf(prognum)) / 2.0D), -4, -1);
-                        GlStateManager.enableLighting();
-                        GlStateManager.enableDepth();
-                        GlStateManager.popMatrix();
-                    }
-                }
-                else lastBlock = null;
-            }
-
-
-    }
-
 }
 

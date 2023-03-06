@@ -2,35 +2,42 @@ package com.mrzak34.thunderhack.gui.clickui.elements;
 
 import com.mrzak34.thunderhack.util.RoundedShader;
 import com.mrzak34.thunderhack.gui.clickui.base.AbstractElement;
-import com.mrzak34.thunderhack.gui.thundergui.fontstuff.FontRender;
+import com.mrzak34.thunderhack.gui.fontstuff.FontRender;
 import com.mrzak34.thunderhack.modules.client.ClickGui;
-import com.mrzak34.thunderhack.notification.Animation;
-import com.mrzak34.thunderhack.notification.DecelerateAnimation;
-import com.mrzak34.thunderhack.notification.Direction;
 import com.mrzak34.thunderhack.setting.Setting;
+import com.mrzak34.thunderhack.util.math.MathUtil;
+import net.minecraft.client.Minecraft;
 
 
 import java.awt.*;
 
 public class CheckBoxElement extends AbstractElement {
 
-    private final Animation animation;
+    public static double deltaTime() {
+        return Minecraft.getDebugFPS() > 0 ? (1.0000 / Minecraft.getDebugFPS()) : 1;
+    }
+
+    public static float fast(float end, float start, float multiple) {
+        return (1 - MathUtil.clamp((float) (deltaTime() * multiple), 0, 1)) * end + MathUtil.clamp((float) (deltaTime() * multiple), 0, 1) * start;
+    }
 
     public CheckBoxElement(Setting setting) {
         super(setting);
-        animation = new DecelerateAnimation(200, 1F, (Boolean) setting.getValue() ? Direction.FORWARDS : Direction.BACKWARDS);
     }
 
     @Override
     public void init() {
-        animation.setDirection(Direction.BACKWARDS);
     }
+
+    float animation = 0f;
 
     @Override
     public void render(int mouseX, int mouseY, float delta) {
         super.render(mouseX, mouseY, delta);
-        animation.setDirection((Boolean) setting.getValue() ? Direction.FORWARDS : Direction.BACKWARDS);
-        double paddingX = 7 * animation.getOutput();
+
+        animation = fast(animation, (boolean) setting.getValue() ? 1 : 0, 15f);
+
+        double paddingX = 7 * animation;
 
 
     	Color color = ClickGui.getInstance().getColor(0);
@@ -45,13 +52,11 @@ public class CheckBoxElement extends AbstractElement {
     public void mouseClicked(int mouseX, int mouseY, int button) {
         if (hovered && button == 0) {
             setting.setValue(!((Boolean) setting.getValue()));
-            animation.setDirection((Boolean) setting.getValue() ? Direction.FORWARDS : Direction.BACKWARDS);
         }
     }
 
     @Override
     public void resetAnimation() {
-        animation.setDirection(Direction.BACKWARDS);
     }
 
 }

@@ -16,7 +16,7 @@ public class HelperEntityBlocksPlace {
         if (entity instanceof IEntityPlayer
                 && module.blockExtrapol.getValue() != 0) {
             MotionTracker tracker =
-                    ((IEntityPlayer) entity).getBlockMotionTracker();
+                    ((IEntityPlayer) entity).getBlockMotionTrackerT();
             if (tracker != null && tracker.active) {
                 switch (module.blockExtraMode.getValue()) {
                     case Extrapolated:

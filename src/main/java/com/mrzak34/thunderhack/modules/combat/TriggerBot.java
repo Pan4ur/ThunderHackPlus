@@ -10,7 +10,6 @@ import com.mrzak34.thunderhack.util.phobos.IEntityLivingBase;
 import net.minecraft.block.BlockAir;
 import net.minecraft.block.BlockLiquid;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.item.EntityEnderCrystal;
 import net.minecraft.init.MobEffects;
@@ -22,7 +21,7 @@ import static net.minecraft.util.math.MathHelper.clamp;
 
 public class TriggerBot extends Module {
     public TriggerBot() {
-        super("TriggerBot", "аттакует сущностей под прицелом", Category.COMBAT);
+        super("TriggerBot", "аттакует сущностей-под прицелом", Category.COMBAT);
     }
 
     public final Setting<Boolean> criticals = register(new Setting<>("Criticals", true));

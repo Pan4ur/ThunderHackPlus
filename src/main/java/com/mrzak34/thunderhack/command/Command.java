@@ -3,7 +3,6 @@ package com.mrzak34.thunderhack.command;
 import com.mojang.realmsclient.gui.ChatFormatting;
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.modules.Feature;
-import com.mrzak34.thunderhack.manager.EventManager;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentBase;
 

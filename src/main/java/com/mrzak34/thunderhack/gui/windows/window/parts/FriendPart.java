@@ -1,18 +1,21 @@
 package com.mrzak34.thunderhack.gui.windows.window.parts;
 
 import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.gui.thundergui.fontstuff.FontRender;
+import com.mrzak34.thunderhack.gui.fontstuff.FontRender;
 import com.mrzak34.thunderhack.util.ChatColor;
 import com.mrzak34.thunderhack.util.PNGtoResourceLocation;
+import com.mrzak34.thunderhack.util.Util;
 import com.mrzak34.thunderhack.util.render.RenderUtil;
+import net.minecraft.client.gui.Gui;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.ResourceLocation;
+import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
 
-import static com.mrzak34.thunderhack.gui.thundergui.components.items.buttons.TFriendComponent.drawImage;
 import static com.mrzak34.thunderhack.modules.player.ElytraSwap.drawCompleteImage;
 import static com.mrzak34.thunderhack.util.Util.mc;
+import static com.mrzak34.thunderhack.util.render.RenderHelper.setColor;
 
 public class FriendPart{
 
@@ -36,6 +39,21 @@ public class FriendPart{
         this.width = width;
         this.id = id;
         head = PNGtoResourceLocation.getTexture2(name, "png");
+    }
+
+    public static void drawImage(ResourceLocation resourceLocation, float x, float y, float width, float height, Color color) {
+        GL11.glPushMatrix();
+        // GL11.glDisable(2929);
+        //  GL11.glEnable(3042);
+        //   GL11.glDepthMask(false);
+        //  OpenGlHelper.glBlendFunc(770, 771, 1, 0);
+        setColor(color.getRGB());
+        Util.mc.getTextureManager().bindTexture(resourceLocation);
+        Gui.drawModalRectWithCustomSizedTexture((int) x, (int) y, 0.0F, 0.0F, (int) width, (int) height, width, height);
+        //  GL11.glDepthMask(true);
+        //  GL11.glDisable(3042);
+        //  GL11.glEnable(2929);
+        GL11.glPopMatrix();
     }
 
     public void renderPart(int x,int y){

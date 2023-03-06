@@ -22,7 +22,7 @@ public class AutoBuff extends Module {
 
 
     public AutoBuff() {
-        super("AutoBuff", "Кидает бафы", Category.COMBAT);
+        super("AutoBuff", "Кидает бафы","uses explosive potions", Category.COMBAT);
     }
 
     public Setting<Boolean> strenght = register(new Setting<>("Strenght", true));

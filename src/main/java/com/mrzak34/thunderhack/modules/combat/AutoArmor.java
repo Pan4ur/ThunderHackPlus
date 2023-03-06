@@ -38,7 +38,7 @@ public class AutoArmor
         extends Module {
 
     public AutoArmor() {
-    super("AutoArmor", "Автоброня", Category.PLAYER);
+    super("AutoArmor", "Автоброня","puts on best armor", Category.PLAYER);
     }
 
 

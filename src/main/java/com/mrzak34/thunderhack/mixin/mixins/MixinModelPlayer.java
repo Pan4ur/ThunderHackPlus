@@ -3,6 +3,7 @@ package com.mrzak34.thunderhack.mixin.mixins;
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.modules.render.Models;
 import com.mrzak34.thunderhack.modules.render.Skeleton;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelBox;
@@ -12,13 +13,17 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.world.IBlockAccess;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.awt.*;
 
@@ -110,11 +115,6 @@ public class MixinModelPlayer extends ModelBiped{
         right_leg = new ModelRenderer(this);
         right_leg.setRotationPoint(2.0F, 18.0F, 0.0F);
         right_leg.setTextureOffset(13, 0).addBox(-5.9F, 0.0F, -1.5F, 3, 6, 3);
-
-
-
-
-
         final ModelRenderer footRight = new ModelRenderer(this, 22, 39);
         this.footRight = footRight;
         footRight.setRotationPoint(0.0f, 8.0f, 0.0f);
@@ -306,9 +306,6 @@ public class MixinModelPlayer extends ModelBiped{
         right_leg = new ModelRenderer(this);
         right_leg.setRotationPoint(2.0F, 18.0F, 0.0F);
         right_leg.setTextureOffset(13, 0).addBox(-5.9F, 0.0F, -1.5F, 3, 6, 3);
-
-
-
         (this.rabbitBone = new ModelRenderer(this)).setRotationPoint(0.0F, 24.0F, 0.0F);
         this.rabbitBone.cubeList.add(new ModelBox(this.rabbitBone, 28, 45, -5.0F, -13.0F, -5.0F, 10, 11, 8, 0.0F, false));
         (this.rabbitRleg = new ModelRenderer(this)).setRotationPoint(-3.0F, -2.0F, -1.0F);
@@ -517,12 +514,20 @@ public class MixinModelPlayer extends ModelBiped{
         modelRenderer.rotateAngleY = y;
         modelRenderer.rotateAngleZ = z;
     }
-    /**
-     * @author
-     * @reason
-     */
-    @Overwrite
-    public void render(Entity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale)
+
+
+    @Inject(method = { "render" }, at = { @At("HEAD") }, cancellable = true)
+    public void renderHook(Entity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale, CallbackInfo ci) {
+        Models customModel = Thunderhack.moduleManager.getModuleByClass(Models.class);
+        if(customModel.isOn()){
+            ci.cancel();
+            renderCustom(entityIn,limbSwing,limbSwingAmount,ageInTicks,netHeadYaw,headPitch,scale);
+        }
+    }
+
+
+
+    public void renderCustom(Entity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale)
     {
         if(left_leg == null){
             generatemodel();

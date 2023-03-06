@@ -22,7 +22,6 @@ public class MatrixMove extends Event {
         this.aabbFrom = aabbFrom;
     }
 
-
     public double getFromX() {
         return fromX;
     }
@@ -55,14 +54,10 @@ public class MatrixMove extends Event {
         this.motionZ = motionZ;
     }
 
-
-
     public AxisAlignedBB getAABBFrom() {
         return this.aabbFrom;
     }
     public boolean toGround() {
         return this.toGround;
     }
-
-
 }

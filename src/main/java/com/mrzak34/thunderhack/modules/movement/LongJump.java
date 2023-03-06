@@ -7,7 +7,7 @@ import com.mrzak34.thunderhack.events.EventPostMotion;
 import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.notification.NotificationManager;
-import com.mrzak34.thunderhack.notification.NotificationType;
+import com.mrzak34.thunderhack.notification.Notification;
 import com.mrzak34.thunderhack.setting.Setting;
 import net.minecraft.init.MobEffects;
 import net.minecraft.network.play.client.CPacketPlayer;
@@ -100,7 +100,7 @@ public class LongJump extends Module{
             }
         } else if (Mode.getValue() == ModeEn.MatrixCustom){
             if(mc.player.hurtTime > 0 && dmgkick.getValue()){
-                NotificationManager.publicity("LongJump","Kick Protection", 2, NotificationType.ERROR);
+                NotificationManager.publicity("Kick Protection", 2, Notification.Type.ERROR);
                 toggle();
             }
 
@@ -135,7 +135,7 @@ public class LongJump extends Module{
             }
         } else if (Mode.getValue() == ModeEn.NexusGrief){
             if(mc.player.hurtTime > 0){
-                NotificationManager.publicity("LongJump","Kick Protection", 2, NotificationType.ERROR);
+                NotificationManager.publicity("Kick Protection", 2, Notification.Type.ERROR);
                 toggle();
             }
             if(mc.player.onGround ){

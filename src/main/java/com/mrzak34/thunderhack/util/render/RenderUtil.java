@@ -1,9 +1,11 @@
 package com.mrzak34.thunderhack.util.render;
 
+import com.mrzak34.thunderhack.modules.client.ThunderHackGui;
 import com.mrzak34.thunderhack.util.EntityUtil;
 import com.mrzak34.thunderhack.util.Util;
 import com.mrzak34.thunderhack.util.gaussianblur.GaussianFilter;
 import com.mrzak34.thunderhack.mixin.mixins.IRenderManager;
+import com.mrzak34.thunderhack.util.math.MathUtil;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -440,6 +442,26 @@ public class RenderUtil implements Util {
 
     public static void glScissor(float x, float y, float x1, float y1, ScaledResolution sr) {
         GL11.glScissor((int) (x * (float) sr.getScaleFactor()), (int) ((float) RenderUtil.mc.displayHeight - y1 * (float) sr.getScaleFactor()), (int) ((x1 - x) * (float) sr.getScaleFactor()), (int) ((y1 - y) * (float) sr.getScaleFactor()));
+    }
+
+
+    public static void glScissor(float x, float y, float x1, float y1, ScaledResolution sr,double animation_factor) {
+        float h = y + y1;
+        float h2 = (float) (h * (1d - MathUtil.clamp(animation_factor,0,1.0025f)));
+
+        float x3 = x;
+        float y3 = y + h2;
+        float x4 = x1;
+        float y4 = y1 - h2;
+
+        if(x4 < x3){
+            x4 = x3;
+        }
+        if(y4 < y3){
+            y4 = y3;
+        }
+        glScissor( x3, y3, x4, y4, sr);
+
     }
 
     public static Color blend(Color color1, Color color2, double ratio) {

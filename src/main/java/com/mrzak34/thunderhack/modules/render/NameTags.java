@@ -1,7 +1,7 @@
 package com.mrzak34.thunderhack.modules.render;
 
 import com.mrzak34.thunderhack.events.PreRenderEvent;
-import com.mrzak34.thunderhack.gui.thundergui.fontstuff.FontRender;
+import com.mrzak34.thunderhack.gui.fontstuff.FontRender;
 import com.mrzak34.thunderhack.modules.*;
 import com.mrzak34.thunderhack.setting.*;
 import com.mrzak34.thunderhack.util.render.PaletteHelper;

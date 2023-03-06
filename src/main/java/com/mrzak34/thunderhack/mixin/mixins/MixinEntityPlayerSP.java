@@ -2,21 +2,19 @@ package com.mrzak34.thunderhack.mixin.mixins;
 
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.events.*;
+import com.mrzak34.thunderhack.manager.EventManager;
+import com.mrzak34.thunderhack.modules.combat.Aura;
 import com.mrzak34.thunderhack.modules.movement.Speed;
 import com.mrzak34.thunderhack.modules.movement.Strafe;
-import com.mrzak34.thunderhack.modules.movement.testMove;
-import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.network.NetHandlerPlayClient;
 import net.minecraft.entity.MoverType;
-import net.minecraft.init.Blocks;
+import net.minecraft.network.play.client.CPacketEntityAction;
 import net.minecraft.stats.RecipeBook;
 import net.minecraft.stats.StatisticsManager;
 import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import org.spongepowered.asm.mixin.Mixin;
@@ -60,11 +58,6 @@ public abstract class MixinEntityPlayerSP
     private void updateHook(CallbackInfo info) {
         PlayerUpdateEvent playerUpdateEvent = new PlayerUpdateEvent();
         MinecraftForge.EVENT_BUS.post(playerUpdateEvent);
-        if (!playerUpdateEvent.getPostEvents().isEmpty()) {
-            for (Runnable runnable : playerUpdateEvent.getPostEvents()) {
-                Minecraft.getMinecraft().addScheduledTask(runnable);
-            }
-        }
     }
 
     @Shadow
@@ -111,31 +104,6 @@ public abstract class MixinEntityPlayerSP
         }
     }
 
-    double preX, preZ;
-
-    @Inject(method = "move", at = @At("HEAD"), cancellable = true)
-    private void movePre(MoverType type, double x, double y, double z, CallbackInfo info) {
-
-        EventMove event = new EventMove(type, x, y, z);
-        MinecraftForge.EVENT_BUS.post(event);
-        if (event.isCanceled()) {
-            super.move(type, event.get_x(), event.get_y(), event.get_z());
-            info.cancel();
-        }
-        if (Thunderhack.moduleManager.getModuleByClass(Strafe.class).isEnabled() || Thunderhack.moduleManager.getModuleByClass(Speed.class).isEnabled()|| Thunderhack.moduleManager.getModuleByClass(testMove.class).isEnabled()){
-            preX = posX;
-            preZ = posZ;
-            AxisAlignedBB before = getEntityBoundingBox();
-            boolean predictGround = !mc.world.getCollisionBoxes(mc.player, mc.player.getEntityBoundingBox().offset(0.0, -Thunderhack.moduleManager.getModuleByClass(testMove.class).vspeedValue2.getValue(), 0.0)).isEmpty() && fallDistance > 0.1f && !mc.player.onGround;
-            MatrixMove move = new MatrixMove(mc.player.posX, mc.player.posY, mc.player.posZ, x, y, z, predictGround, before);
-            MinecraftForge.EVENT_BUS.post(move);
-            if (move.isCanceled()) {
-                super.move(type, move.getMotionX(), move.getMotionY(), move.getMotionZ());
-                info.cancel();
-            }
-        }
-
-    }
 
     @Inject(method = {"onUpdateWalkingPlayer"}, at = {@At(value = "HEAD")}, cancellable = true)
     private void preMotion(CallbackInfo info) {
@@ -143,13 +111,55 @@ public abstract class MixinEntityPlayerSP
         MinecraftForge.EVENT_BUS.post(event);
         EventSprint e = new EventSprint(isSprinting());
         MinecraftForge.EVENT_BUS.post(e);
+
+        if (e.getSprintState() != ((IEntityPlayerSP)mc.player).getServerSprintState()) {
+            if (e.getSprintState()) {
+                this.connection.sendPacket(new CPacketEntityAction(this, CPacketEntityAction.Action.START_SPRINTING));
+            } else {
+                this.connection.sendPacket(new CPacketEntityAction(this, CPacketEntityAction.Action.STOP_SPRINTING));
+            }
+            ((IEntityPlayerSP)mc.player).setServerSprintState(e.getSprintState());
+        }
+        pre_sprint_state = ((IEntityPlayerSP)mc.player).getServerSprintState();
+        EventManager.lock_sprint = true;
         if(event.isCanceled()){
             info.cancel();
         }
     }
 
+    boolean pre_sprint_state = false;
+
+
+    @Inject(method = "move", at = @At("HEAD"), cancellable = true)
+    private void movePre(MoverType type, double x, double y, double z, CallbackInfo info) {
+        EventMove event = new EventMove(type, x, y, z);
+        MinecraftForge.EVENT_BUS.post(event);
+        if (event.isCanceled()) {
+            super.move(type, event.get_x(), event.get_y(), event.get_z());
+            info.cancel();
+        }
+        //TODO Не забыть бы что этот эвент работает только при спидах и стрейфах (в целях оптимизации)
+        if (Thunderhack.moduleManager.getModuleByClass(Speed.class).isEnabled()|| Thunderhack.moduleManager.getModuleByClass(Strafe.class).isEnabled()){
+            AxisAlignedBB before = getEntityBoundingBox();
+
+            //TODO \|/  вот этой хуйни
+            boolean predictGround = !mc.world.getCollisionBoxes(mc.player, mc.player.getEntityBoundingBox().offset(0.0, -0.228, 0.0)).isEmpty() && fallDistance > 0.1f && !mc.player.onGround;
+
+            MatrixMove move = new MatrixMove(mc.player.posX, mc.player.posY, mc.player.posZ, x, y, z, predictGround, before);
+            MinecraftForge.EVENT_BUS.post(move);
+            if (move.isCanceled()) {
+                super.move(type, move.getMotionX(), move.getMotionY(), move.getMotionZ());
+                info.cancel();
+            }
+        }
+    }
+
+
+
     @Inject(method = {"onUpdateWalkingPlayer"}, at = {@At(value = "RETURN")})
     private void postMotion(CallbackInfo info) {
+        ((IEntityPlayerSP)mc.player).setServerSprintState(pre_sprint_state);
+        EventManager.lock_sprint = false;
         EventPostMotion event = new EventPostMotion();
         MinecraftForge.EVENT_BUS.post(event);
         if (!event.getPostEvents().isEmpty()) {

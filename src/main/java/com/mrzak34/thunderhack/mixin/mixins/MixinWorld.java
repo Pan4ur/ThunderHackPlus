@@ -5,7 +5,6 @@ import com.mrzak34.thunderhack.events.*;
 import com.mrzak34.thunderhack.modules.render.NoRender;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityFireworkRocket;
-import net.minecraft.entity.projectile.EntityFishHook;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.EnumSkyBlock;
@@ -78,7 +77,7 @@ public void updateEntitiesHook(CallbackInfo ci)
 
     @Redirect(method = { "handleMaterialAcceleration" },  at = @At(value = "INVOKE",  target = "Lnet/minecraft/entity/Entity;isPushedByWater()Z"))
     public boolean isPushedbyWaterHook(final Entity entity) {
-        final PushEvent event = new PushEvent(entity);
+        final PushEvent event = new PushEvent();
         MinecraftForge.EVENT_BUS.post(event);
         return entity.isPushedByWater() && !event.isCanceled();
     }

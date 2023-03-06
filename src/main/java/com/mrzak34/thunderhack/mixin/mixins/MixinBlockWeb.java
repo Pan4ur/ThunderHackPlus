@@ -11,6 +11,9 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import javax.annotation.Nullable;
 
@@ -20,16 +23,11 @@ public class MixinBlockWeb extends Block {
         super(Material.WEB);
     }
 
-    /**
-     * @author
-     * @reason
-     */
-    @Nullable
-    @Overwrite
-    public AxisAlignedBB getCollisionBoundingBox(IBlockState blockState, IBlockAccess worldIn, BlockPos pos) {
+
+    @Inject(method = { "getCollisionBoundingBox" }, at = { @At("HEAD") }, cancellable = true)
+    public void getCollisionBoundingBox(IBlockState blockState, IBlockAccess worldIn, BlockPos pos, CallbackInfoReturnable<AxisAlignedBB> cir) {
         if (Thunderhack.moduleManager.getModuleByClass(SolidWeb.class).isEnabled()) {
-            return FULL_BLOCK_AABB;
+            cir.setReturnValue(FULL_BLOCK_AABB);
         }
-        return NULL_AABB;
     }
 }

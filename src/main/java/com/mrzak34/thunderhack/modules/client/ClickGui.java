@@ -1,14 +1,11 @@
 package com.mrzak34.thunderhack.modules.client;
 
-import com.mojang.realmsclient.gui.ChatFormatting;
-import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.command.Command;
+
 import com.mrzak34.thunderhack.events.Render2DEvent;
 import com.mrzak34.thunderhack.gui.clickui.ClickUI;
 import com.mrzak34.thunderhack.gui.clickui.ColorUtil;
 import com.mrzak34.thunderhack.gui.clickui.Colors;
 import com.mrzak34.thunderhack.modules.Module;
-import com.mrzak34.thunderhack.setting.Bind;
 import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.Util;
@@ -16,10 +13,8 @@ import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import org.lwjgl.input.Keyboard;
 
 import java.awt.*;
-import java.util.Objects;
 
 
 public class ClickGui extends Module {

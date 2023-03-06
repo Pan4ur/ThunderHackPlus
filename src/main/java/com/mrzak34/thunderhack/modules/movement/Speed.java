@@ -1,19 +1,14 @@
 package com.mrzak34.thunderhack.modules.movement;
 
 import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.events.*;
-import com.mrzak34.thunderhack.manager.EventManager;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.MovementUtil;
-import com.mrzak34.thunderhack.util.math.MatrixStrafeMovement;
 import com.mrzak34.thunderhack.util.PlayerUtils;
 import com.mrzak34.thunderhack.util.Timer;
-import net.minecraft.init.Items;
+import com.mrzak34.thunderhack.util.math.MathUtil;
 import net.minecraft.init.MobEffects;
-import net.minecraft.inventory.ClickType;
-import net.minecraft.network.play.client.CPacketEntityAction;
 import net.minecraft.network.play.server.SPacketEntityVelocity;
 import net.minecraft.network.play.server.SPacketExplosion;
 import net.minecraft.network.play.server.SPacketPlayerPosLook;
@@ -27,8 +22,6 @@ import java.math.RoundingMode;
 import java.util.List;
 import java.util.Objects;
 
-import static com.mrzak34.thunderhack.command.commands.EclipCommand.getSlotIDFromItem;
-import static com.mrzak34.thunderhack.modules.movement.Jesus.isInLiquid;
 import static com.mrzak34.thunderhack.util.MovementUtil.isMoving;
 import static com.mrzak34.thunderhack.util.PyroSpeed.*;
 
@@ -45,7 +38,6 @@ public class Speed extends Module {
     public Setting<Boolean> usver = this.register ( new Setting <> ( "calcJumpBoost", false, v -> Mode.getValue() == mode.Default));
     private Setting<Boolean> autoWalk =this.register( new Setting<>("AutoWalk", false));
     private Setting<Boolean> uav =this.register( new Setting<>("UseAllVelocity", false, v -> Mode.getValue() == mode.Default));
-    private Setting<Boolean> str2 =this.register( new Setting<>("Strafe", false, v -> Mode.getValue() == mode.Matrix));
 
     public enum mode {
         Default, Grief,StrafeStrict,ReallyWorld, Matrix, MatrixJumpBoost;
@@ -121,12 +113,10 @@ public class Speed extends Module {
         distance = Math.sqrt(d4);
     }
 
-
-    @SubscribeEvent
-    public void onPostMove(EventPostMove eventPostMove){ MatrixStrafeMovement.postMove(eventPostMove.getHorizontalMove());}
-
     @SubscribeEvent( priority = EventPriority.HIGHEST)
     public void onPacketReceive(PacketEvent.Receive event) {
+
+        if(fullNullCheck())return;
         if (event.getPacket() instanceof SPacketEntityVelocity) {
             if(((SPacketEntityVelocity) event.getPacket()).getEntityID() == mc.player.getEntityId()) {
                 SPacketEntityVelocity pack = event.getPacket();
@@ -142,7 +132,6 @@ public class Speed extends Module {
             }
         }
         if (event.getPacket() instanceof SPacketPlayerPosLook) {
-            MatrixStrafeMovement.oldSpeed = 0;
             Thunderhack.TICK_TIMER = 1f;
             strictBaseSpeed = 0.2873;
             strictStage = 4;
@@ -281,7 +270,9 @@ public class Speed extends Module {
                 }
 
                 float forward = mc.player.movementInput.moveForward;
+
                 float strafe = mc.player.movementInput.moveStrafe;
+
                 float yaw = mc.player.rotationYaw;
 
                 ticksPassed++;
@@ -305,6 +296,8 @@ public class Speed extends Module {
                         forward = -1.0F;
                     }
                 }
+
+                strafe = MathUtil.clamp(strafe,-1,1);
 
                 double cos = Math.cos(Math.toRadians((yaw + 90.0F)));
                 double sin = Math.sin(Math.toRadians((yaw + 90.0F)));
@@ -396,88 +389,19 @@ public class Speed extends Module {
         }
     }
 
-
-
-    @SubscribeEvent
-    public void onSprint(EventSprint e){
-        MatrixStrafeMovement.actionEvent(e);
-        if (strafes()) {
-            if (EventManager.serversprint != needSprintState) {
-                e.setSprintState(!EventManager.serversprint);
-            }
-        }
-    }
     @SubscribeEvent
     public void onMove(MatrixMove move){
         if(Mode.getValue() != mode.Matrix){
             return;
         }
-        if (isInLiquid()) {
-            waterTicks = 10;
-        } else {
-            waterTicks--;
-        }
-        if (strafes()) {
-            double forward = mc.player.movementInput.moveForward;
-            double strafe = mc.player.movementInput.moveStrafe;
-            float yaw = mc.player.rotationYaw;
-            if (forward == 0.0 && strafe == 0.0) {
-                MatrixStrafeMovement.oldSpeed = 0;
-                move.setMotionX(0);
-                move.setMotionZ(0);
-            } else {
-                if (forward != 0.0) {
-                    if (strafe > 0.0) {
-                        yaw += ((forward > 0.0) ? -45 : 45);
-                    } else if (strafe < 0.0) {
-                        yaw += ((forward > 0.0) ? 45 : -45);
-                    }
-                    strafe = 0.0;
-                    if (forward > 0.0) {
-                        forward = 1.0;
-                    } else if (forward < 0.0) {
-                        forward = -1.0;
-                    }
-                }
-                double speed = MatrixStrafeMovement.calculateSpeed(move);
-                move.setMotionX(forward * speed * Math.cos(Math.toRadians(yaw + 90.0f)) + strafe * speed * Math.sin(Math.toRadians(yaw + 90.0f)));
-                move.setMotionZ(forward * speed * Math.sin(Math.toRadians(yaw + 90.0f)) - strafe * speed * Math.cos(Math.toRadians(yaw + 90.0f)));
-            }
-        } else {
-            MatrixStrafeMovement.oldSpeed = 0;
-        }
-        if (!mc.player.onGround && move.toGround() && mc.player.fallDistance > 0.5) {
-            double speed = 2;
-            move.setMotionX(move.getMotionX() * speed);
-            move.setMotionZ(move.getMotionZ() * speed);
+        if (!mc.player.onGround && move.toGround()) {
+            move.setMotionX(move.getMotionX() * 2);
+            move.setMotionZ(move.getMotionZ() * 2);
+            mc.player.motionX *= 2;
+            mc.player.motionZ *= 2;
 
-            mc.player.motionX *= speed;
-            mc.player.motionZ *= speed;
-            MatrixStrafeMovement.oldSpeed *= speed;
         }
-        move.setCanceled(true);
     }
-
-
-    public boolean strafes() {
-        if(!str2.getValue()){
-            return false;
-        }
-        if (mc.player.isSneaking()) {
-            return false;
-        }
-        if (mc.player.isInLava()) {
-            return false;
-        }
-        if (mc.player.isInWater() || waterTicks > 0) {
-            return false;
-        }
-        if (mc.player.isInWeb) {
-            return false;
-        }
-        return !mc.player.capabilities.isFlying;
-    }
-
 
     public double getBaseMotionSpeed() {
         double baseSpeed =  0.2873D;

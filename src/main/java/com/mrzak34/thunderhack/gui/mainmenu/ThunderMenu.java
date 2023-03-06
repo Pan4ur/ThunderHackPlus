@@ -1,10 +1,9 @@
 package com.mrzak34.thunderhack.gui.mainmenu;
 
 import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.gui.thundergui.fontstuff.FontRender;
+import com.mrzak34.thunderhack.gui.fontstuff.FontRender;
 import com.mrzak34.thunderhack.modules.client.MainSettings;
 import com.mrzak34.thunderhack.util.RoundedShader;
-import com.mrzak34.thunderhack.util.render.BlurUtil;
 import net.minecraft.client.gui.*;
 import net.minecraft.client.renderer.GlStateManager;
 import org.lwjgl.opengl.GL11;
@@ -13,7 +12,6 @@ import org.lwjgl.opengl.GL20;
 import java.awt.*;
 import java.io.IOException;
 
-import static com.mrzak34.thunderhack.gui.thundergui.ThunderGui.setColor;
 
 public class ThunderMenu extends GuiScreen
 {

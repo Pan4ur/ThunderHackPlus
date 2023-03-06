@@ -4,7 +4,7 @@ import com.mojang.realmsclient.gui.ChatFormatting;
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.events.*;
-import com.mrzak34.thunderhack.gui.thundergui.fontstuff.FontRender;
+import com.mrzak34.thunderhack.gui.fontstuff.FontRender;
 import com.mrzak34.thunderhack.mixin.ducks.ISPacketSpawnObject;
 import com.mrzak34.thunderhack.mixin.mixins.IEntityRenderer;
 import com.mrzak34.thunderhack.mixin.mixins.ISPacketEntity;
@@ -71,7 +71,7 @@ import static net.minecraft.util.EnumFacing.HORIZONTALS;
 
 public class AutoCrystal extends Module {
     public AutoCrystal() {
-        super("AutoCrystal", "AutoCrystal", Category.COMBAT);
+        super("AutoCrystal", "AutoCrystal","do you really need-an explanation?)", Category.COMBAT);
     }
 
 
@@ -86,9 +86,6 @@ public class AutoCrystal extends Module {
    * 3arthqu4ke Gerald Megyn Ohare
 
 */
-
-
-
 
 
 
@@ -1061,47 +1058,6 @@ public class AutoCrystal extends Module {
         Bind,
         Always
     }
-    /*
-    public enum CooldownBypass {
-
-        None() {
-            @Override
-            public void switchTo(int slot) {
-                InventoryUtil.switchTo(slot);
-            }
-
-            @Override
-            public void switchBack(int lastSlot, int from) {
-                this.switchTo(lastSlot);
-            }
-        },
-        Slot() {
-            @Override
-            public void switchTo(int slot) {
-                InventoryUtil.switchToBypass(InventoryUtil.hotbarToInventory(slot));
-            }
-        },
-        Swap() {
-            @Override
-            public void switchTo(int slot) {InventoryUtil.switchToBypassAlt(InventoryUtil.hotbarToInventory(slot));}
-        },
-        Pick() {
-            @Override
-            public void switchTo(int slot) {
-                InventoryUtil.bypassSwitch(slot);
-            }
-        };
-
-        public abstract void switchTo(int slot);
-
-
-        public void switchBack(int lastSlot, int from) {
-            this.switchTo(from);
-        }
-
-    }
-
-     */
 
     public enum CooldownBypass2 {
         None,
@@ -1109,8 +1065,6 @@ public class AutoCrystal extends Module {
         Pick,
         Slot
     }
-
-
 
 
     public enum RayTraceMode
@@ -1812,14 +1766,11 @@ public class AutoCrystal extends Module {
                     continue;
                 }
 
-                if (Thunderhack.friendManager.isFriend(player)
-                        && (!isSuicideModule()
-                        || !player.equals(mc.player)))
+                if (Thunderhack.friendManager.isFriend(player) && (!isSuicideModule() || !player.equals(mc.player)))
                 {
                     if (shouldCalcFuckinBitch(AntiFriendPop.Break))
                     {
-                        if (damageHelper.getDamage(entity, player)
-                                > EntityUtil.getHealth(player) - 0.5f)
+                        if (damageHelper.getDamage(entity, player) > EntityUtil.getHealth(player) - 0.5f)
                         {
                             attack = false;
                             break;
@@ -1846,8 +1797,7 @@ public class AutoCrystal extends Module {
 
             if (attack)
             {
-                attack(packet, event, entity,
-                        (stamp == null || !stamp.isShield()) && slow);
+                attack(packet, event, entity, (stamp == null || !stamp.isShield()) && slow);
                 attacked = true;
             }
             else if (stamp != null
@@ -1860,8 +1810,7 @@ public class AutoCrystal extends Module {
             }
         }
 
-        if (spawnThread.getValue()
-                && (!spawnThreadWhenAttacked.getValue() || attacked))
+        if (spawnThread.getValue() && (!spawnThreadWhenAttacked.getValue() || attacked))
         {
             threadHelper.schedulePacket(event);
         }

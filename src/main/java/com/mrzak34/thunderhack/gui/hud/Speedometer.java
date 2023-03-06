@@ -1,12 +1,10 @@
 package com.mrzak34.thunderhack.gui.hud;
 
 import com.mojang.realmsclient.gui.ChatFormatting;
-import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.events.EventPostMotion;
-import com.mrzak34.thunderhack.events.EventPostMove;
 import com.mrzak34.thunderhack.events.EventPreMotion;
 import com.mrzak34.thunderhack.events.Render2DEvent;
-import com.mrzak34.thunderhack.gui.thundergui.fontstuff.FontRender;
+import com.mrzak34.thunderhack.gui.fontstuff.FontRender;
+import com.mrzak34.thunderhack.gui.thundergui2.ThunderGui2;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.setting.PositionSetting;
@@ -14,7 +12,6 @@ import com.mrzak34.thunderhack.setting.Setting;
 import net.minecraft.client.gui.GuiChat;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.util.math.MathHelper;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.input.Mouse;
 
@@ -48,7 +45,7 @@ public class Speedometer extends Module{
         x1 = sr.getScaledWidth() * pos.getValue().getX();
 
         FontRender.drawString6(str,x1,y1, color.getValue().getRawColor(),true);
-        if(mc.currentScreen instanceof GuiChat || mc.currentScreen instanceof HudEditorGui){
+        if(mc.currentScreen instanceof GuiChat || mc.currentScreen instanceof HudEditorGui || mc.currentScreen instanceof ThunderGui2){
             if(isHovering()){
                 if(Mouse.isButtonDown(0) && mousestate){
                     pos.getValue().setX( (float) (normaliseX() - dragX) /  sr.getScaledWidth());

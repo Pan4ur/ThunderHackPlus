@@ -45,4 +45,17 @@ public class ThreadUtil
         return factory;
     }
 
+    public static ExecutorService executor = Executors.newCachedThreadPool();
+
+    public static void run(Runnable runnable, long delay) {
+        executor.execute(() -> {
+            try {
+                Thread.sleep(delay);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            runnable.run();
+        });
+    }
+
 }
