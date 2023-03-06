@@ -139,7 +139,7 @@ class Discord {
 
     public static void readFile(){
         try {
-            File file = new File("ThunderHack/misc/RPC.txt");
+            File file = new File("Hesoyam/misc/RPC.txt");
             if (file.exists()) {
                 try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
                     while (reader.ready()) {
@@ -154,7 +154,7 @@ class Discord {
 
 
     public static void WriteFile(String url1, String url2) {
-        File file = new File("ThunderHack/misc/RPC.txt");
+        File file = new File("Hesoyam/misc/RPC.txt");
         try {
             file.createNewFile();
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {

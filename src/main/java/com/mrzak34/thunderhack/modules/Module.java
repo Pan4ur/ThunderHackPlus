@@ -230,7 +230,6 @@ public class Module extends Feature {
         RENDER("Render"),
         MOVEMENT("Movement"),
         PLAYER("Player"),
-        FUNNYGAME("FunnyGame"),
         CLIENT("Client"),
         HUD("HUD");
 

@@ -12,9 +12,6 @@ public
 class RPC extends Module {
 
     public static RPC INSTANCE;
-    public Setting < Boolean > showIP = this.register ( new Setting <> ( "ShowIP" , true  ) );
-    public Setting < Boolean > queue = this.register ( new Setting <> ( "Queue" , true  ) );
-    public Setting < String > state = this.register ( new Setting <> ( "State" , "ThunderHack+" ));
     public Setting < Boolean > nickname = this.register ( new Setting <> ( "Nickname" , true  ) );
 
     public static boolean inQ = false;
