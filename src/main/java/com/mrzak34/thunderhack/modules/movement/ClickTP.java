@@ -100,6 +100,6 @@ public class ClickTP extends Module {
             }
         }
 
-        return null;
+        return null
     }
 }
