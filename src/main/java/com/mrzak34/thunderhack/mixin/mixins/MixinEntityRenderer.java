@@ -514,7 +514,7 @@ public abstract class MixinEntityRenderer
 
 
 
-    @Inject(method = "orientCamera", at = @At("HEAD"))
+    @Inject(method = "orientCamera", at = @At("HEAD"), cancellable = true)
     private void orientCameraHook(float partialTicks, CallbackInfo ci) {
         if(Thunderhack.moduleManager.getModuleByClass(ThirdPersView.class).isOn()){
             ci.cancel();
