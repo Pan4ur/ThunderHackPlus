@@ -177,6 +177,7 @@ public class Speed extends Module {
         }
     }
 
+    
     public double getBaseMoveSpeed() {
         if(mc.player == null || mc.world == null){
             return 0.2873;
