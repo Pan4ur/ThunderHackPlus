@@ -40,7 +40,7 @@ public class Speed extends Module {
     private Setting<Boolean> uav =this.register( new Setting<>("UseAllVelocity", false, v -> Mode.getValue() == mode.Default));
 
     public enum mode {
-        Default, Grief,StrafeStrict,ReallyWorld, Matrix, MatrixJumpBoost;
+        Default, Grief,StrafeStrict,ReallyWorld, Matrix, MatrixJumpBoost, ReallyWorld2;
     }
 
     public double defaultBaseSpeed = getBaseMoveSpeed();
@@ -176,7 +176,18 @@ public class Speed extends Module {
             }
         }
     }
+        if(Mode.getValue() == mode.ReallyWorld2){
+            if (!isMoving()) return;
 
+            if (mc.player.onGround) {mc.player.jump();}
+            if (mc.player.fallDistance <= 0.22) {
+                Thunderhack.TICK_TIMER = 3.5f;
+                mc.player.jumpMovementFactor = 0.026523f;
+            } else if ((double) mc.player.fallDistance < 1.25) {
+                Thunderhack.TICK_TIMER = 0.47f;
+            }
+        }
+    }
 
     public double getBaseMoveSpeed() {
         if(mc.player == null || mc.world == null){
