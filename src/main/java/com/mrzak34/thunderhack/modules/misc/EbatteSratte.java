@@ -29,7 +29,7 @@ public class EbatteSratte extends Module {
     private Setting<mode2> Mode2 = register(new Setting("Mode", mode2.Hard));
 
     public enum mode2 {
-        ARSIK2005, Friendly, Lite, Hard, Erp;
+        ARSIK2005, Friendly, Lite, Hard, Erp, Funny;
     }
 
 
@@ -82,7 +82,24 @@ public class EbatteSratte extends Module {
             "Люблю тебя всем сердцем и душой",
             "Я не смогу жить без тебя"
     };
-
+        String[] Funny = new String[]{
+            "ПОГНАЛИ НАХУЙ!!!!!",
+            "Я Бомж Валера",
+            "Повар Спрашивает Повара Кем Работаешь А Повар Говорит Я МЕДИК СУКА",
+            "Ну Чо Нормальна Тебе? Нармальна",
+            "ААААА ЧИТЕР АААА",
+            "Я В ШОКЕ БЛЯТЬ",
+            "Я Вахуи С Тебя",
+            "КАК ВЫРУБИТЬ ОПТИФАЙН",
+            "СКАЧАТЬ МОД НА ФЛАЙ МАЙНКРАФТ",
+            "Бебры Все В Адидасах",
+            "РЕБЯТА НАУЧИТЕ МЕНЯ ИСКАТЬ АЛМАЗЫ ЗА 0 СЕК",
+            "Скачать мод оптифайн на фпс сегодня",
+            "Как удалить чит?",
+            "Ну Чо Пацаны Погнали Нахуй!!!!",
+            "Как скрафтить верстак скажите пж",
+           
+    };
     @SubscribeEvent
     public void onAttackEntity(AttackEvent event) {
         if(event.getStage() == 1) return;
@@ -105,6 +122,8 @@ public class EbatteSratte extends Module {
                     n = (int) Math.floor(Math.random() * Arsik2005.length);
                 } else if (Mode2.getValue() == mode2.Erp) {
                     n = (int) Math.floor(Math.random() * Erp.length);
+                } else if (Mode2.getValue() == mode2.Funny) {
+                    n = (int) Math.floor(Math.random() * Funny.length); 
                 }
 
                 if (Mode.getValue() == mode.FunnyGame) {
@@ -127,6 +146,8 @@ public class EbatteSratte extends Module {
                     mc.player.sendChatMessage(chatprefix + entity.getName() + " " + Arsik2005[n]);
                 } else if (Mode2.getValue() == mode2.Erp) {
                     mc.player.sendChatMessage(chatprefix + entity.getName() + " " + Erp[n]);
+                } else if (Mode2.getValue() == mode2.Funny) {
+                    mc.player.sendChatMessage(chatprefix + entity.getName() + " " + Funny[n]);
                 }
                 timer.reset();
             }
