@@ -64,6 +64,7 @@ public class AutoEZ extends Module {
             "%player% НУЛИНА",
             "%player% ЛЕЖАТЬ ПЛЮС СОСАТЬ",
             "%player% ИЗИ БОТЯРА"
+            "%player% ЧЕЛ ТЫ ПРОСТО LLL", 
     };
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
