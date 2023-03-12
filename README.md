@@ -6,7 +6,7 @@
 
 ## Info:
 - Minecraft version: forge 1.12.2
-- Client version: v2.39
+- Client version: v2.40
 - Default ClickGui keybind - **"P"**
 - Default prefix  - **"."**
 - Middle click on module to bind
