@@ -115,7 +115,7 @@ class Discord {
                             Discord.presence.largeImageKey = "https://media1.tenor.com/images/6bcbfcc0be97d029613b54f97845bc59/tenor.gif?itemid=26823781";
                             break;
                             
-                            case Hunger:
+                        case Hunger:
                             Discord.presence.largeImageKey = "https://media.tenor.com/nUNorsu3_RIAAAAd/cat-sweet.gif";
                             break;
 
