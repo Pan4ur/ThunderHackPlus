@@ -1,7 +1,10 @@
 package com.mrzak34.thunderhack.modules.movement;
 
 import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.events.*;
+import com.mrzak34.thunderhack.events.EventMove;
+import com.mrzak34.thunderhack.events.EventPreMotion;
+import com.mrzak34.thunderhack.events.MatrixMove;
+import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.MovementUtil;
@@ -27,23 +30,7 @@ import static com.mrzak34.thunderhack.util.PyroSpeed.*;
 
 public class Speed extends Module {
 
-    public Speed() {
-        super("Speed", "спиды", Category.MOVEMENT);
-    }
-
-    private Setting<mode> Mode = register(new Setting("Mode", mode.Default));
-    public Setting<Integer> bticks  = this.register(new Setting<>("boostTicks", 10, 1, 40, v -> Mode.getValue() == mode.Default));
-    public Setting<Boolean> strafeBoost = this.register(new Setting<>("StrafeBoost", false, v -> Mode.getValue() == mode.Default));
-    public Setting<Float> reduction  = this.register(new Setting<>("reduction ", 2f, 1f, 10f, v -> Mode.getValue() == mode.Default));
-    public Setting<Boolean> usver = this.register ( new Setting <> ( "calcJumpBoost", false, v -> Mode.getValue() == mode.Default));
-    private Setting<Boolean> autoWalk =this.register( new Setting<>("AutoWalk", false));
-    private Setting<Boolean> uav =this.register( new Setting<>("UseAllVelocity", false, v -> Mode.getValue() == mode.Default));
-
-    public enum mode {
-        Default, Grief,StrafeStrict,ReallyWorld, Matrix, MatrixJumpBoost;
-    }
-
-    public double defaultBaseSpeed = getBaseMoveSpeed();
+    public static boolean needSprintState;
     public double distance;
     public int Field2015 = 4;
     public int FunnyGameStage;
@@ -51,15 +38,25 @@ public class Speed extends Module {
     int velocity = 0;
     int boostticks = 0;
     boolean isBoosting = false;
-    private boolean nexus_flip = false;
-    public static boolean needSprintState;
     int waterTicks;
+    private final Setting<mode> Mode = register(new Setting("Mode", mode.Default));
+    public Setting<Integer> bticks = this.register(new Setting<>("boostTicks", 10, 1, 40, v -> Mode.getValue() == mode.Default));
+    public Setting<Boolean> strafeBoost = this.register(new Setting<>("StrafeBoost", false, v -> Mode.getValue() == mode.Default));
+    public Setting<Float> reduction = this.register(new Setting<>("reduction ", 2f, 1f, 10f, v -> Mode.getValue() == mode.Default));
+    public Setting<Boolean> usver = this.register(new Setting<>("calcJumpBoost", false, v -> Mode.getValue() == mode.Default));
+    public double defaultBaseSpeed = getBaseMoveSpeed();
+    private final Setting<Boolean> autoWalk = this.register(new Setting<>("AutoWalk", false));
+    private final Setting<Boolean> uav = this.register(new Setting<>("UseAllVelocity", false, v -> Mode.getValue() == mode.Default));
+    private boolean nexus_flip = false;
     private double strictBaseSpeed = 0.2873D;
     private int strictCounter;
     private int strictStage = 4;
     private int ticksPassed = 0;
     private double maxVelocity = 0;
-    private Timer velocityTimer = new Timer();
+    private final Timer velocityTimer = new Timer();
+    public Speed() {
+        super("Speed", "спиды", Category.MOVEMENT);
+    }
 
     @Override
     public void onDisable() {
@@ -73,7 +70,6 @@ public class Speed extends Module {
         velocity = 0;
     }
 
-
     @Override
     public void onEnable() {
         if (mc.player == null || mc.world == null) {
@@ -85,25 +81,25 @@ public class Speed extends Module {
 
     @SubscribeEvent
     public void onUpdateWalkingPlayerPre(EventPreMotion event) {
-        if(Mode.getValue() == mode.MatrixJumpBoost){
-            if(MovementUtil.isMoving() && !mc.world.getCollisionBoxes(mc.player, mc.player.getEntityBoundingBox().expand(0.5, 0.0, 0.5).offset(0.0, -1.0, 0.0)).isEmpty() && !nexus_flip){
+        if (Mode.getValue() == mode.MatrixJumpBoost) {
+            if (MovementUtil.isMoving() && !mc.world.getCollisionBoxes(mc.player, mc.player.getEntityBoundingBox().expand(0.5, 0.0, 0.5).offset(0.0, -1.0, 0.0)).isEmpty() && !nexus_flip) {
                 mc.player.onGround = true;
                 mc.player.jump();
                 mc.player.jumpMovementFactor = 0.026523f;
             }
         }
-        if(mc.player.fallDistance > 0){
+        if (mc.player.fallDistance > 0) {
             nexus_flip = true;
         }
-        if(!mc.world.getCollisionBoxes(mc.player, mc.player.getEntityBoundingBox().offset(0.0, -0.2, 0.0)).isEmpty() && nexus_flip){
+        if (!mc.world.getCollisionBoxes(mc.player, mc.player.getEntityBoundingBox().offset(0.0, -0.2, 0.0)).isEmpty() && nexus_flip) {
             nexus_flip = false;
         }
 
 
-        if(strafeBoost.getValue() && isBoosting){
+        if (strafeBoost.getValue() && isBoosting) {
             return;
         }
-        if(Mode.getValue() == mode.Grief){
+        if (Mode.getValue() == mode.Grief) {
             return;
         }
 
@@ -113,19 +109,19 @@ public class Speed extends Module {
         distance = Math.sqrt(d4);
     }
 
-    @SubscribeEvent( priority = EventPriority.HIGHEST)
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void onPacketReceive(PacketEvent.Receive event) {
 
-        if(fullNullCheck())return;
+        if (fullNullCheck()) return;
         if (event.getPacket() instanceof SPacketEntityVelocity) {
-            if(((SPacketEntityVelocity) event.getPacket()).getEntityID() == mc.player.getEntityId()) {
+            if (((SPacketEntityVelocity) event.getPacket()).getEntityID() == mc.player.getEntityId()) {
                 SPacketEntityVelocity pack = event.getPacket();
                 int vX = pack.getMotionX();
                 int vZ = pack.getMotionZ();
                 if (vX < 0) vX *= -1;
                 if (vZ < 0) vZ *= -1;
 
-                if((vX + vZ) < 3000 && !uav.getValue()) return;
+                if ((vX + vZ) < 3000 && !uav.getValue()) return;
                 velocity = vX + vZ;
 
                 boostticks = bticks.getValue();
@@ -146,11 +142,11 @@ public class Speed extends Module {
     }
 
     @Override
-    public void onUpdate(){
-        if(autoWalk.getValue()){
+    public void onUpdate() {
+        if (autoWalk.getValue()) {
             mc.gameSettings.keyBindForward.pressed = true;
         }
-        if(Mode.getValue() == mode.Grief){
+        if (Mode.getValue() == mode.Grief) {
             if (!isMoving()) {
                 return;
             }
@@ -164,10 +160,12 @@ public class Speed extends Module {
                 Thunderhack.TICK_TIMER = 1.8F;
             }
         }
-        if(Mode.getValue() == mode.ReallyWorld){
+        if (Mode.getValue() == mode.ReallyWorld) {
             if (!isMoving()) return;
 
-            if (mc.player.onGround) {mc.player.jump();}
+            if (mc.player.onGround) {
+                mc.player.jump();
+            }
             if (mc.player.fallDistance <= 0.22) {
                 Thunderhack.TICK_TIMER = 3.5f;
                 mc.player.jumpMovementFactor = 0.026523f;
@@ -177,9 +175,8 @@ public class Speed extends Module {
         }
     }
 
-    
     public double getBaseMoveSpeed() {
-        if(mc.player == null || mc.world == null){
+        if (mc.player == null || mc.world == null) {
             return 0.2873;
         }
 
@@ -187,34 +184,29 @@ public class Speed extends Module {
         double d = 0.2873;
         if (mc.player.isPotionActive(MobEffects.SPEED)) {
             n = Objects.requireNonNull(mc.player.getActivePotionEffect(MobEffects.SPEED)).getAmplifier();
-            d *= 1.0 + 0.2 * (double)(n + 1);
+            d *= 1.0 + 0.2 * (double) (n + 1);
         }
         if (mc.player.isPotionActive(MobEffects.JUMP_BOOST) && usver.getValue()) {
             n = Objects.requireNonNull(mc.player.getActivePotionEffect(MobEffects.JUMP_BOOST)).getAmplifier();
-            d /= 1.0 + 0.2 * (double)(n + 1);
+            d /= 1.0 + 0.2 * (double) (n + 1);
         }
-        if(strafeBoost.getValue() && velocity > 0 && boostticks > 0){
+        if (strafeBoost.getValue() && velocity > 0 && boostticks > 0) {
             d += (velocity / 8000f) / reduction.getValue();
             boostticks--;
         }
-        if(boostticks == 1){
+        if (boostticks == 1) {
             velocity = 0;
         }
         return d;
     }
 
-
-
-    public double isJumpBoost(){
+    public double isJumpBoost() {
         if (mc.player.isPotionActive(MobEffects.JUMP_BOOST)) {
             return 0.2;
         } else {
             return 0;
         }
     }
-
-
-
 
     @SubscribeEvent
     public void onMove(EventMove event) {
@@ -236,7 +228,7 @@ public class Speed extends Module {
                     strictStage = 2;
                 }
 
-                if (round(mc.player.posY - (int)mc.player.posY) == round(0.138D)) {
+                if (round(mc.player.posY - (int) mc.player.posY) == round(0.138D)) {
                     mc.player.motionY -= 0.08D;
                     event.setY(event.get_y() - 0.09316090325960147D);
                     mc.player.posY -= 0.09316090325960147D;
@@ -297,7 +289,7 @@ public class Speed extends Module {
                     }
                 }
 
-                strafe = MathUtil.clamp(strafe,-1,1);
+                strafe = MathUtil.clamp(strafe, -1, 1);
 
                 double cos = Math.cos(Math.toRadians((yaw + 90.0F)));
                 double sin = Math.sin(Math.toRadians((yaw + 90.0F)));
@@ -343,7 +335,7 @@ public class Speed extends Module {
                                 return;
                             }
                             case 3: {
-                                float f = (float)Method718();
+                                float f = (float) Method718();
                                 event.set_y(0.24813599859094704);
                                 event.set_x((double) (-MathHelper.sin(f)) * 0.2);
                                 event.set_z((double) MathHelper.cos(f) * 0.2);
@@ -384,14 +376,14 @@ public class Speed extends Module {
                 break;
             }
         }
-        if(Mode.getValue() == mode.StrafeStrict ) {
+        if (Mode.getValue() == mode.StrafeStrict) {
             event.setCanceled(true);
         }
     }
 
     @SubscribeEvent
-    public void onMove(MatrixMove move){
-        if(Mode.getValue() != mode.Matrix){
+    public void onMove(MatrixMove move) {
+        if (Mode.getValue() != mode.Matrix) {
             return;
         }
         if (!mc.player.onGround && move.toGround()) {
@@ -404,7 +396,7 @@ public class Speed extends Module {
     }
 
     public double getBaseMotionSpeed() {
-        double baseSpeed =  0.2873D;
+        double baseSpeed = 0.2873D;
         if (mc.player.isPotionActive(MobEffects.SPEED)) {
             int amplifier = Objects.requireNonNull(mc.player.getActivePotionEffect(MobEffects.SPEED)).getAmplifier();
             baseSpeed *= 1.0D + 0.2D * ((double) amplifier + 1);
@@ -416,6 +408,10 @@ public class Speed extends Module {
         BigDecimal bd = new BigDecimal(value);
         bd = bd.setScale(3, RoundingMode.HALF_UP);
         return bd.doubleValue();
+    }
+
+    public enum mode {
+        Default, Grief, StrafeStrict, ReallyWorld, Matrix, MatrixJumpBoost
     }
 
 }

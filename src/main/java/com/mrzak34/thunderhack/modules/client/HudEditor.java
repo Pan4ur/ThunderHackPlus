@@ -4,7 +4,7 @@ import com.mrzak34.thunderhack.gui.hud.HudEditorGui;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.util.Util;
 
-public class HudEditor extends Module{
+public class HudEditor extends Module {
     private static HudEditor INSTANCE = new HudEditor();
 
     public HudEditor() {
@@ -18,13 +18,14 @@ public class HudEditor extends Module{
         }
         return INSTANCE;
     }
+
     private void setInstance() {
         INSTANCE = this;
     }
 
 
     @Override
-    public void onEnable(){
+    public void onEnable() {
         Util.mc.displayGuiScreen(HudEditorGui.getHudGui());
         toggle();
     }

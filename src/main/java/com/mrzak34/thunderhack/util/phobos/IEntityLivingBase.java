@@ -3,17 +3,17 @@ package com.mrzak34.thunderhack.util.phobos;
 /**
  * Duck interface for {@link net.minecraft.entity.EntityLivingBase}.
  */
-public interface IEntityLivingBase
-{
+public interface IEntityLivingBase {
 
 
-
-    /** @return the ticksSinceLastSwing field. */
+    /**
+     * @return the ticksSinceLastSwing field.
+     */
     int getTicksSinceLastSwing();
 
-    int getActiveItemStackUseCount();
-
     void setTicksSinceLastSwing(int ticks);
+
+    int getActiveItemStackUseCount();
 
     void setActiveItemStackUseCount(int count);
 

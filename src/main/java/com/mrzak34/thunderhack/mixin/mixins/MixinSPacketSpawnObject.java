@@ -11,13 +11,13 @@ public abstract class MixinSPacketSpawnObject implements ISPacketSpawnObject {
     private boolean attacked;
 
     @Override
-    public void setAttacked(boolean attacked) {
-        this.attacked = attacked;
+    public boolean isAttacked() {
+        return attacked;
     }
 
     @Override
-    public boolean isAttacked() {
-        return attacked;
+    public void setAttacked(boolean attacked) {
+        this.attacked = attacked;
     }
 
 }

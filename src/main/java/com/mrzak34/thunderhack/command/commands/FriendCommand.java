@@ -27,12 +27,10 @@ public class FriendCommand extends Command {
             return;
         }
         if (commands.length == 2) {
-            switch (commands[0]) {
-                case "reset": {
-                    Thunderhack.friendManager.clear();
-                    FriendCommand.sendMessage("Friends got reset.");
-                    return;
-                }
+            if (commands[0].equals("reset")) {
+                Thunderhack.friendManager.clear();
+                FriendCommand.sendMessage("Friends got reset.");
+                return;
             }
             FriendCommand.sendMessage(commands[0] + (Thunderhack.friendManager.isFriend(commands[0]) ? " is friended." : " isn't friended."));
             return;
@@ -42,7 +40,7 @@ public class FriendCommand extends Command {
                 case "add": {
                     Thunderhack.friendManager.addFriend(commands[1]);
                     FriendCommand.sendMessage(ChatFormatting.GREEN + commands[1] + " has been friended");
-                    mc.player.sendChatMessage("/w "+ commands[1] + " i friended u at ThunderHack");
+                    mc.player.sendChatMessage("/w " + commands[1] + " i friended u at ThunderHack");
                     return;
                 }
                 case "del": {

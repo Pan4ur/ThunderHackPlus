@@ -6,6 +6,7 @@ import net.minecraftforge.fml.common.eventhandler.Event;
 
 /**
  * Called when a player steps up a block
+ *
  * @author Doogie13
  * @since 12/27/2021
  * from https://github.com/momentumdevelopment/cosmos/
@@ -26,11 +27,11 @@ public class StepEvent extends Event {
         return axisAlignedBB;
     }
 
-    public void setHeight(float in) {
-        height = in;
-    }
-
     public float getHeight() {
         return height;
+    }
+
+    public void setHeight(float in) {
+        height = in;
     }
 }

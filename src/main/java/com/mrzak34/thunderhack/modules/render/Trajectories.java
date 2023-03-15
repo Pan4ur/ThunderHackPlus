@@ -4,13 +4,14 @@
 
 package com.mrzak34.thunderhack.modules.render;
 
-import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.events.Render3DEvent;
+import com.mrzak34.thunderhack.mixin.mixins.IRenderManager;
+import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.setting.Setting;
-import com.mrzak34.thunderhack.mixin.mixins.IRenderManager;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
+import net.minecraft.item.*;
 import net.minecraft.util.EntitySelectors;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.MathHelper;
@@ -18,35 +19,61 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemBow;
-import net.minecraft.item.ItemEgg;
-import net.minecraft.item.ItemEnderPearl;
-import net.minecraft.item.ItemExpBottle;
-import net.minecraft.item.ItemLingeringPotion;
-import net.minecraft.item.ItemSnowball;
-import net.minecraft.item.ItemSplashPotion;
-import net.minecraft.item.ItemStack;
 
 import java.awt.*;
-import java.util.List;
 import java.util.ArrayList;
-
+import java.util.List;
 
 
 public class Trajectories extends Module {
+    private final Setting<ColorSetting> ncolor = this.register(new Setting<>("Color", new ColorSetting(0x8800FF00)));
+    public Setting<Boolean> landed = register(new Setting("Landed", true));
+    public Setting<ColorSetting> circleColor = this.register(new Setting<>("Color", new ColorSetting(0x33da6464, true)));
+    public Setting<Float> circleWidth = this.register(new Setting<>("Width", 2.5F, 0.1f, 5F));
+
     public Trajectories() {
         super("Trajectories", "Draws trajectories.", Category.RENDER);
     }
 
+    public static double getRenderPosX() {
+        return ((IRenderManager) mc.getRenderManager()).getRenderPosX();
+    }
 
+    public static double getRenderPosY() {
+        return ((IRenderManager) mc.getRenderManager()).getRenderPosY();
+    }
 
-    public Setting<Boolean> landed = register(new Setting("Landed", true));
+    public static void startRender() {
+        GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
+        GL11.glPushMatrix();
+        GL11.glDisable(GL11.GL_ALPHA_TEST);
+        GL11.glEnable(GL11.GL_BLEND);
+        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+        GL11.glDisable(GL11.GL_TEXTURE_2D);
+        GL11.glDisable(GL11.GL_DEPTH_TEST);
+        GL11.glDepthMask(false);
+        GL11.glEnable(GL11.GL_CULL_FACE);
+        GL11.glEnable(GL11.GL_LINE_SMOOTH);
+        GL11.glHint(GL11.GL_LINE_SMOOTH_HINT, GL11.GL_FASTEST);
+        GL11.glDisable(GL11.GL_LIGHTING);
+    }
 
+    public static void endRender() {
+        GL11.glEnable(GL11.GL_LIGHTING);
+        GL11.glDisable(GL11.GL_LINE_SMOOTH);
+        GL11.glEnable(GL11.GL_TEXTURE_2D);
+        GL11.glEnable(GL11.GL_DEPTH_TEST);
+        GL11.glDisable(GL11.GL_BLEND);
+        GL11.glEnable(GL11.GL_ALPHA_TEST);
+        GL11.glDepthMask(true);
+        GL11.glCullFace(GL11.GL_BACK);
+        GL11.glPopMatrix();
+        GL11.glPopAttrib();
+    }
 
-
-    private final Setting<ColorSetting> ncolor = this.register(new Setting<>("Color", new ColorSetting(0x8800FF00)));
-
+    public static double getRenderPosZ() {
+        return ((IRenderManager) mc.getRenderManager()).getRenderPosZ();
+    }
 
     protected boolean isThrowable(Item item) {
         return item instanceof ItemEnderPearl
@@ -188,7 +215,7 @@ public class Trajectories extends Module {
             drawLine3D(posX - renderPosX, posY - renderPosY, posZ - renderPosZ);
         }
         GL11.glEnd();
-        if (landed.getValue() &&  landingPosition != null && landingPosition.typeOfHit == RayTraceResult.Type.BLOCK) {
+        if (landed.getValue() && landingPosition != null && landingPosition.typeOfHit == RayTraceResult.Type.BLOCK) {
             GlStateManager.translate(posX - renderPosX, posY - renderPosY, posZ - renderPosZ);
             final int side = landingPosition.sideHit.getIndex();
             if (side == 2) {
@@ -207,10 +234,8 @@ public class Trajectories extends Module {
         }
         endRender();
     }
-    public  Setting<ColorSetting> circleColor = this.register(new Setting<>("Color", new ColorSetting(0x33da6464, true)));
-    public  Setting<Float> circleWidth = this.register(new Setting<>("Width", 2.5F, 0.1f, 5F));
 
-    public void circle(){
+    public void circle() {
         GlStateManager.pushMatrix();
         GlStateManager.enableBlend();
         GlStateManager.disableTexture2D();
@@ -241,9 +266,9 @@ public class Trajectories extends Module {
             int green = (rgb >> 8) & 0xFF;
             int blue = (rgb) & 0xFF;
             if (circleColor.getValue().isCycle()) {
-                GL11.glColor4f(red / 255F, green / 255F, blue / 255F, 1F );
+                GL11.glColor4f(red / 255F, green / 255F, blue / 255F, 1F);
             } else {
-                GL11.glColor4f(circleColor.getValue().getRed() / 255F, circleColor.getValue().getGreen() / 255F, circleColor.getValue().getBlue() / 255F, 1F );
+                GL11.glColor4f(circleColor.getValue().getRed() / 255F, circleColor.getValue().getGreen() / 255F, circleColor.getValue().getBlue() / 255F, 1F);
             }
             GL11.glVertex3d(vecs.get(j).x, vecs.get(j).y, vecs.get(j).z);
             GL11.glVertex3d(vecs.get(j + 1).x, vecs.get(j + 1).y, vecs.get(j + 1).z);
@@ -252,23 +277,23 @@ public class Trajectories extends Module {
         }
         GL11.glEnd();
 
-            hue = initialHue;
-            GL11.glBegin(GL11.GL_POLYGON);
-            for (int j = 0; j < vecs.size() - 1; ++j) {
-                int red = (rgb >> 16) & 0xFF;
-                int green = (rgb >> 8) & 0xFF;
-                int blue = (rgb) & 0xFF;
-                if (circleColor.getValue().isCycle()) {
-                    GL11.glColor4f(red / 255F, green / 255F, blue / 255F, circleColor.getValue().getAlpha() / 255F);
-                } else {
-                    GL11.glColor4f(circleColor.getValue().getRed() / 255F, circleColor.getValue().getGreen() / 255F, circleColor.getValue().getBlue() / 255F, circleColor.getValue().getAlpha() / 255F);
-                }
-                GL11.glVertex3d(vecs.get(j).x, vecs.get(j).y, vecs.get(j).z);
-                GL11.glVertex3d(vecs.get(j + 1).x, vecs.get(j + 1).y, vecs.get(j + 1).z);
-                hue += (1F / 360F);
-                rgb = Color.getHSBColor(hue, hsb[1], hsb[2]).getRGB();
+        hue = initialHue;
+        GL11.glBegin(GL11.GL_POLYGON);
+        for (int j = 0; j < vecs.size() - 1; ++j) {
+            int red = (rgb >> 16) & 0xFF;
+            int green = (rgb >> 8) & 0xFF;
+            int blue = (rgb) & 0xFF;
+            if (circleColor.getValue().isCycle()) {
+                GL11.glColor4f(red / 255F, green / 255F, blue / 255F, circleColor.getValue().getAlpha() / 255F);
+            } else {
+                GL11.glColor4f(circleColor.getValue().getRed() / 255F, circleColor.getValue().getGreen() / 255F, circleColor.getValue().getBlue() / 255F, circleColor.getValue().getAlpha() / 255F);
             }
-            GL11.glEnd();
+            GL11.glVertex3d(vecs.get(j).x, vecs.get(j).y, vecs.get(j).z);
+            GL11.glVertex3d(vecs.get(j + 1).x, vecs.get(j + 1).y, vecs.get(j + 1).z);
+            hue += (1F / 360F);
+            rgb = Color.getHSBColor(hue, hsb[1], hsb[2]).getRGB();
+        }
+        GL11.glEnd();
 
         GlStateManager.color(1F, 1F, 1F, 1F);
         GL11.glDisable(GL11.GL_ALPHA_TEST);
@@ -279,50 +304,6 @@ public class Trajectories extends Module {
         GlStateManager.enableLighting();
         GlStateManager.disableBlend();
         GlStateManager.popMatrix();
-    }
-
-
-    public static double getRenderPosX()
-    {
-        return ((IRenderManager) mc.getRenderManager()).getRenderPosX();
-    }
-
-    public static double getRenderPosY()
-    {
-        return ((IRenderManager) mc.getRenderManager()).getRenderPosY();
-    }
-    public static void startRender()
-    {
-        GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
-        GL11.glPushMatrix();
-        GL11.glDisable(GL11.GL_ALPHA_TEST);
-        GL11.glEnable(GL11.GL_BLEND);
-        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-        GL11.glDisable(GL11.GL_TEXTURE_2D);
-        GL11.glDisable(GL11.GL_DEPTH_TEST);
-        GL11.glDepthMask(false);
-        GL11.glEnable(GL11.GL_CULL_FACE);
-        GL11.glEnable(GL11.GL_LINE_SMOOTH);
-        GL11.glHint(GL11.GL_LINE_SMOOTH_HINT, GL11.GL_FASTEST);
-        GL11.glDisable(GL11.GL_LIGHTING);
-    }
-
-    public static void endRender()
-    {
-        GL11.glEnable(GL11.GL_LIGHTING);
-        GL11.glDisable(GL11.GL_LINE_SMOOTH);
-        GL11.glEnable(GL11.GL_TEXTURE_2D);
-        GL11.glEnable(GL11.GL_DEPTH_TEST);
-        GL11.glDisable(GL11.GL_BLEND);
-        GL11.glEnable(GL11.GL_ALPHA_TEST);
-        GL11.glDepthMask(true);
-        GL11.glCullFace(GL11.GL_BACK);
-        GL11.glPopMatrix();
-        GL11.glPopAttrib();
-    }
-    public static double getRenderPosZ()
-    {
-        return ((IRenderManager) mc.getRenderManager()).getRenderPosZ();
     }
 
     public void drawLine3D(double var1, double var2, double var3) {

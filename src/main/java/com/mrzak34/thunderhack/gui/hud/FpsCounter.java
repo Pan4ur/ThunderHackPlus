@@ -16,20 +16,19 @@ import org.lwjgl.input.Mouse;
 
 public class FpsCounter extends Module {
 
+    public final Setting<ColorSetting> color = this.register(new Setting<>("Color", new ColorSetting(0x8800FF00)));
+    private final Setting<PositionSetting> pos = this.register(new Setting<>("Position", new PositionSetting(0.5f, 0.5f)));
+    float x1 = 0;
+    float y1 = 0;
+    int dragX, dragY = 0;
+    boolean mousestate = false;
+
     public FpsCounter() {
         super("Fps", "fps", Category.HUD);
     }
 
-    public final Setting<ColorSetting> color = this.register(new Setting<>("Color", new ColorSetting(0x8800FF00)));
-    private final Setting<PositionSetting> pos = this.register(new Setting<>("Position", new PositionSetting(0.5f,0.5f)));
-
-
-    float x1 =0;
-    float y1= 0;
-
-
     @SubscribeEvent
-    public void onRender2D(Render2DEvent e){
+    public void onRender2D(Render2DEvent e) {
 
 
         y1 = e.scaledResolution.getScaledHeight() * pos.getValue().getY();
@@ -39,19 +38,19 @@ public class FpsCounter extends Module {
         String fpsText = "FPS " + ChatFormatting.WHITE + Minecraft.debugFPS;
 
 
-        FontRender.drawString6(fpsText,x1,y1, color.getValue().getRawColor(),false);
+        FontRender.drawString6(fpsText, x1, y1, color.getValue().getRawColor(), false);
 
-        if(mc.currentScreen instanceof GuiChat || mc.currentScreen instanceof HudEditorGui  || mc.currentScreen instanceof ThunderGui2){
-            if(isHovering()){
-                if(Mouse.isButtonDown(0) && mousestate){
-                    pos.getValue().setX( (float) (normaliseX() - dragX) /  e.scaledResolution.getScaledWidth());
-                    pos.getValue().setY( (float) (normaliseY() - dragY) / e.scaledResolution.getScaledHeight());
+        if (mc.currentScreen instanceof GuiChat || mc.currentScreen instanceof HudEditorGui || mc.currentScreen instanceof ThunderGui2) {
+            if (isHovering()) {
+                if (Mouse.isButtonDown(0) && mousestate) {
+                    pos.getValue().setX((float) (normaliseX() - dragX) / e.scaledResolution.getScaledWidth());
+                    pos.getValue().setY((float) (normaliseY() - dragY) / e.scaledResolution.getScaledHeight());
                 }
             }
         }
 
-        if(Mouse.isButtonDown(0) && isHovering()){
-            if(!mousestate){
+        if (Mouse.isButtonDown(0) && isHovering()) {
+            if (!mousestate) {
                 dragX = (int) (normaliseX() - (pos.getValue().getX() * e.scaledResolution.getScaledWidth()));
                 dragY = (int) (normaliseY() - (pos.getValue().getY() * e.scaledResolution.getScaledHeight()));
             }
@@ -61,18 +60,16 @@ public class FpsCounter extends Module {
         }
     }
 
-    int dragX, dragY = 0;
-    boolean mousestate = false;
-
-    public int normaliseX(){
-        return (int) ((Mouse.getX()/2f));
+    public int normaliseX() {
+        return (int) ((Mouse.getX() / 2f));
     }
-    public int normaliseY(){
+
+    public int normaliseY() {
         ScaledResolution sr = new ScaledResolution(mc);
-        return (((-Mouse.getY() + sr.getScaledHeight()) + sr.getScaledHeight())/2);
+        return (((-Mouse.getY() + sr.getScaledHeight()) + sr.getScaledHeight()) / 2);
     }
 
-    public boolean isHovering(){
-        return normaliseX() > x1 - 10 && normaliseX()< x1 + 50 && normaliseY() > y1 &&  normaliseY() < y1 + 10;
+    public boolean isHovering() {
+        return normaliseX() > x1 - 10 && normaliseX() < x1 + 50 && normaliseY() > y1 && normaliseY() < y1 + 10;
     }
 }

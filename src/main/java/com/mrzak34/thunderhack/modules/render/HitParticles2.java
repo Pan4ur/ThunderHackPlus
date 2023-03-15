@@ -19,25 +19,20 @@ import java.util.ConcurrentModificationException;
 
 public class HitParticles2 extends Module {
 
-    public HitParticles2() {
-        super("HitParticles", "HitParticles", Category.RENDER);
-    }
-
-
-    ArrayList<Particle> particles = new ArrayList<>();
-
     public final Setting<ColorSetting> colorLight = this.register(new Setting<>("Color", new ColorSetting(0x8800FF00)));
     public Setting<Boolean> selfp = register(new Setting("Self", false));
     public Setting<Integer> speedor = this.register(new Setting<>("Time", 8000, 1, 10000));
     public Setting<Integer> speedor2 = this.register(new Setting<>("speed", 20, 1, 1000));
-
-
+    ArrayList<Particle> particles = new ArrayList<>();
+    public HitParticles2() {
+        super("HitParticles", "HitParticles", Category.RENDER);
+    }
 
     @Override
     public void onUpdate() {
         if (mc.world != null && mc.player != null) {
             for (EntityPlayer player : mc.world.playerEntities) {
-                if(!selfp.getValue() && player == mc.player){
+                if (!selfp.getValue() && player == mc.player) {
                     continue;
                 }
                 if (player.hurtTime > 0) {
@@ -56,18 +51,17 @@ public class HitParticles2 extends Module {
     }
 
 
-
-
     @SubscribeEvent
     public void onRender3D(Render3DEvent event) {
         if (mc.player != null && mc.world != null) {
             for (Particle particle : particles) {
-                particle.render(new Color(colorLight.getValue().getRed(), colorLight.getValue().getGreen(), colorLight.getValue().getBlue(), (int) Math.round(particle.alpha)).getRGB());
+                particle.render(new Color(colorLight.getValue().getRed(), colorLight.getValue().getGreen(), colorLight.getValue().getBlue(), Math.round(particle.alpha)).getRGB());
             }
         }
     }
 
     public class Particle {
+        public int alpha = 180;
         double x;
         double y;
         double z;
@@ -75,15 +69,14 @@ public class HitParticles2 extends Module {
         double motionY;
         double motionZ;
         long time;
-        public int alpha = 180;
 
         public Particle(double x, double y, double z) {
             this.x = x;
             this.y = y;
             this.z = z;
-            motionX = MathUtil.random(-(float)speedor2.getValue()/1000f, (float)speedor2.getValue()/1000f);
-            motionY = MathUtil.random(-(float)speedor2.getValue()/1000f, (float)speedor2.getValue()/1000f);
-            motionZ = MathUtil.random(-(float)speedor2.getValue()/1000f, (float)speedor2.getValue()/1000f);
+            motionX = MathUtil.random(-(float) speedor2.getValue() / 1000f, (float) speedor2.getValue() / 1000f);
+            motionY = MathUtil.random(-(float) speedor2.getValue() / 1000f, (float) speedor2.getValue() / 1000f);
+            motionZ = MathUtil.random(-(float) speedor2.getValue() / 1000f, (float) speedor2.getValue() / 1000f);
             time = System.currentTimeMillis();
         }
 
@@ -153,7 +146,7 @@ public class HitParticles2 extends Module {
 
         public void render(int color) {
             update();
-            alpha-=0.1;
+            alpha -= 0.1;
             float scale = 0.07f;
             GlStateManager.disableDepth();
             GL11.glEnable(GL11.GL_BLEND);

@@ -27,18 +27,14 @@ import java.util.List;
 public class GuiSchematicLoad extends GuiScreenBase {
     private static final FileFilterSchematic FILE_FILTER_FOLDER = new FileFilterSchematic(true);
     private static final FileFilterSchematic FILE_FILTER_SCHEMATIC = new FileFilterSchematic(false);
-
-    private GuiSchematicLoadSlot guiSchematicLoadSlot;
-
-    private GuiButton btnOpenDir = null;
-    private GuiButton btnDone = null;
-
+    protected final List<GuiSchematicEntry> schematicFiles = new ArrayList<GuiSchematicEntry>();
     private final String strTitle = I18n.format(Names.Gui.Load.TITLE);
     private final String strFolderInfo = I18n.format(Names.Gui.Load.FOLDER_INFO);
-    private String strNoSchematic = I18n.format(Names.Gui.Load.NO_SCHEMATIC);
-
     protected File currentDirectory = ConfigurationHandler.schematicDirectory;
-    protected final List<GuiSchematicEntry> schematicFiles = new ArrayList<GuiSchematicEntry>();
+    private GuiSchematicLoadSlot guiSchematicLoadSlot;
+    private GuiButton btnOpenDir = null;
+    private GuiButton btnDone = null;
+    private final String strNoSchematic = I18n.format(Names.Gui.Load.NO_SCHEMATIC);
 
     public GuiSchematicLoad(final GuiScreen guiScreen) {
         super(guiScreen);

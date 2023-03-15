@@ -10,7 +10,7 @@ import net.minecraft.util.math.Vec3d;
 import static com.mrzak34.thunderhack.util.Util.mc;
 import static com.mrzak34.thunderhack.util.phobos.DistanceUtil.distanceSq;
 
-public class HelperRange{
+public class HelperRange {
     private final AutoCrystal module;
 
     public HelperRange(AutoCrystal module) {
@@ -106,8 +106,7 @@ public class HelperRange{
                 pos.getX() + 0.5f, pos.getY() + 1, pos.getZ() + 0.5f, ticks);
     }
 
-    public boolean isOutsideBreakTrace(double x, double y, double z, int ticks)
-    {
+    public boolean isOutsideBreakTrace(double x, double y, double z, int ticks) {
         Entity breaker = mc.player;
         double breakerX = breaker.posX + breaker.motionX * ticks;
         double breakerY = breaker.posY + breaker.motionY * ticks;
@@ -121,7 +120,7 @@ public class HelperRange{
             double breakerX, double breakerY, double breakerZ) {
         return distanceSq(crystalX, crystalY, crystalZ,
                 breakerX, breakerY, breakerZ)
-                < MathUtil.square(module.breakTrace.getValue())
+                < MathUtil.square(module.breakTrace.getValue()) //TODO distanceSq and module.breakTrace.getValue()
                 || mc.world.rayTraceBlocks(
                 new Vec3d(breakerX, breakerY
                         + mc.player.getEyeHeight(), breakerZ),

@@ -5,20 +5,16 @@ import net.minecraft.util.math.BlockPos;
 import java.util.Collection;
 import java.util.TreeSet;
 
-public class PathCache extends AbstractSphere
-{
-    public PathCache(int expectedSize, int indicesSize, double radius)
-    {
+public class PathCache extends AbstractSphere {
+    public PathCache(int expectedSize, int indicesSize, double radius) {
         super(expectedSize, indicesSize, radius);
     }
 
     @Override
-    protected Collection<BlockPos> sorter(BlockPos middle)
-    {
+    protected Collection<BlockPos> sorter(BlockPos middle) {
         return new TreeSet<>((o, p) ->
         {
-            if (o.equals(p))
-            {
+            if (o.equals(p)) {
                 return 0;
             }
 
@@ -37,16 +33,14 @@ public class PathCache extends AbstractSphere
                     PathFinder.produceOffsets(false, false, xpDiff, ypDiff, zpDiff)
                             .length);
 
-            if (compare != 0)
-            {
+            if (compare != 0) {
                 return compare;
             }
 
             compare = Double.compare(middle.distanceSq(o),
                     middle.distanceSq(p));
             //noinspection DuplicatedCode
-            if (compare == 0)
-            {
+            if (compare == 0) {
                 // This prioritizes positions closer to an axis
                 compare = Integer.compare(Math.abs(o.getX())
                                 + Math.abs(o.getY())

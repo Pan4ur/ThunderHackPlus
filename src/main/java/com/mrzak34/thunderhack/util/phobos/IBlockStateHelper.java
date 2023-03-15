@@ -5,10 +5,8 @@ import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 
-public interface IBlockStateHelper extends IBlockAccess
-{
-    default void addAir(BlockPos pos)
-    {
+public interface IBlockStateHelper extends IBlockAccess {
+    default void addAir(BlockPos pos) {
         this.addBlockState(pos, Blocks.AIR.getDefaultState());
     }
 

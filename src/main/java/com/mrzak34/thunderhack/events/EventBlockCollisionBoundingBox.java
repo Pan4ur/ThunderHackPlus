@@ -8,7 +8,7 @@ import net.minecraftforge.fml.common.eventhandler.Event;
 @Cancelable
 
 public class EventBlockCollisionBoundingBox extends Event {
-    private BlockPos _pos;
+    private final BlockPos _pos;
     private AxisAlignedBB _boundingBox;
 
     public EventBlockCollisionBoundingBox(final BlockPos pos) {

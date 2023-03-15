@@ -6,13 +6,13 @@ import com.mrzak34.thunderhack.events.Render2DEvent;
 import com.mrzak34.thunderhack.events.Render3DEvent;
 import com.mrzak34.thunderhack.modules.client.MainSettings;
 import com.mrzak34.thunderhack.notification.Notification;
+import com.mrzak34.thunderhack.notification.NotificationManager;
 import com.mrzak34.thunderhack.setting.Bind;
 import com.mrzak34.thunderhack.setting.Setting;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.common.MinecraftForge;
-import com.mrzak34.thunderhack.notification.NotificationManager;
 
 import java.util.Objects;
 
@@ -29,7 +29,7 @@ public class Module extends Feature {
     public Setting<String> displayName;
     public boolean hidden;
     public boolean settingopened;
-    public Setting<Bind> bind = this.register(new Setting<>("Keybind",  new Bind(-1)));
+    public Setting<Bind> bind = this.register(new Setting<>("Keybind", new Bind(-1)));
     public Setting<Boolean> drawn = this.register(new Setting<>("Drawn", true));
 
 
@@ -42,7 +42,7 @@ public class Module extends Feature {
     }
 
 
-    public Module(String name, String description,String eng_description, Category category) {
+    public Module(String name, String description, String eng_description, Category category) {
         super(name);
         this.displayName = this.register(new Setting<String>("DisplayName", name));
         this.description = description;
@@ -50,11 +50,11 @@ public class Module extends Feature {
         this.category = category;
     }
 
-    public boolean isSetting(){
+    public boolean isSetting() {
         return this.settingopened;
     }
 
-    public void setSetting(Boolean a){
+    public void setSetting(Boolean a) {
         this.settingopened = a;
     }
 
@@ -122,14 +122,14 @@ public class Module extends Feature {
         this.onToggle();
         this.onEnable();
 
-        if((Objects.equals(this.getDisplayName(), "ThunderGui") || (Objects.equals(this.getDisplayName(), "ClickGUI")))){
-        }else {
+        if ((Objects.equals(this.getDisplayName(), "ThunderGui") || (Objects.equals(this.getDisplayName(), "ClickGUI")))) {
+        } else {
             mc.world.playSound(getPlayerPos(), SoundEvents.BLOCK_NOTE_XYLOPHONE, SoundCategory.AMBIENT, 150.0f, 2.0F, true);
         }
 
 
-        if((!Objects.equals(this.getDisplayName(), "ElytraSwap")  && (!Objects.equals(this.getDisplayName(), "ClickGui"))&& (!Objects.equals(this.getDisplayName(), "ThunderGui")) && (!Objects.equals(this.getDisplayName(), "Windows")))) {
-            NotificationManager.publicity(this.getDisplayName()  + " was enabled!", 2, Notification.Type.ENABLED);
+        if ((!Objects.equals(this.getDisplayName(), "ElytraSwap") && (!Objects.equals(this.getDisplayName(), "ClickGui")) && (!Objects.equals(this.getDisplayName(), "ThunderGui")) && (!Objects.equals(this.getDisplayName(), "Windows")))) {
+            NotificationManager.publicity(this.getDisplayName() + " was enabled!", 2, Notification.Type.ENABLED);
         }
         if (Thunderhack.moduleManager.getModuleByClass(MainSettings.class).notifyToggles.getValue()) {
             TextComponentString text = new TextComponentString(Thunderhack.commandManager.getClientMessage() + " " + ChatFormatting.GREEN + this.getDisplayName() + " toggled on.");
@@ -142,22 +142,22 @@ public class Module extends Feature {
 
     public void disable() {
         MinecraftForge.EVENT_BUS.unregister(this);
-        if(mc.player == null){
+        if (mc.player == null) {
             return;
         }
-        if((Objects.equals(this.getDisplayName(), "ThunderGui") || (Objects.equals(this.getDisplayName(), "ClickGUI")))){
+        if ((Objects.equals(this.getDisplayName(), "ThunderGui") || (Objects.equals(this.getDisplayName(), "ClickGUI")))) {
         } else {
             mc.world.playSound(getPlayerPos(), SoundEvents.BLOCK_NOTE_XYLOPHONE, SoundCategory.AMBIENT, 150.0f, 1.0F, true);
 
         }
 
         this.enabled.setValue(false);
-        if((!Objects.equals(this.getDisplayName(), "ElytraSwap") && (!Objects.equals(this.getDisplayName(), "ThunderGui")) && (!Objects.equals(this.getDisplayName(), "ClickGui"))  && (!Objects.equals(this.getDisplayName(), "Windows")))) {
+        if ((!Objects.equals(this.getDisplayName(), "ElytraSwap") && (!Objects.equals(this.getDisplayName(), "ThunderGui")) && (!Objects.equals(this.getDisplayName(), "ClickGui")) && (!Objects.equals(this.getDisplayName(), "Windows")))) {
             NotificationManager.publicity(this.getDisplayName() + " was disabled!", 2, Notification.Type.DISABLED);
         }
         if (Thunderhack.moduleManager.getModuleByClass(MainSettings.class).notifyToggles.getValue()) {
             TextComponentString text = new TextComponentString(Thunderhack.commandManager.getClientMessage() + " " + ChatFormatting.RED + this.getDisplayName() + " toggled off.");
-            if(text != null) {
+            if (text != null) {
                 Module.mc.ingameGUI.getChatGUI().printChatMessageWithOptionalDeletion(text, 1);
             }
         }
@@ -169,7 +169,7 @@ public class Module extends Feature {
         this.setEnabled(!this.isEnabled());
     }
 
-    public boolean isValidBind(String s){
+    public boolean isValidBind(String s) {
         return s.length() < 2;
     }
 
@@ -179,10 +179,10 @@ public class Module extends Feature {
 
 
     public String getDescription() {
-        if(Thunderhack.moduleManager.getModuleByClass(MainSettings.class).language.getValue() == MainSettings.Language.RU) {
+        if (Thunderhack.moduleManager.getModuleByClass(MainSettings.class).language.getValue() == MainSettings.Language.RU) {
             return this.description;
         } else {
-            if(!Objects.equals(eng_description, "english_description")) {
+            if (!Objects.equals(eng_description, "english_description")) {
                 return this.eng_description;
             } else {
                 return this.description;
@@ -216,7 +216,7 @@ public class Module extends Feature {
     }
 
     public boolean listening() {
-        return  this.isOn();
+        return this.isOn();
     }
 
     public String getFullArrayString() {

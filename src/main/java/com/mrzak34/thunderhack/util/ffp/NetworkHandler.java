@@ -1,25 +1,18 @@
 package com.mrzak34.thunderhack.util.ffp;
 
-import net.minecraft.network.EnumPacketDirection;
-import net.minecraft.network.INetHandler;
-import net.minecraft.network.NettyPacketDecoder;
-import net.minecraft.network.NettyPacketEncoder;
-import net.minecraft.network.NetworkManager;
-import net.minecraft.network.Packet;
-import net.minecraft.util.text.TextComponentString;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.network.FMLNetworkEvent;
-import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.fml.relauncher.Side;
-
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelPipeline;
+import net.minecraft.network.*;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.network.FMLNetworkEvent;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 
 
@@ -31,10 +24,10 @@ public class NetworkHandler {
     private boolean isConnected;
     private NetworkManager networkManager;
 
-    private ReadWriteLock[] outbound_lock;
-    private ReadWriteLock[] inbound_lock;
-    private List<PacketListener>[] outbound_listeners;
-    private List<PacketListener>[] inbound_listeners;
+    private final ReadWriteLock[] outbound_lock;
+    private final ReadWriteLock[] inbound_lock;
+    private final List<PacketListener>[] outbound_listeners;
+    private final List<PacketListener>[] inbound_listeners;
 
     public NetworkHandler() {
         this.isConnected = false;
@@ -42,14 +35,14 @@ public class NetworkHandler {
         this.outbound_listeners = new List[33];
         this.outbound_lock = new ReadWriteLock[33];
 
-        for(int i = 0; i < 33; i ++) {
+        for (int i = 0; i < 33; i++) {
             this.outbound_lock[i] = new ReentrantReadWriteLock();
         }
 
         this.inbound_listeners = new List[80];
         this.inbound_lock = new ReadWriteLock[80];
 
-        for(int i = 0; i < 80; i ++) {
+        for (int i = 0; i < 80; i++) {
             this.inbound_lock[i] = new ReentrantReadWriteLock();
         }
     }
@@ -58,7 +51,7 @@ public class NetworkHandler {
         List<PacketListener> listeners;
         ReadWriteLock lock;
 
-        if(direction == EnumPacketDirection.CLIENTBOUND) {
+        if (direction == EnumPacketDirection.CLIENTBOUND) {
             listeners = this.inbound_listeners[id];
             lock = this.inbound_lock[id];
         } else {
@@ -66,32 +59,32 @@ public class NetworkHandler {
             lock = this.outbound_lock[id];
         }
 
-        if(listeners != null) {
+        if (listeners != null) {
             int buff_start = 0;
-            if(buf != null) buff_start = buf.readerIndex();
+            if (buf != null) buff_start = buf.readerIndex();
 
             lock.readLock().lock();
             int size = listeners.size(); // Get starting size, we assume that a listener can unregister itself & only itself
             lock.readLock().unlock();
 
-            for(int i = 0; i < size; i ++) {
+            for (int i = 0; i < size; i++) {
                 lock.readLock().lock();
                 PacketListener l = listeners.get(i - (size - listeners.size()));
                 lock.readLock().unlock();
 
-                if(buf != null) buf.readerIndex(buff_start);
-                if((packet = l.packetReceived(direction, id, packet, buf)) == null) return null;
+                if (buf != null) buf.readerIndex(buff_start);
+                if ((packet = l.packetReceived(direction, id, packet, buf)) == null) return null;
             }
         }
 
         return packet;
     }
 
-    public void registerListener(EnumPacketDirection direction, PacketListener listener, int ... ids) {
+    public void registerListener(EnumPacketDirection direction, PacketListener listener, int... ids) {
         List<PacketListener>[] listeners;
         ReadWriteLock[] locks;
 
-        if(direction == EnumPacketDirection.CLIENTBOUND) {
+        if (direction == EnumPacketDirection.CLIENTBOUND) {
             listeners = this.inbound_listeners;
             locks = this.inbound_lock;
         } else {
@@ -99,12 +92,12 @@ public class NetworkHandler {
             locks = this.outbound_lock;
         }
 
-        for(int id : ids) {
+        for (int id : ids) {
             try {
                 locks[id].writeLock().lock();
 
-                if(listeners[id] == null) listeners[id] = new ArrayList<PacketListener>();
-                if(! listeners[id].contains(listener)) { // Not twice
+                if (listeners[id] == null) listeners[id] = new ArrayList<PacketListener>();
+                if (!listeners[id].contains(listener)) { // Not twice
                     listeners[id].add(listener);
                 }
             } finally {
@@ -114,11 +107,11 @@ public class NetworkHandler {
     }
 
 
-    public void unregisterListener(EnumPacketDirection direction, PacketListener listener, int ... ids) {
+    public void unregisterListener(EnumPacketDirection direction, PacketListener listener, int... ids) {
         List<PacketListener>[] listeners;
         ReadWriteLock[] locks;
 
-        if(direction == EnumPacketDirection.CLIENTBOUND) {
+        if (direction == EnumPacketDirection.CLIENTBOUND) {
             listeners = this.inbound_listeners;
             locks = this.inbound_lock;
         } else {
@@ -126,12 +119,12 @@ public class NetworkHandler {
             locks = this.outbound_lock;
         }
 
-        for(int id : ids) {
+        for (int id : ids) {
             try {
                 locks[id].writeLock().lock();
-                if(listeners[id] != null) {
+                if (listeners[id] != null) {
                     listeners[id].remove(listener);
-                    if(listeners[id].size() == 0) listeners[id] = null;
+                    if (listeners[id].size() == 0) listeners[id] = null;
                 }
             } finally {
                 locks[id].writeLock().unlock();
@@ -140,7 +133,7 @@ public class NetworkHandler {
     }
 
     public void sendPacket(Packet<?> packet) {
-        if(this.networkManager != null) {
+        if (this.networkManager != null) {
             this.networkManager.sendPacket(packet);
         }
     }
@@ -148,21 +141,21 @@ public class NetworkHandler {
 
     @SubscribeEvent
     public void onConnect(FMLNetworkEvent.ClientConnectedToServerEvent event) {
-        if(!this.isConnected) {
+        if (!this.isConnected) {
 
             ChannelPipeline pipeline = event.getManager().channel().pipeline();
 
             try {
                 // Install receive interception
                 ChannelHandler old = pipeline.get("decoder");
-                if(old != null && old instanceof NettyPacketDecoder) {
+                if (old != null && old instanceof NettyPacketDecoder) {
                     InboundInterceptor spoof = new InboundInterceptor(this, EnumPacketDirection.CLIENTBOUND);
                     pipeline.replace("decoder", "decoder", spoof);
                 }
 
                 // Install send interception
                 old = pipeline.get("encoder");
-                if(old != null && old instanceof NettyPacketEncoder) {
+                if (old != null && old instanceof NettyPacketEncoder) {
                     OutboundInterceptor spoof = new OutboundInterceptor(this, EnumPacketDirection.SERVERBOUND);
                     pipeline.replace("encoder", "encoder", spoof);
                 }
@@ -170,7 +163,8 @@ public class NetworkHandler {
                 // Record NetworkManager
                 this.networkManager = event.getManager();
                 this.isConnected = true;
-            } catch (java.util.NoSuchElementException e) {}
+            } catch (java.util.NoSuchElementException e) {
+            }
         }
     }
 

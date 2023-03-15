@@ -137,6 +137,17 @@ public class BlockList {
             this.total = total;
         }
 
+        private static String getFormattedStackAmount(final ItemStack itemStack, final int amount) {
+            final int stackSize = itemStack.getMaxStackSize();
+            if (true /* amount < stackSize */) {
+                return String.format("%d", amount);
+            } else {
+                final int amountStack = amount / stackSize;
+                final int amountRemainder = amount % stackSize;
+                return String.format("%d(%d:%d)", amount, amountStack, amountRemainder);
+            }
+        }
+
         public String getItemStackDisplayName() {
             return this.itemStack.getItem().getItemStackDisplayName(this.itemStack);
         }
@@ -152,17 +163,6 @@ public class BlockList {
                 return String.format("\u00a7c%s: %s", strMissing, getFormattedStackAmount(this.itemStack, need));
             } else {
                 return String.format("\u00a7a%s", strAvailable);
-            }
-        }
-
-        private static String getFormattedStackAmount(final ItemStack itemStack, final int amount) {
-            final int stackSize = itemStack.getMaxStackSize();
-            if (true /* amount < stackSize */) {
-                return String.format("%d", amount);
-            } else {
-                final int amountStack = amount / stackSize;
-                final int amountRemainder = amount % stackSize;
-                return String.format("%d(%d:%d)", amount, amountStack, amountRemainder);
             }
         }
     }

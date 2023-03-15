@@ -7,21 +7,18 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 
 public class EventPostMotion extends Event {
+    private final Deque<Runnable> postEvents = new ArrayDeque<>();
+
     public EventPostMotion() {
 
     }
 
-    private final Deque<Runnable> postEvents = new ArrayDeque<>();
-
-
-    public void addPostEvent(SafeRunnable runnable)
-    {
+    public void addPostEvent(SafeRunnable runnable) {
         postEvents.add(runnable);
     }
 
 
-    public Deque<Runnable> getPostEvents()
-    {
+    public Deque<Runnable> getPostEvents() {
         return postEvents;
     }
 }

@@ -2,7 +2,6 @@ package com.mrzak34.thunderhack.modules.movement;
 
 import com.mrzak34.thunderhack.events.EventPreMotion;
 import com.mrzak34.thunderhack.modules.Module;
-import com.mrzak34.thunderhack.modules.combat.Aura;
 import com.mrzak34.thunderhack.setting.Setting;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
@@ -15,29 +14,34 @@ import net.minecraft.network.play.client.CPacketPlayerTryUseItemOnBlock;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import static com.mrzak34.thunderhack.util.MovementUtil.isMoving;
-import static com.mrzak34.thunderhack.util.RotationUtil.getRotationTo;
 
 public class Spider extends Module {
+
+    public final Setting<Integer> delay = register(new Setting("delay", 2, 1, 15));
+    public Setting<Boolean> dropBlocks = this.register(new Setting<>("DropBlocks", false));
+    private final Setting<mode> a = register(new Setting("Mode", mode.Matrix));
 
     public Spider() {
         super("Spider", "Spider", Category.MOVEMENT);
     }
 
-
-
-    private Setting<mode> a = register(new Setting("Mode", mode.Matrix));
-    public enum mode {
-        Default, Matrix, MatrixNew, Blocks;
+    public static EnumFacing getPlaceableSide(BlockPos pos) {
+        for (EnumFacing side : EnumFacing.values()) {
+            BlockPos neighbour = pos.offset(side);
+            if (mc.world.isAirBlock(neighbour)) {
+                continue;
+            }
+            IBlockState blockState = mc.world.getBlockState(neighbour);
+            if (!blockState.getMaterial().isReplaceable()) {
+                return side;
+            }
+        }
+        return null;
     }
-    public Setting<Boolean> dropBlocks = this.register(new Setting<>("DropBlocks", false));
-    public final Setting<Integer> delay = register(new Setting("delay", 2, 1, 15));
-
-
 
     @Override
     public void onTick() {
@@ -47,7 +51,7 @@ public class Spider extends Module {
         if (a.getValue() == mode.Default) {
             mc.player.motionY = 0.2;
             mc.player.isAirBorne = false;
-        } else if(a.getValue() == mode.Matrix) {
+        } else if (a.getValue() == mode.Matrix) {
             if (mc.player.ticksExisted % delay.getValue() == 0) {
                 mc.player.onGround = true;
                 mc.player.isAirBorne = false;
@@ -63,7 +67,6 @@ public class Spider extends Module {
     }
 
 
-
     @SubscribeEvent
     public void onMotion(EventPreMotion event) {
         if (mc.gameSettings.keyBindJump.isKeyDown() && mc.player.motionY <= -0.3739040364667221 && a.getValue() == mode.MatrixNew) {
@@ -71,53 +74,53 @@ public class Spider extends Module {
             mc.player.motionY = 0.481145141919180;
         }
         if (mc.player.ticksExisted % delay.getValue() == 0 && mc.player.collidedHorizontally && isMoving() && a.getValue() == mode.Blocks) {
-                int find = -2;
-                for (int i = 0; i <= 8; i++)
-                    if (mc.player.inventory.getStackInSlot(i).getItem() instanceof ItemBlock)
-                        find = i;
+            int find = -2;
+            for (int i = 0; i <= 8; i++)
+                if (mc.player.inventory.getStackInSlot(i).getItem() instanceof ItemBlock)
+                    find = i;
 
-                if (find == -2)
-                    return;
+            if (find == -2)
+                return;
 
-                BlockPos pos = new BlockPos(mc.player.posX, mc.player.posY + 2, mc.player.posZ);
-                EnumFacing side = getPlaceableSide(pos);
-                if (side != null) {
-                    mc.player.connection.sendPacket(new CPacketHeldItemChange(find));
+            BlockPos pos = new BlockPos(mc.player.posX, mc.player.posY + 2, mc.player.posZ);
+            EnumFacing side = getPlaceableSide(pos);
+            if (side != null) {
+                mc.player.connection.sendPacket(new CPacketHeldItemChange(find));
 
-                    BlockPos neighbour = new BlockPos(mc.player.posX, mc.player.posY + 2, mc.player.posZ).offset(side);
-                    EnumFacing opposite = side.getOpposite();
+                BlockPos neighbour = new BlockPos(mc.player.posX, mc.player.posY + 2, mc.player.posZ).offset(side);
+                EnumFacing opposite = side.getOpposite();
 
-                    Vec3d hitVec = new Vec3d(neighbour).add(0.5, 0.5, 0.5).add(new Vec3d(opposite.getDirectionVec()).scale(0.5));
+                Vec3d hitVec = new Vec3d(neighbour).add(0.5, 0.5, 0.5).add(new Vec3d(opposite.getDirectionVec()).scale(0.5));
 
-                    float x = (float) (hitVec.x - (double) neighbour.getX());
-                    float y = (float) (hitVec.y - (double) neighbour.getY());
-                    float z = (float) (hitVec.z - (double) neighbour.getZ());
+                float x = (float) (hitVec.x - (double) neighbour.getX());
+                float y = (float) (hitVec.y - (double) neighbour.getY());
+                float z = (float) (hitVec.z - (double) neighbour.getZ());
 
-                    mc.player.connection.sendPacket(new CPacketPlayerTryUseItemOnBlock(neighbour, opposite, EnumHand.MAIN_HAND, x, y, z));
-                    mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.START_SNEAKING));
-                    if (mc.world.getBlockState(new BlockPos(mc.player).add(0, 2, 0)).getBlock() != Blocks.AIR) {
-                        mc.player.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.START_DESTROY_BLOCK, neighbour, opposite));
-                        mc.player.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.STOP_DESTROY_BLOCK, neighbour, opposite));
-                    }
-                    mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.STOP_SNEAKING));
+                mc.player.connection.sendPacket(new CPacketPlayerTryUseItemOnBlock(neighbour, opposite, EnumHand.MAIN_HAND, x, y, z));
+                mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.START_SNEAKING));
+                if (mc.world.getBlockState(new BlockPos(mc.player).add(0, 2, 0)).getBlock() != Blocks.AIR) {
+                    mc.player.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.START_DESTROY_BLOCK, neighbour, opposite));
+                    mc.player.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.STOP_DESTROY_BLOCK, neighbour, opposite));
                 }
+                mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.STOP_SNEAKING));
+            }
 
 
-                mc.player.onGround = true;
-                mc.player.isAirBorne = true;
-                mc.player.jump();
-                mc.player.connection.sendPacket(new CPacketHeldItemChange(mc.player.inventory.currentItem));
-                if (dropBlocks.getValue()) {
-                    for (int i = 9; i < 45; i++) {
-                        if (mc.player.inventoryContainer.getSlot(i).getHasStack()) {
-                            if (mc.player.inventoryContainer.getSlot(i).getStack().getItem() instanceof ItemBlock) {
-                                mc.playerController.windowClick(mc.player.inventoryContainer.windowId, i, 0, ClickType.THROW, mc.player);
-                                mc.player.jump();
-                                break;
-                            }
+            mc.player.onGround = true;
+            mc.player.isAirBorne = true;
+            mc.player.jump();
+            mc.player.connection.sendPacket(new CPacketHeldItemChange(mc.player.inventory.currentItem));
+            if (dropBlocks.getValue()) {
+                for (int i = 9; i < 45; i++) {
+                    if (mc.player.inventoryContainer.getSlot(i).getHasStack()) {
+                        if (mc.player.inventoryContainer.getSlot(i).getStack().getItem() instanceof ItemBlock) {
+                            mc.playerController.windowClick(mc.player.inventoryContainer.windowId, i, 0, ClickType.THROW, mc.player);
+                            mc.player.jump();
+                            break;
                         }
                     }
                 }
+            }
         }
     }
 
@@ -141,18 +144,8 @@ public class Spider extends Module {
 
  */
 
-    public static EnumFacing getPlaceableSide(BlockPos pos) {
-        for (EnumFacing side : EnumFacing.values()) {
-            BlockPos neighbour = pos.offset(side);
-            if (mc.world.isAirBlock(neighbour)) {
-                continue;
-            }
-            IBlockState blockState = mc.world.getBlockState(neighbour);
-            if (!blockState.getMaterial().isReplaceable()) {
-                return side;
-            }
-        }
-        return null;
+    public enum mode {
+        Default, Matrix, MatrixNew, Blocks
     }
 
 }

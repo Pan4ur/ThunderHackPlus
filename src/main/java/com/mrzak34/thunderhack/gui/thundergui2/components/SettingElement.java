@@ -5,7 +5,6 @@ import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.render.Drawable;
 import com.mrzak34.thunderhack.util.render.RenderUtil;
 
-import java.awt.*;
 import java.io.IOException;
 
 public class SettingElement {
@@ -19,7 +18,6 @@ public class SettingElement {
     protected float scroll_animation;
 
 
-
     protected boolean hovered;
 
     public SettingElement(Setting setting) {
@@ -31,9 +29,9 @@ public class SettingElement {
 
     public void render(int mouseX, int mouseY, float delta) {
         hovered = Drawable.isHovered(mouseX, mouseY, x, y, width, height);
-        if(scroll_offsetY != y) {
+        if (scroll_offsetY != y) {
             scroll_animation = ThunderGui2.fast(scroll_animation, 1, 15f);
-            y = (int) RenderUtil.interpolate(scroll_offsetY,prev_offsetY,scroll_animation);
+            y = (int) RenderUtil.interpolate(scroll_offsetY, prev_offsetY, scroll_animation);
         }
     }
 
@@ -41,7 +39,7 @@ public class SettingElement {
     }
 
 
-    public void onTick(){
+    public void onTick() {
 
     }
 
@@ -51,7 +49,7 @@ public class SettingElement {
     public void tick() {
     }
 
-    public boolean isHovered(){
+    public boolean isHovered() {
         return hovered;
     }
 
@@ -78,20 +76,12 @@ public class SettingElement {
         return x;
     }
 
-    public double getY() {
-        return y;
-    }
-
-    public double getWidth() {
-        return width;
-    }
-
-    public double getHeight() {
-        return height;
-    }
-
     public void setX(double x) {
         this.x = x;
+    }
+
+    public double getY() {
+        return y;
     }
 
     public void setY(double y) {
@@ -99,8 +89,16 @@ public class SettingElement {
         this.scroll_offsetY = y + offsetY;
     }
 
+    public double getWidth() {
+        return width;
+    }
+
     public void setWidth(double width) {
         this.width = width;
+    }
+
+    public double getHeight() {
+        return height;
     }
 
     public void setHeight(double height) {
@@ -116,7 +114,7 @@ public class SettingElement {
     }
 
     public void checkMouseWheel(float dWheel) {
-        if(dWheel != 0){
+        if (dWheel != 0) {
             scroll_animation = 0;
         }
     }

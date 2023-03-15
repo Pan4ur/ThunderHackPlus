@@ -1,8 +1,7 @@
 package com.mrzak34.thunderhack;
 
-import com.mrzak34.thunderhack.gui.fontstuff.*;
+import com.mrzak34.thunderhack.gui.fontstuff.CFontRenderer;
 import com.mrzak34.thunderhack.manager.*;
-import com.mrzak34.thunderhack.manager.ServerManager;
 import com.mrzak34.thunderhack.util.ThunderUtils;
 import com.mrzak34.thunderhack.util.Util;
 import com.mrzak34.thunderhack.util.dism.EntityGib;
@@ -27,18 +26,15 @@ public class Thunderhack {
 
     @Mod.Instance
     public static Thunderhack INSTANCE;
-
-    private static boolean unloaded = false;
     public static float TICK_TIMER = 1f;
     public static java.util.List<String> alts = new ArrayList<>();
     public static long initTime;
     public static BlockPos gps_position;
     public static Color copy_color;
+    public static NoMotionUpdateService noMotionUpdateService;
 
 
     /*-----------------    Managers  ---------------------*/
-
-    public static NoMotionUpdateService noMotionUpdateService;
     public static ServerTickManager servtickManager;
     public static PositionManager positionManager;
     public static RotationManager rotationManager;
@@ -56,6 +52,7 @@ public class Thunderhack {
     public static EventManager eventManager;
     public static MacroManager macromanager;
     public static Scheduler yahz;
+    public static CFontRenderer fontRenderer;
 
     /*--------------------------------------------------------*/
 
@@ -63,8 +60,6 @@ public class Thunderhack {
 
 
     /*-----------------    Fonts  ---------------------*/
-
-    public static CFontRenderer fontRenderer;
     public static CFontRenderer fontRenderer2;
     public static CFontRenderer fontRenderer3;
     public static CFontRenderer fontRenderer4;
@@ -75,9 +70,9 @@ public class Thunderhack {
     public static CFontRenderer icons;
     public static CFontRenderer middleicons;
     public static CFontRenderer BIGicons;
+    private static boolean unloaded = false;
 
     /*--------------------------------------------------------*/
-
 
     public static void load() {
         ConfigManager.loadAlts();
@@ -91,19 +86,19 @@ public class Thunderhack {
         ConfigManager.init();
 
         try {
-            fontRenderer = new CFontRenderer( Font.createFont( Font.PLAIN, Objects.requireNonNull(Thunderhack.class.getResourceAsStream("/fonts/ThunderFont2.ttf"))).deriveFont( 24.f ), true, true );
-            fontRenderer2 = new CFontRenderer( Font.createFont( Font.PLAIN, Objects.requireNonNull(Thunderhack.class.getResourceAsStream("/fonts/ThunderFont3.ttf"))).deriveFont( 28.f ), true, true );
-            fontRenderer3 = new CFontRenderer( Font.createFont( Font.PLAIN, Objects.requireNonNull(Thunderhack.class.getResourceAsStream("/fonts/ThunderFont2.ttf"))).deriveFont( 18.f ), true, true );
-            fontRenderer4 = new CFontRenderer( Font.createFont( Font.PLAIN, Objects.requireNonNull(Thunderhack.class.getResourceAsStream("/fonts/ThunderFont2.ttf"))).deriveFont( 50.f ), true, true );
-            fontRenderer5 = new CFontRenderer( Font.createFont( Font.PLAIN, Objects.requireNonNull(Thunderhack.class.getResourceAsStream("/fonts/Monsterrat.ttf"))).deriveFont( 12.f ), true, true );
-            fontRenderer6 = new CFontRenderer( Font.createFont( Font.PLAIN, Objects.requireNonNull(Thunderhack.class.getResourceAsStream("/fonts/Monsterrat.ttf"))).deriveFont( 14.f ), true, true );
-            fontRenderer7 = new CFontRenderer( Font.createFont( Font.PLAIN, Objects.requireNonNull(Thunderhack.class.getResourceAsStream("/fonts/Monsterrat.ttf"))).deriveFont( 10.f ), true, true );
-            fontRenderer8 = new CFontRenderer( Font.createFont( Font.PLAIN, Objects.requireNonNull(Thunderhack.class.getResourceAsStream("/fonts/ThunderFont3.ttf"))).deriveFont( 62.f ), true, true );
-            icons = new CFontRenderer( Font.createFont( Font.PLAIN, Objects.requireNonNull(Thunderhack.class.getResourceAsStream("/fonts/icons.ttf"))).deriveFont( 20.f ), true, true );
-            middleicons = new CFontRenderer( Font.createFont( Font.PLAIN, Objects.requireNonNull(Thunderhack.class.getResourceAsStream("/fonts/icons.ttf"))).deriveFont( 46.f ), true, true );
-            BIGicons = new CFontRenderer( Font.createFont( Font.PLAIN, Objects.requireNonNull(Thunderhack.class.getResourceAsStream("/fonts/icons.ttf"))).deriveFont( 72.f ), true, true );
-        } catch ( Exception e ) {
-            e.printStackTrace( );
+            fontRenderer = new CFontRenderer(Font.createFont(Font.PLAIN, Objects.requireNonNull(Thunderhack.class.getResourceAsStream("/fonts/ThunderFont2.ttf"))).deriveFont(24.f), true, true);
+            fontRenderer2 = new CFontRenderer(Font.createFont(Font.PLAIN, Objects.requireNonNull(Thunderhack.class.getResourceAsStream("/fonts/ThunderFont3.ttf"))).deriveFont(28.f), true, true);
+            fontRenderer3 = new CFontRenderer(Font.createFont(Font.PLAIN, Objects.requireNonNull(Thunderhack.class.getResourceAsStream("/fonts/ThunderFont2.ttf"))).deriveFont(18.f), true, true);
+            fontRenderer4 = new CFontRenderer(Font.createFont(Font.PLAIN, Objects.requireNonNull(Thunderhack.class.getResourceAsStream("/fonts/ThunderFont2.ttf"))).deriveFont(50.f), true, true);
+            fontRenderer5 = new CFontRenderer(Font.createFont(Font.PLAIN, Objects.requireNonNull(Thunderhack.class.getResourceAsStream("/fonts/Monsterrat.ttf"))).deriveFont(12.f), true, true);
+            fontRenderer6 = new CFontRenderer(Font.createFont(Font.PLAIN, Objects.requireNonNull(Thunderhack.class.getResourceAsStream("/fonts/Monsterrat.ttf"))).deriveFont(14.f), true, true);
+            fontRenderer7 = new CFontRenderer(Font.createFont(Font.PLAIN, Objects.requireNonNull(Thunderhack.class.getResourceAsStream("/fonts/Monsterrat.ttf"))).deriveFont(10.f), true, true);
+            fontRenderer8 = new CFontRenderer(Font.createFont(Font.PLAIN, Objects.requireNonNull(Thunderhack.class.getResourceAsStream("/fonts/ThunderFont3.ttf"))).deriveFont(62.f), true, true);
+            icons = new CFontRenderer(Font.createFont(Font.PLAIN, Objects.requireNonNull(Thunderhack.class.getResourceAsStream("/fonts/icons.ttf"))).deriveFont(20.f), true, true);
+            middleicons = new CFontRenderer(Font.createFont(Font.PLAIN, Objects.requireNonNull(Thunderhack.class.getResourceAsStream("/fonts/icons.ttf"))).deriveFont(46.f), true, true);
+            BIGicons = new CFontRenderer(Font.createFont(Font.PLAIN, Objects.requireNonNull(Thunderhack.class.getResourceAsStream("/fonts/icons.ttf"))).deriveFont(72.f), true, true);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
         noMotionUpdateService = new NoMotionUpdateService();
@@ -141,7 +136,7 @@ public class Thunderhack {
         moduleManager.onLoad();
         ThunderUtils.syncCapes();
         MacroManager.onLoad();
-        if(Util.mc.session != null && !alts.contains(Util.mc.session.getUsername())){
+        if (Util.mc.session != null && !alts.contains(Util.mc.session.getUsername())) {
             alts.add(Util.mc.session.getUsername());
         }
     }
@@ -189,8 +184,6 @@ public class Thunderhack {
         Thunderhack.unload(false);
         Thunderhack.load();
     }
-
-
 
 
     @Mod.EventHandler

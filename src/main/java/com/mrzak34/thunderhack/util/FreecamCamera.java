@@ -1,4 +1,5 @@
 package com.mrzak34.thunderhack.util;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.material.EnumPushReaction;
 import net.minecraft.block.material.Material;
@@ -18,7 +19,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 
-
 import java.util.Collection;
 import java.util.Map;
 
@@ -33,7 +33,7 @@ public class FreecamCamera extends EntityPlayerSP {
     private float vSpeed;
 
     public FreecamCamera(boolean copyInventory, boolean follow, float hSpeed, float vSpeed) {
-        super(Minecraft.getMinecraft(), Minecraft.getMinecraft().world, Minecraft.getMinecraft().getConnection(), Minecraft.getMinecraft().player.getStatFileWriter(), Minecraft.getMinecraft().player.getRecipeBook());
+        super(Util.mc, Util.mc.world, Util.mc.player.connection, Util.mc.player.getStatFileWriter(), Util.mc.player.getRecipeBook());
         this.copyInventory = copyInventory;
         this.follow = follow;
         this.hSpeed = hSpeed;
@@ -55,7 +55,7 @@ public class FreecamCamera extends EntityPlayerSP {
         this.prevRotationYaw = mc.player.prevRotationYaw;
         this.prevRotationPitch = mc.player.prevRotationPitch;
         this.prevRotationYawHead = mc.player.prevRotationYawHead;
-        if(this.copyInventory) {
+        if (this.copyInventory) {
             this.inventory = mc.player.inventory;
             this.inventoryContainer = mc.player.inventoryContainer;
             this.setHeldItem(EnumHand.MAIN_HAND, mc.player.getHeldItemMainhand());
@@ -70,13 +70,15 @@ public class FreecamCamera extends EntityPlayerSP {
     }
 
     @Override
-    public void writeEntityToNBT( NBTTagCompound compound) {}
+    public void writeEntityToNBT(NBTTagCompound compound) {
+    }
 
     @Override
-    public void readEntityFromNBT( NBTTagCompound compound) {}
+    public void readEntityFromNBT(NBTTagCompound compound) {
+    }
 
     @Override
-    public boolean isInsideOfMaterial( Material material) {
+    public boolean isInsideOfMaterial(Material material) {
         return mc.player.isInsideOfMaterial(material);
     }
 
@@ -108,7 +110,7 @@ public class FreecamCamera extends EntityPlayerSP {
     }
 
     @Override
-    public PotionEffect getActivePotionEffect( Potion potion) {
+    public PotionEffect getActivePotionEffect(Potion potion) {
         return mc.player.getActivePotionEffect(potion);
     }
 
@@ -145,10 +147,11 @@ public class FreecamCamera extends EntityPlayerSP {
     }
 
     @Override
-    public void applyEntityCollision(Entity entity) {}
+    public void applyEntityCollision(Entity entity) {
+    }
 
     @Override
-    public boolean attackEntityFrom( DamageSource source, float amount) {
+    public boolean attackEntityFrom(DamageSource source, float amount) {
         return false;
     }
 
@@ -173,22 +176,24 @@ public class FreecamCamera extends EntityPlayerSP {
     }
 
     @Override
-    public boolean canTrample( World world,  Block block,  BlockPos pos, float fallDistance) {
+    public boolean canTrample(World world, Block block, BlockPos pos, float fallDistance) {
         return false;
     }
 
     @Override
-    public void doBlockCollisions() {}
+    public void doBlockCollisions() {
+    }
 
     @Override
-    public void updateFallState(double y, boolean onGroundIn,  IBlockState state,  BlockPos pos) {}
+    public void updateFallState(double y, boolean onGroundIn, IBlockState state, BlockPos pos) {
+    }
 
     @Override
     public boolean getIsInvulnerable() {
         return true;
     }
 
-    
+
     @Override
     public EnumPushReaction getPushReaction() {
         return EnumPushReaction.IGNORE;
@@ -205,7 +210,7 @@ public class FreecamCamera extends EntityPlayerSP {
         this.motionY = 0.0;
         this.motionZ = 0.0;
         this.movementInput.updatePlayerMoveState();
-        float up = this.movementInput.jump ? 1f :this.movementInput.sneak ? -1f : 0f;
+        float up = this.movementInput.jump ? 1f : this.movementInput.sneak ? -1f : 0f;
         setMotion(this.movementInput.moveStrafe, up, this.movementInput.moveForward);
         if (mc.gameSettings.keyBindSprint.isKeyDown()) {
             this.motionX *= 2;
@@ -231,7 +236,7 @@ public class FreecamCamera extends EntityPlayerSP {
 
     public void setMotion(float strafe, float up, float forward) {
         float f = strafe * strafe + up * up + forward * forward;
-        if(f >= 1.0E-4f) {
+        if (f >= 1.0E-4f) {
             f = MathHelper.sqrt(f);
             if (f < 1.0f) f = 1.0f;
             f /= 2f;
@@ -248,32 +253,16 @@ public class FreecamCamera extends EntityPlayerSP {
 
     }
 
-    public boolean isCopyInventory() {
-        return copyInventory;
-    }
-
     public void setCopyInventory(boolean copyInventory) {
         this.copyInventory = copyInventory;
-    }
-
-    public boolean isFollow() {
-        return follow;
     }
 
     public void setFollow(boolean follow) {
         this.follow = follow;
     }
 
-    public float gethSpeed() {
-        return hSpeed;
-    }
-
     public void sethSpeed(float hSpeed) {
         this.hSpeed = hSpeed;
-    }
-
-    public float getvSpeed() {
-        return vSpeed;
     }
 
     public void setvSpeed(float vSpeed) {

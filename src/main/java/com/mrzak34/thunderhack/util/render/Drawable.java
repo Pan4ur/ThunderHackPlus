@@ -1,15 +1,7 @@
 package com.mrzak34.thunderhack.util.render;
 
 
-import static org.lwjgl.opengl.GL11.glDisable;
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.Rectangle;
-import java.awt.image.BufferedImage;
-import java.util.HashMap;
-
 import com.mrzak34.thunderhack.util.Util;
-import org.lwjgl.opengl.GL11;
 import com.mrzak34.thunderhack.util.gaussianblur.GaussianFilter;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
@@ -17,10 +9,17 @@ import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.texture.TextureUtil;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.util.ResourceLocation;
+import org.lwjgl.opengl.GL11;
+
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.util.HashMap;
+
+import static org.lwjgl.opengl.GL11.glDisable;
 
 public class Drawable {
 
-    private static HashMap<Integer, Integer> shadowCache = new HashMap<Integer, Integer>();
+    private static final HashMap<Integer, Integer> shadowCache = new HashMap<Integer, Integer>();
 
     public static void drawTexture(ResourceLocation texture, double x, double y, double width, double height) {
         drawTexture(texture, x, y, width, height, Color.WHITE);
@@ -116,10 +115,10 @@ public class Drawable {
                 GlStateManager.DestFactor.ZERO);
         GlStateManager.color(f, f1, f2, f3);
         bufferbuilder.begin(mode, DefaultVertexFormats.POSITION);
-        bufferbuilder.pos((double) left, (double) bottom, 0.0D).endVertex();
-        bufferbuilder.pos((double) right, (double) bottom, 0.0D).endVertex();
-        bufferbuilder.pos((double) right, (double) top, 0.0D).endVertex();
-        bufferbuilder.pos((double) left, (double) top, 0.0D).endVertex();
+        bufferbuilder.pos(left, bottom, 0.0D).endVertex();
+        bufferbuilder.pos(right, bottom, 0.0D).endVertex();
+        bufferbuilder.pos(right, top, 0.0D).endVertex();
+        bufferbuilder.pos(left, top, 0.0D).endVertex();
         tessellator.draw();
         GlStateManager.enableTexture2D();
         GlStateManager.disableBlend();
@@ -152,10 +151,10 @@ public class Drawable {
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder bufferbuilder = tessellator.getBuffer();
         bufferbuilder.begin(7, DefaultVertexFormats.POSITION_COLOR);
-        bufferbuilder.pos((double) x1, (double) y1, 0).color(f1, f2, f3, f).endVertex();
-        bufferbuilder.pos((double) x1, (double) y2, 0).color(f1, f2, f3, f).endVertex();
-        bufferbuilder.pos((double) x2, (double) y2, 0).color(f5, f6, f7, f4).endVertex();
-        bufferbuilder.pos((double) x2, (double) y1, 0).color(f5, f6, f7, f4).endVertex();
+        bufferbuilder.pos(x1, y1, 0).color(f1, f2, f3, f).endVertex();
+        bufferbuilder.pos(x1, y2, 0).color(f1, f2, f3, f).endVertex();
+        bufferbuilder.pos(x2, y2, 0).color(f5, f6, f7, f4).endVertex();
+        bufferbuilder.pos(x2, y1, 0).color(f5, f6, f7, f4).endVertex();
         tessellator.draw();
         GlStateManager.shadeModel(7424);
         GlStateManager.disableBlend();
@@ -183,10 +182,10 @@ public class Drawable {
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder bufferbuilder = tessellator.getBuffer();
         bufferbuilder.begin(7, DefaultVertexFormats.POSITION_COLOR);
-        bufferbuilder.pos((double) right, (double) top, 0).color(f1, f2, f3, f).endVertex();
-        bufferbuilder.pos((double) left, (double) top, 0).color(f1, f2, f3, f).endVertex();
-        bufferbuilder.pos((double) left, (double) bottom, 0).color(f5, f6, f7, f4).endVertex();
-        bufferbuilder.pos((double) right, (double) bottom, 0).color(f5, f6, f7, f4).endVertex();
+        bufferbuilder.pos(right, top, 0).color(f1, f2, f3, f).endVertex();
+        bufferbuilder.pos(left, top, 0).color(f1, f2, f3, f).endVertex();
+        bufferbuilder.pos(left, bottom, 0).color(f5, f6, f7, f4).endVertex();
+        bufferbuilder.pos(right, bottom, 0).color(f5, f6, f7, f4).endVertex();
         tessellator.draw();
         GlStateManager.shadeModel(7424);
         GlStateManager.disableBlend();
@@ -248,18 +247,18 @@ public class Drawable {
         GL11.glTexCoord2f(0, 1); // bottom left
         GL11.glVertex2f(_X, _Y + height);
         GL11.glTexCoord2f(1, 1); // bottom right
-        GL11.glVertex2f((float) (_X + width), _Y + height);
+        GL11.glVertex2f(_X + width, _Y + height);
         GL11.glTexCoord2f(1, 0); // top right
-        GL11.glVertex2f((float) (_X + width), _Y);
+        GL11.glVertex2f(_X + width, _Y);
         GL11.glEnd();
         GlStateManager.resetColor();
-        if(!blend)
+        if (!blend)
             GlStateManager.disableBlend();
-        if(!atest)
+        if (!atest)
             GL11.glDisable(GL11.GL_ALPHA_TEST);
-        if(!cface)
+        if (!cface)
             GL11.glEnable(GL11.GL_CULL_FACE);
-        if(!text2d){
+        if (!text2d) {
             GL11.glDisable(GL11.GL_TEXTURE_2D);
         }
     }

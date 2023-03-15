@@ -1,8 +1,8 @@
 package com.mrzak34.thunderhack.modules.movement;
 
 import com.mrzak34.thunderhack.events.PacketEvent;
-import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.mixin.mixins.ISPacketPlayerPosLook;
+import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.util.PlayerUtils;
 import com.mrzak34.thunderhack.util.Timer;
 import net.minecraft.client.gui.GuiDownloadTerrain;
@@ -12,17 +12,16 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class NoVoid
         extends Module {
+    boolean aboveVoid = true;
+    private final Timer voidTimer = new Timer();
     public NoVoid() {
         super("NoVoid", "рубербендит если ты-упал в пустоту", Module.Category.MOVEMENT);
     }
 
-    boolean aboveVoid = true;
-    private Timer voidTimer = new Timer();
-
     @Override
     public void onUpdate() {
-        if(mc.player == null || mc.world == null) return;
-        if(PlayerUtils.isPlayerAboveVoid() && mc.player.posY <= 1.0D) {
+        if (mc.player == null || mc.world == null) return;
+        if (PlayerUtils.isPlayerAboveVoid() && mc.player.posY <= 1.0D) {
             if (aboveVoid && voidTimer.passedMs(1000)) {
                 aboveVoid = false;
                 mc.player.connection.sendPacket(new CPacketPlayer.Position(mc.player.posX, mc.player.posY + 0.1, mc.player.posZ, false));

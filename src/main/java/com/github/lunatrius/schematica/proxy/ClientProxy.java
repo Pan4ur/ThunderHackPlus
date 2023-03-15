@@ -8,12 +8,7 @@ import com.github.lunatrius.schematica.client.renderer.RenderSchematic;
 import com.github.lunatrius.schematica.client.world.SchematicWorld;
 import com.github.lunatrius.schematica.command.client.CommandSchematicaReplace;
 import com.github.lunatrius.schematica.handler.ConfigurationHandler;
-import com.github.lunatrius.schematica.handler.client.GuiHandler;
-import com.github.lunatrius.schematica.handler.client.InputHandler;
-import com.github.lunatrius.schematica.handler.client.OverlayHandler;
-import com.github.lunatrius.schematica.handler.client.RenderTickHandler;
-import com.github.lunatrius.schematica.handler.client.TickHandler;
-import com.github.lunatrius.schematica.handler.client.WorldHandler;
+import com.github.lunatrius.schematica.handler.client.*;
 import com.github.lunatrius.schematica.reference.Reference;
 import com.github.lunatrius.schematica.world.schematic.SchematicFormat;
 import net.minecraft.client.Minecraft;
@@ -35,26 +30,20 @@ import java.io.File;
 import java.io.IOException;
 
 public class ClientProxy extends CommonProxy {
-    public static boolean isRenderingGuide = false;
-    public static boolean isPendingReset = false;
-
     public static final Vector3d playerPosition = new Vector3d();
-    public static EnumFacing orientation = null;
-    public static int rotationRender = 0;
-
-    public static SchematicWorld schematic = null;
-
     public static final MBlockPos pointA = new MBlockPos();
     public static final MBlockPos pointB = new MBlockPos();
     public static final MBlockPos pointMin = new MBlockPos();
     public static final MBlockPos pointMax = new MBlockPos();
-
+    private static final Minecraft MINECRAFT = Minecraft.getMinecraft();
+    public static boolean isRenderingGuide = false;
+    public static boolean isPendingReset = false;
+    public static EnumFacing orientation = null;
+    public static int rotationRender = 0;
+    public static SchematicWorld schematic = null;
     public static EnumFacing axisFlip = EnumFacing.UP;
     public static EnumFacing axisRotation = EnumFacing.UP;
-
     public static RayTraceResult objectMouseOver = null;
-
-    private static final Minecraft MINECRAFT = Minecraft.getMinecraft();
 
     public static void setPlayerData(final EntityPlayer player, final float partialTicks) {
         playerPosition.x = player.lastTickPosX + (player.posX - player.lastTickPosX) * partialTicks;
@@ -73,14 +62,14 @@ public class ClientProxy extends CommonProxy {
             return EnumFacing.UP;
         } else {
             switch (MathHelper.floor(player.rotationYaw / 90.0 + 0.5) & 3) {
-            case 0:
-                return EnumFacing.SOUTH;
-            case 1:
-                return EnumFacing.WEST;
-            case 2:
-                return EnumFacing.NORTH;
-            case 3:
-                return EnumFacing.EAST;
+                case 0:
+                    return EnumFacing.SOUTH;
+                case 1:
+                    return EnumFacing.WEST;
+                case 2:
+                    return EnumFacing.NORTH;
+                case 3:
+                    return EnumFacing.EAST;
             }
         }
 
@@ -103,22 +92,22 @@ public class ClientProxy extends CommonProxy {
         point.z = (int) Math.floor(playerPosition.z);
 
         switch (rotationRender) {
-        case 0:
-            point.x -= 1;
-            point.z += 1;
-            break;
-        case 1:
-            point.x -= 1;
-            point.z -= 1;
-            break;
-        case 2:
-            point.x += 1;
-            point.z -= 1;
-            break;
-        case 3:
-            point.x += 1;
-            point.z += 1;
-            break;
+            case 0:
+                point.x -= 1;
+                point.z += 1;
+                break;
+            case 1:
+                point.x -= 1;
+                point.z -= 1;
+                break;
+            case 2:
+                point.x += 1;
+                point.z -= 1;
+                break;
+            case 3:
+                point.x += 1;
+                point.z += 1;
+                break;
         }
     }
 
@@ -130,22 +119,22 @@ public class ClientProxy extends CommonProxy {
             position.z = (int) Math.floor(playerPosition.z);
 
             switch (rotationRender) {
-            case 0:
-                position.x -= schematic.getWidth();
-                position.z += 1;
-                break;
-            case 1:
-                position.x -= schematic.getWidth();
-                position.z -= schematic.getLength();
-                break;
-            case 2:
-                position.x += 1;
-                position.z -= schematic.getLength();
-                break;
-            case 3:
-                position.x += 1;
-                position.z += 1;
-                break;
+                case 0:
+                    position.x -= schematic.getWidth();
+                    position.z += 1;
+                    break;
+                case 1:
+                    position.x -= schematic.getWidth();
+                    position.z -= schematic.getLength();
+                    break;
+                case 2:
+                    position.x += 1;
+                    position.z -= schematic.getLength();
+                    break;
+                case 3:
+                    position.x += 1;
+                    position.z += 1;
+                    break;
             }
         }
     }

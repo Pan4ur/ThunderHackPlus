@@ -6,9 +6,9 @@ import net.minecraft.client.renderer.GlStateManager;
 import org.lwjgl.opengl.GL11;
 
 
-public class FontRender{
+public class FontRender {
     public static boolean isCustomFontEnabled() {
-            return true;
+        return true;
     }
 
 
@@ -20,7 +20,7 @@ public class FontRender{
         GlStateManager.pushMatrix();
         GlStateManager.disableDepth();
         GlStateManager.disableLighting();
-        GlStateManager.depthMask((boolean) false);
+        GlStateManager.depthMask(false);
         GlStateManager.disableAlpha();
         GlStateManager.disableCull();
         GlStateManager.enableBlend();
@@ -67,8 +67,9 @@ public class FontRender{
     public static float drawString3(String text, float x, float y, int color) {
         return Thunderhack.fontRenderer3.drawString(text, x, y, color);
     }
+
     public static float drawCentString3(String text, float x, float y, int color) {
-        return Thunderhack.fontRenderer3.drawString(text, x - getStringWidth3(text) / 2f, y - getFontHeight3() / 2f , color);
+        return Thunderhack.fontRenderer3.drawString(text, x - getStringWidth3(text) / 2f, y - getFontHeight3() / 2f, color);
     }
 
 
@@ -87,15 +88,17 @@ public class FontRender{
 
         return Util.mc.fontRenderer.drawString(text, x, y, color);
     }
+
     public static float drawString5(String text, float x, float y, int color) {
-            return Thunderhack.fontRenderer5.drawString(text, x, y, color);
+        return Thunderhack.fontRenderer5.drawString(text, x, y, color);
     }
 
 
-    public static float drawString6(String text, float x, float y, int color,boolean shadow) {
-            return Thunderhack.fontRenderer6.drawString(text, x, y, color);
+    public static float drawString6(String text, float x, float y, int color, boolean shadow) {
+        return Thunderhack.fontRenderer6.drawString(text, x, y, color);
     }
-    public static float drawString7(String text, float x, float y, int color,boolean shadow) {
+
+    public static float drawString7(String text, float x, float y, int color, boolean shadow) {
         return Thunderhack.fontRenderer7.drawString(text, x, y, color);
     }
 
@@ -131,7 +134,7 @@ public class FontRender{
 
 
     public static int getStringWidth4(String str) {
-            return Thunderhack.fontRenderer4.getStringWidth(str);
+        return Thunderhack.fontRenderer4.getStringWidth(str);
     }
 
     public static int getFontHeight() {
@@ -156,7 +159,7 @@ public class FontRender{
     }
 
     public static int getFontHeight6() {
-            return Thunderhack.fontRenderer6.getHeight();
+        return Thunderhack.fontRenderer6.getHeight();
     }
 
     public static int getFontHeight8() {

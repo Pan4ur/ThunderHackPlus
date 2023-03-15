@@ -6,43 +6,31 @@ import net.minecraft.entity.player.EntityPlayer;
 import java.util.Set;
 import java.util.TreeSet;
 
-import java.util.Set;
-import java.util.TreeSet;
-
-public class AntiTotemData extends PositionData
-{
+public class AntiTotemData extends PositionData {
     private final Set<PositionData> corresponding = new TreeSet<>();
 
-    public AntiTotemData(PositionData data, AutoCrystal module)
-    {
+    public AntiTotemData(PositionData data, AutoCrystal module) {
         super(data.getPos(), data.getMaxLength(), module, data.getAntiTotems());
     }
 
-    public void addCorrespondingData(PositionData data)
-    {
+    public void addCorrespondingData(PositionData data) {
         this.corresponding.add(data);
     }
 
-    public Set<PositionData> getCorresponding()
-    {
+    public Set<PositionData> getCorresponding() {
         return corresponding;
     }
 
     @Override
-    public int compareTo(PositionData o)
-    {
+    public int compareTo(PositionData o) {
         if (Math.abs(o.getSelfDamage() - this.getSelfDamage()) < 1.0f
-                && o instanceof AntiTotemData)
-        {
+                && o instanceof AntiTotemData) {
             EntityPlayer player = getFirstTarget();
-            EntityPlayer other  = ((AntiTotemData) o).getFirstTarget();
+            EntityPlayer other = ((AntiTotemData) o).getFirstTarget();
 
-            if (other == null)
-            {
+            if (other == null) {
                 return player == null ? super.compareTo(o) : -1;
-            }
-            else
-            {
+            } else {
                 return player == null ? 1 : Double.compare(player.getDistanceSq(this.getPos()),
                         other.getDistanceSq(o.getPos()));
             }
@@ -51,8 +39,7 @@ public class AntiTotemData extends PositionData
         return super.compareTo(o);
     }
 
-    public EntityPlayer getFirstTarget()
-    {
+    public EntityPlayer getFirstTarget() {
         return getAntiTotems().stream().findFirst().orElse(null);
     }
 

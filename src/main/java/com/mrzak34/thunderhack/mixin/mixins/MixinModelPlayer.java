@@ -3,7 +3,6 @@ package com.mrzak34.thunderhack.mixin.mixins;
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.modules.render.Models;
 import com.mrzak34.thunderhack.modules.render.Skeleton;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelBox;
@@ -13,24 +12,19 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
-import net.minecraft.world.IBlockAccess;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.awt.*;
 
 import static com.mrzak34.thunderhack.util.render.RenderUtil.glColor;
 
 @Mixin({ModelPlayer.class})
-public class MixinModelPlayer extends ModelBiped{
+public class MixinModelPlayer extends ModelBiped {
     @Shadow
     public ModelRenderer bipedLeftArmwear;
 
@@ -45,61 +39,48 @@ public class MixinModelPlayer extends ModelBiped{
 
     @Shadow
     public ModelRenderer bipedBodyWear;
-
-    @Inject(method = {"setRotationAngles"}, at = {@At("RETURN")})
-    public void setRotationAngles(float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scaleFactor, Entity entityIn, CallbackInfo callbackInfo) {
-        if ((Minecraft.getMinecraft()).world != null && (Minecraft.getMinecraft()).player != null && entityIn instanceof EntityPlayer)
-            Skeleton.addEntity((EntityPlayer) entityIn, ModelPlayer.class.cast(this));
-    }
-
     public ModelRenderer left_leg;
     public ModelRenderer right_leg;
     public ModelRenderer body;
     public ModelRenderer eye;
-
     public ModelRenderer rabbitBone;
     public ModelRenderer rabbitRleg;
     public ModelRenderer rabbitLarm;
     public ModelRenderer rabbitRarm;
     public ModelRenderer rabbitLleg;
     public ModelRenderer rabbitHead;
-
     public ModelRenderer fredhead;
     public ModelRenderer armLeft;
     public ModelRenderer legRight;
     public ModelRenderer legLeft;
     public ModelRenderer armRight;
     public ModelRenderer fredbody;
-
-
-    public  ModelRenderer armLeftpad2;
-    public  ModelRenderer torso;
-    public  ModelRenderer earRightpad_1;
-    public  ModelRenderer armRightpad2;
-    public  ModelRenderer legLeftpad;
-    public  ModelRenderer hat;
-    public  ModelRenderer legLeftpad2;
-    public  ModelRenderer armRight2;
-    public  ModelRenderer legRight2;
-    public  ModelRenderer earRightpad;
-    public  ModelRenderer armLeft2;
-    public  ModelRenderer frednose;
-    public  ModelRenderer earLeft;
-    public  ModelRenderer footRight;
-    public  ModelRenderer legRightpad2;
-    public  ModelRenderer legRightpad;
-    public  ModelRenderer armLeftpad;
-    public  ModelRenderer legLeft2;
-    public  ModelRenderer footLeft;
-    public  ModelRenderer hat2;
-    public  ModelRenderer armRightpad;
-    public  ModelRenderer earRight;
-    public  ModelRenderer crotch;
-    public  ModelRenderer jaw;
-    public  ModelRenderer handRight;
-    public  ModelRenderer handLeft;
- 
-
+    public ModelRenderer armLeftpad2;
+    public ModelRenderer torso;
+    public ModelRenderer earRightpad_1;
+    public ModelRenderer armRightpad2;
+    public ModelRenderer legLeftpad;
+    public ModelRenderer hat;
+    public ModelRenderer legLeftpad2;
+    public ModelRenderer armRight2;
+    public ModelRenderer legRight2;
+    public ModelRenderer earRightpad;
+    public ModelRenderer armLeft2;
+    public ModelRenderer frednose;
+    public ModelRenderer earLeft;
+    public ModelRenderer footRight;
+    public ModelRenderer legRightpad2;
+    public ModelRenderer legRightpad;
+    public ModelRenderer armLeftpad;
+    public ModelRenderer legLeft2;
+    public ModelRenderer footLeft;
+    public ModelRenderer hat2;
+    public ModelRenderer armRightpad;
+    public ModelRenderer earRight;
+    public ModelRenderer crotch;
+    public ModelRenderer jaw;
+    public ModelRenderer handRight;
+    public ModelRenderer handLeft;
     public MixinModelPlayer(float modelSize, boolean smallArmsIn) {
         super(modelSize, 0.0F, 64, 64);
         body = new ModelRenderer(this);
@@ -292,7 +273,13 @@ public class MixinModelPlayer extends ModelBiped{
         this.fredhead.addChild(this.earLeft);
     }
 
-    public void generatemodel(){
+    @Inject(method = {"setRotationAngles"}, at = {@At("RETURN")})
+    public void setRotationAngles(float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scaleFactor, Entity entityIn, CallbackInfo callbackInfo) {
+        if ((Minecraft.getMinecraft()).world != null && (Minecraft.getMinecraft()).player != null && entityIn instanceof EntityPlayer)
+            Skeleton.addEntity((EntityPlayer) entityIn, ModelPlayer.class.cast(this));
+    }
+
+    public void generatemodel() {
         body = new ModelRenderer(this);
         body.setRotationPoint(0.0F, 0.0F, 0.0F);
         body.setTextureOffset(34, 8).addBox(-4.0F, 6.0F, -3.0F, 8, 12, 6);
@@ -516,20 +503,18 @@ public class MixinModelPlayer extends ModelBiped{
     }
 
 
-    @Inject(method = { "render" }, at = { @At("HEAD") }, cancellable = true)
+    @Inject(method = {"render"}, at = {@At("HEAD")}, cancellable = true)
     public void renderHook(Entity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale, CallbackInfo ci) {
         Models customModel = Thunderhack.moduleManager.getModuleByClass(Models.class);
-        if(customModel.isOn()){
+        if (customModel.isOn()) {
             ci.cancel();
-            renderCustom(entityIn,limbSwing,limbSwingAmount,ageInTicks,netHeadYaw,headPitch,scale);
+            renderCustom(entityIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale);
         }
     }
 
 
-
-    public void renderCustom(Entity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale)
-    {
-        if(left_leg == null){
+    public void renderCustom(Entity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale) {
+        if (left_leg == null) {
             generatemodel();
         }
 

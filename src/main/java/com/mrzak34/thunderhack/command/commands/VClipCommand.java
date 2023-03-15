@@ -16,7 +16,7 @@ public class VClipCommand extends Command {
     @Override
     public void execute(String[] commands) {
         if (commands.length == 1) {
-            if(Thunderhack.moduleManager.getModuleByClass(MainSettings.class).language.getValue() == MainSettings.Language.RU) {
+            if (Thunderhack.moduleManager.getModuleByClass(MainSettings.class).language.getValue() == MainSettings.Language.RU) {
                 Command.sendMessage("Попробуй .vclip <число>");
             } else {
                 Command.sendMessage("Try .vclip <number>");
@@ -27,25 +27,23 @@ public class VClipCommand extends Command {
             try {
                 int i;
 
-                if(Thunderhack.moduleManager.getModuleByClass(MainSettings.class).language.getValue() == MainSettings.Language.RU) {
-                    Command.sendMessage((Object) TextFormatting.GREEN + "Клипаемся на " + Double.valueOf(commands[0]) + " блоков");
+                if (Thunderhack.moduleManager.getModuleByClass(MainSettings.class).language.getValue() == MainSettings.Language.RU) {
+                    Command.sendMessage(TextFormatting.GREEN + "Клипаемся на " + Double.valueOf(commands[0]) + " блоков");
                 } else {
-                    Command.sendMessage((Object)TextFormatting.GREEN + "clipping to  " + Double.valueOf(commands[0]) + " blocks.");
+                    Command.sendMessage(TextFormatting.GREEN + "clipping to  " + Double.valueOf(commands[0]) + " blocks.");
                 }
 
                 for (i = 0; i < 10; ++i) {
-                    this.mc.player.connection.sendPacket((Packet)new CPacketPlayer.Position(this.mc.player.posX, this.mc.player.posY, this.mc.player.posZ, false));
+                    this.mc.player.connection.sendPacket(new CPacketPlayer.Position(this.mc.player.posX, this.mc.player.posY, this.mc.player.posZ, false));
                 }
                 for (i = 0; i < 10; ++i) {
-                    this.mc.player.connection.sendPacket((Packet)new CPacketPlayer.Position(this.mc.player.posX, this.mc.player.posY + Double.parseDouble(commands[0]), this.mc.player.posZ, false));
+                    this.mc.player.connection.sendPacket(new CPacketPlayer.Position(this.mc.player.posX, this.mc.player.posY + Double.parseDouble(commands[0]), this.mc.player.posZ, false));
                 }
                 this.mc.player.setPosition(this.mc.player.posX, this.mc.player.posY + Double.parseDouble(commands[0]), this.mc.player.posZ);
-            }
-            catch (Exception i) {
+            } catch (Exception i) {
                 // empty catch block
             }
 
-            return;
         }
     }
 }

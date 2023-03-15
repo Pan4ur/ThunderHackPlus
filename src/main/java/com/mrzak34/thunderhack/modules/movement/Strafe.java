@@ -6,7 +6,6 @@ import com.mrzak34.thunderhack.mixin.mixins.IEntityPlayerSP;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.InventoryUtil;
-import com.mrzak34.thunderhack.util.MovementUtil;
 import com.mrzak34.thunderhack.util.Timer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
@@ -27,31 +26,23 @@ import static com.mrzak34.thunderhack.util.MovementUtil.getSpeed;
 import static com.mrzak34.thunderhack.util.MovementUtil.isMoving;
 
 public class Strafe extends Module {
-    public Strafe() {
-        super("Strafe", "testMove", Category.MOVEMENT);
-    }
-
-
-    public Setting<Float> setSpeed = this.register(new Setting<>("speed", 1.3F, 0.0F, 2f));
-    private Setting<Mode> mode = this.register (new Setting<>("Mode", Mode.Matrix));
-    private  Setting<Float> maxSpeed = this.register(new Setting<>("MaxSpeed", 0.9f, 0.0f, 2f,v -> mode.getValue() == Mode.SunriseFast));
-    public Setting<Boolean> elytra = register(new Setting<>("ElytraBoost", false,v-> mode.getValue() == Mode.Matrix));
-    public Setting<Boolean> onlyDown = register(new Setting<>("OnlyDown", false,v -> mode.getValue() == Mode.SunriseFast));
-
-    private enum Mode {
-        Matrix, ElytraMiniJump, SunriseFast
-    }
-
-    private float waterTicks = 0;
     public static double oldSpeed, contextFriction;
     public static boolean needSwap, prevSprint, needSprintState;
     public static int counter, noSlowTicks;
-    private Timer fixTimer = new Timer();
-    private Timer elytraDelay = new Timer();
-    private Timer startDelay = new Timer();
-    boolean skip = false;
     public static float jumpTicks = 0;
-
+    public Setting<Float> setSpeed = this.register(new Setting<>("speed", 1.3F, 0.0F, 2f));
+    boolean skip = false;
+    private final Setting<Mode> mode = this.register(new Setting<>("Mode", Mode.Matrix));
+    public Setting<Boolean> elytra = register(new Setting<>("ElytraBoost", false, v -> mode.getValue() == Mode.Matrix));
+    public Setting<Boolean> onlyDown = register(new Setting<>("OnlyDown", false, v -> mode.getValue() == Mode.SunriseFast));
+    private final Setting<Float> maxSpeed = this.register(new Setting<>("MaxSpeed", 0.9f, 0.0f, 2f, v -> mode.getValue() == Mode.SunriseFast));
+    private float waterTicks = 0;
+    private final Timer fixTimer = new Timer();
+    private final Timer elytraDelay = new Timer();
+    private final Timer startDelay = new Timer();
+    public Strafe() {
+        super("Strafe", "testMove", Category.MOVEMENT);
+    }
 
     public static float getDirection() {
         float rotationYaw = mc.player.rotationYaw;
@@ -94,87 +85,6 @@ public class Strafe extends Module {
         return (float) Math.sqrt(mc.player.motionX * mc.player.motionX + mc.player.motionZ * mc.player.motionZ);
     }
 
-    @SubscribeEvent
-    public void onPlayerUpdate(PlayerUpdateEvent e){
-        if(mode.getValue() == Mode.Matrix) {
-            if (!elytra.getValue()) return;
-            int elytra = getHotbarSlotOfItem();
-
-            if (mc.player.isInWater() || mc.player.isInLava() || waterTicks > 0 || elytra == -1 || mc.player.isInWeb)
-                return;
-            if (mc.player.fallDistance != 0 && mc.player.fallDistance < 0.1 && mc.player.motionY < -0.1) {
-                if (elytra != -2) {
-                    mc.playerController.windowClick(0, elytra, 1, ClickType.PICKUP, mc.player);
-                    mc.playerController.windowClick(0, 6, 1, ClickType.PICKUP, mc.player);
-                }
-                mc.getConnection().sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.START_FALL_FLYING));
-                mc.getConnection().sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.START_FALL_FLYING));
-
-                if (elytra != -2) {
-                    mc.playerController.windowClick(0, 6, 1, ClickType.PICKUP, mc.player);
-                    mc.playerController.windowClick(0, elytra, 1, ClickType.PICKUP, mc.player);
-                }
-            }
-        }
-        if(jumpTicks > 0){
-            jumpTicks--;
-        }
-    }
-
-    @SubscribeEvent
-    public void onMove(MatrixMove event){
-        if(mode.getValue() == Mode.Matrix) {
-            int elytraSlot = getHotbarSlotOfItem();
-
-            if (elytra.getValue() && elytraSlot != -1) {
-                if (isMoving() && !mc.player.onGround && mc.player.fallDistance >= 0.15 && event.toGround()) {
-                    setMotion(setSpeed.getValue());
-                    oldSpeed = (setSpeed.getValue() / 1.06);
-                }
-            }
-
-            if (mc.player.isInWater()) {
-                waterTicks = 10;
-            } else {
-                waterTicks--;
-            }
-
-            if (strafes()) {
-                double forward = mc.player.movementInput.moveForward;
-                double strafe = mc.player.movementInput.moveStrafe;
-                float yaw = mc.player.rotationYaw;
-                if (forward == 0.0 && strafe == 0.0) {
-                    oldSpeed = 0;
-                    event.setMotionX(0);
-                    event.setMotionZ(0);
-                } else {
-
-                    if (forward != 0.0) {
-                        if (strafe > 0.0) {
-                            yaw += ((forward > 0.0) ? -45 : 45);
-                        } else if (strafe < 0.0) {
-                            yaw += ((forward > 0.0) ? 45 : -45);
-                        }
-
-                        strafe = 0.0;
-                        if (forward > 0.0) {
-                            forward = 1.0;
-                        } else if (forward < 0.0) {
-                            forward = -1.0;
-                        }
-                    }
-                    double speed = calculateSpeed(event);
-                    double cos = Math.cos(Math.toRadians(yaw + 90.0f)), sin = Math.sin(Math.toRadians(yaw + 90.0f));
-                    event.setMotionX(forward * speed * cos + strafe * speed * sin);
-                    event.setMotionZ(forward * speed * sin - strafe * speed * cos);
-                    event.setCanceled(true);
-                }
-            } else {
-                oldSpeed = 0;
-            }
-        }
-    }
-
     public static void setMotion(double motion) {
         double forward = mc.player.movementInput.moveForward;
         double strafe = mc.player.movementInput.moveStrafe;
@@ -203,43 +113,6 @@ public class Strafe extends Module {
             mc.player.motionX = forward * motion * cosinus + strafe * motion * sinus;
             mc.player.motionZ = forward * motion * sinus - strafe * motion * cosinus;
         }
-    }
-
-
-    @SubscribeEvent
-    public void updateValues(EventPreMotion e) {
-        double distTraveledLastTickX = mc.player.posX - mc.player.prevPosX;
-        double distTraveledLastTickZ = mc.player.posZ - mc.player.prevPosZ;
-        oldSpeed =  (Math.sqrt(distTraveledLastTickX * distTraveledLastTickX + distTraveledLastTickZ * distTraveledLastTickZ)) * contextFriction;
-    }
-
-    @SubscribeEvent
-    public void onPacketReceive(PacketEvent.Receive e){
-        if(e.getPacket() instanceof SPacketPlayerPosLook){
-            oldSpeed = 0;
-        }
-    }
-
-    @Override
-    public void onEnable() {
-        oldSpeed = 0;
-        startDelay.reset();
-        skip = true;
-    }
-
-    public boolean strafes() {
-        if (mc.player == null)
-            return false;
-        if (mc.player.isSneaking()) {
-            return false;
-        }
-        if (mc.player.isInLava()) {
-            return false;
-        }
-        if (mc.player.isInWater() || waterTicks > 0) {
-            return false;
-        }
-        return !mc.player.capabilities.isFlying;
     }
 
     public static double calculateSpeed(MatrixMove move) {
@@ -293,7 +166,7 @@ public class Strafe extends Module {
             prevSprint = false;
         }
         if (!fromGround && !toGround) {
-            needSprintState = !((IEntityPlayerSP)mc.player).getServerSprintState();
+            needSprintState = !((IEntityPlayerSP) mc.player).getServerSprintState();
         }
         if (toGround && fromGround) {
             needSprintState = false;
@@ -309,9 +182,167 @@ public class Strafe extends Module {
         return speed;
     }
 
+    private static float getFrictionFactor(EntityPlayer contextPlayer, MatrixMove move) {
+        BlockPos.PooledMutableBlockPos blockpos$pooledmutableblockpos = BlockPos.PooledMutableBlockPos.retain(move.getFromX(), move.getAABBFrom().minY - 1.0D, move.getFromZ());
+        return contextPlayer.world.getBlockState(blockpos$pooledmutableblockpos).getBlock().slipperiness * 0.91F;
+    }
+
+    public static int findNullSlot() {
+        for (int i = 0; i < 36; i++) {
+            ItemStack stack = mc.player.inventory.getStackInSlot(i);
+            if (stack.getItem() instanceof ItemAir) {
+                if (i < 9) {
+                    i += 36;
+                }
+                return i;
+            }
+        }
+        return 999;
+    }
+
+    public static void strafe(float speed) {
+        if (!isMoving()) {
+            return;
+        }
+        double yaw = getDirection();
+        mc.player.motionX = -Math.sin(yaw) * (double) speed;
+        mc.player.motionZ = Math.cos(yaw) * (double) speed;
+    }
+
+    public static void disabler(int elytra) {
+        if (elytra != -2) {
+            mc.playerController.windowClick(0, elytra, 1, ClickType.PICKUP, mc.player);
+            mc.playerController.windowClick(0, 6, 1, ClickType.PICKUP, mc.player);
+        }
+        mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.START_FALL_FLYING));
+        mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.START_FALL_FLYING));
+        if (elytra != -2) {
+            mc.playerController.windowClick(0, 6, 1, ClickType.PICKUP, mc.player);
+            mc.playerController.windowClick(0, elytra, 1, ClickType.PICKUP, mc.player);
+        }
+    }
+
+    @SubscribeEvent
+    public void onPlayerUpdate(PlayerUpdateEvent e) {
+        if (mode.getValue() == Mode.Matrix) {
+            if (!elytra.getValue()) return;
+            int elytra = getHotbarSlotOfItem();
+
+            if (mc.player.isInWater() || mc.player.isInLava() || waterTicks > 0 || elytra == -1 || mc.player.isInWeb)
+                return;
+            if (mc.player.fallDistance != 0 && mc.player.fallDistance < 0.1 && mc.player.motionY < -0.1) {
+                if (elytra != -2) {
+                    mc.playerController.windowClick(0, elytra, 1, ClickType.PICKUP, mc.player);
+                    mc.playerController.windowClick(0, 6, 1, ClickType.PICKUP, mc.player);
+                }
+
+                mc.getConnection().sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.START_FALL_FLYING));
+                mc.getConnection().sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.START_FALL_FLYING));
+
+                if (elytra != -2) {
+                    mc.playerController.windowClick(0, 6, 1, ClickType.PICKUP, mc.player);
+                    mc.playerController.windowClick(0, elytra, 1, ClickType.PICKUP, mc.player);
+                }
+            }
+        }
+        if (jumpTicks > 0) {
+            jumpTicks--;
+        }
+    }
+
+    @SubscribeEvent
+    public void onMove(MatrixMove event) {
+        if (mode.getValue() == Mode.Matrix) {
+            int elytraSlot = getHotbarSlotOfItem();
+
+            if (elytra.getValue() && elytraSlot != -1) {
+                if (isMoving() && !mc.player.onGround && mc.player.fallDistance >= 0.15 && event.toGround()) {
+                    setMotion(setSpeed.getValue());
+                    oldSpeed = (setSpeed.getValue() / 1.06);
+                }
+            }
+
+            if (mc.player.isInWater()) {
+                waterTicks = 10;
+            } else {
+                waterTicks--;
+            }
+
+            if (strafes()) {
+                double forward = mc.player.movementInput.moveForward;
+                double strafe = mc.player.movementInput.moveStrafe;
+                float yaw = mc.player.rotationYaw;
+                if (forward == 0.0 && strafe == 0.0) {
+                    oldSpeed = 0;
+                    event.setMotionX(0);
+                    event.setMotionZ(0);
+                } else {
+
+                    if (forward != 0.0) {
+                        if (strafe > 0.0) {
+                            yaw += ((forward > 0.0) ? -45 : 45);
+                        } else if (strafe < 0.0) {
+                            yaw += ((forward > 0.0) ? 45 : -45);
+                        }
+
+                        strafe = 0.0;
+                        if (forward > 0.0) {
+                            forward = 1.0;
+                        } else if (forward < 0.0) {
+                            forward = -1.0;
+                        }
+                    }
+                    double speed = calculateSpeed(event);
+                    double cos = Math.cos(Math.toRadians(yaw + 90.0f)), sin = Math.sin(Math.toRadians(yaw + 90.0f));
+                    event.setMotionX(forward * speed * cos + strafe * speed * sin);
+                    event.setMotionZ(forward * speed * sin - strafe * speed * cos);
+                    event.setCanceled(true);
+                }
+            } else {
+                oldSpeed = 0;
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public void updateValues(EventPreMotion e) {
+        double distTraveledLastTickX = mc.player.posX - mc.player.prevPosX;
+        double distTraveledLastTickZ = mc.player.posZ - mc.player.prevPosZ;
+        oldSpeed = (Math.sqrt(distTraveledLastTickX * distTraveledLastTickX + distTraveledLastTickZ * distTraveledLastTickZ)) * contextFriction;
+    }
+
+    @SubscribeEvent
+    public void onPacketReceive(PacketEvent.Receive e) {
+        if (e.getPacket() instanceof SPacketPlayerPosLook) {
+            oldSpeed = 0;
+        }
+    }
+
+    @Override
+    public void onEnable() {
+        oldSpeed = 0;
+        startDelay.reset();
+        skip = true;
+    }
+
+    public boolean strafes() {
+        if (mc.player == null)
+            return false;
+        if (mc.player.isSneaking()) {
+            return false;
+        }
+        if (mc.player.isInLava()) {
+            return false;
+        }
+        if (mc.player.isInWater() || waterTicks > 0) {
+            return false;
+        }
+        return !mc.player.capabilities.isFlying;
+    }
+
     @SubscribeEvent
     public void actionEvent(EventSprint eventAction) {
-        if(mode.getValue() == Mode.SunriseFast){
+        if (mode.getValue() == Mode.SunriseFast) {
             return;
         }
         if (strafes()) {
@@ -320,15 +351,9 @@ public class Strafe extends Module {
             }
         }
         if (needSwap) {
-            eventAction.setSprintState(!((IEntityPlayerSP)mc.player).getServerSprintState());
+            eventAction.setSprintState(!((IEntityPlayerSP) mc.player).getServerSprintState());
             needSwap = false;
         }
-    }
-
-
-    private static float getFrictionFactor(EntityPlayer contextPlayer, MatrixMove move) {
-        BlockPos.PooledMutableBlockPos blockpos$pooledmutableblockpos = BlockPos.PooledMutableBlockPos.retain(move.getFromX(), move.getAABBFrom().minY - 1.0D, move.getFromZ());
-        return contextPlayer.world.getBlockState(blockpos$pooledmutableblockpos).getBlock().slipperiness * 0.91F;
     }
 
     private int getHotbarSlotOfItem() {
@@ -351,7 +376,6 @@ public class Strafe extends Module {
         return slot;
     }
 
-
     public void fixElytra() {
         ItemStack stack = mc.player.inventory.getItemStack();
         if (stack != null && stack.getItem() instanceof ItemArmor && fixTimer.passed(300)) {
@@ -372,27 +396,14 @@ public class Strafe extends Module {
         }
     }
 
-    public static int findNullSlot() {
-        for (int i = 0; i < 36; i++) {
-            ItemStack stack = mc.player.inventory.getStackInSlot(i);
-            if (stack.getItem() instanceof ItemAir) {
-                if (i < 9) {
-                    i += 36;
-                }
-                return i;
-            }
-        }
-        return 999;
-    }
-
     @SubscribeEvent
     public void onUpdate(PlayerUpdateEvent event) {
-        if(mode.getValue() == Mode.ElytraMiniJump) {
-            if(mc.player.onGround){
+        if (mode.getValue() == Mode.ElytraMiniJump) {
+            if (mc.player.onGround) {
                 mc.player.jump();
                 return;
             }
-            if(!mc.world.getCollisionBoxes(mc.player, mc.player.getEntityBoundingBox().offset(0.0, -0.9, 0.0f)).isEmpty() && elytraDelay.passedMs(250) && startDelay.passedMs(500)) {
+            if (!mc.world.getCollisionBoxes(mc.player, mc.player.getEntityBoundingBox().offset(0.0, -0.9, 0.0f)).isEmpty() && elytraDelay.passedMs(250) && startDelay.passedMs(500)) {
                 int elytra = InventoryUtil.getElytra();
                 if (elytra == -1) {
                     this.toggle();
@@ -407,7 +418,7 @@ public class Strafe extends Module {
                 elytraDelay.reset();
             }
         }
-        if(mode.getValue() == Mode.SunriseFast) {
+        if (mode.getValue() == Mode.SunriseFast) {
             if (mc.player.ticksExisted % 6 == 0) {
                 int elytra = InventoryUtil.getElytra();
                 if (elytra == -1) {
@@ -419,7 +430,7 @@ public class Strafe extends Module {
             if (!skip) {
                 if (mc.player.onGround && !mc.gameSettings.keyBindJump.pressed) {
                     mc.player.jump();
-                    if(jumpTicks != 0){
+                    if (jumpTicks != 0) {
                         strafe((float) (0.2));
                         return;
                     }
@@ -441,27 +452,8 @@ public class Strafe extends Module {
     }
 
 
-    public static void strafe(float speed) {
-        if (!isMoving()) {
-            return;
-        }
-        double yaw = getDirection();
-        mc.player.motionX = -Math.sin(yaw) * (double) speed;
-        mc.player.motionZ = Math.cos(yaw) * (double) speed;
-    }
-
-
-    public static void disabler(int elytra) {
-        if (elytra != -2) {
-            mc.playerController.windowClick(0, elytra, 1, ClickType.PICKUP, mc.player);
-            mc.playerController.windowClick(0, 6, 1, ClickType.PICKUP, mc.player);
-        }
-        mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.START_FALL_FLYING));
-        mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.START_FALL_FLYING));
-        if (elytra != -2) {
-            mc.playerController.windowClick(0, 6, 1, ClickType.PICKUP, mc.player);
-            mc.playerController.windowClick(0, elytra, 1, ClickType.PICKUP, mc.player);
-        }
+    private enum Mode {
+        Matrix, ElytraMiniJump, SunriseFast
     }
 
 

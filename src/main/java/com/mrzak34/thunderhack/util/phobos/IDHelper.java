@@ -1,9 +1,9 @@
 package com.mrzak34.thunderhack.util.phobos;
 
 import com.mrzak34.thunderhack.events.PacketEvent;
-import com.mrzak34.thunderhack.modules.Feature;
 import com.mrzak34.thunderhack.modules.combat.AutoCrystal;
 import com.mrzak34.thunderhack.util.InventoryUtil;
+import com.mrzak34.thunderhack.util.Util;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityEnderCrystal;
 import net.minecraft.entity.player.EntityPlayer;
@@ -11,13 +11,9 @@ import net.minecraft.init.Items;
 import net.minecraft.item.ItemPickaxe;
 import net.minecraft.item.ItemSpade;
 import net.minecraft.network.play.client.CPacketUseEntity;
-import net.minecraft.network.play.server.SPacketSpawnExperienceOrb;
-import net.minecraft.network.play.server.SPacketSpawnGlobalEntity;
-import net.minecraft.network.play.server.SPacketSpawnMob;
-import net.minecraft.network.play.server.SPacketSpawnObject;
-import net.minecraft.network.play.server.SPacketSpawnPainting;
-import net.minecraft.network.play.server.SPacketSpawnPlayer;
+import net.minecraft.network.play.server.*;
 import net.minecraft.util.EnumHand;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.util.List;
@@ -25,95 +21,88 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 
-public class IDHelper extends Feature
-{
+public class IDHelper {
     private static final ScheduledExecutorService THREAD;
 
-    static
-    {
+    static {
         THREAD = ThreadUtil.newDaemonScheduledExecutor("ID-Helper");
     }
 
     private volatile int highestID;
     private boolean updated;
 
-    public IDHelper()
-    {
+    public IDHelper() {
+        MinecraftForge.EVENT_BUS.register(this); //TODO не уверен
+    }
+
+    public static CPacketUseEntity attackPacket(int id) {
+        CPacketUseEntity packet = new CPacketUseEntity();
+        packet.entityId = (id);
+        packet.action = (CPacketUseEntity.Action.ATTACK);
+        return packet;
 
     }
 
     @SubscribeEvent
-    public void onPacketReceive(PacketEvent.Receive event){
-        if(event.getPacket() instanceof SPacketSpawnObject){
-            checkID(((SPacketSpawnObject)event.getPacket()).getEntityID());
+    public void onPacketReceive(PacketEvent.Receive event) {
+        if (event.getPacket() instanceof SPacketSpawnObject) {
+            checkID(((SPacketSpawnObject) event.getPacket()).getEntityID());
         }
-        if(event.getPacket() instanceof SPacketSpawnExperienceOrb){
-            checkID(((SPacketSpawnExperienceOrb)event.getPacket()).getEntityID());
+        if (event.getPacket() instanceof SPacketSpawnExperienceOrb) {
+            checkID(((SPacketSpawnExperienceOrb) event.getPacket()).getEntityID());
         }
-        if(event.getPacket() instanceof SPacketSpawnPlayer){
-            checkID(((SPacketSpawnPlayer)event.getPacket()).getEntityID());
+        if (event.getPacket() instanceof SPacketSpawnPlayer) {
+            checkID(((SPacketSpawnPlayer) event.getPacket()).getEntityID());
         }
-        if(event.getPacket() instanceof SPacketSpawnGlobalEntity){
-            checkID(((SPacketSpawnGlobalEntity)event.getPacket()).getEntityId());
+        if (event.getPacket() instanceof SPacketSpawnGlobalEntity) {
+            checkID(((SPacketSpawnGlobalEntity) event.getPacket()).getEntityId());
         }
-        if(event.getPacket() instanceof SPacketSpawnPainting){
-            checkID(((SPacketSpawnPainting)event.getPacket()).getEntityID());
-        }        if(event.getPacket() instanceof SPacketSpawnMob){
-            checkID(((SPacketSpawnMob)event.getPacket()).getEntityID());
+        if (event.getPacket() instanceof SPacketSpawnPainting) {
+            checkID(((SPacketSpawnPainting) event.getPacket()).getEntityID());
+        }
+        if (event.getPacket() instanceof SPacketSpawnMob) {
+            checkID(((SPacketSpawnMob) event.getPacket()).getEntityID());
         }
     }
 
-    public int getHighestID()
-    {
+    public int getHighestID() {
         return highestID;
     }
 
-    public void setHighestID(int id)
-    {
+    public void setHighestID(int id) {
         this.highestID = id;
     }
 
-    public boolean isUpdated()
-    {
+    public boolean isUpdated() {
         return updated;
     }
 
-    public void setUpdated(boolean updated)
-    {
+    public void setUpdated(boolean updated) {
         this.updated = updated;
     }
 
-    public void update()
-    {
+    public void update() {
         int highest = getHighestID();
-        for (Entity entity : mc.world.loadedEntityList)
-        {
-            if (entity.getEntityId() > highest)
-            {
+        for (Entity entity : Util.mc.world.loadedEntityList) {
+            if (entity.getEntityId() > highest) {
                 highest = entity.getEntityId();
             }
         }
-        // check one more time in case a packet
-        // changed this. kinda bad but whatever
-        if (highest > highestID)
-        {
+
+        if (highest > highestID) {
             highestID = highest;
         }
     }
 
     public boolean isSafe(List<EntityPlayer> players,
                           boolean holdingCheck,
-                          boolean toolCheck)
-    {
-        if (!holdingCheck)
-        {
+                          boolean toolCheck) {
+        if (!holdingCheck) {
             return true;
         }
 
-        for (EntityPlayer player : players)
-        {
-            if (isDangerous(player, true, toolCheck))
-            {
+        for (EntityPlayer player : players) {
+            if (isDangerous(player, true, toolCheck)) {
                 return false;
             }
         }
@@ -123,10 +112,8 @@ public class IDHelper extends Feature
 
     public boolean isDangerous(EntityPlayer player,
                                boolean holdingCheck,
-                               boolean toolCheck)
-    {
-        if (!holdingCheck)
-        {
+                               boolean toolCheck) {
+        if (!holdingCheck) {
             return false;
         }
 
@@ -141,14 +128,10 @@ public class IDHelper extends Feature
                        AutoCrystal.PlaceSwing godSwing,
                        int idOffset,
                        int packets,
-                       int sleep)
-    {
-        if (sleep <= 0)
-        {
+                       int sleep) {
+        if (sleep <= 0) {
             attackPackets(breakSwing, godSwing, idOffset, packets);
-        }
-        else
-        {
+        } else {
             THREAD.schedule(() -> {
                         update();
                         attackPackets(breakSwing, godSwing, idOffset, packets);
@@ -161,50 +144,32 @@ public class IDHelper extends Feature
     private void attackPackets(AutoCrystal.SwingTime breakSwing,
                                AutoCrystal.PlaceSwing godSwing,
                                int idOffset,
-                               int packets)
-    {
-        for (int i = 0; i < packets; i++)
-        {
+                               int packets) {
+        for (int i = 0; i < packets; i++) {
             int id = highestID + idOffset + i;
-            Entity entity = mc.world.getEntityByID(id);
-            if (entity == null || entity instanceof EntityEnderCrystal)
-            {
+            Entity entity = Util.mc.world.getEntityByID(id);
+            if (entity == null || entity instanceof EntityEnderCrystal) {
                 if (godSwing == AutoCrystal.PlaceSwing.Always
-                        && breakSwing == AutoCrystal.SwingTime.Pre)
-                {
+                        && breakSwing == AutoCrystal.SwingTime.Pre) {
                     Swing.Packet.swing(EnumHand.MAIN_HAND);
                 }
 
                 CPacketUseEntity packet = attackPacket(id);
-                mc.player.connection.sendPacket(packet);
+                Util.mc.player.connection.sendPacket(packet);
 
-                if (godSwing == AutoCrystal.PlaceSwing.Always
-                        && breakSwing == AutoCrystal.SwingTime.Post)
-                {
+                if (godSwing == AutoCrystal.PlaceSwing.Always && breakSwing == AutoCrystal.SwingTime.Post) {
                     Swing.Packet.swing(EnumHand.MAIN_HAND);
                 }
             }
         }
 
-        if (godSwing == AutoCrystal.PlaceSwing.Once)
-        {
+        if (godSwing == AutoCrystal.PlaceSwing.Once) {
             Swing.Packet.swing(EnumHand.MAIN_HAND);
         }
     }
 
-
-    public static CPacketUseEntity attackPacket(int id) {
-        CPacketUseEntity packet = new CPacketUseEntity();
-        packet.entityId = (id);
-        packet.action = (CPacketUseEntity.Action.ATTACK);
-        return packet;
-
-    }
-
-    private void checkID(int id)
-    {
-        if (id > highestID)
-        {
+    private void checkID(int id) {
+        if (id > highestID) {
             highestID = id;
         }
     }

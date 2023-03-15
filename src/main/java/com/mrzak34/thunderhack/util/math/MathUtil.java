@@ -6,7 +6,10 @@ import net.minecraft.util.math.Vec3d;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.*;
+import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.Map;
 
 public class MathUtil
         implements Util {
@@ -21,7 +24,11 @@ public class MathUtil
     }
 
 
-
+    public static float round2(double value) {
+        BigDecimal bd = new BigDecimal(value);
+        bd = bd.setScale(2, RoundingMode.HALF_UP);
+        return bd.floatValue();
+    }
 
     public static double angle(Vec3d vec3d, Vec3d other) {
         double lengthSq = vec3d.length() * other.length();
@@ -48,6 +55,7 @@ public class MathUtil
     public static Vec3d fromTo(Vec3d from, double x, double y, double z) {
         return fromTo(from.x, from.y, from.z, x, y, z);
     }
+
     // linear interpolation
     public static float lerp(float f, float st, float en) {
         return st + f * (en - st);
@@ -177,6 +185,17 @@ public class MathUtil
         double difZ = to.z - from.z;
         double dist = MathHelper.sqrt(difX * difX + difZ * difZ);
         return new float[]{(float) MathHelper.wrapDegrees(Math.toDegrees(Math.atan2(difZ, difX)) - 90.0), (float) MathHelper.wrapDegrees(Math.toDegrees(Math.atan2(difY, dist)))};
+    }
+
+    public static double roundToClosest(double num, double low, double high) {
+        double d1 = num - low;
+        double d2 = high - num;
+
+        if (d2 > d1) {
+            return low;
+        } else {
+            return high;
+        }
     }
 }
 

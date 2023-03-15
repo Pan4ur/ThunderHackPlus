@@ -17,10 +17,9 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import java.util.ArrayList;
 
 public class OverlayHandler {
-    private final Minecraft minecraft = Minecraft.getMinecraft();
-
     private static final String SCHEMATICA_PREFIX = "[" + TextFormatting.GOLD + "Schematica" + TextFormatting.RESET + "] ";
     private static final String SCHEMATICA_SUFFIX = " [" + TextFormatting.GOLD + "S" + TextFormatting.RESET + "]";
+    private final Minecraft minecraft = Minecraft.getMinecraft();
 
     @SubscribeEvent
     public void onText(final RenderGameOverlayEvent.Text event) {
@@ -41,7 +40,7 @@ public class OverlayHandler {
                     final IBlockState blockState = schematic.getBlockState(pos);
 
                     right.add("");
-                    right.add(String.valueOf(Block.REGISTRY.getNameForObject(blockState.getBlock())) + SCHEMATICA_SUFFIX);
+                    right.add(Block.REGISTRY.getNameForObject(blockState.getBlock()) + SCHEMATICA_SUFFIX);
 
                     for (final String formattedProperty : BlockStateHelper.getFormattedProperties(blockState)) {
                         right.add(formattedProperty + SCHEMATICA_SUFFIX);

@@ -16,14 +16,12 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(value = { GuiContainer.class })
+@Mixin(value = {GuiContainer.class})
 public abstract class MixinGuiContainer extends GuiScreen {
-
-    private Timer delayTimer = new Timer();
-
 
     @Shadow
     public Container inventorySlots;
+    private final Timer delayTimer = new Timer();
 
     @Shadow
     protected abstract boolean isMouseOverSlot(Slot slotIn, int mouseX, int mouseY);
@@ -36,11 +34,9 @@ public abstract class MixinGuiContainer extends GuiScreen {
     private void drawScreenHook(int mouseX, int mouseY, float partialTicks, CallbackInfo ci) {
         ItemScroller scroller = Thunderhack.moduleManager.getModuleByClass(ItemScroller.class);
 
-        for (int i1 = 0; i1 < inventorySlots.inventorySlots.size(); ++i1)
-        {
+        for (int i1 = 0; i1 < inventorySlots.inventorySlots.size(); ++i1) {
             Slot slot = inventorySlots.inventorySlots.get(i1);
-            if (isMouseOverSlot(slot, mouseX, mouseY) && slot.isEnabled())
-            {
+            if (isMouseOverSlot(slot, mouseX, mouseY) && slot.isEnabled()) {
                 if (scroller.isEnabled() && Mouse.isButtonDown(0) && Keyboard.isKeyDown(this.mc.gameSettings.keyBindSneak.getKeyCode()) && delayTimer.passedMs(scroller.delay.getValue())) {
                     this.handleMouseClick(slot, slot.slotNumber, 0, ClickType.QUICK_MOVE);
                     delayTimer.reset();

@@ -2,43 +2,34 @@ package com.mrzak34.thunderhack.util.phobos;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public abstract class Finishable implements Runnable
-{
+public abstract class Finishable implements Runnable {
     private final AtomicBoolean finished;
 
-    public Finishable()
-    {
+    public Finishable() {
         this(new AtomicBoolean());
     }
 
-    public Finishable(AtomicBoolean finished)
-    {
+    public Finishable(AtomicBoolean finished) {
         this.finished = finished;
     }
 
     @Override
-    public void run()
-    {
-        try
-        {
+    public void run() {
+        try {
             execute();
-        }
-        finally
-        {
+        } finally {
             setFinished(true);
         }
     }
 
     protected abstract void execute();
 
-    public void setFinished(boolean finished)
-    {
-        this.finished.set(finished);
+    public boolean isFinished() {
+        return finished.get();
     }
 
-    public boolean isFinished()
-    {
-        return finished.get();
+    public void setFinished(boolean finished) {
+        this.finished.set(finished);
     }
 
 }

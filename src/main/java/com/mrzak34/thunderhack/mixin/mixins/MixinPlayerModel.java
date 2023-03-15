@@ -6,33 +6,30 @@ import net.minecraft.client.model.ModelPlayer;
 import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.EnumAction;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.MathHelper;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.MathHelper;
-
 @Mixin(ModelPlayer.class)
 public class MixinPlayerModel extends ModelBiped {
+    @Shadow
+    public ModelRenderer bipedLeftArmwear;
+    @Shadow
+    public ModelRenderer bipedRightArmwear;
+
     public MixinPlayerModel(float p_i1148_1_) {
         super(p_i1148_1_);
     }
 
-    @Shadow
-    public ModelRenderer bipedLeftArmwear;
-
-    @Shadow
-    public ModelRenderer bipedRightArmwear;
-
     @Inject(at = @At("TAIL"), method = "Lnet/minecraft/client/model/ModelPlayer;setRotationAngles(FFFFFFLnet/minecraft/entity/Entity;)V")
     public void setRotationAngles(float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scaleFactor, Entity entityIn, CallbackInfo ci) {
 
-        if(entityIn instanceof EntityPlayerSP) {
+        if (entityIn instanceof EntityPlayerSP) {
 
             eatingAnimationRightHand(EnumHand.MAIN_HAND, (EntityPlayerSP) entityIn, ageInTicks);
             eatingAnimationLeftHand(EnumHand.OFF_HAND, (EntityPlayerSP) entityIn, ageInTicks);
@@ -48,11 +45,11 @@ public class MixinPlayerModel extends ModelBiped {
             bipedRightArm.rotateAngleX = -1.3F;
             bipedRightArm.rotateAngleZ = MathHelper.cos(ageInTicks) * 0.1F;
             //this.bipedRightArmwear.copyModelAngles(bipedRightArm);
-            copyModelAngles2(bipedRightArm,bipedRightArmwear);
+            copyModelAngles2(bipedRightArm, bipedRightArmwear);
 
             bipedHead.rotateAngleX = MathHelper.cos(ageInTicks) * 0.2F;
             bipedHead.rotateAngleY = bipedHeadwear.rotateAngleY;
-            copyModelAngles2(bipedHead,bipedHeadwear);
+            copyModelAngles2(bipedHead, bipedHeadwear);
 
             // this.bipedHeadwear.copyModelAngles(bipedHead);
         }
@@ -65,10 +62,10 @@ public class MixinPlayerModel extends ModelBiped {
             bipedLeftArm.rotateAngleY = 0.5F;
             bipedLeftArm.rotateAngleX = -1.3F;
             bipedLeftArm.rotateAngleZ = MathHelper.cos(ageInTicks) * 0.1F;
-            copyModelAngles2(bipedLeftArm,bipedLeftArmwear);
+            copyModelAngles2(bipedLeftArm, bipedLeftArmwear);
             bipedHead.rotateAngleX = MathHelper.cos(ageInTicks) * 0.2F;
             bipedHead.rotateAngleY = bipedHeadwear.rotateAngleY;
-            copyModelAngles2(bipedHead,bipedHeadwear);
+            copyModelAngles2(bipedHead, bipedHeadwear);
         }
     }
 

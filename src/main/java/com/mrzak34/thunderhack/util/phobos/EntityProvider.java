@@ -18,101 +18,85 @@ import java.util.List;
  * on another thread.
  */
 @SuppressWarnings("unused")
-public class EntityProvider extends Feature
-{
+public class EntityProvider extends Feature {
     private volatile List<EntityPlayer> players;
     private volatile List<Entity> entities;
+
+    public EntityProvider() {
+        this.players = Collections.emptyList();
+        this.entities = Collections.emptyList();
+    }
 
     public void init() {
         MinecraftForge.EVENT_BUS.register(this);
     }
+
     public void unload() {
         MinecraftForge.EVENT_BUS.unregister(this);
     }
 
-
-    public EntityProvider()
-    {
-        this.players  = Collections.emptyList();
-        this.entities = Collections.emptyList();
-    }
-
     @SubscribeEvent
-    public void onPostTick(PostWorldTick e){
+    public void onPostTick(PostWorldTick e) {
         update();
     }
 
 
-
-    private void update()
-    {
-        if (mc.world != null)
-        {
+    private void update() {
+        if (mc.world != null) {
             setLists(new ArrayList<>(mc.world.loadedEntityList), new ArrayList<>(mc.world.playerEntities));
-        }
-        else
-        {
+        } else {
             setLists(Collections.emptyList(),
                     Collections.emptyList());
         }
     }
 
     private void setLists(List<Entity> loadedEntities,
-                          List<EntityPlayer> playerEntities)
-    {
+                          List<EntityPlayer> playerEntities) {
         entities = loadedEntities;
-        players  = playerEntities;
+        players = playerEntities;
     }
 
     /**
-     *  Always store this in a local variable when
-     *  you are calling this from another thread!
-     *  Might be null and might contain nullpointers.
+     * Always store this in a local variable when
+     * you are calling this from another thread!
+     * Might be null and might contain nullpointers.
      *
-     *  @return copy of {@link WorldClient#loadedEntityList}
+     * @return copy of {@link WorldClient#loadedEntityList}
      */
-    public List<Entity> getEntities()
-    {
+    public List<Entity> getEntities() {
         return entities;
     }
 
     /**
-     *  Always store this in a local variable when
-     *  you are calling this from another thread!
-     *  Might be null and might contain nullpointers.
+     * Always store this in a local variable when
+     * you are calling this from another thread!
+     * Might be null and might contain nullpointers.
      *
      * @return copy of {@link WorldClient#playerEntities}
      */
-    public List<EntityPlayer> getPlayers()
-    {
+    public List<EntityPlayer> getPlayers() {
         return players;
     }
 
-    public List<Entity> getEntitiesAsync()
-    {
+    public List<Entity> getEntitiesAsync() {
         return getEntities(!mc.isCallingFromMinecraftThread());
     }
 
-    public List<EntityPlayer> getPlayersAsync()
-    {
+    public List<EntityPlayer> getPlayersAsync() {
         return getPlayers(!mc.isCallingFromMinecraftThread());
     }
 
-    public List<Entity> getEntities(boolean async)
-    {
+    public List<Entity> getEntities(boolean async) {
         return async ? entities : mc.world.loadedEntityList;
     }
 
-    public List<EntityPlayer> getPlayers(boolean async)
-    {
+    public List<EntityPlayer> getPlayers(boolean async) {
         return async ? players : mc.world.playerEntities;
     }
 
-    public Entity getEntity(int id)
-    {
+    public Entity getEntity(int id) {
         List<Entity> entities = getEntitiesAsync();
-        if (entities != null)
-        {
+        if (entities != null) {
             return entities.stream()
                     .filter(e -> e != null && e.getEntityId() == id)
                     .findFirst()

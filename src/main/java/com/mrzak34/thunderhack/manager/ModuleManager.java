@@ -3,23 +3,20 @@ package com.mrzak34.thunderhack.manager;
 import com.mrzak34.thunderhack.events.Render2DEvent;
 import com.mrzak34.thunderhack.events.Render3DEvent;
 import com.mrzak34.thunderhack.gui.clickui.ClickUI;
-import com.mrzak34.thunderhack.gui.hud.*;
 import com.mrzak34.thunderhack.gui.fontstuff.FontRender;
+import com.mrzak34.thunderhack.gui.hud.*;
 import com.mrzak34.thunderhack.gui.thundergui2.ThunderGui2;
-import com.mrzak34.thunderhack.gui.windows.WindowsGui;
-import com.mrzak34.thunderhack.modules.client.*;
+import com.mrzak34.thunderhack.modules.Feature;
+import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.modules.client.Particles;
+import com.mrzak34.thunderhack.modules.client.*;
 import com.mrzak34.thunderhack.modules.combat.*;
 import com.mrzak34.thunderhack.modules.funnygame.*;
-import com.mrzak34.thunderhack.modules.movement.Speed;
 import com.mrzak34.thunderhack.modules.misc.*;
 import com.mrzak34.thunderhack.modules.movement.*;
-import com.mrzak34.thunderhack.modules.movement.NoSlow;
 import com.mrzak34.thunderhack.modules.player.*;
 import com.mrzak34.thunderhack.modules.render.*;
 import com.mrzak34.thunderhack.notification.NotificationManager;
-import com.mrzak34.thunderhack.modules.Feature;
-import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.util.PlayerUtils;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.EventBus;
@@ -49,6 +46,8 @@ public class ModuleManager extends Feature {
         this.modules.add(new FastFall());
         this.modules.add(new Search());
         this.modules.add(new Tracers());
+        this.modules.add(new LagMessage());
+        this.modules.add(new NewChunks());
         this.modules.add(new SilentBow());
         this.modules.add(new Spammer());
         this.modules.add(new AutoFlyme());
@@ -121,7 +120,6 @@ public class ModuleManager extends Feature {
         this.modules.add(new CrystalChams());
         this.modules.add(new FreeCam());
         this.modules.add(new PacketFly());
-        this.modules.add(new Windows());
         this.modules.add(new Timer());
         this.modules.add(new AutoTrap());
         this.modules.add(new NoEntityTrace());
@@ -138,6 +136,7 @@ public class ModuleManager extends Feature {
         this.modules.add(new NotificationManager());
         this.modules.add(new Speedmine());
         this.modules.add(new NoVoid());
+        this.modules.add(new HoleFiller());
         this.modules.add(new NoHandShake());
         this.modules.add(new WTap());
         this.modules.add(new AutoRegear());
@@ -365,7 +364,7 @@ public class ModuleManager extends Feature {
     }
 
     public void onKeyPressed(int eventKey) {
-        if (eventKey == 0 || !Keyboard.getEventKeyState() || ModuleManager.mc.currentScreen instanceof ClickUI || ModuleManager.mc.currentScreen instanceof ThunderGui2 || ModuleManager.mc.currentScreen instanceof WindowsGui) {
+        if (eventKey == 0 || !Keyboard.getEventKeyState() || ModuleManager.mc.currentScreen instanceof ClickUI || ModuleManager.mc.currentScreen instanceof ThunderGui2) {
             return;
         }
         this.modules.forEach(module -> {

@@ -1,11 +1,9 @@
 package com.mrzak34.thunderhack.manager;
 
 import com.mojang.realmsclient.gui.ChatFormatting;
-import com.mrzak34.thunderhack.modules.Feature;
 import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.command.commands.*;
-import org.apache.commons.lang3.RandomUtils;
-
+import com.mrzak34.thunderhack.modules.Feature;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -30,6 +28,7 @@ public class CommandManager extends Feature {
         this.commands.add(new FriendCommand());
         this.commands.add(new ChangeSkinCommand());
         this.commands.add(new HelpCommand());
+        this.commands.add(new StaffCommand());
         this.commands.add(new ReloadCommand());
         this.commands.add(new RPCCommand());
         this.commands.add(new GpsCommand());

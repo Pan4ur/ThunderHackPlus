@@ -7,8 +7,8 @@ import net.minecraftforge.fml.common.eventhandler.Event;
 
 @Cancelable
 public class BlockRenderEvent extends Event {
-    private Block block;
-    private BlockPos pos;
+    private final Block block;
+    private final BlockPos pos;
 
     public BlockRenderEvent(Block block, BlockPos pos) {
         this.block = block;

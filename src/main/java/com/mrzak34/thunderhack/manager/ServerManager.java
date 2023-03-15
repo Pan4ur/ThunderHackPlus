@@ -4,13 +4,12 @@ import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.modules.Feature;
 import com.mrzak34.thunderhack.util.Timer;
 import com.mrzak34.thunderhack.util.Util;
+import com.mrzak34.thunderhack.util.math.MathUtil;
 import net.minecraft.network.play.server.SPacketChat;
 import net.minecraft.network.play.server.SPacketTimeUpdate;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayDeque;
 import java.util.Objects;
 
@@ -21,17 +20,13 @@ public class ServerManager extends Feature {
     private long time;
     private float tps;
 
-    public void setTPS(float tps) {
-        this.tps = tps;
+    public ServerManager() {
+        this.tpsResult = new ArrayDeque<>(20);
+        this.timeDelay = new Timer();
     }
 
     public Timer getDelayTimer() {
         return timeDelay;
-    }
-
-    public ServerManager() {
-        this.tpsResult = new ArrayDeque<>(20);
-        this.timeDelay = new Timer();
     }
 
     public long getTime() {
@@ -43,12 +38,11 @@ public class ServerManager extends Feature {
     }
 
     public float getTPS() {
-        return round(this.tps);
+        return MathUtil.round2(this.tps);
     }
-    private float round(double value) {
-        BigDecimal bd = new BigDecimal(value);
-        bd = bd.setScale(2, RoundingMode.HALF_UP);
-        return bd.floatValue();
+
+    public void setTPS(float tps) {
+        this.tps = tps;
     }
 
     public ArrayDeque<Float> getTPSResults() {
@@ -78,20 +72,20 @@ public class ServerManager extends Feature {
                 }
                 getTPSResults().add(20.0f * (1000.0f / (float) (System.currentTimeMillis() - getTime())));
                 float f = 0.0f;
-                for(Float value : getTPSResults()) {
+                for (Float value : getTPSResults()) {
                     f += Math.max(0.0f, Math.min(20.0f, value));
                 }
                 setTPS(f /= (float) getTPSResults().size());
             }
-            setTime( System.currentTimeMillis());
+            setTime(System.currentTimeMillis());
         }
     }
 
-    public void init(){
+    public void init() {
         MinecraftForge.EVENT_BUS.register(this);
     }
 
-    public void unload(){
+    public void unload() {
         MinecraftForge.EVENT_BUS.register(this);
     }
 }

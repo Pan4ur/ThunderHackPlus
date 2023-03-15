@@ -1,13 +1,10 @@
 package com.mrzak34.thunderhack.modules.misc;
 
-import java.awt.Color;
-import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
 import com.mrzak34.thunderhack.events.Render2DEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Bind;
 import com.mrzak34.thunderhack.setting.Setting;
+import com.mrzak34.thunderhack.util.Timer;
 import com.mrzak34.thunderhack.util.render.RenderUtil;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.BufferBuilder;
@@ -34,7 +31,11 @@ import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.input.Keyboard;
-import com.mrzak34.thunderhack.util.Timer;
+
+import java.awt.*;
+import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class ToolTips
         extends Module {
@@ -79,7 +80,7 @@ public class ToolTips
         try {
             Item item = stack.getItem();
             TileEntityShulkerBox entityBox = new TileEntityShulkerBox();
-            ItemShulkerBox shulker = (ItemShulkerBox)item;
+            ItemShulkerBox shulker = (ItemShulkerBox) item;
             entityBox.blockType = shulker.getBlock();
             entityBox.setWorld(ToolTips.mc.world);
             ItemStackHelper.loadAllItems(Objects.requireNonNull(stack.getTagCompound()).getCompoundTag("BlockEntityTag"), entityBox.items);
@@ -88,13 +89,11 @@ public class ToolTips
             new Thread(() -> {
                 try {
                     Thread.sleep(200L);
-                }
-                catch (InterruptedException ignored) {
+                } catch (InterruptedException ignored) {
                 }
                 ToolTips.mc.player.displayGUIChest(entityBox);
             }).start();
-        }
-        catch (Exception ignored) {
+        } catch (Exception ignored) {
         }
     }
 
@@ -109,11 +108,12 @@ public class ToolTips
         if (ToolTips.fullNullCheck() || !this.shulkerSpy.getValue().booleanValue()) {
             return;
         }
-        if (this.peek.getValue().getKey() != -1 && ToolTips.mc.currentScreen instanceof GuiContainer && Keyboard.isKeyDown((int)this.peek.getValue().getKey()) && (slot = ((GuiContainer)ToolTips.mc.currentScreen).getSlotUnderMouse()) != null && (stack = slot.getStack()) != null && stack.getItem() instanceof ItemShulkerBox) {
+        if (this.peek.getValue().getKey() != -1 && ToolTips.mc.currentScreen instanceof GuiContainer && Keyboard.isKeyDown(this.peek.getValue().getKey()) && (slot = ((GuiContainer) ToolTips.mc.currentScreen).getSlotUnderMouse()) != null && (stack = slot.getStack()) != null && stack.getItem() instanceof ItemShulkerBox) {
             ToolTips.displayInv(stack, null);
         }
         for (EntityPlayer player : ToolTips.mc.world.playerEntities) {
-            if (player == null || !(player.getHeldItemMainhand().getItem() instanceof ItemShulkerBox) ||  !this.own.getValue().booleanValue() && ToolTips.mc.player.equals((Object)player)) continue;
+            if (player == null || !(player.getHeldItemMainhand().getItem() instanceof ItemShulkerBox) || !this.own.getValue().booleanValue() && ToolTips.mc.player.equals(player))
+                continue;
             ItemStack stack2 = player.getHeldItemMainhand();
             this.spiedPlayers.put(player, stack2);
         }
@@ -151,16 +151,16 @@ public class ToolTips
     }
 
 
-    @SubscribeEvent(priority=EventPriority.HIGHEST)
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void makeTooltip(ItemTooltipEvent event) {
     }
 
     @SubscribeEvent
     public void renderTooltip(RenderTooltipEvent.PostText event) {
         MapData mapData;
-        if (this.maps.getValue().booleanValue() && !event.getStack().isEmpty() && event.getStack().getItem() instanceof ItemMap && (mapData = Items.FILLED_MAP.getMapData(event.getStack(), (World)ToolTips.mc.world)) != null) {
+        if (this.maps.getValue().booleanValue() && !event.getStack().isEmpty() && event.getStack().getItem() instanceof ItemMap && (mapData = Items.FILLED_MAP.getMapData(event.getStack(), ToolTips.mc.world)) != null) {
             GlStateManager.pushMatrix();
-            GlStateManager.color((float)1.0f, (float)1.0f, (float)1.0f);
+            GlStateManager.color(1.0f, 1.0f, 1.0f);
             RenderHelper.disableStandardItemLighting();
             mc.getTextureManager().bindTexture(MAP);
             Tessellator instance = Tessellator.getInstance();
@@ -168,13 +168,13 @@ public class ToolTips
             int n = 7;
             float n2 = 135.0f;
             float n3 = 0.5f;
-            GlStateManager.translate((float)event.getX(), (float)((float)event.getY() - n2 * n3 - 5.0f), (float)0.0f);
-            GlStateManager.scale((float)n3, (float)n3, (float)n3);
+            GlStateManager.translate((float) event.getX(), (float) event.getY() - n2 * n3 - 5.0f, 0.0f);
+            GlStateManager.scale(n3, n3, n3);
             buffer.begin(7, DefaultVertexFormats.POSITION_TEX);
-            buffer.pos((double)(-n), (double)n2, 0.0).tex(0.0, 1.0).endVertex();
-            buffer.pos((double)n2, (double)n2, 0.0).tex(1.0, 1.0).endVertex();
-            buffer.pos((double)n2, (double)(-n), 0.0).tex(1.0, 0.0).endVertex();
-            buffer.pos((double)(-n), (double)(-n), 0.0).tex(0.0, 0.0).endVertex();
+            buffer.pos(-n, n2, 0.0).tex(0.0, 1.0).endVertex();
+            buffer.pos(n2, n2, 0.0).tex(1.0, 1.0).endVertex();
+            buffer.pos(n2, -n, 0.0).tex(1.0, 0.0).endVertex();
+            buffer.pos(-n, -n, 0.0).tex(0.0, 0.0).endVertex();
             instance.draw();
             ToolTips.mc.entityRenderer.getMapItemRenderer().renderMap(mapData, false);
             GlStateManager.enableLighting();
@@ -188,9 +188,9 @@ public class ToolTips
         if (tagCompound != null && tagCompound.hasKey("BlockEntityTag", 10) && (blockEntityTag = tagCompound.getCompoundTag("BlockEntityTag")).hasKey("Items", 9)) {
             GlStateManager.enableTexture2D();
             GlStateManager.disableLighting();
-            GlStateManager.color((float)1.0f, (float)1.0f, (float)1.0f, (float)1.0f);
+            GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
             GlStateManager.enableBlend();
-            GlStateManager.tryBlendFuncSeparate((GlStateManager.SourceFactor)GlStateManager.SourceFactor.SRC_ALPHA, (GlStateManager.DestFactor)GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, (GlStateManager.SourceFactor)GlStateManager.SourceFactor.ONE, (GlStateManager.DestFactor)GlStateManager.DestFactor.ZERO);
+            GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
             mc.getTextureManager().bindTexture(SHULKER_GUI_TEXTURE);
             RenderUtil.drawTexturedRect(x, y, 0, 0, 176, 16, 500);
             RenderUtil.drawTexturedRect(x, y + 16, 0, 16, 176, 54 + this.invH.getValue(), 500);
@@ -206,12 +206,12 @@ public class ToolTips
             GlStateManager.enableRescaleNormal();
             GlStateManager.enableColorMaterial();
             GlStateManager.enableLighting();
-            NonNullList nonnulllist = NonNullList.withSize((int)27, (Object)ItemStack.EMPTY);
-            ItemStackHelper.loadAllItems((NBTTagCompound)blockEntityTag, (NonNullList)nonnulllist);
+            NonNullList nonnulllist = NonNullList.withSize(27, (Object) ItemStack.EMPTY);
+            ItemStackHelper.loadAllItems(blockEntityTag, nonnulllist);
             for (int i = 0; i < nonnulllist.size(); ++i) {
                 int iX = x + i % 9 * 18 + 8;
                 int iY = y + i / 9 * 18 + 18;
-                ItemStack itemStack = (ItemStack)nonnulllist.get(i);
+                ItemStack itemStack = (ItemStack) nonnulllist.get(i);
                 ToolTips.mc.getRenderItem().zLevel = 501.0f;
                 RenderUtil.itemRender.renderItemAndEffectIntoGUI(itemStack, iX, iY);
                 RenderUtil.itemRender.renderItemOverlayIntoGUI(ToolTips.mc.fontRenderer, itemStack, iX, iY, null);
@@ -219,7 +219,7 @@ public class ToolTips
             }
             GlStateManager.disableLighting();
             GlStateManager.disableBlend();
-            GlStateManager.color((float)1.0f, (float)1.0f, (float)1.0f, (float)1.0f);
+            GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
         }
     }
 }

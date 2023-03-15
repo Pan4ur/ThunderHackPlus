@@ -30,7 +30,7 @@ public class GuiNumericField extends GuiButton {
         super(id, 0, 0, width, height, "");
         this.guiTextField = new GuiTextField(0, fontRenderer, x + 1, y + 1, width - BUTTON_WIDTH * 2 - 2, height - 2);
         this.guiButtonDec = new GuiButton(1, x + width - BUTTON_WIDTH * 2, y, BUTTON_WIDTH, height, "-");
-        this.guiButtonInc = new GuiButton(2, x + width - BUTTON_WIDTH * 1, y, BUTTON_WIDTH, height, "+");
+        this.guiButtonInc = new GuiButton(2, x + width - BUTTON_WIDTH, y, BUTTON_WIDTH, height, "+");
 
         setValue(DEFAULT_VALUE);
     }
@@ -130,7 +130,7 @@ public class GuiNumericField extends GuiButton {
         this.guiTextField.y = y + 1;
         this.guiButtonInc.x = x + width - BUTTON_WIDTH * 2;
         this.guiButtonInc.y = y;
-        this.guiButtonDec.x = x + width - BUTTON_WIDTH * 1;
+        this.guiButtonDec.x = x + width - BUTTON_WIDTH;
         this.guiButtonDec.y = y;
     }
 
@@ -141,20 +141,28 @@ public class GuiNumericField extends GuiButton {
         this.guiButtonDec.enabled = enabled;
     }
 
+    public int getMinimum() {
+        return this.minimum;
+    }
+
     public void setMinimum(final int minimum) {
         this.minimum = minimum;
     }
 
-    public int getMinimum() {
-        return this.minimum;
+    public int getMaximum() {
+        return this.maximum;
     }
 
     public void setMaximum(final int maximum) {
         this.maximum = maximum;
     }
 
-    public int getMaximum() {
-        return this.maximum;
+    public int getValue() {
+        final String text = this.guiTextField.getText();
+        if (text.length() == 0 || text.equals("-")) {
+            return DEFAULT_VALUE;
+        }
+        return Integer.parseInt(text);
     }
 
     public void setValue(int value) {
@@ -164,13 +172,5 @@ public class GuiNumericField extends GuiButton {
             value = this.minimum;
         }
         this.guiTextField.setText(String.valueOf(value));
-    }
-
-    public int getValue() {
-        final String text = this.guiTextField.getText();
-        if (text.length() == 0 || text.equals("-")) {
-            return DEFAULT_VALUE;
-        }
-        return Integer.parseInt(text);
     }
 }

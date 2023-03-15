@@ -10,12 +10,10 @@ import net.minecraft.entity.player.EntityPlayer;
 import java.util.Collection;
 import java.util.List;
 
-public abstract class AbstractBreakHelper<T extends CrystalData> implements IBreakHelper<T>
-{
+public abstract class AbstractBreakHelper<T extends CrystalData> implements IBreakHelper<T> {
     protected final AutoCrystal module;
 
-    public AbstractBreakHelper(AutoCrystal module)
-    {
+    public AbstractBreakHelper(AutoCrystal module) {
         this.module = module;
     }
 
@@ -34,23 +32,18 @@ public abstract class AbstractBreakHelper<T extends CrystalData> implements IBre
     public BreakData<T> getData(Collection<T> dataSet,
                                 List<Entity> entities,
                                 List<EntityPlayer> players,
-                                List<EntityPlayer> friends)
-    {
+                                List<EntityPlayer> friends) {
         BreakData<T> data = newData(dataSet);
-        for (Entity crystal : entities)
-        {
-            if (!(crystal instanceof EntityEnderCrystal) || EntityUtil.isDead(crystal) && (!module.countDeadCrystals.getValue() || module.countDeathTime.getValue() && (EntityUtil.isDead(crystal) && Thunderhack.setDeadManager.passedDeathTime(crystal, module.getDeathTime()) || ((IEntity) crystal).isPseudoDeadT() && ((IEntity) crystal).getPseudoTimeT().passedMs(module.getDeathTime()))))
-            {
+        for (Entity crystal : entities) {
+            if (!(crystal instanceof EntityEnderCrystal) || EntityUtil.isDead(crystal) && (!module.countDeadCrystals.getValue() || module.countDeathTime.getValue() && (EntityUtil.isDead(crystal) && Thunderhack.setDeadManager.passedDeathTime(crystal, module.getDeathTime()) || ((IEntity) crystal).isPseudoDeadT() && ((IEntity) crystal).getPseudoTimeT().passedMs(module.getDeathTime())))) {
                 continue;
             }
             T crystalData = newCrystalData(crystal);
-            if (calcSelf(data, crystal, crystalData))
-            {
+            if (calcSelf(data, crystal, crystalData)) {
                 continue;
             }
 
-            if (!isValid(crystal, crystalData) || module.shouldCalcFuckinBitch(AutoCrystal.AntiFriendPop.Break) && checkFriendPop(crystal, friends))
-            {
+            if (!isValid(crystal, crystalData) || module.shouldCalcFuckinBitch(AutoCrystal.AntiFriendPop.Break) && checkFriendPop(crystal, friends)) {
                 continue;
             }
 
@@ -60,13 +53,10 @@ public abstract class AbstractBreakHelper<T extends CrystalData> implements IBre
         return data;
     }
 
-    protected boolean checkFriendPop(Entity entity, List<EntityPlayer> friends)
-    {
-        for (EntityPlayer friend : friends)
-        {
+    protected boolean checkFriendPop(Entity entity, List<EntityPlayer> friends) {
+        for (EntityPlayer friend : friends) {
             float fDamage = module.damageHelper.getDamage(entity, friend);
-            if (fDamage > EntityUtil.getHealth(friend) - 1.0f)
-            {
+            if (fDamage > EntityUtil.getHealth(friend) - 1.0f) {
                 return true;
             }
         }

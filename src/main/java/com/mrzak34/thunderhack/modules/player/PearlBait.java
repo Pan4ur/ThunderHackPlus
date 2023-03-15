@@ -16,21 +16,18 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public class PearlBait extends Module {
 
 
+    private final Queue<CPacketPlayer> packets = new ConcurrentLinkedQueue<>();
+    public Setting<Boolean> guarantee = this.register(new Setting<>("Forced Strafe", true));
+    private int thrownPearlId = -1;
     // на самом деле хуйня
     public PearlBait() {
         super("PearlBait", "кидаешь перл и-не тепаешься", Category.PLAYER);
     }
 
-    public Setting<Boolean> guarantee = this.register ( new Setting <> ( "Forced Strafe", true));
-
-    private final Queue<CPacketPlayer> packets = new ConcurrentLinkedQueue<>();
-    private int thrownPearlId = -1;
-
-
     @SubscribeEvent
-    public void onPacketReceive(PacketEvent.Receive event){
+    public void onPacketReceive(PacketEvent.Receive event) {
         if (event.getPacket() instanceof SPacketSpawnObject) {
-            SPacketSpawnObject packet = (SPacketSpawnObject) event.getPacket();
+            SPacketSpawnObject packet = event.getPacket();
             if (packet.getType() == 65) {
                 mc.world.playerEntities.stream()
                         .min(Comparator.comparingDouble((p) -> p.getDistance(packet.getX(), packet.getY(), packet.getZ())))
@@ -54,13 +51,13 @@ public class PearlBait extends Module {
                         });
             }
         } else if (event.getPacket() instanceof CPacketPlayer && guarantee.getValue() && thrownPearlId != -1) {
-            packets.add((CPacketPlayer) event.getPacket());
+            packets.add(event.getPacket());
             event.setCanceled(true);
         }
     }
 
     @Override
-    public void onUpdate(){
+    public void onUpdate() {
         if (thrownPearlId != -1) {
             for (Entity entity : mc.world.loadedEntityList) {
                 if (entity.getEntityId() == thrownPearlId && entity instanceof EntityEnderPearl) {

@@ -3,71 +3,58 @@ package com.mrzak34.thunderhack.modules.render;
 import com.mrzak34.thunderhack.events.EventJump;
 import com.mrzak34.thunderhack.events.Render3DEvent;
 import com.mrzak34.thunderhack.modules.Module;
-import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.setting.Setting;
-
-import com.mrzak34.thunderhack.util.math.AstolfoAnimation;
 import com.mrzak34.thunderhack.util.Timer;
-
-import java.util.*;
-
+import com.mrzak34.thunderhack.util.math.AstolfoAnimation;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
-import static net.minecraft.client.renderer.GlStateManager.resetColor;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class JumpCircle extends Module {
 
 
+    public static AstolfoAnimation astolfo = new AstolfoAnimation();
+    static List<Circle> circles = new ArrayList<>();
+    public Setting<Float> range2 = register(new Setting<>("Radius", 1F, 0.1F, 3.0F));
+    public Setting<Float> range = register(new Setting<>("Radius2", 3.0F, 0.1F, 3.0F));
+    public Setting<Integer> lifetime = this.register(new Setting<>("live", 1000, 1, 10000));
+    public Setting<mode> Mode = register(new Setting<>("Mode", mode.Jump));
+    public Timer timer = new Timer();
+    boolean check = false;
     public JumpCircle() {
         super("JumpCircle", "JumpCircle", Category.RENDER);
     }
 
-    public final Setting<ColorSetting> color = this.register(new Setting<>("Color", new ColorSetting(0x8800FF00)));
-    public Setting<Float> range2 = register(new Setting<>("Radius", 1F, 0.1F, 3.0F));
-    public Setting<Float> range = register(new Setting<>("Radius2", 3.0F, 0.1F, 3.0F));
-    public Setting <Integer> lifetime = this.register( new Setting <> ( "live", 1000, 1, 10000) );
-
-    public Setting<mode> Mode = register(new Setting<>("Mode", mode.Jump));
-
-    public enum mode {
-        Jump, Landing;
-    }
-
-    boolean check = false;
-    public Timer timer = new Timer();
-    static List<Circle> circles = new ArrayList<>();
-
     @Override
     public void onUpdate() {
-        if(mc.player.collidedVertically && Mode.getValue() == mode.Landing && check){
+        if (mc.player.collidedVertically && Mode.getValue() == mode.Landing && check) {
             circles.add(new JumpCircle.Circle(new Vec3d(mc.player.posX, mc.player.posY + 0.0625, mc.player.posZ)));
             check = false;
         }
         astolfo.update();
-        for(Circle circle : circles){
+        for (Circle circle : circles) {
             circle.update();
         }
         circles.removeIf(Circle::update);
     }
 
     @SubscribeEvent
-    public void onJump(EventJump e){
-        if(Mode.getValue() == mode.Jump) {
+    public void onJump(EventJump e) {
+        if (Mode.getValue() == mode.Jump) {
             circles.add(new JumpCircle.Circle(new Vec3d(mc.player.posX, mc.player.posY + 0.0625, mc.player.posZ)));
         }
         check = true;
     }
 
 
-
     @SubscribeEvent
     public void onRender3D(Render3DEvent event) {
 
-     //   boolean depth = GL11.glIsEnabled(GL11.GL_DEPTH_TEST);
-     //   GlStateManager.disableDepth();
         GlStateManager.pushMatrix();
         GL11.glDisable(GL11.GL_TEXTURE_2D);
         GL11.glEnable(GL11.GL_BLEND);
@@ -76,12 +63,11 @@ public class JumpCircle extends Module {
         GL11.glDisable(GL11.GL_ALPHA_TEST);
         GL11.glEnable(GL11.GL_LINE_SMOOTH);
         GlStateManager.resetColor();
-        double ix = -(mc.player.lastTickPosX + (mc.player.posX - mc.player.lastTickPosX) * (double)mc.getRenderPartialTicks());
-        double iy = -(mc.player.lastTickPosY + (mc.player.posY - mc.player.lastTickPosY) * (double)mc.getRenderPartialTicks());
-        double iz = -(mc.player.lastTickPosZ + (mc.player.posZ - mc.player.lastTickPosZ) * (double)mc.getRenderPartialTicks());
+        GL11.glShadeModel(GL11.GL_SMOOTH);
+        double ix = -(mc.player.lastTickPosX + (mc.player.posX - mc.player.lastTickPosX) * (double) mc.getRenderPartialTicks());
+        double iy = -(mc.player.lastTickPosY + (mc.player.posY - mc.player.lastTickPosY) * (double) mc.getRenderPartialTicks());
+        double iz = -(mc.player.lastTickPosZ + (mc.player.posZ - mc.player.lastTickPosZ) * (double) mc.getRenderPartialTicks());
         GL11.glTranslated(ix, iy, iz);
-
-
         Collections.reverse(circles);
         try {
             for (Circle c : circles) {
@@ -122,7 +108,7 @@ public class JumpCircle extends Module {
                 }
                 GL11.glEnd();
             }
-        } catch (Exception e){
+        } catch (Exception e) {
 
         }
         GL11.glEnable(GL11.GL_TEXTURE_2D);
@@ -132,14 +118,18 @@ public class JumpCircle extends Module {
         GlStateManager.resetColor();
         Collections.reverse(circles);
         GlStateManager.popMatrix();
+        GL11.glShadeModel(GL11.GL_FLAT);
 
         //if(depth)
-      //      GlStateManager.enableDepth();
+        //      GlStateManager.enableDepth();
 
     }
-    public static AstolfoAnimation astolfo = new AstolfoAnimation();
 
-     class Circle {
+    public enum mode {
+        Jump, Landing
+    }
+
+    class Circle {
         private final Vec3d vec;
         Timer timer = new Timer();
 
@@ -151,6 +141,7 @@ public class JumpCircle extends Module {
         Vec3d position() {
             return this.vec;
         }
+
         public boolean update() {
             return timer.passedMs(lifetime.getValue());
         }

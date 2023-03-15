@@ -12,8 +12,7 @@ import net.minecraft.world.World;
  * {@link IBlockProperties#collisionRayTrace(World, BlockPos, Vec3d, Vec3d)}.
  */
 @FunctionalInterface
-public interface CollisionFunction
-{
+public interface CollisionFunction {
     /**
      * {@link IBlockProperties#collisionRayTrace(World, BlockPos, Vec3d, Vec3d)}
      */

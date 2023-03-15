@@ -21,22 +21,19 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Formatter;
 import java.util.List;
 
 public class GuiSchematicMaterials extends GuiScreenBase {
+    protected final List<BlockList.WrappedItemStack> blockList;
+    private final String strMaterialName = I18n.format(Names.Gui.Control.MATERIAL_NAME);
+    private final String strMaterialAmount = I18n.format(Names.Gui.Control.MATERIAL_AMOUNT);
     private GuiSchematicMaterialsSlot guiSchematicMaterialsSlot;
-
     private ItemStackSortType sortType = ItemStackSortType.fromString(ConfigurationHandler.sortType);
-
     private GuiUnicodeGlyphButton btnSort = null;
     private GuiButton btnDump = null;
     private GuiButton btnDone = null;
-
-    private final String strMaterialName = I18n.format(Names.Gui.Control.MATERIAL_NAME);
-    private final String strMaterialAmount = I18n.format(Names.Gui.Control.MATERIAL_AMOUNT);
-
-    protected final List<BlockList.WrappedItemStack> blockList;
 
     public GuiSchematicMaterials(final GuiScreen guiScreen) {
         super(guiScreen);
@@ -131,7 +128,7 @@ public class GuiSchematicMaterials extends GuiScreenBase {
         final File dumps = Schematica.proxy.getDirectory("dumps");
         try {
             try (FileOutputStream outputStream = new FileOutputStream(new File(dumps, Reference.MODID + "-materials.txt"))) {
-                IOUtils.write(stringBuilder.toString(), outputStream, Charset.forName("utf-8"));
+                IOUtils.write(stringBuilder.toString(), outputStream, StandardCharsets.UTF_8);
             }
         } catch (final Exception e) {
             Reference.logger.error("Could not dump the material list!", e);

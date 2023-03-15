@@ -4,8 +4,8 @@ import com.mrzak34.thunderhack.events.EventPreMotion;
 import com.mrzak34.thunderhack.events.Render3DEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
-import com.mrzak34.thunderhack.util.render.RenderUtil;
 import com.mrzak34.thunderhack.util.TessellatorUtil;
+import com.mrzak34.thunderhack.util.render.RenderUtil;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.play.client.CPacketPlayer;
@@ -20,19 +20,17 @@ import java.awt.*;
 
 public class ClickTP extends Module {
 
+    private final Setting<Float> ass = this.register(new Setting<>("BlockYCorrect", 1.0f, -1f, 1f));
+    private final Setting<Float> adss = this.register(new Setting<>("PlayerYCorrect", 0.0f, -1f, 1f));
+    private final Setting<Boolean> ground = register(new Setting<>("ground", false));
+    private final Setting<Boolean> spoofs = register(new Setting<>("spoofs", false));
     public ClickTP() {
         super("ClickTP", "ClickTP", Category.MOVEMENT);
     }
 
-    private Setting<Float> ass = this.register(new Setting<>("BlockYCorrect", 1.0f, -1f, 1f));
-    private Setting<Float> adss = this.register(new Setting<>("PlayerYCorrect", 0.0f, -1f, 1f));
-
-    private Setting<Boolean> ground = register(new Setting<>("ground", false));
-    private Setting<Boolean> spoofs = register(new Setting<>("spoofs", false));
-
     @SubscribeEvent
     public void onMotion(EventPreMotion e) {
-        if(Mouse.isButtonDown(1)) {
+        if (Mouse.isButtonDown(1)) {
             RayTraceResult ray = mc.player.rayTrace(256, mc.getRenderPartialTicks());
             int i;
             BlockPos pos = null;
@@ -41,14 +39,14 @@ public class ClickTP extends Module {
             }
             EntityPlayer rayTracedEntity = getEntityUnderMouse(256);
 
-            if(rayTracedEntity == null && ray != null && ray.typeOfHit == RayTraceResult.Type.BLOCK) {
+            if (rayTracedEntity == null && ray != null && ray.typeOfHit == RayTraceResult.Type.BLOCK) {
                 if (spoofs.getValue()) {
                     for (i = 0; i < 10; ++i) {
                         this.mc.player.connection.sendPacket(new CPacketPlayer.Position(pos.x, ass.getValue() + pos.y, pos.z, ground.getValue()));
                     }
                 }
                 mc.player.setPosition(pos.getX(), pos.getY() + ass.getValue(), pos.getZ());
-            } else if(rayTracedEntity != null) {
+            } else if (rayTracedEntity != null) {
 
                 BlockPos bp = new BlockPos(rayTracedEntity);
                 if (spoofs.getValue()) {
@@ -66,16 +64,16 @@ public class ClickTP extends Module {
         EntityPlayer rayTracedEntity = getEntityUnderMouse(256);
 
         RayTraceResult ray = mc.player.rayTrace(256, mc.getRenderPartialTicks());
-        if(rayTracedEntity == null) {
+        if (rayTracedEntity == null) {
             if (ray != null && ray.typeOfHit == RayTraceResult.Type.BLOCK) {
                 BlockPos blockpos = ray.getBlockPos();
                 // Color color1 = new Color(color.getValue().getColor());
-                RenderUtil.drawBlockOutline(blockpos, new Color(0xA7FA00), 1f, false,0);
+                RenderUtil.drawBlockOutline(blockpos, new Color(0xA7FA00), 1f, false, 0);
             }
-        } else  {
-             TessellatorUtil.prepare();
-             TessellatorUtil.drawBoundingBox(rayTracedEntity.getEntityBoundingBox(), 3f, new Color(0x2AFF00));
-             TessellatorUtil.release();
+        } else {
+            TessellatorUtil.prepare();
+            TessellatorUtil.drawBoundingBox(rayTracedEntity.getEntityBoundingBox(), 3f, new Color(0x2AFF00));
+            TessellatorUtil.release();
         }
 
 

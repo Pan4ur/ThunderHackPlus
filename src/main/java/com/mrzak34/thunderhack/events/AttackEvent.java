@@ -6,17 +6,19 @@ import net.minecraftforge.fml.common.eventhandler.Event;
 
 @Cancelable
 public class AttackEvent extends Event {
-        short stage;
-        public AttackEvent(Entity attack,short stage) {
-            this.entity = attack;
-            this.stage = stage;
-        }
-        Entity entity;
+    short stage;
+    Entity entity;
 
-        public Entity getEntity() {
-            return entity;
-        }
-        public short getStage() {
+    public AttackEvent(Entity attack, short stage) {
+        this.entity = attack;
+        this.stage = stage;
+    }
+
+    public Entity getEntity() {
+        return entity;
+    }
+
+    public short getStage() {
         return stage;
     }
 }

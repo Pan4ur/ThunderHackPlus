@@ -10,43 +10,36 @@ public class PositionforFP {
     private final float pitch;
     private final float head;
 
-    public PositionforFP(EntityPlayer player)
-    {
-        this.x     = player.posX;
-        this.y     = player.posY;
-        this.z     = player.posZ;
-        this.yaw   = player.rotationYaw;
+    public PositionforFP(EntityPlayer player) {
+        this.x = player.posX;
+        this.y = player.posY;
+        this.z = player.posZ;
+        this.yaw = player.rotationYaw;
         this.pitch = player.rotationPitch;
-        this.head  = player.rotationYawHead;
+        this.head = player.rotationYawHead;
     }
 
-    public double getX()
-    {
+    public double getX() {
         return x;
     }
 
-    public double getY()
-    {
+    public double getY() {
         return y;
     }
 
-    public double getZ()
-    {
+    public double getZ() {
         return z;
     }
 
-    public float getYaw()
-    {
+    public float getYaw() {
         return yaw;
     }
 
-    public float getPitch()
-    {
+    public float getPitch() {
         return pitch;
     }
 
-    public float getHead()
-    {
+    public float getHead() {
         return head;
     }
 }

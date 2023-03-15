@@ -14,8 +14,7 @@ import net.minecraft.entity.projectile.EntityShulkerBullet;
 import java.awt.*;
 import java.util.function.Supplier;
 
-public enum EntityType
-{
+public enum EntityType {
     Animal(new Color(0, 200, 0, 255)),
     Monster(new Color(200, 60, 60, 255)),
     Player(new Color(255, 255, 255, 255)),
@@ -26,108 +25,85 @@ public enum EntityType
 
     private final Color color;
 
-    EntityType(Color color)
-    {
+    EntityType(Color color) {
         this.color = color;
     }
 
-    /** @return the Color belonging to the given EntityType. */
-    public Color getColor()
-    {
-        return color;
-    }
-
     /*------------------- Static Util -------------------*/
-    public static Supplier<EntityType> getEntityType(Entity entity)
-    {
-        if (entity instanceof EntityWolf)
-        {
+    public static Supplier<EntityType> getEntityType(Entity entity) {
+        if (entity instanceof EntityWolf) {
             return () -> isAngryWolf((EntityWolf) entity)
                     ? Monster
                     : Animal;
         }
 
-        if (entity instanceof EntityEnderman)
-        {
+        if (entity instanceof EntityEnderman) {
             return () -> isAngryEnderMan((EntityEnderman) entity)
                     ? Monster
                     : Entity;
         }
 
-        if (entity instanceof EntityPolarBear)
-        {
+        if (entity instanceof EntityPolarBear) {
             return () -> isAngryPolarBear((EntityPolarBear) entity)
                     ? Monster
                     : Animal;
         }
 
-        if (entity instanceof EntityPigZombie)
-        {
+        if (entity instanceof EntityPigZombie) {
             return () -> entity.rotationPitch == 0.0F
                     && ((EntityPigZombie) entity).getRevengeTimer() <= 0
                     ? Monster
                     : Entity;
         }
 
-        if (entity instanceof EntityIronGolem)
-        {
+        if (entity instanceof EntityIronGolem) {
             return () -> isAngryGolem((EntityIronGolem) entity)
                     ? Monster
                     : Entity;
         }
 
-        if (entity instanceof EntityVillager)
-        {
+        if (entity instanceof EntityVillager) {
             return () -> Entity;
         }
 
-        if (entity instanceof EntityRabbit)
-        {
+        if (entity instanceof EntityRabbit) {
             return () -> isFriendlyRabbit((EntityRabbit) entity)
                     ? Animal
                     : Monster;
         }
 
-        if (isAnimal(entity))
-        {
+        if (isAnimal(entity)) {
             return () -> Animal;
         }
 
-        if (isMonster(entity))
-        {
+        if (isMonster(entity)) {
             return () -> Monster;
         }
 
-        if (isPlayer(entity))
-        {
+        if (isPlayer(entity)) {
             return () -> Player;
         }
 
-        if (isVehicle(entity))
-        {
+        if (isVehicle(entity)) {
             return () -> Vehicle;
         }
 
-        if (isBoss(entity))
-        {
+        if (isBoss(entity)) {
             return () -> Boss;
         }
 
-        if (isOther(entity))
-        {
+        if (isOther(entity)) {
             return () -> Other;
         }
 
         return () -> Entity;
     }
 
-    public static boolean isPlayer(Entity entity)
-    {
+    public static boolean isPlayer(Entity entity) {
         return entity instanceof EntityPlayer;
     }
 
-    public static boolean isAnimal(Entity entity)
-    {
+    public static boolean isAnimal(Entity entity) {
         return entity instanceof EntityPig
                 || entity instanceof EntityParrot
                 || entity instanceof EntityCow
@@ -148,8 +124,7 @@ public enum EntityType
                 && isFriendlyRabbit((EntityRabbit) entity);
     }
 
-    public static boolean isMonster(Entity entity)
-    {
+    public static boolean isMonster(Entity entity) {
         return entity instanceof EntityCreeper
                 || entity instanceof EntityIllusionIllager
                 || entity instanceof EntitySkeleton
@@ -183,15 +158,13 @@ public enum EntityType
                 && !isAngryGolem((EntityIronGolem) entity);
     }
 
-    public static boolean isBoss(Entity entity)
-    {
+    public static boolean isBoss(Entity entity) {
         return entity instanceof EntityDragon
                 || entity instanceof EntityWither
                 || entity instanceof EntityGiantZombie;
     }
 
-    public static boolean isOther(Entity entity)
-    {
+    public static boolean isOther(Entity entity) {
         return entity instanceof EntityEnderCrystal
                 || entity instanceof EntityEvokerFangs
                 || entity instanceof EntityShulkerBullet
@@ -201,42 +174,42 @@ public enum EntityType
                 || entity instanceof EntityEnderPearl;
     }
 
-    public static boolean isVehicle(Entity entity)
-    {
+    public static boolean isVehicle(Entity entity) {
         return entity instanceof EntityBoat || entity instanceof EntityMinecart;
     }
 
-    public static boolean isAngryEnderMan(EntityEnderman enderman)
-    {
+    public static boolean isAngryEnderMan(EntityEnderman enderman) {
         return enderman.isScreaming();
     }
 
-    public static boolean isAngryPigMan(Entity entity)
-    {
+    public static boolean isAngryPigMan(Entity entity) {
         return entity instanceof EntityPigZombie
                 && entity.rotationPitch == 0.0F
                 && ((EntityPigZombie) entity).getRevengeTimer() <= 0;
     }
 
-    public static boolean isAngryGolem(EntityIronGolem ironGolem)
-    {
+    public static boolean isAngryGolem(EntityIronGolem ironGolem) {
         return ironGolem.rotationPitch == 0.0F;
     }
 
-    public static boolean isAngryWolf(EntityWolf wolf)
-    {
+    public static boolean isAngryWolf(EntityWolf wolf) {
         return wolf.isAngry();
     }
 
-    public static boolean isAngryPolarBear(EntityPolarBear polarBear)
-    {
+    public static boolean isAngryPolarBear(EntityPolarBear polarBear) {
         return polarBear.rotationPitch == 0.0f
                 && polarBear.getRevengeTimer() <= 0;
     }
 
-    public static boolean isFriendlyRabbit(EntityRabbit rabbit)
-    {
+    public static boolean isFriendlyRabbit(EntityRabbit rabbit) {
         return rabbit.getRabbitType() != 99;
+    }
+
+    /**
+     * @return the Color belonging to the given EntityType.
+     */
+    public Color getColor() {
+        return color;
     }
 
 }

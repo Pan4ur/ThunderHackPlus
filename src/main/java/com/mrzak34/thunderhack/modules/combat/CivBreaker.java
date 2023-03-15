@@ -4,9 +4,10 @@ import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.events.EventPreMotion;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
-import com.mrzak34.thunderhack.util.math.MathUtil;
+import com.mrzak34.thunderhack.util.InteractionUtil;
 import com.mrzak34.thunderhack.util.RotationUtil;
 import com.mrzak34.thunderhack.util.Util;
+import com.mrzak34.thunderhack.util.math.MathUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockLiquid;
 import net.minecraft.entity.Entity;
@@ -28,38 +29,32 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-import static com.mrzak34.thunderhack.util.PlacementUtil.placeBlock;
 
 public class CivBreaker extends Module {
 
+    private final Setting<type> targetType = this.register(new Setting("Target", type.NEAREST));
+    private final Setting<mode> breakMode = this.register(new Setting("Break Mode", mode.Vanilla));
+    private final Setting<Integer> startDelay = this.register(new Setting("Start Delay", 1, 0, 10));
+    private final Setting<Integer> breakDelay = this.register(new Setting("Break Delay", 1, 0, 10));
+    private final Setting<Integer> crystalDelay = this.register(new Setting("Crystal Delay", 1, 0, 10));
+    private final Setting<Integer> hitDelay = this.register(new Setting("Hit Delay", 3, 0, 10));
+    private final Setting<Integer> nosleep = this.register(new Setting("Block Delay", 3, 0, 10));
+    private boolean placedCrystal = false;
+    private boolean breaking = false;
+    private boolean broke = false;
+    private EntityPlayer target = null;
+    private BlockPos breakPos = null;
+    private BlockPos placePos = null;
+    private int timer = 0;
+    private int attempts = 0;
     public CivBreaker() {
         super("CivBreaker", "CivBreaker", Category.COMBAT);
     }
 
-
-    private Setting<type> targetType = this.register(new Setting("Target", type.NEAREST));
-    private Setting<mode> breakMode  = this.register(new Setting("Break Mode", mode.Vanilla));
-    private Setting<Integer> startDelay = this.register(new Setting("Start Delay", 1, 0, 10));
-    private Setting<Integer> breakDelay = this.register(new Setting("Break Delay", 1, 0, 10));
-    private Setting<Integer> crystalDelay = this.register(new Setting("Crystal Delay", 1, 0, 10));
-    private Setting<Integer> hitDelay = this.register(new Setting("Hit Delay", 3, 0, 10));
-    private Setting<Integer> nosleep = this.register(new Setting("Block Delay", 3, 0, 10));
-
-
-
-    private boolean placedCrystal= false;
-    private boolean breaking= false;
-    private boolean broke= false;
-    private EntityPlayer target= null;
-    private BlockPos breakPos= null;
-    private BlockPos placePos = null;
-    private int timer = 0;
-    private int attempts= 0;
-
     @Override
     public void onEnable() {
         final int pix = findItem(Items.DIAMOND_PICKAXE);
-        if(pix != -1){
+        if (pix != -1) {
             mc.player.inventory.currentItem = pix;
         }
         target = null;
@@ -69,7 +64,6 @@ public class CivBreaker extends Module {
         timer = 0;
         attempts = 0;
     }
-
 
 
     @SubscribeEvent
@@ -86,7 +80,7 @@ public class CivBreaker extends Module {
 
         if (target == null) {
             if (targetType.getValue() == type.NEAREST) {
-                target = Util.mc.world.playerEntities.stream().filter(p -> p.getEntityId() != Util.mc.player.getEntityId()).min(Comparator.comparing(p -> p.getDistance((Entity)Util.mc.player))).orElse(null);
+                target = Util.mc.world.playerEntities.stream().filter(p -> p.getEntityId() != Util.mc.player.getEntityId()).min(Comparator.comparing(p -> p.getDistance(Util.mc.player))).orElse(null);
             }
             if (target == null) {
                 disable();
@@ -103,8 +97,7 @@ public class CivBreaker extends Module {
             }
             timer = 0;
             doPlace(obby, crystal);
-        }
-        else if (!breaking) {
+        } else if (!breaking) {
             if (timer < breakDelay.getValue()) {
                 ++timer;
                 return;
@@ -115,8 +108,7 @@ public class CivBreaker extends Module {
                 Util.mc.playerController.updateController();
                 Util.mc.player.swingArm(EnumHand.MAIN_HAND);
                 Util.mc.playerController.onPlayerDamageBlock(breakPos, EnumFacing.DOWN);
-            }
-            else {
+            } else {
                 Util.mc.player.swingArm(EnumHand.MAIN_HAND);
                 Util.mc.player.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.START_DESTROY_BLOCK, breakPos, EnumFacing.DOWN));
                 Util.mc.player.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.STOP_DESTROY_BLOCK, breakPos, EnumFacing.DOWN));
@@ -157,8 +149,8 @@ public class CivBreaker extends Module {
                 attempts = 0;
             }
         }
-        if(breaking){
-            if(breakPos != null) {
+        if (breaking) {
+            if (breakPos != null) {
                 float[] angle = RotationUtil.getRotations(breakPos, EnumFacing.DOWN);
                 mc.player.rotationYaw = angle[0];
                 mc.player.rotationPitch = angle[1];
@@ -168,12 +160,12 @@ public class CivBreaker extends Module {
 
 
     private void doPlace(final int obby, final int crystal) {
-        if(placePos == null) return;
+        if (placePos == null) return;
         if (getBlock(placePos) == Blocks.AIR) {
             int oldslot = Util.mc.player.inventory.currentItem;
             Util.mc.player.inventory.currentItem = obby;
             Util.mc.playerController.updateController();
-            placeBlock(placePos, EnumHand.MAIN_HAND, true, false, null,true);
+            InteractionUtil.placeBlock(placePos, true);
             Util.mc.player.inventory.currentItem = oldslot;
         } else if (!placedCrystal) {
             int oldslot = Util.mc.player.inventory.currentItem;
@@ -198,7 +190,7 @@ public class CivBreaker extends Module {
         };
 
         // burrow check
-        if (getBlock(tpos) != Blocks.AIR || getBlock(tpos.add(0,1,0)) != Blocks.AIR) {
+        if (getBlock(tpos) != Blocks.AIR || getBlock(tpos.add(0, 1, 0)) != Blocks.AIR) {
             return;
         }
 
@@ -206,8 +198,8 @@ public class CivBreaker extends Module {
         for (BlockPos blockPos : offset) {
             final BlockPos offsetPos = tpos.add(blockPos);
             final Block block = getBlock(offsetPos);
-            final Block block2 = getBlock(offsetPos.add(0,1,0));
-            final Block block3 = getBlock(offsetPos.add(0,2,0));
+            final Block block2 = getBlock(offsetPos.add(0, 1, 0));
+            final Block block3 = getBlock(offsetPos.add(0, 2, 0));
             if ((block != Blocks.AIR && !(block instanceof BlockLiquid)) && (block2 != Blocks.BEDROCK) && (block3 == Blocks.AIR)) {
                 posList.add(offsetPos);
             }
@@ -221,12 +213,9 @@ public class CivBreaker extends Module {
         breakPos = base.add(0, 1, 0);
     }
 
-    private int findMaterials()
-    {
-        for (int i = 0; i < 9; ++i)
-        {
-            if (Util.mc.player.inventory.getStackInSlot(i).getItem() instanceof ItemBlock && ((ItemBlock)Util.mc.player.inventory.getStackInSlot(i).getItem()).getBlock() == Blocks.OBSIDIAN)
-            {
+    private int findMaterials() {
+        for (int i = 0; i < 9; ++i) {
+            if (Util.mc.player.inventory.getStackInSlot(i).getItem() instanceof ItemBlock && ((ItemBlock) Util.mc.player.inventory.getStackInSlot(i).getItem()).getBlock() == Blocks.OBSIDIAN) {
                 return i;
             }
         }
@@ -250,15 +239,13 @@ public class CivBreaker extends Module {
     }
 
 
-    public enum type
-    {
+    public enum type {
         NEAREST,
-        LOOKING;
+        LOOKING
     }
 
-    public enum mode
-    {
+    public enum mode {
         Vanilla,
-        Packet;
+        Packet
     }
 }

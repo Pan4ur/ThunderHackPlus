@@ -25,12 +25,12 @@ public class Vector2i {
         return this.x;
     }
 
-    public final int getY() {
-        return this.y;
-    }
-
     public final void setX(final int x) {
         this.x = x;
+    }
+
+    public final int getY() {
+        return this.y;
     }
 
     public final void setY(final int y) {

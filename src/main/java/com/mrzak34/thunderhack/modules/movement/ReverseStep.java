@@ -10,24 +10,15 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class ReverseStep extends Module {
+    public Setting<Float> timer = register(new Setting("Timer", 3.0F, 1F, 10.0F));
+    public Setting<Boolean> anyblock = this.register(new Setting<>("AnyBlock", false));
+    private boolean Field292 = true;
+    private boolean Field293 = false;
+    private final Setting<Mode> mode = this.register(new Setting<>("Mode", Mode.Motion));
+
     public ReverseStep() {
         super("ReverseStep", "ReverseStep", Category.MOVEMENT);
     }
-
-
-    private boolean Field292 = true;
-    private boolean Field293 = false;
-    
-
-
-    private Setting<Mode> mode = this.register (new Setting<>("Mode", Mode.Motion));
-    
-    public enum Mode {
-        Timer, Motion
-    }
-    public Setting<Float> timer = register(new Setting("Timer", 3.0F, 1F, 10.0F));
-    public Setting< Boolean > anyblock = this.register ( new Setting <> ( "AnyBlock" , false) );
-
 
     @SubscribeEvent
     public void onEntitySync(EventPreMotion eventPlayerUpdateWalking) {
@@ -67,6 +58,11 @@ public class ReverseStep extends Module {
             Thunderhack.TICK_TIMER = (1.0f);
         }
         this.Field293 = mc.player.onGround;
+    }
+
+
+    public enum Mode {
+        Timer, Motion
     }
 
 }

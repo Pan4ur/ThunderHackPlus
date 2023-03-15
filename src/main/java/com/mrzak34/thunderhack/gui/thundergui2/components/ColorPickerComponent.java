@@ -14,7 +14,7 @@ import java.awt.*;
 
 public class ColorPickerComponent extends SettingElement {
 
-    private Setting colorSetting;
+    private final Setting colorSetting;
     private boolean open;
     private float hue;
     private float saturation;
@@ -35,27 +35,26 @@ public class ColorPickerComponent extends SettingElement {
     private Color prevColor;
     private boolean firstInit;
 
-    public ColorSetting getColorSetting() {
-        return (ColorSetting) colorSetting.getValue();
-    }
-
-
     public ColorPickerComponent(Setting setting) {
         super(setting);
         this.colorSetting = setting;
         firstInit = true;
     }
 
+    public ColorSetting getColorSetting() {
+        return (ColorSetting) colorSetting.getValue();
+    }
+
     @Override
     public void render(int mouseX, int mouseY, float delta) {
         super.render(mouseX, mouseY, delta);
-        if((getY() > ThunderGui2.getInstance().main_posY + ThunderGui2.getInstance().height) || getY() < ThunderGui2.getInstance().main_posY){
+        if ((getY() > ThunderGui2.getInstance().main_posY + ThunderGui2.getInstance().height) || getY() < ThunderGui2.getInstance().main_posY) {
             return;
         }
-        FontRender.drawString6(getSetting().getName(), (float) getX(), (float) getY() + 5,isHovered() ? -1 : new Color(0xB0FFFFFF, true).getRGB(),false);
+        FontRender.drawString6(getSetting().getName(), (float) getX(), (float) getY() + 5, isHovered() ? -1 : new Color(0xB0FFFFFF, true).getRGB(), false);
         Drawable.drawBlurredShadow((int) (x + width - 20), (int) (y + 5), 14, 6, 10, getColorSetting().getColorObject());
         RoundedShader.drawRound((float) (x + width - 20), (float) (y + 5), 14, 6, 1, getColorSetting().getColorObject());
-        if(open)
+        if (open)
             renderPicker(mouseX, mouseY, getColorSetting().getColorObject());
     }
 
@@ -111,9 +110,9 @@ public class ColorPickerComponent extends SettingElement {
         Color value = Color.getHSBColor(hue, saturation, brightness);
 
         if (sbfocused) {
-            saturation = (float) (MathUtil.clamp(mouseX - (cx + 40), 0f,  cw - 40) / (cw - 40));
+            saturation = (float) (MathUtil.clamp(mouseX - (cx + 40), 0f, cw - 40) / (cw - 40));
 
-            brightness = (float) ((ch - MathUtil.clamp((mouseY - cy), 0,  ch)) / ch);
+            brightness = (float) ((ch - MathUtil.clamp((mouseY - cy), 0, ch)) / ch);
             value = Color.getHSBColor(hue, saturation, brightness);
             setColor(new Color(value.getRed(), value.getGreen(), value.getBlue(), alpha));
         }
@@ -133,13 +132,13 @@ public class ColorPickerComponent extends SettingElement {
         copy_focused = Drawable.isHovered(mouseX, mouseY, getX(), cy + 13, 40, 10);
         paste_focused = Drawable.isHovered(mouseX, mouseY, getX(), cy + 26, 40, 10);
 
-        RoundedShader.drawRound((float) getX(), (float) cy,40,10, 2f, getColorSetting().isCycle() ? new Color(86, 63, 105,250) : (rainbow_focused ? new Color(66, 48, 80,250) : new Color(50,35,60,250)));
-        RoundedShader.drawRound((float) getX(), (float) cy + 13,40,10, 2f,copy_focused ? new Color(66, 48, 80,250) : new Color(50,35,60,250));
-        RoundedShader.drawRound((float) getX(), (float) cy + 26,40,9.5f, 2f, paste_focused ? new Color(66, 48, 80,250) : new Color(50,35,60,250));
+        RoundedShader.drawRound((float) getX(), (float) cy, 40, 10, 2f, getColorSetting().isCycle() ? new Color(86, 63, 105, 250) : (rainbow_focused ? new Color(66, 48, 80, 250) : new Color(50, 35, 60, 250)));
+        RoundedShader.drawRound((float) getX(), (float) cy + 13, 40, 10, 2f, copy_focused ? new Color(66, 48, 80, 250) : new Color(50, 35, 60, 250));
+        RoundedShader.drawRound((float) getX(), (float) cy + 26, 40, 9.5f, 2f, paste_focused ? new Color(66, 48, 80, 250) : new Color(50, 35, 60, 250));
 
-        FontRender.drawCentString6("rainbow",(float) getX() + 20,(float) cy + 4, rainbow_focused ? -1 : (getColorSetting().isCycle() ? getColorSetting().getColor() : new Color(0xB5FFFFFF, true).getRGB()) );
-        FontRender.drawCentString6("copy",(float) getX() + 20,(float) cy + 16.5f, copy_focused ? -1 : new Color(0xB5FFFFFF, true).getRGB() );
-        FontRender.drawCentString6("paste",(float) getX() + 20,(float) cy + 29.5f, paste_focused ? -1 : new Color(0xB5FFFFFF, true).getRGB() );
+        FontRender.drawCentString6("rainbow", (float) getX() + 20, (float) cy + 4, rainbow_focused ? -1 : (getColorSetting().isCycle() ? getColorSetting().getColor() : new Color(0xB5FFFFFF, true).getRGB()));
+        FontRender.drawCentString6("copy", (float) getX() + 20, (float) cy + 16.5f, copy_focused ? -1 : new Color(0xB5FFFFFF, true).getRGB());
+        FontRender.drawCentString6("paste", (float) getX() + 20, (float) cy + 29.5f, paste_focused ? -1 : new Color(0xB5FFFFFF, true).getRGB());
 
     }
 
@@ -158,7 +157,7 @@ public class ColorPickerComponent extends SettingElement {
 
     @Override
     public void mouseClicked(int mouseX, int mouseY, int button) {
-        if((getY() > ThunderGui2.getInstance().main_posY + ThunderGui2.getInstance().height) || getY() < ThunderGui2.getInstance().main_posY){
+        if ((getY() > ThunderGui2.getInstance().main_posY + ThunderGui2.getInstance().height) || getY() < ThunderGui2.getInstance().main_posY) {
             return;
         }
         double cx = x + 4;
@@ -169,7 +168,7 @@ public class ColorPickerComponent extends SettingElement {
         if (Drawable.isHovered(mouseX, mouseY, (x + width - 20), (y + 5), 14, 6))
             open = !open;
 
-        if(!open)
+        if (!open)
             return;
 
         if (Drawable.isHovered(mouseX, mouseY, cx + cw + 17, cy, 8, ch) && button == 0)
@@ -182,9 +181,10 @@ public class ColorPickerComponent extends SettingElement {
             sbfocused = true;
 
 
-        if(rainbow_focused)  getColorSetting().setCycle(!getColorSetting().isCycle());
-        if(copy_focused)  Thunderhack.copy_color = getColorSetting().getColorObject();
-        if(paste_focused) setColor(Thunderhack.copy_color == null ? getColorSetting().getColorObject() : Thunderhack.copy_color);
+        if (rainbow_focused) getColorSetting().setCycle(!getColorSetting().isCycle());
+        if (copy_focused) Thunderhack.copy_color = getColorSetting().getColorObject();
+        if (paste_focused)
+            setColor(Thunderhack.copy_color == null ? getColorSetting().getColorObject() : Thunderhack.copy_color);
     }
 
     @Override

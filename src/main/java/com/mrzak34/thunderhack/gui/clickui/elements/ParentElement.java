@@ -14,15 +14,12 @@ import net.minecraft.util.ResourceLocation;
 public class ParentElement extends AbstractElement {
 
     private final Setting<Parent> parentSetting;
-
+    private final Animation rotation = new DecelerateAnimation(240, 1, Direction.FORWARDS);
 
     public ParentElement(Setting setting) {
         super(setting);
         this.parentSetting = setting;
     }
-
-    private final Animation rotation = new DecelerateAnimation(240, 1, Direction.FORWARDS);
-
 
     @Override
     public void render(int mouseX, int mouseY, float delta) {
@@ -30,7 +27,7 @@ public class ParentElement extends AbstractElement {
 
         rotation.setDirection(getParentSetting().getValue().isExtended() ? Direction.BACKWARDS : Direction.FORWARDS);
         float tx = (float) (x + width - 7);
-        float ty = (float) (y + 8.5f );
+        float ty = (float) (y + 8.5f);
         float thetaRotation = (float) (-180f * rotation.getOutput());
         GlStateManager.pushMatrix();
 
@@ -50,8 +47,6 @@ public class ParentElement extends AbstractElement {
             getParentSetting().getValue().setExtended(!getParentSetting().getValue().isExtended());
         }
     }
-
-
 
 
     public Setting<Parent> getParentSetting() {

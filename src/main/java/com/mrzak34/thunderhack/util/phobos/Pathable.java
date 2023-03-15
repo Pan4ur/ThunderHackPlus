@@ -5,15 +5,14 @@ import net.minecraft.util.math.BlockPos;
 
 import java.util.List;
 
-public interface Pathable
-{
+public interface Pathable {
     BlockPos getPos();
 
     Entity getFrom();
 
     Ray[] getPath();
 
-    void setPath(Ray...path);
+    void setPath(Ray... path);
 
     int getMaxLength();
 

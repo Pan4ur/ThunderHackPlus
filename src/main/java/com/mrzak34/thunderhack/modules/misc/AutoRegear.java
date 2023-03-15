@@ -4,60 +4,40 @@ package com.mrzak34.thunderhack.modules.misc;
 import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.command.commands.KitCommand;
 import com.mrzak34.thunderhack.modules.Module;
-
 import com.mrzak34.thunderhack.setting.Setting;
 import net.minecraft.inventory.ClickType;
-
-import net.minecraft.item.ItemStack;
-
 import net.minecraft.inventory.ContainerChest;
 import net.minecraft.inventory.ContainerShulkerBox;
-
+import net.minecraft.item.ItemStack;
 
 import java.util.*;
 
-import java.util.HashMap;
-
-import java.util.Map;
-
 public class AutoRegear extends Module {
-    public AutoRegear() { super("AutoRegear", "регирит тебя из-шалкера", Category.MISC);
-    }
-
-
-    private HashMap<Integer, String> planInventory = new HashMap<>();
     private final HashMap<Integer, String> containerInv = new HashMap<>();
-    private ArrayList<Integer> sortItems = new ArrayList<>();
-
-    private int delayTimeTicks;
-    private int stepNow;
-    private boolean openedBefore, finishSort, doneBefore;
-
-
-
-
-
-    public Setting<Integer> tickDelay = this.register ( new Setting <> ( "Tick Delay", 50, 0, 20 ) );
-
-    public Setting<Integer> switchForTick = this.register ( new Setting <> ( "Switch Per Tick", 1, 1, 100 ) );
-
+    public Setting<Integer> tickDelay = this.register(new Setting<>("Tick Delay", 50, 0, 20));
+    public Setting<Integer> switchForTick = this.register(new Setting<>("Switch Per Tick", 1, 1, 100));
     public Setting<Boolean> debugMode = this.register(new Setting<Boolean>("Debug Mode", false));
     public Setting<Boolean> infoMsgs = this.register(new Setting<Boolean>("Info Msgs", false));
     public Setting<Boolean> closeAfter = this.register(new Setting<Boolean>("Close After", false));
     public Setting<Boolean> invasive = this.register(new Setting<Boolean>("saInvasive", false));
     public Setting<Boolean> confirmSort = this.register(new Setting<Boolean>("Confirm Sort", false));
     public Setting<Boolean> enderChest = this.register(new Setting<Boolean>("enderChest", false));
-
+    private HashMap<Integer, String> planInventory = new HashMap<>();
+    private ArrayList<Integer> sortItems = new ArrayList<>();
+    private int delayTimeTicks;
+    private int stepNow;
+    private boolean openedBefore, finishSort, doneBefore;
+    public AutoRegear() {
+        super("AutoRegear", "регирит тебя из-шалкера", Category.MISC);
+    }
 
     public void onEnable() {
         // Get name of the config
         // Config variables
 
 
-
         String curConfigName = KitCommand.getCurrentSet();
         // If none, exit
-
 
 
         if (curConfigName.equals("")) {
@@ -367,7 +347,7 @@ public class AutoRegear extends Module {
         if (debugMode.getValue()) {
             // Print every values
             for (int valuePath : planMove) {
-               Command.sendMessage(Integer.toString(valuePath));
+                Command.sendMessage(Integer.toString(valuePath));
             }
         }
 

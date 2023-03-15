@@ -11,8 +11,7 @@ import net.minecraft.world.IBlockAccess;
 
 import static com.mrzak34.thunderhack.util.Util.mc;
 
-public class DamageHelper
-{
+public class DamageHelper {
     private final Setting<Boolean> terrainCalc;
     private final Setting<Integer> bExtrapolation;
     private final Setting<Integer> pExtrapolation;
@@ -27,22 +26,19 @@ public class DamageHelper
                         Setting<Integer> extrapolation,
                         Setting<Integer> bExtrapolation,
                         Setting<Boolean> selfExtrapolation,
-                        Setting<Boolean> obbyTerrain)
-    {
+                        Setting<Boolean> obbyTerrain) {
         this.module = module;
         this.positionHelper = positionHelper;
-        this.terrainCalc       = terrainCalc;
-        this.pExtrapolation    = extrapolation;
-        this.bExtrapolation    = bExtrapolation;
+        this.terrainCalc = terrainCalc;
+        this.pExtrapolation = extrapolation;
+        this.bExtrapolation = bExtrapolation;
         this.selfExtrapolation = selfExtrapolation;
-        this.obbyTerrain       = obbyTerrain;
+        this.obbyTerrain = obbyTerrain;
     }
 
     // Break damage for ourselves //
-    public float getDamage(Entity crystal)
-    {
-        if (module.isSuicideModule())
-        {
+    public float getDamage(Entity crystal) {
+        if (module.isSuicideModule()) {
             return 0.0f;
         }
 
@@ -53,10 +49,8 @@ public class DamageHelper
                 mc.player);
     }
 
-    public float getDamage(Entity crystal, AxisAlignedBB bb)
-    {
-        if (module.isSuicideModule())
-        {
+    public float getDamage(Entity crystal, AxisAlignedBB bb) {
+        if (module.isSuicideModule()) {
             return 0.0f;
         }
 
@@ -68,8 +62,7 @@ public class DamageHelper
     }
 
     // Break damage for other entities //
-    public float getDamage(Entity crystal, EntityLivingBase base)
-    {
+    public float getDamage(Entity crystal, EntityLivingBase base) {
         return getDamage(crystal.posX, crystal.posY, crystal.posZ, base,
                 mc.world, bExtrapolation.getValue(),
                 module.avgBreakExtra.getValue(), false, false,
@@ -77,10 +70,8 @@ public class DamageHelper
     }
 
     // Place damage for ourselves //
-    public float getDamage(BlockPos pos)
-    {
-        if (module.isSuicideModule())
-        {
+    public float getDamage(BlockPos pos) {
+        if (module.isSuicideModule()) {
             return 0.0f;
         }
 
@@ -91,8 +82,7 @@ public class DamageHelper
     }
 
     // Place damage for other entities //
-    public float getDamage(BlockPos pos, EntityLivingBase base)
-    {
+    public float getDamage(BlockPos pos, EntityLivingBase base) {
         return getDamage(pos, base, mc.world,
                 pExtrapolation.getValue(),
                 module.avgPlaceDamage.getValue(), false,
@@ -101,10 +91,8 @@ public class DamageHelper
 
     // Obby place damage for ourselves //
     public float getObbyDamage(BlockPos pos,
-                               IBlockAccess world)
-    {
-        if (module.isSuicideModule())
-        {
+                               IBlockAccess world) {
+        if (module.isSuicideModule()) {
             return 0.0f;
         }
 
@@ -117,8 +105,7 @@ public class DamageHelper
     //  Obby place damage for other entities  //
     public float getObbyDamage(BlockPos pos,
                                EntityLivingBase base,
-                               IBlockAccess world)
-    {
+                               IBlockAccess world) {
         return getDamage(pos, base, world, pExtrapolation.getValue(),
                 module.avgPlaceDamage.getValue(), false,
                 obbyTerrain.getValue());
@@ -127,8 +114,7 @@ public class DamageHelper
     // Takes a BlockPos, for placing only //
     private float getDamage(BlockPos pos, EntityLivingBase base,
                             IBlockAccess world, int ticks, boolean avg,
-                            boolean self, boolean terrain)
-    {
+                            boolean self, boolean terrain) {
         return getDamage(pos.getX() + 0.5f, pos.getY() + 1, pos.getZ() + 0.5f,
                 base, world, ticks, avg, self, true, terrain);
     }
@@ -136,8 +122,7 @@ public class DamageHelper
     // Where it all comes together //
     private float getDamage(double x, double y, double z, EntityLivingBase base,
                             IBlockAccess world, int ticks, boolean avg,
-                            boolean self, boolean place, boolean terrain)
-    {
+                            boolean self, boolean place, boolean terrain) {
         MotionTracker tracker;
         if (ticks == 0
                 || self && !selfExtrapolation.getValue()
@@ -156,7 +141,7 @@ public class DamageHelper
             double extraWeight = place
                     ? module.placeExtraWeight.getValue()
                     : module.breakExtraWeight.getValue();
-            double normWeight  = place
+            double normWeight = place
                     ? module.placeNormalWeight.getValue()
                     : module.breakNormalWeight.getValue();
 

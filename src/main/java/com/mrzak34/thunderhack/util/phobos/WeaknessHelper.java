@@ -3,17 +3,15 @@ package com.mrzak34.thunderhack.util.phobos;
 import com.mrzak34.thunderhack.modules.combat.AutoCrystal;
 import com.mrzak34.thunderhack.setting.Setting;
 
-public class WeaknessHelper
-{
+public class WeaknessHelper {
     private final Setting<AutoCrystal.AntiWeakness> antiWeakness;
     private final Setting<Integer> cooldown;
     private boolean weaknessed;
 
     public WeaknessHelper(Setting<AutoCrystal.AntiWeakness> antiWeakness,
-                          Setting<Integer> cooldown)
-    {
+                          Setting<Integer> cooldown) {
         this.antiWeakness = antiWeakness;
-        this.cooldown     = cooldown;
+        this.cooldown = cooldown;
     }
 
     /**
@@ -21,22 +19,19 @@ public class WeaknessHelper
      * we multithread and don't want problems with the
      * PotionMap.
      */
-    public void updateWeakness()
-    {
+    public void updateWeakness() {
         weaknessed = !DamageUtil.canBreakWeakness(true);
     }
 
     /**
      * @return <tt>true</tt> if we are weaknessed.
      */
-    public boolean isWeaknessed()
-    {
+    public boolean isWeaknessed() {
         return weaknessed;
     }
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    public boolean canSwitch()
-    {
+    public boolean canSwitch() {
         return antiWeakness.getValue() == AutoCrystal.AntiWeakness.Switch
                 && cooldown.getValue() == 0
                 && weaknessed;

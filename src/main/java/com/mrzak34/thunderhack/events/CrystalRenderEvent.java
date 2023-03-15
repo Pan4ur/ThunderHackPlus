@@ -7,8 +7,7 @@ import net.minecraftforge.fml.common.eventhandler.Cancelable;
 import net.minecraftforge.fml.common.eventhandler.Event;
 
 @Cancelable
-public class CrystalRenderEvent extends Event
-{
+public class CrystalRenderEvent extends Event {
 
     private final RenderEnderCrystal render;
     private final Entity entity;
@@ -16,30 +15,25 @@ public class CrystalRenderEvent extends Event
 
     private CrystalRenderEvent(RenderEnderCrystal render,
                                Entity entity,
-                               ModelBase model)
-    {
+                               ModelBase model) {
         this.render = render;
         this.entity = entity;
-        this.model  = model;
+        this.model = model;
     }
 
-    public RenderEnderCrystal getRender()
-    {
+    public RenderEnderCrystal getRender() {
         return render;
     }
 
-    public Entity getEntity()
-    {
+    public Entity getEntity() {
         return entity;
     }
 
-    public ModelBase getModel()
-    {
+    public ModelBase getModel() {
         return model;
     }
 
-    public static class Pre extends CrystalRenderEvent
-    {
+    public static class Pre extends CrystalRenderEvent {
         private final float limbSwing;
         private final float limbSwingAmount;
         private final float ageInTicks;
@@ -55,50 +49,42 @@ public class CrystalRenderEvent extends Event
                    float ageInTicks,
                    float netHeadYaw,
                    float headPitch,
-                   float scale)
-        {
+                   float scale) {
             super(render, entity, model);
-            this.limbSwing       = limbSwing;
+            this.limbSwing = limbSwing;
             this.limbSwingAmount = limbSwingAmount;
-            this.ageInTicks      = ageInTicks;
-            this.netHeadYaw      = netHeadYaw;
-            this.headPitch       = headPitch;
-            this.scale           = scale;
+            this.ageInTicks = ageInTicks;
+            this.netHeadYaw = netHeadYaw;
+            this.headPitch = headPitch;
+            this.scale = scale;
         }
 
-        public float getLimbSwing()
-        {
+        public float getLimbSwing() {
             return limbSwing;
         }
 
-        public float getLimbSwingAmount()
-        {
+        public float getLimbSwingAmount() {
             return limbSwingAmount;
         }
 
-        public float getAgeInTicks()
-        {
+        public float getAgeInTicks() {
             return ageInTicks;
         }
 
-        public float getNetHeadYaw()
-        {
+        public float getNetHeadYaw() {
             return netHeadYaw;
         }
 
-        public float getHeadPitch()
-        {
+        public float getHeadPitch() {
             return headPitch;
         }
 
-        public float getScale()
-        {
+        public float getScale() {
             return scale;
         }
     }
 
-    public static class Post extends CrystalRenderEvent
-    {
+    public static class Post extends CrystalRenderEvent {
         private final float limbSwing;
         private final float limbSwingAmount;
         private final float ageInTicks;
@@ -114,44 +100,37 @@ public class CrystalRenderEvent extends Event
                     float ageInTicks,
                     float netHeadYaw,
                     float headPitch,
-                    float scale)
-        {
+                    float scale) {
             super(render, entity, model);
-            this.limbSwing       = limbSwing;
+            this.limbSwing = limbSwing;
             this.limbSwingAmount = limbSwingAmount;
-            this.ageInTicks      = ageInTicks;
-            this.netHeadYaw      = netHeadYaw;
-            this.headPitch       = headPitch;
-            this.scale           = scale;
+            this.ageInTicks = ageInTicks;
+            this.netHeadYaw = netHeadYaw;
+            this.headPitch = headPitch;
+            this.scale = scale;
         }
 
-        public float getLimbSwing()
-        {
+        public float getLimbSwing() {
             return limbSwing;
         }
 
-        public float getLimbSwingAmount()
-        {
+        public float getLimbSwingAmount() {
             return limbSwingAmount;
         }
 
-        public float getAgeInTicks()
-        {
+        public float getAgeInTicks() {
             return ageInTicks;
         }
 
-        public float getNetHeadYaw()
-        {
+        public float getNetHeadYaw() {
             return netHeadYaw;
         }
 
-        public float getHeadPitch()
-        {
+        public float getHeadPitch() {
             return headPitch;
         }
 
-        public float getScale()
-        {
+        public float getScale() {
             return scale;
         }
     }

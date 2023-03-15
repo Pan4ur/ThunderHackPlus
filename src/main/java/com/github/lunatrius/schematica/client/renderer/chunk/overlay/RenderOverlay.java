@@ -24,23 +24,6 @@ import net.minecraft.world.World;
 import org.lwjgl.opengl.GL11;
 
 public class RenderOverlay extends RenderChunk {
-    private static enum BlockType {
-        /** Purple - a block that is present in the world but not the schematic */
-        EXTRA_BLOCK(0xBF00BF),
-        /** Red - a mismatch between the block in the world and the schematic */
-        WRONG_BLOCK(0xFF0000),
-        /** Orange - a mismatch between the metadata for the block in the world and the schematic */
-        WRONG_META(0xBF5F00),
-        /** Blue - a block that is present in the schematic but not in the world */
-        MISSING_BLOCK(0x00BFFF);
-
-        public final int color;
-
-        private BlockType(int color) {
-            this.color = color;
-        }
-    }
-
     private final VertexBuffer vertexBuffer;
 
     public RenderOverlay(final World world, final RenderGlobal renderGlobal, final int index) {
@@ -220,6 +203,31 @@ public class RenderOverlay extends RenderChunk {
 
         if (this.vertexBuffer != null) {
             this.vertexBuffer.deleteGlBuffers();
+        }
+    }
+
+    private enum BlockType {
+        /**
+         * Purple - a block that is present in the world but not the schematic
+         */
+        EXTRA_BLOCK(0xBF00BF),
+        /**
+         * Red - a mismatch between the block in the world and the schematic
+         */
+        WRONG_BLOCK(0xFF0000),
+        /**
+         * Orange - a mismatch between the metadata for the block in the world and the schematic
+         */
+        WRONG_META(0xBF5F00),
+        /**
+         * Blue - a block that is present in the schematic but not in the world
+         */
+        MISSING_BLOCK(0x00BFFF);
+
+        public final int color;
+
+        BlockType(int color) {
+            this.color = color;
         }
     }
 }

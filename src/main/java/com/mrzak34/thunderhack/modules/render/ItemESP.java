@@ -5,7 +5,7 @@ import com.mrzak34.thunderhack.events.Render3DEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.setting.Setting;
-import com.mrzak34.thunderhack.util.*;
+import com.mrzak34.thunderhack.util.Util;
 import com.mrzak34.thunderhack.util.math.AstolfoAnimation;
 import com.mrzak34.thunderhack.util.render.PaletteHelper;
 import com.mrzak34.thunderhack.util.render.RectHelper;
@@ -26,44 +26,31 @@ import java.awt.*;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
-public class ItemESP extends Module{
+public class ItemESP extends Module {
+    public static AstolfoAnimation astolfo2 = new AstolfoAnimation();
+    private final Setting<Boolean> entityName = (Setting<Boolean>) this.register(new Setting("Name", true));
+    private final Setting<Boolean> fullBox = (Setting<Boolean>) this.register(new Setting("Full Box", true));
+    private final Setting<ColorSetting> cc = this.register(new Setting<>("Color", new ColorSetting(0x8800FF00)));
+    private final Setting<ColorSetting> cc2 = this.register(new Setting<>("Color2", new ColorSetting(0x8800FF00)));
+    private final int black = Color.BLACK.getRGB();
+    public Setting<Float> scalefactor = register(new Setting("Raytrace", 2.0F, 0.1F, 4.0F));
+    public Setting<Float> rads = register(new Setting("radius", 2.0F, 0.1F, 1.0F));
+    private final Setting<mode> Mode = register(new Setting("Render Mode", mode.render2D));
+    private final Setting<mode2> Mode2 = register(new Setting("Color Mode", mode2.Astolfo));
+
     public ItemESP() {
         super("ItemESP", "ItemESP", Module.Category.RENDER);
     }
-    private final Setting<Boolean> entityName = (Setting<Boolean>)this.register(new Setting("Name", true));
-    private final Setting<Boolean> fullBox = (Setting<Boolean>)this.register(new Setting("Full Box", true));
-    public Setting<Float> scalefactor = register(new Setting("Raytrace", 2.0F, 0.1F, 4.0F));
-    public Setting<Float> rads = register(new Setting("radius", 2.0F, 0.1F, 1.0F));
-    private final Setting<ColorSetting> cc = this.register(new Setting<>("Color", new ColorSetting(0x8800FF00)));
-    private final Setting<ColorSetting> cc2 = this.register(new Setting<>("Color2", new ColorSetting(0x8800FF00)));
-
-
-    private final int black = Color.BLACK.getRGB();
-
-
-
-    private Setting<mode> Mode = register(new Setting("Render Mode", mode.render2D));
-
-    public enum mode {
-        render2D, render3D, Circle;
-    }
-    private Setting<mode2> Mode2 = register(new Setting("Color Mode", mode2.Astolfo));
-
-    public enum mode2 {
-        Custom, Astolfo;
-    }
-
-
 
     @SubscribeEvent
     public void onRender3D(Render3DEvent event) {
         for (Entity item : mc.world.loadedEntityList) {
             if (item instanceof EntityItem) {
                 int color = 0;
-                if(Mode2.getValue() == mode2.Custom) {
+                if (Mode2.getValue() == mode2.Custom) {
                     color = cc.getValue().getColor();
                 }
-                if(Mode2.getValue() == mode2.Astolfo) {
+                if (Mode2.getValue() == mode2.Astolfo) {
                     color = PaletteHelper.astolfo(false, (int) item.height).getRGB();
                 }
                 if (Mode.getValue() == mode.render3D) {
@@ -87,12 +74,12 @@ public class ItemESP extends Module{
         Color c = cc.getValue().getColorObject();
         int color = 0;
 
-            if(Mode2.getValue() == mode2.Custom) {
-                color = c.getRGB();
-            }
-            if(Mode2.getValue() == mode2.Astolfo) {
-                color = PaletteHelper.astolfo(false, 1).getRGB();
-            }
+        if (Mode2.getValue() == mode2.Custom) {
+            color = c.getRGB();
+        }
+        if (Mode2.getValue() == mode2.Astolfo) {
+            color = PaletteHelper.astolfo(false, 1).getRGB();
+        }
         float scale = 1;
         for (Entity entity : mc.world.loadedEntityList) {
             if (isValid(entity) && RenderHelper.isInViewFrustum(entity)) {
@@ -169,17 +156,19 @@ public class ItemESP extends Module{
         return entity instanceof EntityItem;
     }
 
-
-
-    public static AstolfoAnimation astolfo2 = new AstolfoAnimation();
-
     @Override
     public void onUpdate() {
         astolfo2.update();
     }
 
 
+    public enum mode {
+        render2D, render3D, Circle
+    }
 
+    public enum mode2 {
+        Custom, Astolfo
+    }
 
 
 }

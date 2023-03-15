@@ -1,24 +1,18 @@
 package com.mrzak34.thunderhack.modules.render;
 
-import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.events.BlockRenderEvent;
-import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.events.Render3DEvent;
 import com.mrzak34.thunderhack.mixin.mixins.IEntityRenderer;
 import com.mrzak34.thunderhack.mixin.mixins.IRenderManager;
 import com.mrzak34.thunderhack.modules.Module;
-
-
 import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.TessellatorUtil;
-import com.mrzak34.thunderhack.util.Timer;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockBarrier;
 import net.minecraft.block.BlockCommandBlock;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.init.Blocks;
-import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -28,28 +22,22 @@ import org.lwjgl.opengl.GL11;
 
 import java.util.ArrayList;
 import java.util.concurrent.CopyOnWriteArrayList;
+
 public class Search extends Module {
+
+    public static CopyOnWriteArrayList<BlockVec> blocks = new CopyOnWriteArrayList<>();
+    public static ArrayList<Block> defaultBlocks = new ArrayList<>();
+    public Setting<Boolean> softReload = this.register(new Setting<>("SoftReload", true));
+    private final Setting<Float> range = this.register(new Setting<>("Range", 100f, 1f, 500f));
+    private final Setting<ColorSetting> color = this.register(new Setting<>("Color", new ColorSetting(0xFF00FFFF)));
+    private final Setting<Boolean> illegals = this.register(new Setting<>("Illegals", true));
+    private final Setting<Boolean> tracers = this.register(new Setting<>("Tracers", false));
+    private final Setting<Boolean> fill = this.register(new Setting<>("Fill", true));
+    private final Setting<Boolean> outline = this.register(new Setting<>("Outline", true));
+
 
     public Search() {
         super("Search", "подсветка блоков", Category.RENDER);
-    }
-
-
-    public static CopyOnWriteArrayList<BlockVec> blocks = new CopyOnWriteArrayList<>();
-    private  Setting<Float> range = this.register(new Setting<>("Range", 100f, 1f, 500f));
-    private  Setting<ColorSetting> color =this.register( new Setting<>("Color", new ColorSetting(0xFF00FFFF)));
-    private  Setting<Boolean> illegals = this.register(new Setting<>("Illegals", true));
-    private  Setting<Boolean> tracers = this.register(new Setting<>("Tracers", false));
-    private  Setting<Boolean> fill =this.register( new Setting<>("Fill", true));
-    private  Setting<Boolean> outline =this.register( new Setting<>("Outline", true));
-    public  Setting<Boolean> softReload =this.register( new Setting<>("SoftReload", true));
-
-
-
-    public void onEnable() {
-        if (softReload.getValue()) {
-            doSoftReload();
-        }
     }
 
     public static void doSoftReload() {
@@ -62,13 +50,56 @@ public class Search extends Module {
         }
     }
 
+    private static Block getRegisteredBlock(String blockName) {
+        Block block = Block.REGISTRY.getObject(new ResourceLocation(blockName));
+        return block;
+    }
+
+    public static void renderTracer(double x, double y, double z, double x2, double y2, double z2, int color) {
+        GL11.glBlendFunc(770, 771);
+        GL11.glEnable(GL11.GL_BLEND);
+        GL11.glLineWidth(1.5f);
+        GL11.glDisable(GL11.GL_TEXTURE_2D);
+        GL11.glDisable(GL11.GL_DEPTH_TEST);
+        GL11.glDepthMask(false);
+
+        GL11.glColor4f(((color >> 16) & 0xFF) / 255F, ((color >> 8) & 0xFF) / 255F, ((color) & 0xFF) / 255F, ((color >> 24) & 0xFF) / 255F);
+        GlStateManager.disableLighting();
+        GL11.glLoadIdentity();
+
+        ((IEntityRenderer) mc.entityRenderer).orientCam(mc.getRenderPartialTicks());
+
+        GL11.glEnable(GL11.GL_LINE_SMOOTH);
+
+        GL11.glBegin(GL11.GL_LINES);
+        GL11.glVertex3d(x, y, z);
+        GL11.glVertex3d(x2, y2, z2);
+        GL11.glVertex3d(x2, y2, z2);
+        GL11.glEnd();
+
+        GL11.glDisable(GL11.GL_LINE_SMOOTH);
+
+        GL11.glEnable(GL11.GL_TEXTURE_2D);
+        GL11.glEnable(GL11.GL_DEPTH_TEST);
+        GL11.glDepthMask(true);
+        GL11.glDisable(GL11.GL_BLEND);
+        GL11.glColor3d(1d, 1d, 1d);
+        GlStateManager.enableLighting();
+    }
+
+    public void onEnable() {
+        if (softReload.getValue()) {
+            doSoftReload();
+        }
+    }
+
     @SubscribeEvent
     public void onBlockRender(BlockRenderEvent event) {
         if (mc.world == null || mc.player == null) return;
         if (blocks.size() > 100000) {
             blocks.clear();
         }
-        if(shouldAdd(event.getBlock(), event.getPos())) {
+        if (shouldAdd(event.getBlock(), event.getPos())) {
             BlockVec vec = new BlockVec(event.getPos().getX(), event.getPos().getY(), event.getPos().getZ());
             if (!blocks.contains(vec)) {
                 blocks.add(vec);
@@ -138,10 +169,6 @@ public class Search extends Module {
         return false;
     }
 
-
-    public static ArrayList<Block> defaultBlocks = new ArrayList<>();
-
-
     private boolean shouldRender(BlockVec vec) {
         if (defaultBlocks.contains(mc.world.getBlockState(new BlockPos(vec.x, vec.y, vec.z)).getBlock())) {
             return true;
@@ -152,12 +179,6 @@ public class Search extends Module {
         }
 
         return false;
-    }
-
-
-    private static Block getRegisteredBlock(String blockName) {
-        Block block = (Block)Block.REGISTRY.getObject(new ResourceLocation(blockName));
-        return block;
     }
 
     private boolean isIllegal(Block block, BlockPos pos) {
@@ -173,38 +194,6 @@ public class Search extends Module {
             }
         }
         return false;
-    }
-
-    public static void renderTracer(double x, double y, double z, double x2, double y2, double z2, int color){
-        GL11.glBlendFunc(770, 771);
-        GL11.glEnable(GL11.GL_BLEND);
-        GL11.glLineWidth(1.5f);
-        GL11.glDisable(GL11.GL_TEXTURE_2D);
-        GL11.glDisable(GL11.GL_DEPTH_TEST);
-        GL11.glDepthMask(false);
-
-        GL11.glColor4f(((color >> 16) & 0xFF) / 255F, ((color >> 8) & 0xFF) / 255F, ((color) & 0xFF) / 255F, ((color >> 24) & 0xFF) / 255F);
-        GlStateManager.disableLighting();
-        GL11.glLoadIdentity();
-
-        ((IEntityRenderer) mc.entityRenderer).orientCam(mc.getRenderPartialTicks());
-
-        GL11.glEnable(GL11.GL_LINE_SMOOTH);
-
-        GL11.glBegin(GL11.GL_LINES);
-        GL11.glVertex3d(x, y, z);
-        GL11.glVertex3d(x2, y2, z2);
-        GL11.glVertex3d(x2, y2, z2);
-        GL11.glEnd();
-
-        GL11.glDisable(GL11.GL_LINE_SMOOTH);
-
-        GL11.glEnable(GL11.GL_TEXTURE_2D);
-        GL11.glEnable(GL11.GL_DEPTH_TEST);
-        GL11.glDepthMask(true);
-        GL11.glDisable(GL11.GL_BLEND);
-        GL11.glColor3d(1d,1d,1d);
-        GlStateManager.enableLighting();
     }
 
     private static class BlockVec {
@@ -231,7 +220,7 @@ public class Search extends Module {
             double dy = y - v.y;
             double dz = z - v.z;
 
-            return Math.sqrt(dx*dx + dy*dy + dz*dz);
+            return Math.sqrt(dx * dx + dy * dy + dz * dz);
         }
     }
 }

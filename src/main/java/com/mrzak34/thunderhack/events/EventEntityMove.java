@@ -6,8 +6,8 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.common.eventhandler.Event;
 
 public class EventEntityMove extends Event {
-    private Entity ctx;
-    private Vec3d from;
+    private final Entity ctx;
+    private final Vec3d from;
 
     public EventEntityMove(Entity ctx, Vec3d from) {
         this.ctx = ctx;

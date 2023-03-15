@@ -20,9 +20,9 @@ import java.util.List;
 
 public class HudEditorGui extends GuiScreen {
 
-    private Animation openAnimation, bgAnimation, rAnimation;
+    private static HudEditorGui INSTANCE = new HudEditorGui();
     private final List<ModuleWindow> windows;
-
+    private Animation openAnimation, bgAnimation, rAnimation;
     private double scrollSpeed;
     private boolean firstOpen;
     private double dWheel;
@@ -33,8 +33,6 @@ public class HudEditorGui extends GuiScreen {
         firstOpen = true;
         this.setInstance();
     }
-
-    private static HudEditorGui INSTANCE = new HudEditorGui();
 
     public static HudEditorGui getInstance() {
         if (INSTANCE == null) {
@@ -64,7 +62,7 @@ public class HudEditorGui extends GuiScreen {
             ScaledResolution sr = new ScaledResolution(mc);
             int i = 0;
             for (final Module.Category category : Thunderhack.moduleManager.getCategories()) {
-                if(!category.getName().contains("HUD")) continue;
+                if (!category.getName().contains("HUD")) continue;
                 ModuleWindow window = new ModuleWindow(category.getName(), Thunderhack.moduleManager.getModulesByCategory(category), i, x + offset, y, 108, windowHeight);
                 window.setOpen(true);
                 windows.add(window);

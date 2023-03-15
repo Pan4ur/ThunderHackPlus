@@ -2,70 +2,57 @@ package com.mrzak34.thunderhack.util.phobos;
 
 import net.minecraft.entity.Entity;
 
-public class CrystalData implements Comparable<CrystalData>
-{
+public class CrystalData implements Comparable<CrystalData> {
     private final Entity crystal;
     private float selfDmg;
     private float damage;
     private float[] rotations;
     private double angle;
 
-    public CrystalData(Entity crystal)
-    {
+    public CrystalData(Entity crystal) {
         this.crystal = crystal;
     }
 
-    public Entity getCrystal()
-    {
+    public Entity getCrystal() {
         return crystal;
     }
 
-    public void setSelfDmg(float damage)
-    {
-        this.selfDmg = damage;
-    }
-
-    public void setDamage(float damage)
-    {
-        this.damage = damage;
-    }
-
-    public float getSelfDmg()
-    {
+    public float getSelfDmg() {
         return selfDmg;
     }
 
-    public float getDamage()
-    {
+    public void setSelfDmg(float damage) {
+        this.selfDmg = damage;
+    }
+
+    public float getDamage() {
         return damage;
     }
 
-    public float[] getRotations()
-    {
+    public void setDamage(float damage) {
+        this.damage = damage;
+    }
+
+    public float[] getRotations() {
         return rotations;
     }
 
-    public double getAngle()
-    {
+    public double getAngle() {
         return angle;
     }
 
-    public boolean hasCachedRotations()
-    {
+    public boolean hasCachedRotations() {
         return rotations != null;
     }
 
-    public void cacheRotations(float[] rotations, double angle)
-    {
+    public void cacheRotations(float[] rotations, double angle) {
         this.rotations = rotations;
-        this.angle     = angle;
+        this.angle = angle;
     }
 
     @Override
-    public int compareTo(CrystalData o)
-    {
-        if (Math.abs(o.damage - this.damage) < 1.0f)
-        {
+    public int compareTo(CrystalData o) {
+        if (Math.abs(o.damage - this.damage) < 1.0f) {
             return Float.compare(this.selfDmg, o.selfDmg);
         }
 
@@ -73,17 +60,14 @@ public class CrystalData implements Comparable<CrystalData>
     }
 
     @Override
-    public int hashCode()
-    {
+    public int hashCode() {
         // return crystal.getEntityId();
         return crystal.getPosition().hashCode();
     }
 
     @Override
-    public boolean equals(Object o)
-    {
-        if (o instanceof CrystalData)
-        {
+    public boolean equals(Object o) {
+        if (o instanceof CrystalData) {
             return this.hashCode() == o.hashCode();
         }
 

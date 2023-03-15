@@ -13,13 +13,19 @@ import java.util.HashMap;
 public class FillShader extends FramebufferShader {
 
     public static final FillShader INSTANCE;
-    public float time;
 
-    public FillShader( ) {
-        super( "fill.frag" );
+    static {
+        INSTANCE = new FillShader();
     }
 
-    @Override public void setupUniforms ( ) {
+    public float time;
+
+    public FillShader() {
+        super("fill.frag");
+    }
+
+    @Override
+    public void setupUniforms() {
         this.setupUniform("color");
     }
 
@@ -29,19 +35,19 @@ public class FillShader extends FramebufferShader {
 
     public void stopDraw(Color color) {
         mc.gameSettings.entityShadows = entityShadows;
-        framebuffer.unbindFramebuffer( );
-        GL11.glEnable( 3042 );
-        GL11.glBlendFunc( 770, 771 );
-        mc.getFramebuffer( ).bindFramebuffer( true );
-        mc.entityRenderer.disableLightmap( );
-        RenderHelper.disableStandardItemLighting( );
+        framebuffer.unbindFramebuffer();
+        GL11.glEnable(3042);
+        GL11.glBlendFunc(770, 771);
+        mc.getFramebuffer().bindFramebuffer(true);
+        mc.entityRenderer.disableLightmap();
+        RenderHelper.disableStandardItemLighting();
         startShader(color.getRed() / 255.0f, color.getGreen() / 255.0f, color.getBlue() / 255.0f, color.getAlpha() / 255.0f);
-        mc.entityRenderer.setupOverlayRendering( );
-        drawFramebuffer( framebuffer );
-        stopShader( );
-        mc.entityRenderer.disableLightmap( );
-        GlStateManager.popMatrix( );
-        GlStateManager.popAttrib( );
+        mc.entityRenderer.setupOverlayRendering();
+        drawFramebuffer(framebuffer);
+        stopShader();
+        mc.entityRenderer.disableLightmap();
+        GlStateManager.popMatrix();
+        GlStateManager.popAttrib();
     }
 
     public void startShader(float red, float green, float blue, float alpha) {
@@ -52,11 +58,6 @@ public class FillShader extends FramebufferShader {
             this.setupUniforms();
         }
         this.updateUniforms(red, green, blue, alpha);
-    }
-
-
-    static {
-        INSTANCE = new FillShader();
     }
 
     public void update(double speed) {

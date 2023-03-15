@@ -1,38 +1,47 @@
 package com.mrzak34.thunderhack.mixin.mixins;
 
 import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.events.FreecamEvent;
 import com.mrzak34.thunderhack.command.commands.ChangeSkinCommand;
+import com.mrzak34.thunderhack.events.FreecamEvent;
 import com.mrzak34.thunderhack.manager.EventManager;
 import com.mrzak34.thunderhack.modules.client.MainSettings;
-import com.mrzak34.thunderhack.modules.misc.SolidWeb;
-import net.minecraft.block.state.IBlockState;
+import com.mrzak34.thunderhack.modules.render.Models;
+import com.mrzak34.thunderhack.modules.render.NameTags;
+import com.mrzak34.thunderhack.util.PNGtoResourceLocation;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.AbstractClientPlayer;
+import net.minecraft.client.renderer.entity.RenderPlayer;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IBlockAccess;
 import net.minecraftforge.common.MinecraftForge;
-import org.spongepowered.asm.mixin.*;
-import net.minecraft.client.renderer.entity.*;
-import net.minecraft.client.entity.*;
-import org.spongepowered.asm.mixin.injection.callback.*;
-import org.spongepowered.asm.mixin.injection.*;
-import net.minecraft.client.*;
-import com.mrzak34.thunderhack.modules.render.*;
-import org.lwjgl.opengl.*;
-import com.mrzak34.thunderhack.util.*;
+import org.lwjgl.opengl.GL11;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import static com.mrzak34.thunderhack.gui.hud.RadarRewrite.interp;
 
-@Mixin({ RenderPlayer.class })
-public class MixinRenderPlayer
-{
-    @Inject(method = { "renderEntityName" },  at = { @At("HEAD") },  cancellable = true)
-    public void renderEntityNameHook(final AbstractClientPlayer entityIn,  final double x,  final double y,  final double z,  final String name,  final double distanceSq,  final CallbackInfo info) {
-        if (NameTags.getInstance().isOn()) {
+@Mixin({RenderPlayer.class})
+public class MixinRenderPlayer {
+    private final ResourceLocation amogus = new ResourceLocation("textures/amogus.png");
+    private final ResourceLocation rabbit = new ResourceLocation("textures/rabbit.png");
+    private final ResourceLocation fred = new ResourceLocation("textures/freddy.png");
+    private float
+            renderPitch,
+            renderYaw,
+            renderHeadYaw,
+            prevRenderHeadYaw,
+            prevRenderPitch;
+
+    @Inject(method = {"renderEntityName"}, at = {@At("HEAD")}, cancellable = true)
+    public void renderEntityNameHook(final AbstractClientPlayer entityIn, final double x, final double y, final double z, final String name, final double distanceSq, final CallbackInfo info) {
+        if (Thunderhack.moduleManager.getModuleByClass(NameTags.class).isEnabled()) {
             info.cancel();
         }
     }
+
     @Redirect(method = "doRender", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/entity/AbstractClientPlayer;isUser()Z"))
     private boolean isUserRedirect(AbstractClientPlayer abstractClientPlayer) {
         Minecraft mc = Minecraft.getMinecraft();
@@ -44,14 +53,6 @@ public class MixinRenderPlayer
         return abstractClientPlayer.isUser();
     }
 
-
-    private float
-            renderPitch,
-            renderYaw,
-            renderHeadYaw,
-            prevRenderHeadYaw,
-            prevRenderPitch;
-
     @Inject(method = "doRender", at = @At("HEAD"))
     private void rotateBegin(AbstractClientPlayer entity, double x, double y, double z, float entityYaw, float partialTicks, CallbackInfo ci) {
         if (Thunderhack.moduleManager.getModuleByClass(MainSettings.class).renderRotations.getValue() && entity == Minecraft.getMinecraft().player) {
@@ -61,8 +62,8 @@ public class MixinRenderPlayer
             renderYaw = entity.rotationYaw;
             renderHeadYaw = entity.rotationYawHead;
 
-            float interpYaw = (float) interp(EventManager.visualYaw,EventManager.prevVisualYaw);
-            float interpPitch = (float) interp(EventManager.visualPitch,EventManager.prevVisualPitch);
+            float interpYaw = (float) interp(EventManager.visualYaw, EventManager.prevVisualYaw);
+            float interpPitch = (float) interp(EventManager.visualPitch, EventManager.prevVisualPitch);
             entity.rotationPitch = interpPitch;
             entity.prevRotationPitch = interpPitch;
             entity.rotationYaw = interpYaw;
@@ -71,7 +72,6 @@ public class MixinRenderPlayer
 
         }
     }
-
 
     @Inject(method = "doRender", at = @At("RETURN"))
     private void rotateEnd(AbstractClientPlayer entity, double x, double y, double z, float entityYaw, float partialTicks, CallbackInfo ci) {
@@ -84,15 +84,9 @@ public class MixinRenderPlayer
         }
     }
 
-
-    private final ResourceLocation amogus = new ResourceLocation("textures/amogus.png");
-    private final ResourceLocation rabbit = new ResourceLocation("textures/rabbit.png");
-    private final ResourceLocation fred = new ResourceLocation("textures/freddy.png");
-
-
-    @Inject(method = { "getEntityTexture" }, at = { @At("HEAD") }, cancellable = true)
-    public void getEntityTexture(AbstractClientPlayer entity,CallbackInfoReturnable<ResourceLocation> ci){
-        if(Thunderhack.moduleManager.getModuleByClass(Models.class).isEnabled() && (!Thunderhack.moduleManager.getModuleByClass(Models.class).onlySelf.getValue() || entity == Minecraft.getMinecraft().player || Thunderhack.friendManager.isFriend(entity.getName()) && Thunderhack.moduleManager.getModuleByClass(Models.class).friends.getValue())){
+    @Inject(method = {"getEntityTexture"}, at = {@At("HEAD")}, cancellable = true)
+    public void getEntityTexture(AbstractClientPlayer entity, CallbackInfoReturnable<ResourceLocation> ci) {
+        if (Thunderhack.moduleManager.getModuleByClass(Models.class).isEnabled() && (!Thunderhack.moduleManager.getModuleByClass(Models.class).onlySelf.getValue() || entity == Minecraft.getMinecraft().player || Thunderhack.friendManager.isFriend(entity.getName()) && Thunderhack.moduleManager.getModuleByClass(Models.class).friends.getValue())) {
             if (Thunderhack.moduleManager.getModuleByClass(Models.class).Mode.getValue() == Models.mode.Amogus) {
                 ci.setReturnValue(amogus);
             }

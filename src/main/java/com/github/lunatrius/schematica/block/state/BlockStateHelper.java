@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 public class BlockStateHelper {
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressWarnings({"rawtypes", "unchecked"})
     public static <T extends Comparable<T>> IProperty<T> getProperty(final IBlockState blockState, final String name) {
         for (final IProperty prop : blockState.getPropertyKeys()) {
             if (prop.getName().equals(name)) {
@@ -30,7 +30,7 @@ public class BlockStateHelper {
         return blockState.getValue(property);
     }
 
-    @SuppressWarnings({ "rawtypes" })
+    @SuppressWarnings({"rawtypes"})
     public static List<String> getFormattedProperties(final IBlockState blockState) {
         final List<String> list = new ArrayList<String>();
 

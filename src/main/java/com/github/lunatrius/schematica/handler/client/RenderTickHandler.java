@@ -14,7 +14,8 @@ public class RenderTickHandler {
 
     private final Minecraft minecraft = Minecraft.getMinecraft();
 
-    private RenderTickHandler() {}
+    private RenderTickHandler() {
+    }
 
     @SubscribeEvent
     public void onRenderTick(final TickEvent.RenderTickEvent event) {

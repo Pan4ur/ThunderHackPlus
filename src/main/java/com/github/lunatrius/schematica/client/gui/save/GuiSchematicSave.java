@@ -19,43 +19,37 @@ import java.io.IOException;
 import java.util.Iterator;
 
 public class GuiSchematicSave extends GuiScreenBase {
-    private int centerX = 0;
-    private int centerY = 0;
-
-    private GuiButton btnPointA = null;
-
-    private GuiNumericField numericAX = null;
-    private GuiNumericField numericAY = null;
-    private GuiNumericField numericAZ = null;
-
-    private GuiButton btnPointB = null;
-
-    private GuiNumericField numericBX = null;
-    private GuiNumericField numericBY = null;
-    private GuiNumericField numericBZ = null;
-
-    private GuiButton btnEnable = null;
-    private GuiButton btnFormat = null;
-    private GuiButton btnSave = null;
-    private GuiTextField tfFilename = null;
-
-    private String filename = "";
-
-    /** The currently selected format */
-    private String format;
-    /**
-     * An iterator that gets new formats from {@link SchematicFormat#FORMATS}.
-     *
-     * Is reset after it no longer has new elements.
-     */
-    private Iterator<String> formatIterator = null;
-
     private final String strSaveSelection = I18n.format(Names.Gui.Save.SAVE_SELECTION);
     private final String strX = I18n.format(Names.Gui.X);
     private final String strY = I18n.format(Names.Gui.Y);
     private final String strZ = I18n.format(Names.Gui.Z);
     private final String strOn = I18n.format(Names.Gui.ON);
     private final String strOff = I18n.format(Names.Gui.OFF);
+    private int centerX = 0;
+    private int centerY = 0;
+    private GuiButton btnPointA = null;
+    private GuiNumericField numericAX = null;
+    private GuiNumericField numericAY = null;
+    private GuiNumericField numericAZ = null;
+    private GuiButton btnPointB = null;
+    private GuiNumericField numericBX = null;
+    private GuiNumericField numericBY = null;
+    private GuiNumericField numericBZ = null;
+    private GuiButton btnEnable = null;
+    private GuiButton btnFormat = null;
+    private GuiButton btnSave = null;
+    private GuiTextField tfFilename = null;
+    private String filename = "";
+    /**
+     * The currently selected format
+     */
+    private String format;
+    /**
+     * An iterator that gets new formats from {@link SchematicFormat#FORMATS}.
+     * <p>
+     * Is reset after it no longer has new elements.
+     */
+    private Iterator<String> formatIterator = null;
 
     public GuiSchematicSave(final GuiScreen guiScreen) {
         super(guiScreen);

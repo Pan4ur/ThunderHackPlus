@@ -23,6 +23,32 @@ import java.util.List;
 public class FlipHelper {
     public static final FlipHelper INSTANCE = new FlipHelper();
 
+    private static EnumFacing getFlippedFacing(final EnumFacing axis, final EnumFacing side) {
+        if (axis.getAxis() == side.getAxis()) {
+            return side.getOpposite();
+        }
+
+        return side;
+    }
+
+    private static BlockLever.EnumOrientation getFlippedLeverFacing(final EnumFacing source, final BlockLever.EnumOrientation side) {
+        if (source.getAxis() != side.getFacing().getAxis()) {
+            return side;
+        }
+
+        final EnumFacing facing;
+        if (side == BlockLever.EnumOrientation.UP_Z || side == BlockLever.EnumOrientation.DOWN_Z) {
+            facing = EnumFacing.NORTH;
+        } else if (side == BlockLever.EnumOrientation.UP_X || side == BlockLever.EnumOrientation.DOWN_X) {
+            facing = EnumFacing.WEST;
+        } else {
+            facing = side.getFacing();
+        }
+
+        final EnumFacing facingFlipped = getFlippedFacing(source, side.getFacing());
+        return BlockLever.EnumOrientation.forFacings(facingFlipped, facing);
+    }
+
     public boolean flip(final SchematicWorld world, final EnumFacing axis, final boolean forced) {
         if (world == null) {
             return false;
@@ -71,23 +97,23 @@ public class FlipHelper {
 
     private BlockPos flipPos(final BlockPos pos, final EnumFacing axis, final Vec3i dimensions, final MBlockPos flipped) throws FlipException {
         switch (axis) {
-        case DOWN:
-        case UP:
-            return flipped.set(pos.getX(), dimensions.getY() - 1 - pos.getY(), pos.getZ());
+            case DOWN:
+            case UP:
+                return flipped.set(pos.getX(), dimensions.getY() - 1 - pos.getY(), pos.getZ());
 
-        case NORTH:
-        case SOUTH:
-            return flipped.set(pos.getX(), pos.getY(), dimensions.getZ() - 1 - pos.getZ());
+            case NORTH:
+            case SOUTH:
+                return flipped.set(pos.getX(), pos.getY(), dimensions.getZ() - 1 - pos.getZ());
 
-        case WEST:
-        case EAST:
-            return flipped.set(dimensions.getX() - 1 - pos.getX(), pos.getY(), pos.getZ());
+            case WEST:
+            case EAST:
+                return flipped.set(dimensions.getX() - 1 - pos.getX(), pos.getY(), pos.getZ());
         }
 
         throw new FlipException("'%s' is not a valid axis!", axis.getName());
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressWarnings({"rawtypes", "unchecked"})
     private IBlockState flipBlock(final IBlockState blockState, final EnumFacing axis, final boolean forced) throws FlipException {
         final IProperty propertyFacing = BlockStateHelper.getProperty(blockState, "facing");
         if (propertyFacing instanceof PropertyDirection) {
@@ -115,32 +141,6 @@ public class FlipHelper {
         }
 
         return blockState;
-    }
-
-    private static EnumFacing getFlippedFacing(final EnumFacing axis, final EnumFacing side) {
-        if (axis.getAxis() == side.getAxis()) {
-            return side.getOpposite();
-        }
-
-        return side;
-    }
-
-    private static BlockLever.EnumOrientation getFlippedLeverFacing(final EnumFacing source, final BlockLever.EnumOrientation side) {
-        if (source.getAxis() != side.getFacing().getAxis()) {
-            return side;
-        }
-
-        final EnumFacing facing;
-        if (side == BlockLever.EnumOrientation.UP_Z || side == BlockLever.EnumOrientation.DOWN_Z) {
-            facing = EnumFacing.NORTH;
-        } else if (side == BlockLever.EnumOrientation.UP_X || side == BlockLever.EnumOrientation.DOWN_X) {
-            facing = EnumFacing.WEST;
-        } else {
-            facing = side.getFacing();
-        }
-
-        final EnumFacing facingFlipped = getFlippedFacing(source, side.getFacing());
-        return BlockLever.EnumOrientation.forFacings(facingFlipped, facing);
     }
 
     public static class FlipException extends Exception {

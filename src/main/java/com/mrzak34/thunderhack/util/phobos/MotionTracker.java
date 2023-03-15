@@ -1,7 +1,6 @@
 package com.mrzak34.thunderhack.util.phobos;
 
 import com.mojang.authlib.GameProfile;
-import net.minecraft.block.BlockFalling;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.world.World;
@@ -9,8 +8,7 @@ import net.minecraft.world.World;
 import java.util.List;
 import java.util.UUID;
 
-public class MotionTracker extends EntityPlayerNoInterp
-{
+public class MotionTracker extends EntityPlayerNoInterp {
     public double extraPosX;
     public double extraPosY;
     public double extraPosZ;
@@ -28,8 +26,7 @@ public class MotionTracker extends EntityPlayerNoInterp
     public double yMinusFactor = 1.0;
     public int ticks;
 
-    public MotionTracker(World worldIn, EntityPlayer from)
-    {
+    public MotionTracker(World worldIn, EntityPlayer from) {
         super(worldIn, new GameProfile(from.getGameProfile().getId(), "Motion-Tracker-" + from.getName()));
         this.tracked = from;
         this.setEntityId(from.getEntityId() * -1);
@@ -42,8 +39,7 @@ public class MotionTracker extends EntityPlayerNoInterp
         super(worldIn, new GameProfile(UUID.randomUUID(), "Motion-Tracker"));
     }
 
-    public void resetMotion()
-    {
+    public void resetMotion() {
         this.motionX = 0.0;
         this.motionY = 0.0;
         this.motionZ = 0.0;
@@ -65,8 +61,7 @@ public class MotionTracker extends EntityPlayerNoInterp
 
      */
 
-    public void updateFromTrackedEntity()
-    {
+    public void updateFromTrackedEntity() {
         this.motionX = tracked.motionX;
         this.motionY = tracked.motionY > 0.0 ? tracked.motionY * yPlusFactor : tracked.motionY * yMinusFactor;
         this.motionZ = tracked.motionZ;
@@ -76,44 +71,36 @@ public class MotionTracker extends EntityPlayerNoInterp
         }
 
         List<AxisAlignedBB> list1 = this.world.getCollisionBoxes(this, this.getEntityBoundingBox().expand(this.motionX, this.motionY, this.motionZ));
-        if (this.motionY != 0.0D)
-        {
+        if (this.motionY != 0.0D) {
             int k = 0;
 
-            for (int l = list1.size(); k < l; ++k)
-            {
+            for (int l = list1.size(); k < l; ++k) {
                 this.motionY = list1.get(k).calculateYOffset(this.getEntityBoundingBox(), this.motionY);
             }
 
             this.setEntityBoundingBox(this.getEntityBoundingBox().offset(0.0D, this.motionY, 0.0D));
         }
 
-        if (this.motionX != 0.0D)
-        {
+        if (this.motionX != 0.0D) {
             int j5 = 0;
 
-            for (int l5 = list1.size(); j5 < l5; ++j5)
-            {
+            for (int l5 = list1.size(); j5 < l5; ++j5) {
                 this.motionX = list1.get(j5).calculateXOffset(this.getEntityBoundingBox(), this.motionX);
             }
 
-            if (this.motionX != 0.0D)
-            {
+            if (this.motionX != 0.0D) {
                 this.setEntityBoundingBox(this.getEntityBoundingBox().offset(this.motionX, 0.0D, 0.0D));
             }
         }
 
-        if (motionY != 0.0D)
-        {
+        if (motionY != 0.0D) {
             int k5 = 0;
 
-            for (int i6 = list1.size(); k5 < i6; ++k5)
-            {
+            for (int i6 = list1.size(); k5 < i6; ++k5) {
                 this.motionZ = list1.get(k5).calculateZOffset(this.getEntityBoundingBox(), this.motionZ);
             }
 
-            if (this.motionZ != 0.0D)
-            {
+            if (this.motionZ != 0.0D) {
                 this.setEntityBoundingBox(this.getEntityBoundingBox().offset(0.0D, 0.0D, this.motionZ));
             }
         }
@@ -138,33 +125,28 @@ public class MotionTracker extends EntityPlayerNoInterp
     }
 
     @Override
-    public void onUpdate()
-    {
+    public void onUpdate() {
         // NOP
     }
 
     @Override
-    public void onLivingUpdate()
-    {
+    public void onLivingUpdate() {
         // NOP
     }
 
     @Override
-    public void setDead()
-    {
+    public void setDead() {
         this.isDead = true;
         this.dead = true;
     }
 
     @Override
-    public boolean isSpectator()
-    {
+    public boolean isSpectator() {
         return false;
     }
 
     @Override
-    public boolean isCreative()
-    {
+    public boolean isCreative() {
         return false;
     }
 

@@ -9,16 +9,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class NotificationManager extends Module {
+    private static final List<Notification> notificationsnew = new ArrayList<>();
+    private final Setting<Float> position = this.register(new Setting<>("Position", 1f, 0f, 1f));
+
     public NotificationManager() {
-super("Notifications", "aga", Category.CLIENT);
+        super("Notifications", "aga", Category.CLIENT);
     }
 
-    private Setting<Float> position = this.register( new Setting<>("Position", 1f, 0f, 1f));
-
-    private static final List<Notification> notificationsnew = new ArrayList<>();
-
     public static void publicity(String content, int second, Notification.Type type) {
-        notificationsnew.add(new Notification(content, type,second * 1000));
+        notificationsnew.add(new Notification(content, type, second * 1000));
     }
 
 

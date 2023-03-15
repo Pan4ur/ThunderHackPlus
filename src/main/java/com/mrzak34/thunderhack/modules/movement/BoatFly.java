@@ -2,83 +2,82 @@ package com.mrzak34.thunderhack.modules.movement;
 
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.command.Command;
-import com.mrzak34.thunderhack.events.EventPlayerTravel;;
+import com.mrzak34.thunderhack.events.EventPlayerTravel;
 import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.Util;
+import io.netty.util.internal.ConcurrentSet;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityBoat;
-import net.minecraft.network.play.client.CPacketInput;
-import net.minecraft.network.play.client.CPacketPlayer;
-import net.minecraft.network.play.client.CPacketVehicleMove;
-import net.minecraft.network.play.server.SPacketMoveVehicle;
-import net.minecraft.util.EnumHand;
 import net.minecraft.init.Blocks;
 import net.minecraft.inventory.ClickType;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.play.client.CPacketClickWindow;
-import net.minecraft.network.play.client.CPacketUseEntity;
-import net.minecraft.network.play.server.SPacketDisconnect;
-import net.minecraft.network.play.server.SPacketEntity;
-import net.minecraft.network.play.server.SPacketEntityAttach;
-import net.minecraft.network.play.server.SPacketPlayerPosLook;
+import net.minecraft.network.play.client.*;
+import net.minecraft.network.play.server.*;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
-import io.netty.util.internal.ConcurrentSet;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class BoatFly extends Module {
-    public BoatFly() {
-        super("BoatFly", "BoatFly", Category.MOVEMENT);
-    }
-
-
-    private Setting<Mode> mode  = this.register(new Setting("Mode", Mode.Packet));
-
-    public enum Mode {
-        Packet, Motion
-    }
-
-
-    private  Setting<Float> speed = this.register(new Setting<Float>("Speed", 2f, 0.0f, 45f));
-    private  Setting<Float> yspeed = this.register(new Setting<Float>("YSpeed", 1f, 0.0f, 10f));
-    private  Setting<Float> glidespeed = this.register(new Setting<Float>("GlideSpeed", 1f, 0.0f, 10f));
-    private  Setting<Float> timer = this.register(new Setting<Float>("Timer", 1f, 0.0f, 5f));
-    private  Setting<Float> height = this.register(new Setting<Float>("Height", 127f, 0.0f, 256f));
-    private  Setting<Float> offset = this.register(new Setting<Float>("Offset", 0.1f, 0.0f, 10f));
-    private Setting<Integer> enableticks = this.register(new Setting("EnableTicks", 10, 1, 100));
-    private Setting<Integer> waitticks = this.register(new Setting("WaitTicks", 10, 1, 100));
-
-
-    public  Setting<Boolean> strict = this.register(new Setting<>("Strict", false));
-    public  Setting<Boolean> limit = this.register(new Setting<>("Limit", true));
-    public  Setting<Boolean> phase = this.register(new Setting<>("Phase", true));
-    public  Setting<Boolean> gravity = this.register(new Setting<>("Gravity", true));
-
-
-    public  Setting<Boolean> ongroundpacket = this.register(new Setting<>("OnGroundPacket", false));
-    public  Setting<Boolean> spoofpackets = this.register(new Setting<>("SpoofPackets", false));
-    public  Setting<Boolean> cancelrotations = this.register(new Setting<>("CancelRotations", true));
-    public  Setting<Boolean> cancel = this.register(new Setting<>("Cancel", true));
-    public  Setting<Boolean> remount = this.register(new Setting<>("Remount", true));
-    public  Setting<Boolean> stop = this.register(new Setting<>("Stop", false));
-    public  Setting<Boolean> ylimit = this.register(new Setting<>("yLimit", false));
-    public  Setting<Boolean> debug = this.register(new Setting<>("Debug", true));
-    public  Setting<Boolean> automount = this.register(new Setting<>("AutoMount", true));
-    public  Setting<Boolean> stopunloaded = this.register(new Setting<>("StopUnloaded", true));
-
-
-
     private final ConcurrentSet Field2263 = new ConcurrentSet();
+    public Setting<Boolean> strict = this.register(new Setting<>("Strict", false));
+    public Setting<Boolean> limit = this.register(new Setting<>("Limit", true));
+    public Setting<Boolean> phase = this.register(new Setting<>("Phase", true));
+    public Setting<Boolean> gravity = this.register(new Setting<>("Gravity", true));
+    public Setting<Boolean> ongroundpacket = this.register(new Setting<>("OnGroundPacket", false));
+    public Setting<Boolean> spoofpackets = this.register(new Setting<>("SpoofPackets", false));
+    public Setting<Boolean> cancelrotations = this.register(new Setting<>("CancelRotations", true));
+    public Setting<Boolean> cancel = this.register(new Setting<>("Cancel", true));
+    public Setting<Boolean> remount = this.register(new Setting<>("Remount", true));
+    public Setting<Boolean> stop = this.register(new Setting<>("Stop", false));
+    public Setting<Boolean> ylimit = this.register(new Setting<>("yLimit", false));
+    public Setting<Boolean> debug = this.register(new Setting<>("Debug", true));
+    public Setting<Boolean> automount = this.register(new Setting<>("AutoMount", true));
+    public Setting<Boolean> stopunloaded = this.register(new Setting<>("StopUnloaded", true));
+    private final Setting<Mode> mode = this.register(new Setting("Mode", Mode.Packet));
+    private final Setting<Float> speed = this.register(new Setting<Float>("Speed", 2f, 0.0f, 45f));
+    private final Setting<Float> yspeed = this.register(new Setting<Float>("YSpeed", 1f, 0.0f, 10f));
+    private final Setting<Float> glidespeed = this.register(new Setting<Float>("GlideSpeed", 1f, 0.0f, 10f));
+    private final Setting<Float> timer = this.register(new Setting<Float>("Timer", 1f, 0.0f, 5f));
+    private final Setting<Float> height = this.register(new Setting<Float>("Height", 127f, 0.0f, 256f));
+    private final Setting<Float> offset = this.register(new Setting<Float>("Offset", 0.1f, 0.0f, 10f));
+    private final Setting<Integer> enableticks = this.register(new Setting("EnableTicks", 10, 1, 100));
+    private final Setting<Integer> waitticks = this.register(new Setting("WaitTicks", 10, 1, 100));
     private int Field2264 = 0;
     private int Field2265 = 0;
     private boolean Field2266 = false;
     private boolean Field2267 = false;
     private boolean Field2268 = false;
+    public BoatFly() {
+        super("BoatFly", "BoatFly", Category.MOVEMENT);
+    }
 
-
+    public static double[] Method1330(double d) {
+        float f = Util.mc.player.movementInput.moveForward;
+        float f2 = Util.mc.player.movementInput.moveStrafe;
+        float f3 = Util.mc.player.prevRotationYaw + (Util.mc.player.rotationYaw - Util.mc.player.prevRotationYaw) * Util.mc.getRenderPartialTicks();
+        if (f != 0.0f) {
+            if (f2 > 0.0f) {
+                f3 += (f > 0.0f ? -45 : 45);
+            } else if (f2 < 0.0f) {
+                f3 += (f > 0.0f ? 45 : -45);
+            }
+            f2 = 0.0f;
+            if (f > 0.0f) {
+                f = 1.0f;
+            } else if (f < 0.0f) {
+                f = -1.0f;
+            }
+        }
+        double d2 = Math.sin(Math.toRadians(f3 + 90.0f));
+        double d3 = Math.cos(Math.toRadians(f3 + 90.0f));
+        double d4 = f * d * d3 + f2 * d * d2;
+        double d5 = f * d * d2 - f2 * d * d3;
+        return new double[]{d4, d5};
+    }
 
     @Override
     public void onEnable() {
@@ -118,13 +117,13 @@ public class BoatFly extends Module {
     }
 
     private void Method2875(CPacketVehicleMove cPacketVehicleMove) {
-        this.Field2263.add((Object)cPacketVehicleMove);
+        this.Field2263.add(cPacketVehicleMove);
         Util.mc.player.connection.sendPacket(cPacketVehicleMove);
     }
 
     private void Method2876(Entity entity) {
         double d = entity.posY;
-        BlockPos blockPos = new BlockPos(entity.posX, (int)entity.posY, entity.posZ);
+        BlockPos blockPos = new BlockPos(entity.posX, (int) entity.posY, entity.posZ);
         for (int i = 0; i < 255; ++i) {
             if (!Util.mc.world.getBlockState(blockPos).getMaterial().isReplaceable() || Util.mc.world.getBlockState(blockPos).getBlock() == Blocks.WATER) {
                 entity.posY = blockPos.getY() + 1;
@@ -146,32 +145,6 @@ public class BoatFly extends Module {
             break;
         }
     }
-
-
-    public static double[] Method1330(double d) {
-        float f = Util.mc.player.movementInput.moveForward;
-        float f2 = Util.mc.player.movementInput.moveStrafe;
-        float f3 = Util.mc.player.prevRotationYaw + (Util.mc.player.rotationYaw - Util.mc.player.prevRotationYaw) * Util.mc.getRenderPartialTicks();
-        if (f != 0.0f) {
-            if (f2 > 0.0f) {
-                f3 += (f > 0.0f ? -45 : 45);
-            } else if (f2 < 0.0f) {
-                f3 += (f > 0.0f ? 45 : -45);
-            }
-            f2 = 0.0f;
-            if (f > 0.0f) {
-                f = 1.0f;
-            } else if (f < 0.0f) {
-                f = -1.0f;
-            }
-        }
-        double d2 = Math.sin(Math.toRadians(f3 + 90.0f));
-        double d3 = Math.cos(Math.toRadians(f3 + 90.0f));
-        double d4 = f * d * d3 + f2 * d * d2;
-        double d5 = f * d * d2 - f2 * d * d3;
-        return new double[]{d4, d5};
-    }
-
 
     @SubscribeEvent
     public void onPlayerTravel(EventPlayerTravel eventPlayerTravel) {
@@ -227,7 +200,7 @@ public class BoatFly extends Module {
         double d = entity.posX + dArray[0];
         double d2 = entity.posZ + dArray[1];
         double d3 = entity.posY;
-        if ((!Util.mc.world.isChunkGeneratedAt((int)d >> 4, (int)d2 >> 4) || entity.getPosition().getY() < 0) && (this.stopunloaded.getValue())) {
+        if ((!Util.mc.world.isChunkGeneratedAt((int) d >> 4, (int) d2 >> 4) || entity.getPosition().getY() < 0) && (this.stopunloaded.getValue())) {
             if (this.debug.getValue()) {
                 Command.sendMessage("Detected unloaded chunk!");
             }
@@ -273,10 +246,10 @@ public class BoatFly extends Module {
         }
         if ((this.spoofpackets.getValue())) {
             Vec3d vec3d = entity.getPositionVector().add(0.0, this.Method2874(), 0.0);
-            EntityBoat entityBoat = new EntityBoat((World)Util.mc.world, vec3d.x, vec3d.y, vec3d.z);
+            EntityBoat entityBoat = new EntityBoat(Util.mc.world, vec3d.x, vec3d.y, vec3d.z);
             entityBoat.rotationYaw = entity.rotationYaw;
             entityBoat.rotationPitch = entity.rotationPitch;
-            this.Method2875(new CPacketVehicleMove((Entity)entityBoat));
+            this.Method2875(new CPacketVehicleMove(entityBoat));
         }
         if ((this.remount.getValue())) {
             Util.mc.player.connection.sendPacket(new CPacketUseEntity(entity, EnumHand.MAIN_HAND));
@@ -287,7 +260,7 @@ public class BoatFly extends Module {
 
     @SubscribeEvent
     public void onPacketReceive(PacketEvent.Receive eventNetworkPrePacketEvent) {
-        if(fullNullCheck()){
+        if (fullNullCheck()) {
             return;
         }
         if (eventNetworkPrePacketEvent.getPacket() instanceof SPacketDisconnect) {
@@ -336,5 +309,9 @@ public class BoatFly extends Module {
                 eventNetworkPostPacketEvent.setCanceled(true);
             }
         }
+    }
+
+    public enum Mode {
+        Packet, Motion
     }
 }

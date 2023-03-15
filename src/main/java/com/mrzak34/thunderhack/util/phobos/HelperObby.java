@@ -15,17 +15,14 @@ import java.util.*;
 
 import static com.mrzak34.thunderhack.util.Util.mc;
 
-public class HelperObby
-{
-  //  private static final SettingCache<Float,Setting<Float>, Safety> MD = Caches.getSetting(Safety.class, NumberSetting.class, "MaxDamage", 4.0f);
+public class HelperObby {
+    //  private static final SettingCache<Float,Setting<Float>, Safety> MD = Caches.getSetting(Safety.class, NumberSetting.class, "MaxDamage", 4.0f);
 
+    private final AutoCrystal module;
     //TODO SETTING
     float MD = 4f;
 
-    private final AutoCrystal module;
-
-    public HelperObby(AutoCrystal module)
-    {
+    public HelperObby(AutoCrystal module) {
         this.module = module;
     }
 
@@ -34,44 +31,35 @@ public class HelperObby
                                          List<EntityPlayer> friends,
                                          List<Entity> entities,
                                          EntityPlayer target,
-                                         boolean newVer)
-    {
+                                         boolean newVer) {
         double maxY = 0;
         List<EntityPlayer> filteredPlayers = new LinkedList<>();
-        for (EntityPlayer player : players)
-        {
+        for (EntityPlayer player : players) {
             if (player == null
                     || EntityUtil.isDead(player)
                     || player.posY > mc.player.posY + 18
                     || player.getDistanceSq(mc.player)
-                    > MathUtil.square(module.targetRange.getValue()))
-            {
+                    > MathUtil.square(module.targetRange.getValue())) {
                 continue;
             }
 
             filteredPlayers.add(player);
-            if (player.posY > maxY)
-            {
+            if (player.posY > maxY) {
                 maxY = player.posY;
             }
         }
 
         int fastObby = module.fastObby.getValue();
-        if (fastObby != 0)
-        {
+        if (fastObby != 0) {
             Set<BlockPos> positions;
-            if (target != null)
-            {
+            if (target != null) {
                 positions = new HashSet<>((int) (4 * fastObby / 0.75) + 1);
                 addPositions(positions, target, fastObby);
-            }
-            else
-            {
+            } else {
                 positions = new HashSet<>((int)
                         (filteredPlayers.size() * 4 * fastObby / 0.75 + 1));
 
-                for (EntityPlayer player : filteredPlayers)
-                {
+                for (EntityPlayer player : filteredPlayers) {
                     addPositions(positions, player, fastObby);
                 }
             }
@@ -85,29 +73,24 @@ public class HelperObby
         float maxSelfDamage = 0.0f;
         PositionData bestData = null;
 
-        for (PositionData positionData : obbyData.values())
-        {
-            if (positionData.isBlocked())
-            {
+        for (PositionData positionData : obbyData.values()) {
+            if (positionData.isBlocked()) {
                 // TODO: Implement ObbyFallback here!
                 continue;
             }
 
             BlockPos pos = positionData.getPos();
-            if (pos.getY() >= maxY)
-            {
+            if (pos.getY() >= maxY) {
                 continue;
             }
 
             float self = Float.MAX_VALUE;
             boolean preSelf = module.obbyPreSelf.getValue();
             IBlockStateHelper helper = new BlockStateHelper(new HashMap<>());
-            if (preSelf)
-            {
+            if (preSelf) {
                 helper.addBlockState(pos, Blocks.OBSIDIAN.getDefaultState());
                 self = module.damageHelper.getObbyDamage(pos, helper);
-                if (checkSelfDamage(self))
-                {
+                if (checkSelfDamage(self)) {
                     continue;
                 }
 
@@ -118,27 +101,22 @@ public class HelperObby
             //  use the 2 blocks above as path if possible
             BlockPos[] ignore = new BlockPos[newVer ? 1 : 2];
             ignore[0] = pos.up();
-            if (!newVer)
-            {
+            if (!newVer) {
                 ignore[1] = pos.up(2);
             }
 
-            if (module.interact.getValue())
-            {
+            if (module.interact.getValue()) {
                 AutoCrystal.RayTraceMode mode = module.obbyTrace.getValue();
-                for (EnumFacing facing : EnumFacing.values())
-                {
+                for (EnumFacing facing : EnumFacing.values()) {
                     BlockPos offset = pos.offset(facing);
                     if (BlockUtils.getDistanceSq(offset)
-                            >= MathUtil.square(module.placeRange.getValue()))
-                    {
+                            >= MathUtil.square(module.placeRange.getValue())) {
                         continue;
                     }
 
                     IBlockState state = mc.world.getBlockState(offset);
                     if (state.getMaterial().isReplaceable()
-                            && !state.getMaterial().isLiquid())
-                    {
+                            && !state.getMaterial().isLiquid()) {
                         continue;
                     }
 
@@ -152,14 +130,12 @@ public class HelperObby
                                     ? -1.0
                                     : 2.0);
 
-                    if (!ray.isLegit() && mode == AutoCrystal.RayTraceMode.Smart)
-                    {
+                    if (!ray.isLegit() && mode == AutoCrystal.RayTraceMode.Smart) {
                         continue;
                     }
 
                     if (module.inside.getValue()
-                            && state.getMaterial().isLiquid())
-                    {
+                            && state.getMaterial().isLiquid()) {
                         ray.getResult().sideHit = ray.getResult().sideHit
                                 .getOpposite();
                         ray = new Ray(ray.getResult(),
@@ -175,8 +151,7 @@ public class HelperObby
                 }
             }
 
-            if (!positionData.isValid())
-            {
+            if (!positionData.isValid()) {
                 PathFinder.findPath(
                         positionData,
                         module.placeRange.getValue(),
@@ -190,13 +165,11 @@ public class HelperObby
 
             if (!positionData.isValid()
                     || positionData.getPath() == null
-                    || positionData.getPath().length > maxPath)
-            {
+                    || positionData.getPath().length > maxPath) {
                 continue;
             }
 
-            for (Ray ray : positionData.getPath())
-            {
+            for (Ray ray : positionData.getPath()) {
                 helper.addBlockState(ray.getPos().offset(ray.getFacing()),
                         Blocks.OBSIDIAN.getDefaultState());
             }
@@ -204,51 +177,40 @@ public class HelperObby
             if (!preSelf) // result can only deal less now
             {
                 self = module.damageHelper.getObbyDamage(pos, helper);
-                if (checkSelfDamage(self))
-                {
+                if (checkSelfDamage(self)) {
                     continue;
                 }
 
                 positionData.setSelfDamage(self);
             }
 
-            if (module.shouldCalcFuckinBitch(AutoCrystal.AntiFriendPop.Place))
-            {
+            if (module.shouldCalcFuckinBitch(AutoCrystal.AntiFriendPop.Place)) {
                 boolean poppingFriend = false;
-                for (EntityPlayer friend : friends)
-                {
+                for (EntityPlayer friend : friends) {
                     float damage = module.damageHelper
                             .getObbyDamage(pos, friend, helper);
-                    if (damage > EntityUtil.getHealth(friend))
-                    {
+                    if (damage > EntityUtil.getHealth(friend)) {
                         poppingFriend = true;
                         break;
                     }
                 }
 
-                if (poppingFriend)
-                {
+                if (poppingFriend) {
                     continue;
                 }
             }
 
             float damage = 0.0f;
-            if (target != null)
-            {
+            if (target != null) {
                 positionData.setTarget(target);
                 damage = module.damageHelper.getObbyDamage(pos, target, helper);
-                if (damage < module.minDamage.getValue())
-                {
+                if (damage < module.minDamage.getValue()) {
                     continue;
                 }
-            }
-            else
-            {
-                for (EntityPlayer p : filteredPlayers)
-                {
+            } else {
+                for (EntityPlayer p : filteredPlayers) {
                     float d = module.damageHelper.getObbyDamage(pos, p, helper);
-                    if (d < module.minDamage.getValue() || d < damage)
-                    {
+                    if (d < module.minDamage.getValue() || d < damage) {
                         continue;
                     }
 
@@ -257,15 +219,13 @@ public class HelperObby
                 }
             }
 
-            if (damage < module.minDamage.getValue())
-            {
+            if (damage < module.minDamage.getValue()) {
                 continue;
             }
 
             positionData.setDamage(damage);
             int length = positionData.getPath().length;
-            if (bestData == null)
-            {
+            if (bestData == null) {
                 bestData = positionData;
                 maxDamage = damage;
                 maxSelfDamage = self;
@@ -279,21 +239,17 @@ public class HelperObby
             // meh way of getting a good position but whatever
             if (betterLen && damage > maxDamage
                     || betterDmg && length < shortest
-                    || betterDmg && length == shortest && self < maxSelfDamage)
-            {
+                    || betterDmg && length == shortest && self < maxSelfDamage) {
                 bestData = positionData;
-                if (length < shortest)
-                {
+                if (length < shortest) {
                     shortest = length;
                 }
 
-                if (damage > maxDamage)
-                {
+                if (damage > maxDamage) {
                     maxDamage = damage;
                 }
 
-                if (self < maxSelfDamage)
-                {
+                if (self < maxSelfDamage) {
                     maxSelfDamage = self;
                 }
             }
@@ -304,32 +260,26 @@ public class HelperObby
 
     private void addPositions(Set<BlockPos> positions,
                               EntityPlayer player,
-                              int fastObby)
-    {
+                              int fastObby) {
         BlockPos down = (player.getPosition()).down();
-        for (EnumFacing facing : EnumFacing.HORIZONTALS)
-        {
+        for (EnumFacing facing : EnumFacing.HORIZONTALS) {
             BlockPos offset = down;
-            for (int i = 0; i < fastObby; i++)
-            {
+            for (int i = 0; i < fastObby; i++) {
                 offset = offset.offset(facing);
                 positions.add(offset);
             }
         }
     }
 
-    private boolean checkSelfDamage(float self)
-    {
-     //   if (self > MD.getValue() && module.obbySafety.getValue())
-    //    {
-          //  Managers.SAFETY.setSafe(false);
-      //  }
+    private boolean checkSelfDamage(float self) {
+        //   if (self > MD.getValue() && module.obbySafety.getValue())
+        //    {
+        //  Managers.SAFETY.setSafe(false);
+        //  }
 
-        if (self > EntityUtil.getHealth(mc.player) - 1.0)
-        {
-            if (module.obbySafety.getValue())
-            {
-            //    Managers.SAFETY.setSafe(false);
+        if (self > EntityUtil.getHealth(mc.player) - 1.0) {
+            if (module.obbySafety.getValue()) {
+                //    Managers.SAFETY.setSafe(false);
             }
 
             return true;

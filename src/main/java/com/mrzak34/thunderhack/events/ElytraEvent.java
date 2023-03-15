@@ -7,7 +7,7 @@ import net.minecraftforge.fml.common.eventhandler.Event;
 @Cancelable
 public class ElytraEvent extends Event {
 
-    private Entity entity;
+    private final Entity entity;
 
     public ElytraEvent(Entity entity) {
         this.entity = entity;

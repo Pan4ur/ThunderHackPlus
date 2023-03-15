@@ -12,8 +12,6 @@ public class WTap extends Module {
     }
 
 
-
-
     @SubscribeEvent
     public void onSendPacket(PacketEvent event) {
         if (event.getPacket() instanceof CPacketUseEntity) {

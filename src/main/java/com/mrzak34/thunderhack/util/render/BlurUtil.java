@@ -1,12 +1,14 @@
 package com.mrzak34.thunderhack.util.render;
 
 
-import net.minecraft.client.renderer.*;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.shader.Framebuffer;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.opengl.EXTFramebufferObject;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
+
 import java.nio.FloatBuffer;
 
 import static com.mrzak34.thunderhack.util.Util.mc;
@@ -20,7 +22,7 @@ public class BlurUtil {
     public static void uninitStencilBuffer() {
         GL11.glDisable(2960);
     }
-    
+
     public static void drawBlur(float radius, Runnable data) {
         BlurUtil.initStencilToWrite();
         data.run();
@@ -28,6 +30,7 @@ public class BlurUtil {
         BlurUtil.renderBlur(radius);
         BlurUtil.uninitStencilBuffer();
     }
+
     public static void renderBlur(float radius) {
         GlStateManager.enableBlend();
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
@@ -50,18 +53,20 @@ public class BlurUtil {
         GlStateManager.resetColor();
         GlStateManager.bindTexture(0);
     }
+
     public static void bindTexture(int texture) {
         GL11.glBindTexture(3553, texture);
     }
+
     public static void setupUniforms(float dir1, float dir2, float radius) {
-        blurShader.setUniformi("textureIn", new int[]{0});
-        blurShader.setUniformf("texelSize", new float[]{1.0F / (float)mc.displayWidth, 1.0F / (float)mc.displayHeight});
-        blurShader.setUniformf("direction", new float[]{dir1, dir2});
-        blurShader.setUniformf("radius", new float[]{radius});
+        blurShader.setUniformi("textureIn", 0);
+        blurShader.setUniformf("texelSize", 1.0F / (float) mc.displayWidth, 1.0F / (float) mc.displayHeight);
+        blurShader.setUniformf("direction", dir1, dir2);
+        blurShader.setUniformf("radius", radius);
         FloatBuffer weightBuffer = BufferUtils.createFloatBuffer(256);
 
-        for(int i = 0; (float)i <= radius; ++i) {
-            weightBuffer.put(calculateGaussianValue((float)i, radius / 2.0F));
+        for (int i = 0; (float) i <= radius; ++i) {
+            weightBuffer.put(calculateGaussianValue((float) i, radius / 2.0F));
         }
 
         weightBuffer.rewind();
@@ -70,8 +75,8 @@ public class BlurUtil {
 
     public static float calculateGaussianValue(float x, float sigma) {
         double PI = 3.141592653;
-        double output = 1.0 / Math.sqrt(2.0 * PI * (double)(sigma * sigma));
-        return (float)(output * Math.exp((double)(-(x * x)) / (2.0 * (double)(sigma * sigma))));
+        double output = 1.0 / Math.sqrt(2.0 * PI * (double) (sigma * sigma));
+        return (float) (output * Math.exp((double) (-(x * x)) / (2.0 * (double) (sigma * sigma))));
     }
 
     public static Framebuffer createFrameBuffer(Framebuffer framebuffer) {
@@ -85,6 +90,7 @@ public class BlurUtil {
             return new Framebuffer(mc.displayWidth, mc.displayHeight, true);
         }
     }
+
     public static void initStencilToWrite() {
         mc.getFramebuffer().bindFramebuffer(false);
         checkSetupFBO(mc.getFramebuffer());
@@ -101,6 +107,7 @@ public class BlurUtil {
             framebuffer.depthBuffer = -1;
         }
     }
+
     public static void setupFBO(Framebuffer framebuffer) {
         EXTFramebufferObject.glDeleteRenderbuffersEXT(framebuffer.depthBuffer);
         int stencilDepthBufferID = EXTFramebufferObject.glGenRenderbuffersEXT();

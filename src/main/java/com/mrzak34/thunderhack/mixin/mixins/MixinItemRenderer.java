@@ -1,4 +1,5 @@
 package com.mrzak34.thunderhack.mixin.mixins;
+
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.events.RenderItemEvent;
 import com.mrzak34.thunderhack.modules.combat.Aura;
@@ -26,94 +27,88 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import static com.mrzak34.thunderhack.util.Util.mc;
 
-@Mixin(value = {ItemRenderer.class},priority = 9998)
+@Mixin(value = {ItemRenderer.class}, priority = 9998)
 public abstract
 class MixinItemRenderer {
 
 
-    @Inject(method = {"transformSideFirstPerson"}, at = {@At(value = "HEAD")}, cancellable = true)
-    public void transformSideFirstPersonHook ( EnumHandSide hand , float p_187459_2_ , CallbackInfo cancel ) {
-        RenderItemEvent event = new RenderItemEvent (0f , 0f , 0f , 0f , 0f , 0f , 0.0f , 0.0f , 1.0f , 0.0f , 0.0f , 0.0f , 1.0f , 1.0f , 1.0f , 1.0f , 1.0f, 1.0f);
-        MinecraftForge.EVENT_BUS.post ( event );
-        if ( ViewModel.getInstance ( ).isEnabled ( ) ) {
-            boolean bob = ViewModel.getInstance ( ).isDisabled ( ) || ViewModel.getInstance ( ).doBob.getValue ( );
-            int i = hand == EnumHandSide.RIGHT ? 1 : - 1;
+    @Shadow
+    public ItemStack itemStackOffHand;
+    @Shadow
+    public float prevEquippedProgressMainHand;
+    @Shadow
+    public float equippedProgressMainHand;
+    private float spin;
 
-            if(!ViewModel.getInstance().XBob.getValue()) {
+    @Inject(method = {"transformSideFirstPerson"}, at = {@At(value = "HEAD")}, cancellable = true)
+    public void transformSideFirstPersonHook(EnumHandSide hand, float p_187459_2_, CallbackInfo cancel) {
+        RenderItemEvent event = new RenderItemEvent(0f, 0f, 0f, 0f, 0f, 0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
+        MinecraftForge.EVENT_BUS.post(event);
+        if (ViewModel.getInstance().isEnabled()) {
+            boolean bob = ViewModel.getInstance().isDisabled() || ViewModel.getInstance().doBob.getValue();
+            int i = hand == EnumHandSide.RIGHT ? 1 : -1;
+
+            if (!ViewModel.getInstance().XBob.getValue()) {
                 GlStateManager.translate((float) i * 0.56F, -0.52F + (bob ? p_187459_2_ : 0) * -0.6F, -0.72F);
             } else {
                 GlStateManager.translate((float) i * 0.56F, -0.52F, -0.72F - (p_187459_2_ * -ViewModel.getInstance().zbobcorr.getValue()));
             }
 
-            if ( hand == EnumHandSide.RIGHT ) {
-                GlStateManager.translate ( event.getMainX ( ) , event.getMainY ( ) , event.getMainZ ( ) );
-                RenderUtil.rotationHelper ( (float) event.getMainRotX ( ) , (float) event.getMainRotY ( ) , (float) event.getMainRotZ ( ) );
+            if (hand == EnumHandSide.RIGHT) {
+                GlStateManager.translate(event.getMainX(), event.getMainY(), event.getMainZ());
+                RenderUtil.rotationHelper(event.getMainRotX(), event.getMainRotY(), event.getMainRotZ());
             } else {
-                GlStateManager.translate ( event.getOffX ( ) , event.getOffY ( ) , event.getOffZ ( ) );
-                RenderUtil.rotationHelper ( (float) event.getOffRotX ( ) , (float) event.getOffRotY ( ) , (float) event.getOffRotZ ( ) );
+                GlStateManager.translate(event.getOffX(), event.getOffY(), event.getOffZ());
+                RenderUtil.rotationHelper(event.getOffRotX(), event.getOffRotY(), event.getOffRotZ());
             }
-            cancel.cancel ( );
+            cancel.cancel();
         }
     }
 
-
     @Inject(method = {"renderFireInFirstPerson"}, at = {@At(value = "HEAD")}, cancellable = true)
-    public
-    void renderFireInFirstPersonHook ( CallbackInfo info ) {
-        if ( NoRender.getInstance ( ).isOn ( ) && NoRender.getInstance ( ).fire.getValue ( ) ) {
-            info.cancel ( );
+    public void renderFireInFirstPersonHook(CallbackInfo info) {
+        if (NoRender.getInstance().isOn() && NoRender.getInstance().fire.getValue()) {
+            info.cancel();
         }
     }
 
     @Inject(method = {"transformEatFirstPerson"}, at = {@At(value = "HEAD")}, cancellable = true)
-    private
-    void transformEatFirstPersonHook ( float p_187454_1_ , EnumHandSide hand , ItemStack stack , CallbackInfo cancel ) {
-        if ( ViewModel.getInstance ( ).isEnabled ( ) ) {
-            if ( ! ViewModel.getInstance ( ).noEatAnimation.getValue ( ) ) {
-                float f = (float) Minecraft.getMinecraft ( ).player.getItemInUseCount ( ) - p_187454_1_ + 1.0F;
-                float f1 = f / (float) stack.getMaxItemUseDuration ( );
+    private void transformEatFirstPersonHook(float p_187454_1_, EnumHandSide hand, ItemStack stack, CallbackInfo cancel) {
+        if (ViewModel.getInstance().isEnabled()) {
+            if (!ViewModel.getInstance().noEatAnimation.getValue()) {
+                float f = (float) Minecraft.getMinecraft().player.getItemInUseCount() - p_187454_1_ + 1.0F;
+                float f1 = f / (float) stack.getMaxItemUseDuration();
                 float f3;
-                if ( f1 < 0.8F ) {
-                    f3 = MathHelper.abs ( MathHelper.cos ( f / 4.0F * 3.1415927F ) * 0.1F );
-                    GlStateManager.translate ( 0.0F , f3 , 0.0F );
+                if (f1 < 0.8F) {
+                    f3 = MathHelper.abs(MathHelper.cos(f / 4.0F * 3.1415927F) * 0.1F);
+                    GlStateManager.translate(0.0F, f3, 0.0F);
                 }
-                if(Thunderhack.class.getName().length() != 35){
+                if (Thunderhack.class.getName().length() != 35) {
                     Minecraft.getMinecraft().shutdown();
                 }
-                f3 = 1.0F - (float) Math.pow ( f1 , 27.0D );
-                int i = hand == EnumHandSide.RIGHT ? 1 : - 1;
-                GlStateManager.translate ( f3 * 0.6F * (float) i * ViewModel.getInstance ( ).eatX.getValue ( ) , f3 * 0.5F * - ViewModel.getInstance ( ).eatY.getValue ( ) , 0.0F );
-                GlStateManager.rotate ( (float) i * f3 * 90.0F , 0.0F , 1.0F , 0.0F );
-                GlStateManager.rotate ( f3 * 10.0F , 1.0F , 0.0F , 0.0F );
-                GlStateManager.rotate ( (float) i * f3 * 30.0F , 0.0F , 0.0F , 1.0F );
+                f3 = 1.0F - (float) Math.pow(f1, 27.0D);
+                int i = hand == EnumHandSide.RIGHT ? 1 : -1;
+                GlStateManager.translate(f3 * 0.6F * (float) i * ViewModel.getInstance().eatX.getValue(), f3 * 0.5F * -ViewModel.getInstance().eatY.getValue(), 0.0F);
+                GlStateManager.rotate((float) i * f3 * 90.0F, 0.0F, 1.0F, 0.0F);
+                GlStateManager.rotate(f3 * 10.0F, 1.0F, 0.0F, 0.0F);
+                GlStateManager.rotate((float) i * f3 * 30.0F, 0.0F, 0.0F, 1.0F);
             }
-            cancel.cancel ( );
+            cancel.cancel();
         }
     }
 
     @Inject(method = {"renderSuffocationOverlay"}, at = {@At(value = "HEAD")}, cancellable = true)
-    public
-    void renderSuffocationOverlay ( CallbackInfo ci ) {
-        if ( NoRender.getInstance ( ).isOn ( ) && NoRender.getInstance ( ).blocks.getValue ( ) ) {
-            ci.cancel ( );
+    public void renderSuffocationOverlay(CallbackInfo ci) {
+        if (NoRender.getInstance().isOn() && NoRender.getInstance().blocks.getValue()) {
+            ci.cancel();
         }
     }
-
-
-    @Shadow
-    public ItemStack itemStackOffHand;
 
     @Shadow
     protected abstract void transformSideFirstPerson(EnumHandSide hand, float p_187459_2_);
 
     @Shadow
     protected abstract void renderArmFirstPerson(float p_187456_1_, float p_187456_2_, EnumHandSide p_187456_3_);
-
-    @Shadow
-    public float prevEquippedProgressMainHand;
-
-    @Shadow
-    public float equippedProgressMainHand;
 
     @Shadow
     protected abstract void transformEatFirstPerson(float p_187454_1_, EnumHandSide hand, ItemStack stack);
@@ -130,15 +125,12 @@ class MixinItemRenderer {
     @Shadow
     protected abstract void renderMapFirstPerson(float p_187463_1_, float p_187463_2_, float p_187463_3_);
 
-    private float spin;
-
-
-    @Inject(method = { "renderItemInFirstPerson(Lnet/minecraft/client/entity/AbstractClientPlayer;FFLnet/minecraft/util/EnumHand;FLnet/minecraft/item/ItemStack;F)V" }, at = { @At("HEAD") }, cancellable = true)
-    public void renderItemInFirstPersonHook(AbstractClientPlayer p_187457_1_, float p_187457_2_, float p_187457_3_, EnumHand p_187457_4_, float p_187457_5_, ItemStack p_187457_6_, float p_187457_7_,CallbackInfo ci) {
-            if(Thunderhack.moduleManager.getModuleByClass(Animations.class).isEnabled()){
-                ci.cancel();
-                renderAnimations(p_187457_1_,p_187457_2_,p_187457_3_,p_187457_4_,p_187457_5_,p_187457_6_,p_187457_7_);
-            }
+    @Inject(method = {"renderItemInFirstPerson(Lnet/minecraft/client/entity/AbstractClientPlayer;FFLnet/minecraft/util/EnumHand;FLnet/minecraft/item/ItemStack;F)V"}, at = {@At("HEAD")}, cancellable = true)
+    public void renderItemInFirstPersonHook(AbstractClientPlayer p_187457_1_, float p_187457_2_, float p_187457_3_, EnumHand p_187457_4_, float p_187457_5_, ItemStack p_187457_6_, float p_187457_7_, CallbackInfo ci) {
+        if (Thunderhack.moduleManager.getModuleByClass(Animations.class).isEnabled()) {
+            ci.cancel();
+            renderAnimations(p_187457_1_, p_187457_2_, p_187457_3_, p_187457_4_, p_187457_5_, p_187457_6_, p_187457_7_);
+        }
     }
 
 
@@ -212,7 +204,7 @@ class MixinItemRenderer {
                 float equipProgress = 1.0f - (prevEquippedProgressMainHand + (equippedProgressMainHand - prevEquippedProgressMainHand) * p_187457_2_);
                 float swingprogress = mc.player.getSwingProgress(p_187457_2_);
                 Animations.rmode mode = Thunderhack.moduleManager.getModuleByClass(Animations.class).rMode.getValue();
-                if(Thunderhack.moduleManager.getModuleByClass(Animations.class).isEnabled() && Thunderhack.moduleManager.getModuleByClass(Animations.class).rMode.getValue() != Animations.rmode.Slow) {
+                if (Thunderhack.moduleManager.getModuleByClass(Animations.class).isEnabled() && Thunderhack.moduleManager.getModuleByClass(Animations.class).rMode.getValue() != Animations.rmode.Slow) {
                     if (Thunderhack.moduleManager.getModuleByClass(Animations.class).isEnabled() && !Thunderhack.moduleManager.getModuleByClass(Animations.class).auraOnly.getValue() || Thunderhack.moduleManager.getModuleByClass(Animations.class).isEnabled() && Thunderhack.moduleManager.getModuleByClass(Aura.class).isEnabled() && Thunderhack.moduleManager.getModuleByClass(Aura.class).target != null) {
                         if (Thunderhack.moduleManager.getModuleByClass(Animations.class).isEnabled() && !Thunderhack.moduleManager.getModuleByClass(Animations.class).auraOnly.getValue() || Thunderhack.moduleManager.getModuleByClass(Animations.class).isEnabled() && Thunderhack.moduleManager.getModuleByClass(Aura.class).isEnabled() && Thunderhack.moduleManager.getModuleByClass(Aura.class).target != null) {
                             if (enumhandside != (mc.gameSettings.mainHand.equals(EnumHandSide.LEFT) ? EnumHandSide.RIGHT : EnumHandSide.LEFT)) {
@@ -295,8 +287,7 @@ class MixinItemRenderer {
                         transformSideFirstPerson(enumhandside, p_187457_7_);
                         transformFirstPerson(enumhandside, p_187457_5_);
                     }
-                }
-                else {
+                } else {
                     GlStateManager.translate((float) i * f, f1, f2);
                     transformSideFirstPerson(enumhandside, p_187457_7_);
                     transformFirstPerson(enumhandside, p_187457_5_);
@@ -309,31 +300,31 @@ class MixinItemRenderer {
 
 
     private void transformSideFirstPerson2(EnumHandSide enumHandSide, float p_187459_2_) {
-        RenderItemEvent event = new RenderItemEvent (
-                0f , 0f , 0f ,
-                0f , 0f , 0f ,
-                0.0f , 0.0f , 1.0f ,
-                0.0f , 0.0f , 0.0f ,
-                1.0f , 1.0f , 1.0f , 1.0f ,
+        RenderItemEvent event = new RenderItemEvent(
+                0f, 0f, 0f,
+                0f, 0f, 0f,
+                0.0f, 0.0f, 1.0f,
+                0.0f, 0.0f, 0.0f,
+                1.0f, 1.0f, 1.0f, 1.0f,
                 1.0f, 1.0f
         );
-        MinecraftForge.EVENT_BUS.post ( event );
-        if ( ViewModel.getInstance ( ).isEnabled ( ) ) {
-            boolean bob = ViewModel.getInstance ( ).isDisabled ( ) || ViewModel.getInstance ( ).doBob.getValue ( );
-            int i = enumHandSide == EnumHandSide.RIGHT ? 1 : - 1;
+        MinecraftForge.EVENT_BUS.post(event);
+        if (ViewModel.getInstance().isEnabled()) {
+            boolean bob = ViewModel.getInstance().isDisabled() || ViewModel.getInstance().doBob.getValue();
+            int i = enumHandSide == EnumHandSide.RIGHT ? 1 : -1;
 
-            if(!ViewModel.getInstance().XBob.getValue()) {
+            if (!ViewModel.getInstance().XBob.getValue()) {
                 GlStateManager.translate((float) i * 0.56F, -0.52F + (bob ? p_187459_2_ : 0) * -0.6F, -0.72F);
             } else {
                 GlStateManager.translate((float) i * 0.56F, -0.52F, -0.72F - (p_187459_2_ * -ViewModel.getInstance().zbobcorr.getValue()));
             }
 
-            if ( enumHandSide == EnumHandSide.RIGHT ) {
-                GlStateManager.translate ( event.getMainX ( ) , event.getMainY ( ) , event.getMainZ ( ) );
-                RenderUtil.rotationHelper ( (float) event.getMainRotX ( ) , (float) event.getMainRotY ( ) , (float) event.getMainRotZ ( ) );
+            if (enumHandSide == EnumHandSide.RIGHT) {
+                GlStateManager.translate(event.getMainX(), event.getMainY(), event.getMainZ());
+                RenderUtil.rotationHelper(event.getMainRotX(), event.getMainRotY(), event.getMainRotZ());
             } else {
-                GlStateManager.translate ( event.getOffX ( ) , event.getOffY ( ) , event.getOffZ ( ) );
-                RenderUtil.rotationHelper ( (float) event.getOffRotX ( ) , (float) event.getOffRotY ( ) , (float) event.getOffRotZ ( ) );
+                GlStateManager.translate(event.getOffX(), event.getOffY(), event.getOffZ());
+                RenderUtil.rotationHelper(event.getOffRotX(), event.getOffRotY(), event.getOffRotZ());
             }
         }
         int i = enumHandSide == EnumHandSide.RIGHT ? 1 : -1;
@@ -341,19 +332,19 @@ class MixinItemRenderer {
     }
 
     private void transformFirstPersonItem(final float equipProgress, final float swingProgress) {
-        RenderItemEvent event = new RenderItemEvent (0f , 0f , 0f , 0f , 0f , 0f , 0.0f , 0.0f , 1.0f , 0.0f , 0.0f , 0.0f , 1.0f , 1.0f , 1.0f , 1.0f , 1.0f, 1.0f);
-        MinecraftForge.EVENT_BUS.post ( event );
-        if ( ViewModel.getInstance ( ).isEnabled ( ) ) {
-            boolean bob = ViewModel.getInstance ( ).isDisabled ( ) || ViewModel.getInstance ( ).doBob.getValue ( );
+        RenderItemEvent event = new RenderItemEvent(0f, 0f, 0f, 0f, 0f, 0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
+        MinecraftForge.EVENT_BUS.post(event);
+        if (ViewModel.getInstance().isEnabled()) {
+            boolean bob = ViewModel.getInstance().isDisabled() || ViewModel.getInstance().doBob.getValue();
 
 
-            if(!ViewModel.getInstance().XBob.getValue()) {
-                GlStateManager.translate((float) 0.56F, -0.52F + (bob ? equipProgress : 0) * -0.6F, -0.72F);
+            if (!ViewModel.getInstance().XBob.getValue()) {
+                GlStateManager.translate(0.56F, -0.52F + (bob ? equipProgress : 0) * -0.6F, -0.72F);
             } else {
-                GlStateManager.translate((float) 0.56F, -0.52F, -0.72F - (equipProgress * -ViewModel.getInstance().zbobcorr.getValue()));
+                GlStateManager.translate(0.56F, -0.52F, -0.72F - (equipProgress * -ViewModel.getInstance().zbobcorr.getValue()));
             }
-            GlStateManager.translate ( event.getMainX ( ) , event.getMainY ( ) , event.getMainZ ( ) );
-            RenderUtil.rotationHelper ( (float) event.getMainRotX ( ) , (float) event.getMainRotY ( ) , (float) event.getMainRotZ ( ) );
+            GlStateManager.translate(event.getMainX(), event.getMainY(), event.getMainZ());
+            RenderUtil.rotationHelper(event.getMainRotX(), event.getMainRotY(), event.getMainRotZ());
         }
         GlStateManager.translate(0.56f, -0.44F, -0.71999997f);
         GlStateManager.translate(0.0f, equipProgress * -0.6f, 0.0f);
@@ -365,7 +356,6 @@ class MixinItemRenderer {
         GlStateManager.rotate(f2 * -80.0f, 0.01f, 0.0f, 0.0f);
         GlStateManager.translate(0.4f, 0.2f, 0.2f);
     }
-
 
 
     private void translate() {
@@ -389,7 +379,6 @@ class MixinItemRenderer {
     private void translate2() {
         GlStateManager.rotate(50, 10.0f, 0, 0.0f);
     }
-
 
 
 }

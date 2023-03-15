@@ -8,14 +8,11 @@ import com.mrzak34.thunderhack.setting.SubBind;
 
 
 public class SubBindElement extends AbstractElement {
+    public boolean isListening;
+
     public SubBindElement(Setting setting) {
         super(setting);
     }
-
-    public boolean isListening;
-
-
-
 
     @Override
     public void render(int mouseX, int mouseY, float delta) {

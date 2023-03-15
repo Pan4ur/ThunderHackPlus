@@ -2,27 +2,29 @@ package com.mrzak34.thunderhack.util.shaders.impl.outline;
 
 
 import com.mrzak34.thunderhack.util.shaders.FramebufferShader;
-import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
 
-
 import java.awt.*;
 import java.util.HashMap;
-import java.util.function.Predicate;
 
-public final class GlowShader extends FramebufferShader
-{
+public final class GlowShader extends FramebufferShader {
     public static final GlowShader INSTANCE;
+
+    static {
+        INSTANCE = new GlowShader();
+    }
+
     public float time = 0;
 
     public GlowShader() {
         super("glow.frag");
     }
 
-    @Override public void setupUniforms() {
+    @Override
+    public void setupUniforms() {
         this.setupUniform("texture");
         this.setupUniform("texelSize");
         this.setupUniform("color");
@@ -42,23 +44,21 @@ public final class GlowShader extends FramebufferShader
         GL20.glUniform1f(this.getUniform("alpha0"), gradientAlpha ? -1.0f : alpha / 255.0f);
     }
 
-
-
     public void stopDraw(final Color color, final float radius, final float quality, boolean gradientAlpha, int alpha) {
         mc.gameSettings.entityShadows = entityShadows;
-        framebuffer.unbindFramebuffer( );
-        GL11.glEnable( 3042 );
-        GL11.glBlendFunc( 770, 771 );
-        mc.getFramebuffer( ).bindFramebuffer( true );
-        mc.entityRenderer.disableLightmap( );
-        RenderHelper.disableStandardItemLighting( );
+        framebuffer.unbindFramebuffer();
+        GL11.glEnable(3042);
+        GL11.glBlendFunc(770, 771);
+        mc.getFramebuffer().bindFramebuffer(true);
+        mc.entityRenderer.disableLightmap();
+        RenderHelper.disableStandardItemLighting();
         startShader(color, radius, quality, gradientAlpha, alpha);
-        mc.entityRenderer.setupOverlayRendering( );
-        drawFramebuffer( framebuffer );
-        stopShader( );
-        mc.entityRenderer.disableLightmap( );
-        GlStateManager.popMatrix( );
-        GlStateManager.popAttrib( );
+        mc.entityRenderer.setupOverlayRendering();
+        drawFramebuffer(framebuffer);
+        stopShader();
+        mc.entityRenderer.disableLightmap();
+        GlStateManager.popMatrix();
+        GlStateManager.popAttrib();
     }
 
     public void startShader(final Color color, final float radius, final float quality, boolean gradientAlpha, int alpha) {
@@ -69,10 +69,6 @@ public final class GlowShader extends FramebufferShader
             this.setupUniforms();
         }
         this.updateUniforms(color, radius, quality, gradientAlpha, alpha);
-    }
-
-    static {
-        INSTANCE = new GlowShader();
     }
 
 

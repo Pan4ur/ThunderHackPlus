@@ -22,28 +22,25 @@ public class PacketEvent extends Event {
     @Cancelable
     public static class Send
             extends PacketEvent {
-        public Send( Packet<?> packet) {
+        public Send(Packet<?> packet) {
             super(packet);
         }
     }
 
     @Cancelable
     public static class Receive extends PacketEvent {
-        public Receive( Packet<?> packet) {
+        private final Deque<Runnable> postEvents = new ArrayDeque<>();
+
+        public Receive(Packet<?> packet) {
             super(packet);
         }
 
-        private final Deque<Runnable> postEvents = new ArrayDeque<>();
-
-
-        public void addPostEvent(SafeRunnable runnable)
-        {
+        public void addPostEvent(SafeRunnable runnable) {
             postEvents.add(runnable);
         }
 
 
-        public Deque<Runnable> getPostEvents()
-        {
+        public Deque<Runnable> getPostEvents() {
             return postEvents;
         }
     }
@@ -58,21 +55,7 @@ public class PacketEvent extends Event {
     @Cancelable
     public static class ReceivePost extends PacketEvent {
         public ReceivePost(Packet<?> packet) {
-            super( packet);
-        }
-
-        private final Deque<Runnable> postEvents = new ArrayDeque<>();
-
-
-        public void addPostEvent(SafeRunnable runnable)
-        {
-            postEvents.add(runnable);
-        }
-
-
-        public Deque<Runnable> getPostEvents()
-        {
-            return postEvents;
+            super(packet);
         }
     }
 }

@@ -2,63 +2,47 @@ package com.mrzak34.thunderhack.util.phobos;
 
 import net.minecraft.entity.Entity;
 
-public class CrystalDataMotion extends CrystalData
-{
+public class CrystalDataMotion extends CrystalData {
     private Timing timing = Timing.BOTH;
     private float postSelf;
 
-    public CrystalDataMotion(Entity crystal)
-    {
+    public CrystalDataMotion(Entity crystal) {
         super(crystal);
     }
 
-    public float getPostSelf()
-    {
+    public float getPostSelf() {
         return postSelf;
     }
 
-    public Timing getTiming()
-    {
-        return timing;
-    }
-
-    public void setPostSelf(float postSelf)
-    {
+    public void setPostSelf(float postSelf) {
         this.postSelf = postSelf;
     }
 
-    public void invalidateTiming(Timing timing)
-    {
-        if (timing == Timing.PRE)
-        {
-            if (this.timing == Timing.PRE)
-            {
+    public Timing getTiming() {
+        return timing;
+    }
+
+    public void invalidateTiming(Timing timing) {
+        if (timing == Timing.PRE) {
+            if (this.timing == Timing.PRE) {
                 this.timing = Timing.NONE;
-            }
-            else if (this.timing == Timing.BOTH)
-            {
+            } else if (this.timing == Timing.BOTH) {
                 this.timing = Timing.POST;
             }
-        }
-        else // if (timing == Timing.POST) basically
+        } else // if (timing == Timing.POST) basically
         {
-            if (this.timing == Timing.POST)
-            {
+            if (this.timing == Timing.POST) {
                 this.timing = Timing.NONE;
-            }
-            else if (this.timing == Timing.BOTH)
-            {
+            } else if (this.timing == Timing.BOTH) {
                 this.timing = Timing.PRE;
             }
         }
     }
 
     @Override
-    public int compareTo(CrystalData o)
-    {
+    public int compareTo(CrystalData o) {
         if (o instanceof CrystalDataMotion
-                && Math.abs(o.getDamage() - this.getDamage()) < 1.0f)
-        {
+                && Math.abs(o.getDamage() - this.getDamage()) < 1.0f) {
             // -1 means lower selfDamage than other
             CrystalDataMotion motion = (CrystalDataMotion) o;
 
@@ -66,24 +50,20 @@ public class CrystalDataMotion extends CrystalData
             float lowestSelf = Float.MAX_VALUE;
             boolean thisBetter = this.getDamage() > o.getDamage();
 
-            switch (motion.getTiming())
-            {
+            switch (motion.getTiming()) {
                 case BOTH:
                     breakCase = false;
                 case PRE:
-                    if (motion.getSelfDmg() < lowestSelf)
-                    {
+                    if (motion.getSelfDmg() < lowestSelf) {
                         lowestSelf = motion.getSelfDmg();
                         thisBetter = false;
                     }
 
-                    if (breakCase)
-                    {
+                    if (breakCase) {
                         break;
                     }
                 case POST:
-                    if (motion.getPostSelf() < lowestSelf)
-                    {
+                    if (motion.getPostSelf() < lowestSelf) {
                         lowestSelf = motion.getSelfDmg();
                         thisBetter = false;
                     }
@@ -94,28 +74,24 @@ public class CrystalDataMotion extends CrystalData
             }
 
             breakCase = true;
-            switch (this.getTiming())
-            {
+            switch (this.getTiming()) {
                 case BOTH:
                     breakCase = false;
                 case PRE:
                     if (this.getSelfDmg() < lowestSelf
                             || this.getSelfDmg() == lowestSelf
-                            && this.getDamage() > motion.getDamage())
-                    {
+                            && this.getDamage() > motion.getDamage()) {
                         lowestSelf = this.getSelfDmg();
                         thisBetter = true;
                     }
 
-                    if (breakCase)
-                    {
+                    if (breakCase) {
                         break;
                     }
                 case POST:
                     if (this.getSelfDmg() < lowestSelf
                             || this.getSelfDmg() == lowestSelf
-                            && this.getDamage() > motion.getDamage())
-                    {
+                            && this.getDamage() > motion.getDamage()) {
                         thisBetter = true;
                     }
 
@@ -130,8 +106,7 @@ public class CrystalDataMotion extends CrystalData
         return super.compareTo(o);
     }
 
-    public enum Timing
-    {
+    public enum Timing {
         NONE,
         PRE,
         POST,

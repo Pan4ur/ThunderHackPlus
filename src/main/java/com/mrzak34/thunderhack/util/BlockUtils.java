@@ -24,11 +24,12 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 
-
 import java.util.*;
 
 public class BlockUtils {
 
+    public static final List<Block> blackList = Arrays.asList(Blocks.ENDER_CHEST, Blocks.CHEST, Blocks.TRAPPED_CHEST, Blocks.CRAFTING_TABLE, Blocks.ANVIL, Blocks.BREWING_STAND, Blocks.HOPPER, Blocks.DROPPER, Blocks.DISPENSER, Blocks.TRAPDOOR, Blocks.ENCHANTING_TABLE);
+    public static final List<Block> shulkerList = Arrays.asList(Blocks.WHITE_SHULKER_BOX, Blocks.ORANGE_SHULKER_BOX, Blocks.MAGENTA_SHULKER_BOX, Blocks.LIGHT_BLUE_SHULKER_BOX, Blocks.YELLOW_SHULKER_BOX, Blocks.LIME_SHULKER_BOX, Blocks.PINK_SHULKER_BOX, Blocks.GRAY_SHULKER_BOX, Blocks.SILVER_SHULKER_BOX, Blocks.CYAN_SHULKER_BOX, Blocks.PURPLE_SHULKER_BOX, Blocks.BLUE_SHULKER_BOX, Blocks.BROWN_SHULKER_BOX, Blocks.GREEN_SHULKER_BOX, Blocks.RED_SHULKER_BOX, Blocks.BLACK_SHULKER_BOX);
     private static final Minecraft mc = Minecraft.getMinecraft();
 
     //Thanks to mr 3arth for this method
@@ -45,9 +46,6 @@ public class BlockUtils {
         }
         // ((IMinecraft) mc).setRightClickDelayTimer(4); //? // ? // тоже не ебу
     }
-
-
-
 
     public static Optional<ClickLocation> generateClickLocation(BlockPos pos) {
         return generateClickLocation(pos, false, false);
@@ -102,16 +100,6 @@ public class BlockUtils {
         }
 
         return Optional.of(new ClickLocation(neighbour, opposite));
-    }
-
-    public static class ClickLocation {
-        public final BlockPos neighbour;
-        public final EnumFacing opposite;
-
-        public ClickLocation(BlockPos neighbour, EnumFacing opposite) {
-            this.neighbour = neighbour;
-            this.opposite = opposite;
-        }
     }
 
     public static double[] calculateLookAt(double x, double y, double z, EnumFacing facing, EntityPlayer me) {
@@ -234,22 +222,18 @@ public class BlockUtils {
         return validObi(pos) || validBedrock(pos);
     }
 
-
-
     public static EntityPlayer getRotationPlayer() {
-        final EntityPlayer rotationEntity = (EntityPlayer) Util.mc.player;
-        return (EntityPlayer) ((rotationEntity == null) ? Util.mc.player : rotationEntity);
+        final EntityPlayer rotationEntity = Util.mc.player;
+        return (rotationEntity == null) ? Util.mc.player : rotationEntity;
     }
 
     public static double getDistanceSq(BlockPos pos) {
         return getDistanceSq(getRotationPlayer(), pos);
     }
 
-
     public static double getDistanceSq(Entity from, BlockPos to) {
         return from.getDistanceSqToCenter(to);
     }
-
 
     public static BlockPos getPosition(final Entity entity) {
         return getPosition(entity, 0.0);
@@ -264,20 +248,14 @@ public class BlockUtils {
     }
 
     public static double getEyeHeight() {
-        return getEyeHeight((Entity) Util.mc.player);
+        return getEyeHeight(Util.mc.player);
     }
 
     public static double getEyeHeight(final Entity entity) {
         return entity.posY + entity.getEyeHeight();
     }
 
-
-    public static final List<Block> blackList = Arrays.asList(Blocks.ENDER_CHEST, Blocks.CHEST, Blocks.TRAPPED_CHEST, Blocks.CRAFTING_TABLE, Blocks.ANVIL, Blocks.BREWING_STAND, Blocks.HOPPER, Blocks.DROPPER, Blocks.DISPENSER, Blocks.TRAPDOOR, Blocks.ENCHANTING_TABLE);
-    public static final List<Block> shulkerList = Arrays.asList(Blocks.WHITE_SHULKER_BOX, Blocks.ORANGE_SHULKER_BOX, Blocks.MAGENTA_SHULKER_BOX, Blocks.LIGHT_BLUE_SHULKER_BOX, Blocks.YELLOW_SHULKER_BOX, Blocks.LIME_SHULKER_BOX, Blocks.PINK_SHULKER_BOX, Blocks.GRAY_SHULKER_BOX, Blocks.SILVER_SHULKER_BOX, Blocks.CYAN_SHULKER_BOX, Blocks.PURPLE_SHULKER_BOX, Blocks.BLUE_SHULKER_BOX, Blocks.BROWN_SHULKER_BOX, Blocks.GREEN_SHULKER_BOX, Blocks.RED_SHULKER_BOX, Blocks.BLACK_SHULKER_BOX);
-
-
-    public static boolean isAir(BlockPos pos)
-    {
+    public static boolean isAir(BlockPos pos) {
         return mc.world.getBlockState(pos).getBlock() == Blocks.AIR;
     }
 
@@ -297,7 +275,6 @@ public class BlockUtils {
         return mc.world.getBlockState(new BlockPos(x, y, z)).getBlock();
     }
 
-
     public static ArrayList<BlockPos> getAllInBox(BlockPos from, BlockPos to) {
         ArrayList<BlockPos> blocks = new ArrayList<BlockPos>();
         BlockPos min = new BlockPos(Math.min(from.getX(), to.getX()), Math.min(from.getY(), to.getY()), Math.min(from.getZ(), to.getZ()));
@@ -312,40 +289,19 @@ public class BlockUtils {
         return blocks;
     }
 
-
-
-
-    public static EnumFacing getPlaceableSide(BlockPos pos) {
-
-        for (EnumFacing side : EnumFacing.values()) {
-
-            BlockPos neighbour = pos.offset(side);
-
-            if (!mc.world.getBlockState(neighbour).getBlock().canCollideCheck(mc.world.getBlockState(neighbour), false)) {
-                continue;
-            }
-
-            IBlockState blockState = mc.world.getBlockState(neighbour);
-            if (!blockState.getMaterial().isReplaceable()) {
-                return side;
-            }
-        }
-
-        return null;
-    }
-
-
     public static EnumFacing getFacing(BlockPos pos) {
         for (EnumFacing facing : EnumFacing.values()) {
-            RayTraceResult rayTraceResult = mc.world.rayTraceBlocks(new Vec3d(mc.player.posX, mc.player.posY + (double)mc.player.getEyeHeight(), mc.player.posZ), new Vec3d((double)pos.getX() + 0.5 + (double)facing.getDirectionVec().getX() * 1.0 / 2.0, (double)pos.getY() + 0.5 + (double)facing.getDirectionVec().getY() * 1.0 / 2.0, (double)pos.getZ() + 0.5 + (double)facing.getDirectionVec().getZ() * 1.0 / 2.0), false, true, false);
-            if (rayTraceResult != null && (rayTraceResult.typeOfHit != RayTraceResult.Type.BLOCK || !rayTraceResult.getBlockPos().equals((Object)pos))) continue;
+            RayTraceResult rayTraceResult = mc.world.rayTraceBlocks(new Vec3d(mc.player.posX, mc.player.posY + (double) mc.player.getEyeHeight(), mc.player.posZ), new Vec3d((double) pos.getX() + 0.5 + (double) facing.getDirectionVec().getX() / 2.0, (double) pos.getY() + 0.5 + (double) facing.getDirectionVec().getY() / 2.0, (double) pos.getZ() + 0.5 + (double) facing.getDirectionVec().getZ() / 2.0), false, true, false);
+            if (rayTraceResult != null && (rayTraceResult.typeOfHit != RayTraceResult.Type.BLOCK || !rayTraceResult.getBlockPos().equals(pos)))
+                continue;
             return facing;
         }
-        if ((double)pos.getY() > mc.player.posY + (double)mc.player.getEyeHeight()) {
+        if ((double) pos.getY() > mc.player.posY + (double) mc.player.getEyeHeight()) {
             return EnumFacing.DOWN;
         }
         return EnumFacing.UP;
     }
+
     public static EnumFacing getFirstFacing(BlockPos pos) {
         Iterator<EnumFacing> iterator = getPossibleSides(pos).iterator();
         if (iterator.hasNext()) {
@@ -387,8 +343,6 @@ public class BlockUtils {
         mc.rightClickDelayTimer = 4;
     }
 
-
-
     public static boolean placeBlockSmartRotate(BlockPos pos, EnumHand hand, boolean rotate, boolean packet, boolean isSneaking, EventPreMotion ev) {
         boolean sneaking = false;
         EnumFacing side = getFirstFacing(pos);
@@ -405,10 +359,8 @@ public class BlockUtils {
         }
         if (rotate) {
             float[] angle = MathUtil.calcAngle(mc.player.getPositionEyes(mc.getRenderPartialTicks()), new Vec3d(hitVec.x, hitVec.y, hitVec.z));
-            mc.player.rotationPitch =(angle[1]);
-            mc.player.rotationYaw =(angle[0]);
-
-           // SilentRotaionUtil.lookAtVector( new Vec3d(hitVec.x, hitVec.y, hitVec.z));
+            mc.player.rotationPitch = (angle[1]);
+            mc.player.rotationYaw = (angle[0]);
         }
         rightClickBlock2(neighbour, hitVec, hand, opposite, packet);
         mc.player.swingArm(EnumHand.MAIN_HAND);
@@ -416,24 +368,22 @@ public class BlockUtils {
         return sneaking || isSneaking;
     }
 
-
-
     public static List<BlockPos> getSphere(float radius, boolean ignoreAir) {
         ArrayList<BlockPos> sphere = new ArrayList<BlockPos>();
         BlockPos pos = new BlockPos(Util.mc.player.getPositionVector());
         int posX = pos.getX();
         int posY = pos.getY();
         int posZ = pos.getZ();
-        int radiuss = (int)radius;
+        int radiuss = (int) radius;
         int x = posX - radiuss;
-        while ((float)x <= (float)posX + radius) {
+        while ((float) x <= (float) posX + radius) {
             int z = posZ - radiuss;
-            while ((float)z <= (float)posZ + radius) {
+            while ((float) z <= (float) posZ + radius) {
                 int y = posY - radiuss;
-                while ((float)y < (float)posY + radius) {
+                while ((float) y < (float) posY + radius) {
                     BlockPos position;
                     double dist = (posX - x) * (posX - x) + (posZ - z) * (posZ - z) + (posY - y) * (posY - y);
-                    if (dist < (double)(radius * radius) && (Util.mc.world.getBlockState(position = new BlockPos(x, y, z)).getBlock() != Blocks.AIR || !ignoreAir)) {
+                    if (dist < (double) (radius * radius) && (Util.mc.world.getBlockState(position = new BlockPos(x, y, z)).getBlock() != Blocks.AIR || !ignoreAir)) {
                         sphere.add(position);
                     }
                     ++y;
@@ -445,7 +395,6 @@ public class BlockUtils {
         return sphere;
     }
 
-
     public static boolean canBeClicked(BlockPos pos) {
         return getBlock(pos).canCollideCheck(getState(pos), false);
     }
@@ -453,10 +402,10 @@ public class BlockUtils {
     public static Block getBlock(BlockPos pos) {
         return getState(pos).getBlock();
     }
+
     public static Block getBlockgs(BlockPos pos) {
         return getState(pos).getBlock();
     }
-
 
     public static IBlockState getState(BlockPos pos) {
         return mc.world.getBlockState(pos);
@@ -476,8 +425,6 @@ public class BlockUtils {
         return dirnumber != 3 || (double) pos.getX() - mc.player.getPositionVector().x >= 0.0;
     }
 
-
-
     public static Vec3d[] convertVec3ds(Vec3d vec3d, Vec3d[] input) {
         Vec3d[] output = new Vec3d[input.length];
         for (int i = 0; i < input.length; ++i) {
@@ -486,8 +433,17 @@ public class BlockUtils {
         return output;
     }
 
-
     public static boolean rayTracePlaceCheck(BlockPos pos, boolean shouldCheck, float height) {
         return !shouldCheck || mc.world.rayTraceBlocks(new Vec3d(mc.player.posX, mc.player.posY + (double) mc.player.getEyeHeight(), mc.player.posZ), new Vec3d(pos.getX(), (float) pos.getY() + height, pos.getZ()), false, true, false) == null;
+    }
+
+    public static class ClickLocation {
+        public final BlockPos neighbour;
+        public final EnumFacing opposite;
+
+        public ClickLocation(BlockPos neighbour, EnumFacing opposite) {
+            this.neighbour = neighbour;
+            this.opposite = opposite;
+        }
     }
 }

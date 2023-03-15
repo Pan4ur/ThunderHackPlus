@@ -1,15 +1,15 @@
 package com.mrzak34.thunderhack.modules.combat;
 
 import com.mrzak34.thunderhack.Thunderhack;
+import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.events.EventPostMotion;
 import com.mrzak34.thunderhack.events.EventPreMotion;
 import com.mrzak34.thunderhack.events.Render3DEvent;
-import com.mrzak34.thunderhack.command.Command;
+import com.mrzak34.thunderhack.mixin.mixins.IEntityPlayerSP;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.modules.movement.PacketFly;
 import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.setting.Setting;
-import com.mrzak34.thunderhack.mixin.mixins.IEntityPlayerSP;
 import com.mrzak34.thunderhack.util.*;
 import com.mrzak34.thunderhack.util.render.RenderUtil;
 import net.minecraft.block.Block;
@@ -24,7 +24,9 @@ import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.play.client.*;
+import net.minecraft.network.play.client.CPacketEntityAction;
+import net.minecraft.network.play.client.CPacketHeldItemChange;
+import net.minecraft.network.play.client.CPacketPlayerDigging;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.*;
@@ -39,39 +41,25 @@ import java.util.stream.Stream;
 
 public class CevBreaker extends Module {
 
-    public CevBreaker() {
-        super("CevBreaker", "CevBreaker", Category.COMBAT);
-    }
-
-
-    private final Setting<Integer> pickTickSwitch = this.register(new Setting<>("Pick Switch Destroy", 0, 0, 20));
-    private Setting<Mode> mode = register(new Setting("BreakMode", Mode.TripleP));
+    public static ConcurrentHashMap<BlockPos, Long> shiftedBlocks = new ConcurrentHashMap<>();
     public final Setting<ColorSetting> Color = this.register(new Setting<>("Color", new ColorSetting(0x8800FF00)));
-
-    private  Setting<Integer> crysDelay = this.register(new Setting<>("CrysDelay", 200, 1, 1000));
-    private  Setting<Integer> atttt = this.register(new Setting<>("AttackDelay", 200, 1, 1000));
-    private  Setting<Integer> pausedelay = this.register(new Setting<>("PauseDelay", 300, 1, 1000));
-
-    private  final Setting<Float> placeRange = this.register( new Setting<>("TargetRange", 4.5f, 1f, 16f));
-    private  Setting<Integer> actionShift = this.register(new Setting<>("ActionShift", 3, 1, 8));
-    private  Setting<Integer> actionInterval = this.register(new Setting<>("ActionInterval", 0, 0, 10));
     public final Setting<ColorSetting> Color2 = this.register(new Setting<>("Color", new ColorSetting(0x8800FF00)));
-    private  Setting<Boolean> strict = this.register(new Setting<>("Strict", false));
-    private  Setting<Boolean> rotate = this.register(new Setting<>("Rotate", true));
-
-    private  Setting<Boolean> p1 = this.register(new Setting<>("PacketCrystal", true));
-
-
-    private  Setting<Boolean> MStrict = this.register(new Setting<>("ModeStrict", true));
-    private  Setting<Boolean> strictdirection = this.register(new Setting<>("StrictDirection", true));
-
-
-    public enum Mode {
-        Packet, DoubleP, TripleP, Vanilla, StrictFast
-    }
-
-
-
+    private final Setting<Integer> pickTickSwitch = this.register(new Setting<>("Pick Switch Destroy", 0, 0, 20));
+    private final Setting<Float> placeRange = this.register(new Setting<>("TargetRange", 4.5f, 1f, 16f));
+    public boolean startBreak = false;
+    boolean broke = false;
+    Timer renderTimer = new Timer();
+    private final Setting<Mode> mode = register(new Setting("BreakMode", Mode.TripleP));
+    private final Setting<Integer> crysDelay = this.register(new Setting<>("CrysDelay", 200, 1, 1000));
+    private final Setting<Integer> atttt = this.register(new Setting<>("AttackDelay", 200, 1, 1000));
+    private final Setting<Integer> pausedelay = this.register(new Setting<>("PauseDelay", 300, 1, 1000));
+    private final Setting<Integer> actionShift = this.register(new Setting<>("ActionShift", 3, 1, 8));
+    private final Setting<Integer> actionInterval = this.register(new Setting<>("ActionInterval", 0, 0, 10));
+    private final Setting<Boolean> strict = this.register(new Setting<>("Strict", false));
+    private final Setting<Boolean> rotate = this.register(new Setting<>("Rotate", true));
+    private final Setting<Boolean> p1 = this.register(new Setting<>("PacketCrystal", true));
+    private final Setting<Boolean> MStrict = this.register(new Setting<>("ModeStrict", true));
+    private final Setting<Boolean> strictdirection = this.register(new Setting<>("StrictDirection", true));
     private int tick = 99;
     private int oldslot;
     private int wait = 50;
@@ -79,26 +67,55 @@ public class CevBreaker extends Module {
     private BlockPos continueBlock = null;
     private boolean pickStillBol = false;
     private EnumFacing direction;
-    boolean broke = false;
-    private Timer attackTimer = new Timer();
-    private Timer cryTimer = new Timer();
-
-
+    private final Timer attackTimer = new Timer();
+    private final Timer cryTimer = new Timer();
     private int itemSlot;
-    Timer renderTimer = new Timer();
     private BlockPos renderPos;
     private int tickCounter = 0;
     private BlockPos playerPos = null;
     private BlockPos toppos = null;
     private InteractionUtil.Placement placement;
     private InteractionUtil.Placement lastPlacement;
-    private Timer lastPlacementTimer = new Timer();
-    private Timer pausetimer = new  Timer();
-    public boolean startBreak = false;
-    public static ConcurrentHashMap<BlockPos, Long> shiftedBlocks = new ConcurrentHashMap<>();
+    private final Timer lastPlacementTimer = new Timer();
+    private final Timer pausetimer = new Timer();
+    public CevBreaker() {
+        super("CevBreaker", "CevBreaker", Category.COMBAT);
+    }
 
+    public static EntityEnderCrystal searchCrystal(BlockPos blockPos) {
+        BlockPos boost = blockPos.add(0, 1, 0);
+        BlockPos boost2 = blockPos.add(0, 2, 0);
 
+        for (Entity entity : mc.world.getEntitiesWithinAABB(Entity.class, new AxisAlignedBB(boost))) {
+            if (entity instanceof EntityEnderCrystal) {
+                return (EntityEnderCrystal) entity;
+            }
+        }
+        for (Entity entity : mc.world.getEntitiesWithinAABB(Entity.class, new AxisAlignedBB(boost2))) {
+            if (entity instanceof EntityEnderCrystal) {
+                return (EntityEnderCrystal) entity;
+            }
+        }
+        return null;
+    }
 
+    public static int getPicSlot() {
+        int pic = -1;
+
+        if (Util.mc.player.getHeldItemMainhand().getItem() == Items.DIAMOND_PICKAXE) {
+            pic = Util.mc.player.inventory.currentItem;
+        }
+        if (pic == -1) {
+            for (int l = 0; l < 9; ++l) {
+                if (Util.mc.player.inventory.getStackInSlot(l).getItem() == Items.DIAMOND_PICKAXE) {
+                    pic = l;
+                    break;
+                }
+            }
+        }
+
+        return pic;
+    }
 
     @Override
     public void onEnable() {
@@ -164,12 +181,11 @@ public class CevBreaker extends Module {
         mc.playerController.blockHitDelay = 0;
     }
 
-
     public void onBreakPacket() {
 
-        if(mode.getValue() == Mode.Vanilla) return;
+        if (mode.getValue() == Mode.Vanilla) return;
         if (mc.world == null || mc.player == null) return;
-        if(toppos == null) return;
+        if (toppos == null) return;
 
         if (mode.getValue() == Mode.DoubleP)
             continueBlock = toppos;
@@ -189,12 +205,12 @@ public class CevBreaker extends Module {
 
     public void onRender3D(Render3DEvent event) {
         if (renderPos != null && !renderTimer.passedMs(500)) {
-            RenderUtil.drawBlockOutline(renderPos, Color2.getValue().getColorObject(), 0.3f, true,0);
+            RenderUtil.drawBlockOutline(renderPos, Color2.getValue().getColorObject(), 0.3f, true, 0);
         }
         if (lastBlock != null) {
-            RenderUtil.drawBlockOutline(lastBlock, new Color(175, 175, 255), 2f, false,0);
+            RenderUtil.drawBlockOutline(lastBlock, new Color(175, 175, 255), 2f, false, 0);
 
-            float prognum =  ((((float) tick / pickTickSwitch.getValue() * 100) / Blocks.OBSIDIAN.blockHardness) * mc.world.getBlockState(lastBlock).getBlock().blockHardness);
+            float prognum = ((((float) tick / pickTickSwitch.getValue() * 100) / Blocks.OBSIDIAN.blockHardness) * mc.world.getBlockState(lastBlock).getBlock().blockHardness);
 
 
             GlStateManager.pushMatrix();
@@ -210,26 +226,25 @@ public class CevBreaker extends Module {
             GlStateManager.enableDepth();
             GlStateManager.popMatrix();
         }
-        if(toppos != null){
+        if (toppos != null) {
             EntityEnderCrystal ent = searchCrystal(toppos);
             if (ent != null && attackTimer.passedMs(atttt.getValue())) {
-                RenderUtil.drawBoxESP(toppos,  new Color(0x25BB02),  false,  new Color(0x2FFF00),  0.5f,  true,  true,  170,  false,0);
+                RenderUtil.drawBoxESP(toppos, new Color(0x25BB02), false, new Color(0x2FFF00), 0.5f, true, true, 170, false, 0);
             } else {
-                RenderUtil.drawBoxESP(toppos,  new Color(0xBB0202),  false,  new Color(0xFF0000),  0.5f,  true,  true,  170,  false,0);
+                RenderUtil.drawBoxESP(toppos, new Color(0xBB0202), false, new Color(0xFF0000), 0.5f, true, true, 170, false, 0);
             }
         }
     }
 
-
     @SubscribeEvent
     public void onUpdateWalkingPlayerPre(EventPreMotion event) {
 
-        if(playerPos != null) {
+        if (playerPos != null) {
             if (canPlaceCrystal(playerPos.up().up()) && cryTimer.passedMs(crysDelay.getValue()) && searchCrystal(playerPos.up().up()) == null) {
                 placeCrystal(playerPos.up().up(), handlePlaceRotation(playerPos.up().up()));
                 setPickSlot();
                 cryTimer.reset();
-            } else if(canBreakCrystal(playerPos.up().up())){
+            } else if (canBreakCrystal(playerPos.up().up())) {
                 EntityEnderCrystal ent = searchCrystal(playerPos.up().up());
                 if (ent != null && attackTimer.passedMs(atttt.getValue())) {
                     mc.playerController.attackEntity(mc.player, ent);
@@ -240,10 +255,10 @@ public class CevBreaker extends Module {
                 }
             }
         }
-        if(toppos != null) {
+        if (toppos != null) {
             if (mode.getValue() == Mode.Vanilla) {
                 EntityEnderCrystal ent = searchCrystal(toppos);
-                if(ent == null){
+                if (ent == null) {
                     placeCrystal(toppos, handlePlaceRotation(toppos));
                 } else {
                     setPickSlot();
@@ -252,9 +267,8 @@ public class CevBreaker extends Module {
                         mc.playerController.onPlayerDamageBlock(toppos, handlePlaceRotation(toppos));
                     }
                 }
-            }
-            else {
-                if(!startBreak) {
+            } else {
+                if (!startBreak) {
                     onBreakPacket();
                     startBreak = true;
                 }
@@ -300,8 +314,8 @@ public class CevBreaker extends Module {
 
         if (tickCounter < actionInterval.getValue()) {
             if (lastPlacement != null && !lastPlacementTimer.passedMs(650)) {
-                mc.player.rotationPitch =(lastPlacement.getPitch());
-                mc.player.rotationYaw =(lastPlacement.getYaw());
+                mc.player.rotationPitch = (lastPlacement.getPitch());
+                mc.player.rotationYaw = (lastPlacement.getYaw());
             }
             return;
         }
@@ -311,7 +325,7 @@ public class CevBreaker extends Module {
         BlockPos firstPos = getNextPos(playerPos);
 
         if (firstPos != null) {
-            placement = InteractionUtil.preparePlacement(firstPos, rotate.getValue(),event);
+            placement = InteractionUtil.preparePlacement(firstPos, rotate.getValue(), event);
             if (placement != null) {
                 shiftedBlocks.put(firstPos, System.currentTimeMillis());
                 tickCounter = 0;
@@ -321,12 +335,10 @@ public class CevBreaker extends Module {
         }
     }
 
-
-
     @SubscribeEvent
     public void onUpdateWalkingPlayerPost(EventPostMotion event) {
 
-        if(!pausetimer.passedMs(pausedelay.getValue())){
+        if (!pausetimer.passedMs(pausedelay.getValue())) {
             return;
         }
         if (placement != null && playerPos != null && itemSlot != -1) {
@@ -379,10 +391,10 @@ public class CevBreaker extends Module {
                 mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.START_SPRINTING));
             }
 //
-       //     if (changeItem) {
-         //       mc.player.inventory.currentItem = startingItem;
-        //        mc.player.connection.sendPacket(new CPacketHeldItemChange(startingItem));
-        //    }
+            //     if (changeItem) {
+            //       mc.player.inventory.currentItem = startingItem;
+            //        mc.player.connection.sendPacket(new CPacketHeldItemChange(startingItem));
+            //    }
 
         }
     }
@@ -390,7 +402,6 @@ public class CevBreaker extends Module {
     private boolean canPlaceBlock(BlockPos pos, boolean strictDirection) {
         return InteractionUtil.canPlaceBlock(pos, strictDirection) && !shiftedBlocks.containsKey(pos);
     }
-
 
     private BlockPos getNextPos(BlockPos playerPos) {
         for (EnumFacing enumFacing : EnumFacing.HORIZONTALS) {
@@ -425,7 +436,7 @@ public class CevBreaker extends Module {
             BlockPos furthestBlock = null;
             double furthestDistance = 0D;
             if (canPlaceBlock(playerPos.up().offset(enumFacing), false)) {
-                BlockPos tempBlock = playerPos.up().offset(enumFacing);;
+                BlockPos tempBlock = playerPos.up().offset(enumFacing);
                 double tempDistance = mc.player.getDistance(tempBlock.getX() + 0.5, tempBlock.getY() + 0.5, tempBlock.getZ() + 0.5);
                 if (tempDistance >= furthestDistance) {
                     furthestBlock = tempBlock;
@@ -454,20 +465,20 @@ public class CevBreaker extends Module {
         BlockPos boost = blockPos.add(0, 1, 0);
         BlockPos boost2 = blockPos.add(0, 2, 0);
         try {
-                if (mc.world.getBlockState(blockPos).getBlock() != Blocks.BEDROCK && mc.world.getBlockState(blockPos).getBlock() != Blocks.OBSIDIAN) {
-                    return false;
-                }
-                if (mc.world.getBlockState(boost).getBlock() != Blocks.AIR || mc.world.getBlockState(boost2).getBlock() != Blocks.AIR) {
-                    return false;
-                }
-                for (Entity entity : mc.world.getEntitiesWithinAABB(Entity.class, new AxisAlignedBB(boost))) {
-                    if (entity instanceof EntityEnderCrystal) continue;
-                    return false;
-                }
-                for (Entity entity : mc.world.getEntitiesWithinAABB(Entity.class, new AxisAlignedBB(boost2))) {
-                    if (entity instanceof EntityEnderCrystal) continue;
-                    return false;
-                }
+            if (mc.world.getBlockState(blockPos).getBlock() != Blocks.BEDROCK && mc.world.getBlockState(blockPos).getBlock() != Blocks.OBSIDIAN) {
+                return false;
+            }
+            if (mc.world.getBlockState(boost).getBlock() != Blocks.AIR || mc.world.getBlockState(boost2).getBlock() != Blocks.AIR) {
+                return false;
+            }
+            for (Entity entity : mc.world.getEntitiesWithinAABB(Entity.class, new AxisAlignedBB(boost))) {
+                if (entity instanceof EntityEnderCrystal) continue;
+                return false;
+            }
+            for (Entity entity : mc.world.getEntitiesWithinAABB(Entity.class, new AxisAlignedBB(boost2))) {
+                if (entity instanceof EntityEnderCrystal) continue;
+                return false;
+            }
         } catch (Exception ignored) {
             return false;
         }
@@ -485,29 +496,11 @@ public class CevBreaker extends Module {
         return false;
     }
 
-    public static EntityEnderCrystal searchCrystal(BlockPos blockPos){
-        BlockPos boost = blockPos.add(0, 1, 0);
-        BlockPos boost2 = blockPos.add(0, 2, 0);
-
-        for (Entity entity : mc.world.getEntitiesWithinAABB(Entity.class, new AxisAlignedBB(boost))) {
-            if (entity instanceof EntityEnderCrystal) {
-                return (EntityEnderCrystal) entity;
-            }
-        }
-        for (Entity entity : mc.world.getEntitiesWithinAABB(Entity.class, new AxisAlignedBB(boost2))) {
-            if (entity instanceof EntityEnderCrystal){
-                return (EntityEnderCrystal) entity;
-            }
-        }
-        return null;
-    }
-
     public boolean setCrystalSlot() {
         int crystalSlot = CrystalUtils.getCrystalSlot();
         if (crystalSlot == -1) {
             return false;
-        }
-        else if (mc.player.inventory.currentItem != crystalSlot) {
+        } else if (mc.player.inventory.currentItem != crystalSlot) {
             mc.player.inventory.currentItem = crystalSlot;
             mc.player.connection.sendPacket(new CPacketHeldItemChange(crystalSlot));
         }
@@ -518,35 +511,15 @@ public class CevBreaker extends Module {
         int pickslot = getPicSlot();
         if (pickslot == -1) {
             return false;
-        }
-        else if (mc.player.inventory.currentItem != pickslot) {
+        } else if (mc.player.inventory.currentItem != pickslot) {
             mc.player.inventory.currentItem = pickslot;
             mc.player.connection.sendPacket(new CPacketHeldItemChange(pickslot));
         }
         return true;
     }
 
-
-    public static int getPicSlot() {
-        int pic = -1;
-
-        if (Util.mc.player.getHeldItemMainhand().getItem() == Items.DIAMOND_PICKAXE) {
-            pic = Util.mc.player.inventory.currentItem;
-        }
-        if (pic == -1) {
-            for (int l = 0; l < 9; ++l) {
-                if (Util.mc.player.inventory.getStackInSlot(l).getItem() == Items.DIAMOND_PICKAXE) {
-                    pic = l;
-                    break;
-                }
-            }
-        }
-
-        return pic;
-    }
-
     public boolean placeCrystal(BlockPos pos, EnumFacing facing) {
-        if (pos != null){
+        if (pos != null) {
             if (!setCrystalSlot()) return false;
             if (mc.player.getHeldItemMainhand().getItem() != Items.END_CRYSTAL)
                 return false;
@@ -748,5 +721,9 @@ public class CevBreaker extends Module {
             return EnumFacing.DOWN;
         }
         return EnumFacing.UP;
+    }
+
+    public enum Mode {
+        Packet, DoubleP, TripleP, Vanilla, StrictFast
     }
 }

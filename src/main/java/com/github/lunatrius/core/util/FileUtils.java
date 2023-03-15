@@ -1,7 +1,5 @@
 package com.github.lunatrius.core.util;
 
-import com.github.lunatrius.core.reference.Reference;
-
 import java.io.File;
 import java.io.IOException;
 
@@ -26,7 +24,7 @@ public class FileUtils {
         try {
             return file.getCanonicalPath().startsWith(root.getCanonicalPath() + File.separator);
         } catch (final IOException e) {
-            System.out.println( e);
+            System.out.println(e);
         }
 
         return false;

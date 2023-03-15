@@ -28,23 +28,22 @@ public class MixinWorld {
     @Shadow
     @Final
     public boolean isRemote;
+    double nigga1, nigga2, nigga3;
 
-@Inject(
-        method = "updateEntities",
-        at = @At(
-                value = "INVOKE",
-                target = "Lnet/minecraft/profiler/Profiler;endStartSection(Ljava/lang/String;)V",
-                ordinal = 2
-        )
-)
-public void updateEntitiesHook(CallbackInfo ci)
-{
-    if (isRemote)
-    {
-        UpdateEntitiesEvent event = new UpdateEntitiesEvent();
-        MinecraftForge.EVENT_BUS.post(event);
+    @Inject(
+            method = "updateEntities",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/profiler/Profiler;endStartSection(Ljava/lang/String;)V",
+                    ordinal = 2
+            )
+    )
+    public void updateEntitiesHook(CallbackInfo ci) {
+        if (isRemote) {
+            UpdateEntitiesEvent event = new UpdateEntitiesEvent();
+            MinecraftForge.EVENT_BUS.post(event);
+        }
     }
-}
 
     @Inject(method = "checkLightFor", at = @At("HEAD"), cancellable = true)
     private void updateLightmapHook(EnumSkyBlock lightType, BlockPos pos, CallbackInfoReturnable<Boolean> callbackInfoReturnable) {
@@ -53,7 +52,6 @@ public void updateEntitiesHook(CallbackInfo ci)
             callbackInfoReturnable.setReturnValue(false);
         }
     }
-
 
     @Inject(method = "onEntityAdded", at = @At("HEAD"), cancellable = true)
     public void onEntityAdded(Entity entity, CallbackInfo callbackInfo) {
@@ -75,24 +73,19 @@ public void updateEntitiesHook(CallbackInfo ci)
         }
     }
 
-    @Redirect(method = { "handleMaterialAcceleration" },  at = @At(value = "INVOKE",  target = "Lnet/minecraft/entity/Entity;isPushedByWater()Z"))
+    @Redirect(method = {"handleMaterialAcceleration"}, at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;isPushedByWater()Z"))
     public boolean isPushedbyWaterHook(final Entity entity) {
         final PushEvent event = new PushEvent();
         MinecraftForge.EVENT_BUS.post(event);
         return entity.isPushedByWater() && !event.isCanceled();
     }
 
-    @Inject(method = { "spawnEntity" }, at = { @At("HEAD") }, cancellable = true)
+    @Inject(method = {"spawnEntity"}, at = {@At("HEAD")}, cancellable = true)
     public void spawnEntityFireWork(final Entity entityIn, final CallbackInfoReturnable<Boolean> cir) {
         if (NoRender.getInstance().fireworks.getValue() && NoRender.getInstance().isEnabled() && entityIn instanceof EntityFireworkRocket) {
             cir.cancel();
         }
     }
-
-
-    double nigga1,nigga2,nigga3;
-
-
 
     @Inject(method = "updateEntityWithOptionalForce", at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/Entity;onUpdate()V", shift = At.Shift.AFTER))
     public void updateEntityWithOptionalForceHookPost(Entity entityIn, boolean forceUpdate, CallbackInfo ci) {

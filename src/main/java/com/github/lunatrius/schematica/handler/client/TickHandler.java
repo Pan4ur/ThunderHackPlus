@@ -20,7 +20,8 @@ public class TickHandler {
 
     private int ticks = -1;
 
-    private TickHandler() {}
+    private TickHandler() {
+    }
 
     @SubscribeEvent
     public void onClientConnect(final FMLNetworkEvent.ClientConnectedToServerEvent event) {

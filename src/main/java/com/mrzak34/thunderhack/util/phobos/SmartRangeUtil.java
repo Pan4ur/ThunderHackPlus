@@ -33,12 +33,11 @@ public class SmartRangeUtil {
         final double dY = crystalY;
         // LALALALALALA THIS IS FROM NCP idc
         //noinspection StatementWithEmptyBody
-        if (pY <= dY);
+        if (pY <= dY) ;
         else //noinspection ManualMinMaxCalculation
             if (pY >= dY + height) {
                 crystalY = dY + height;
-            }
-            else {
+            } else {
                 crystalY = pY;
             }
 

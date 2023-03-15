@@ -28,41 +28,8 @@ public class GeometryTessellator extends Tessellator {
         return instance;
     }
 
-    public void setTranslation(final double x, final double y, final double z) {
-        getBuffer().setTranslation(x, y, z);
-    }
-
-    public void beginQuads() {
-        begin(GL11.GL_QUADS);
-    }
-
-    public void beginLines() {
-        begin(GL11.GL_LINES);
-    }
-
-    public void begin(final int mode) {
-        getBuffer().begin(mode, DefaultVertexFormats.POSITION_COLOR);
-    }
-
-    @Override
-    public void draw() {
-        super.draw();
-    }
-
-    public void setDelta(final double delta) {
-        this.delta = delta;
-    }
-
     public static void setStaticDelta(final double delta) {
         deltaS = delta;
-    }
-
-    public void drawCuboid(final BlockPos pos, final int sides, final int argb) {
-        drawCuboid(pos, pos, sides, argb);
-    }
-
-    public void drawCuboid(final BlockPos begin, final BlockPos end, final int sides, final int argb) {
-        drawCuboid(getBuffer(), begin, end, sides, argb, this.delta);
     }
 
     public static void drawCuboid(final BufferBuilder buffer, final BlockPos pos, final int sides, final int argb) {
@@ -86,16 +53,16 @@ public class GeometryTessellator extends Tessellator {
         final double z1 = end.getZ() + 1 + delta;
 
         switch (buffer.getDrawMode()) {
-        case GL11.GL_QUADS:
-            drawQuads(buffer, x0, y0, z0, x1, y1, z1, sides, argb);
-            break;
+            case GL11.GL_QUADS:
+                drawQuads(buffer, x0, y0, z0, x1, y1, z1, sides, argb);
+                break;
 
-        case GL11.GL_LINES:
-            drawLines(buffer, x0, y0, z0, x1, y1, z1, sides, argb);
-            break;
+            case GL11.GL_LINES:
+                drawLines(buffer, x0, y0, z0, x1, y1, z1, sides, argb);
+                break;
 
-        default:
-            throw new IllegalStateException("Unsupported mode!");
+            default:
+                throw new IllegalStateException("Unsupported mode!");
         }
     }
 
@@ -221,5 +188,38 @@ public class GeometryTessellator extends Tessellator {
             buffer.pos(x1, y0, z1).color(r, g, b, a).endVertex();
             buffer.pos(x1, y1, z1).color(r, g, b, a).endVertex();
         }
+    }
+
+    public void setTranslation(final double x, final double y, final double z) {
+        getBuffer().setTranslation(x, y, z);
+    }
+
+    public void beginQuads() {
+        begin(GL11.GL_QUADS);
+    }
+
+    public void beginLines() {
+        begin(GL11.GL_LINES);
+    }
+
+    public void begin(final int mode) {
+        getBuffer().begin(mode, DefaultVertexFormats.POSITION_COLOR);
+    }
+
+    @Override
+    public void draw() {
+        super.draw();
+    }
+
+    public void setDelta(final double delta) {
+        this.delta = delta;
+    }
+
+    public void drawCuboid(final BlockPos pos, final int sides, final int argb) {
+        drawCuboid(pos, pos, sides, argb);
+    }
+
+    public void drawCuboid(final BlockPos begin, final BlockPos end, final int sides, final int argb) {
+        drawCuboid(getBuffer(), begin, end, sides, argb, this.delta);
     }
 }

@@ -1,16 +1,15 @@
 package com.mrzak34.thunderhack.util.phobos;
 
-public interface IEntityNoInterp
-{
+public interface IEntityNoInterp {
     double getNoInterpX();
-
-    double getNoInterpY();
-
-    double getNoInterpZ();
 
     void setNoInterpX(double x);
 
+    double getNoInterpY();
+
     void setNoInterpY(double y);
+
+    double getNoInterpZ();
 
     void setNoInterpZ(double z);
 
@@ -20,13 +19,13 @@ public interface IEntityNoInterp
 
     float getNoInterpSwingAmount();
 
-    float getNoInterpSwing();
-
-    float getNoInterpPrevSwing();
-
     void setNoInterpSwingAmount(float noInterpSwingAmount);
 
+    float getNoInterpSwing();
+
     void setNoInterpSwing(float noInterpSwing);
+
+    float getNoInterpPrevSwing();
 
     void setNoInterpPrevSwing(float noInterpPrevSwing);
 

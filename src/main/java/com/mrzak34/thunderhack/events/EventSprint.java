@@ -9,11 +9,11 @@ public class EventSprint extends Event {
         this.sprintState = sprintState;
     }
 
-    public void setSprintState(boolean sprintState) {
-        this.sprintState = sprintState;
-    }
-
     public boolean getSprintState() {
         return this.sprintState;
+    }
+
+    public void setSprintState(boolean sprintState) {
+        this.sprintState = sprintState;
     }
 }

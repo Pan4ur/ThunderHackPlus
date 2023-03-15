@@ -11,11 +11,29 @@ public abstract class NcpTrace {
     protected boolean forceStepEndPos = true;
     protected int step = 0;
     protected boolean secondaryStep = true;
-    private int maxSteps = Integer.MAX_VALUE;
     protected boolean collides = false;
+    private int maxSteps = Integer.MAX_VALUE;
 
     public NcpTrace() {
         set(0, 0, 0, 0, 0, 0);
+    }
+
+    private static double tDiff(double dTotal, double offset, boolean isEndBlock) {
+        if (dTotal > 0.0) {
+            if (offset >= 1.0) {
+                return isEndBlock ? Double.MAX_VALUE : 0.0;
+            } else {
+                return (1.0 - offset) / dTotal;
+            }
+        } else if (dTotal < 0.0) {
+            if (offset <= 0.0) {
+                return isEndBlock ? Double.MAX_VALUE : 0.0;
+            } else {
+                return offset / -dTotal;
+            }
+        } else {
+            return Double.MAX_VALUE;
+        }
     }
 
     protected abstract boolean step(int blockX, int blockY, int blockZ, double oX, double oY, double oZ, double dT, boolean isPrimary);
@@ -39,24 +57,6 @@ public abstract class NcpTrace {
         t = 0.0;
         step = 0;
         collides = false;
-    }
-
-    private static double tDiff(double dTotal, double offset, boolean isEndBlock) {
-        if (dTotal > 0.0) {
-            if (offset >= 1.0) {
-                return isEndBlock ? Double.MAX_VALUE : 0.0;
-            } else {
-                return (1.0 - offset) / dTotal;
-            }
-        } else if (dTotal < 0.0) {
-            if (offset <= 0.0) {
-                return isEndBlock ? Double.MAX_VALUE : 0.0;
-            } else {
-                return offset / -dTotal;
-            }
-        } else {
-            return Double.MAX_VALUE;
-        }
     }
 
     public void loop() {

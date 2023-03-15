@@ -1,6 +1,10 @@
 package com.github.lunatrius.schematica.world.schematic;
 
-import net.minecraft.client.Minecraft;
+import com.github.lunatrius.schematica.api.ISchematic;
+import com.github.lunatrius.schematica.nbt.NBTHelper;
+import com.github.lunatrius.schematica.reference.Names;
+import com.github.lunatrius.schematica.reference.Reference;
+import com.github.lunatrius.schematica.world.storage.Schematic;
 import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -8,11 +12,6 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.gen.structure.template.Template;
-import com.github.lunatrius.schematica.api.ISchematic;
-import com.github.lunatrius.schematica.nbt.NBTHelper;
-import com.github.lunatrius.schematica.reference.Names;
-import com.github.lunatrius.schematica.reference.Reference;
-import com.github.lunatrius.schematica.world.storage.Schematic;
 
 public class SchematicStructure extends SchematicFormat {
     @Override
@@ -22,7 +21,7 @@ public class SchematicStructure extends SchematicFormat {
         final Template template = new Template();
         template.read(tagCompound);
 
-        final Schematic schematic = new Schematic(icon, template.getSize().getX(), template.getSize().getY(), template. getSize().getZ(), template.getAuthor());
+        final Schematic schematic = new Schematic(icon, template.getSize().getX(), template.getSize().getY(), template.getSize().getZ(), template.getAuthor());
 
         for (Template.BlockInfo block : template.blocks) {
             schematic.setBlockState(block.pos, block.blockState);

@@ -12,14 +12,13 @@ import net.minecraft.util.EnumHand;
 
 public class AutoOzera extends Module {
 
+    public Setting<Integer> delay = this.register(new Setting<>("DelayOnUse", 200, 100, 2000));
+    public Setting<Boolean> negativeLakeEff = this.register(new Setting<>("RemoveEffects", false));
+    public Timer timer = new Timer();
+
     public AutoOzera() {
         super("AutoOzera", "Пьёт Родные Озёра", Module.Category.FUNNYGAME);
     }
-
-    public Setting<Integer> delay = this.register(new Setting<>("DelayOnUse", 200, 100, 2000));
-    public Setting<Boolean> negativeLakeEff = this.register(new Setting<>("RemoveEffects", false));
-
-    public Timer timer = new Timer();
 
     @Override
     public void onUpdate() {

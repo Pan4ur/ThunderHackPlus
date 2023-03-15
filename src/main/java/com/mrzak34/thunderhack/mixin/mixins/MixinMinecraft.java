@@ -27,7 +27,11 @@ import static com.mrzak34.thunderhack.util.Util.mc;
 
 @Mixin(value = {Minecraft.class})
 public abstract class MixinMinecraft implements IMinecraft {
-    @Shadow @Nullable public GuiScreen currentScreen;
+
+    @Shadow
+    @Nullable
+    public GuiScreen currentScreen;
+    private int gameLoop = 0;
 
     @Inject(method = {"shutdownMinecraftApplet"}, at = {@At(value = "HEAD")})
     private void stopClient(CallbackInfo callbackInfo) {
@@ -48,89 +52,62 @@ public abstract class MixinMinecraft implements IMinecraft {
             MinecraftForge.EVENT_BUS.post(event);
         }
     }
-    private int gameLoop = 0;
+
     @Inject(method = "runGameLoop", at = @At("HEAD"))
-    private void runGameLoopHead(CallbackInfo callbackInfo)
-    {
+    private void runGameLoopHead(CallbackInfo callbackInfo) {
         gameLoop++;
     }
 
     @Inject(method = "middleClickMouse", at = @At(value = "HEAD"), cancellable = true)
-    public void middleClickMouseHook(CallbackInfo callbackInfo)
-    {
+    public void middleClickMouseHook(CallbackInfo callbackInfo) {
         ClickMiddleEvent event = new ClickMiddleEvent();
         MinecraftForge.EVENT_BUS.post(event);
 
-        if (event.isCanceled())
-        {
+        if (event.isCanceled()) {
             callbackInfo.cancel();
         }
     }
-    @Inject(method={"runTick()V"}, at={@At(value="RETURN")})
+
+    @Inject(method = {"runTick()V"}, at = {@At(value = "RETURN")})
     private void runTick(CallbackInfo callbackInfo) {
-        if (Minecraft.getMinecraft().currentScreen instanceof GuiMainMenu && Thunderhack.moduleManager != null && Thunderhack.moduleManager.getModuleByClass(MainSettings.class).mainMenu.getValue() ) {
+        if (Minecraft.getMinecraft().currentScreen instanceof GuiMainMenu && Thunderhack.moduleManager != null && Thunderhack.moduleManager.getModuleByClass(MainSettings.class).mainMenu.getValue()) {
             Minecraft.getMinecraft().displayGuiScreen(new ThunderMenu());
         }
     }
 
-    @Inject(method={"displayGuiScreen"}, at={@At(value="HEAD")})
+    @Inject(method = {"displayGuiScreen"}, at = {@At(value = "HEAD")})
     private void displayGuiScreenHook(GuiScreen screen, CallbackInfo ci) {
         if (screen instanceof GuiMainMenu && Thunderhack.moduleManager != null && Thunderhack.moduleManager.getModuleByClass(MainSettings.class).mainMenu.getValue()) {
             mc.displayGuiScreen(new ThunderMenu());
         }
     }
 
-    @Inject(
-            method = "runTickMouse",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lorg/lwjgl/input/Mouse;getEventButton()I",
-                    remap = false))
+    @Inject(method = "runTickMouse", at = @At(value = "INVOKE", target = "Lorg/lwjgl/input/Mouse;getEventButton()I", remap = false))
     public void runTickMouseHook(CallbackInfo ci) {
         MinecraftForge.EVENT_BUS.post(new MouseEvent(Mouse.getEventButton(), Mouse.getEventButtonState()));
     }
 
-    @Inject(
-            method = "runTick",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/client/multiplayer/WorldClient;tick()V",
-                    shift = At.Shift.AFTER))
-    private void postUpdateWorld(CallbackInfo info)
-    {
+    @Inject(method = "runTick", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/WorldClient;tick()V", shift = At.Shift.AFTER))
+    private void postUpdateWorld(CallbackInfo info) {
         MinecraftForge.EVENT_BUS.post(new PostWorldTick());
     }
 
-    @Inject(
-            method = "runGameLoop",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/profiler/Profiler;endSection()V",
-                    ordinal = 0,
-                    shift = At.Shift.AFTER))
-    private void post_ScheduledTasks(CallbackInfo callbackInfo)
-    {
+    @Inject(method = "runGameLoop", at = @At(value = "INVOKE", target = "Lnet/minecraft/profiler/Profiler;endSection()V", ordinal = 0, shift = At.Shift.AFTER))
+    private void post_ScheduledTasks(CallbackInfo callbackInfo) {
         MinecraftForge.EVENT_BUS.post(new GameZaloopEvent());
     }
+
     @Override
-    public int getGameLoop()
-    {
+    public int getGameLoop() {
         return gameLoop;
     }
-    @Inject(
-            method = "runTickKeyboard",
-            at = @At(
-                    value = "INVOKE_ASSIGN",
-                    target = "org/lwjgl/input/Keyboard.getEventKeyState()Z",
-                    remap = false))
-    public void runTickKeyboardHook(CallbackInfo callbackInfo)
-    {
-        MinecraftForge.EVENT_BUS.post(new KeyboardEvent(Keyboard.getEventKeyState(),
-                Keyboard.getEventKey(),
-                Keyboard.getEventCharacter()));
+
+    @Inject(method = "runTickKeyboard", at = @At(value = "INVOKE_ASSIGN", target = "org/lwjgl/input/Keyboard.getEventKeyState()Z", remap = false))
+    public void runTickKeyboardHook(CallbackInfo callbackInfo) {
+        MinecraftForge.EVENT_BUS.post(new KeyboardEvent(Keyboard.getEventKeyState(), Keyboard.getEventKey(), Keyboard.getEventCharacter()));
     }
 
-    @Redirect(method={"runGameLoop"}, at=@At(value="INVOKE", target="Lnet/minecraft/client/Minecraft;shutdown()V"))
+    @Redirect(method = {"runGameLoop"}, at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Minecraft;shutdown()V"))
     private void Method5080(Minecraft minecraft) {
         if (minecraft.world != null && Thunderhack.moduleManager.getModuleByClass(AntiDisconnect.class).isOn()) {
             GuiScreen screen = minecraft.currentScreen;
@@ -141,11 +118,12 @@ public abstract class MixinMinecraft implements IMinecraft {
                     Minecraft.getMinecraft().displayGuiScreen(screen);
                 }
             }, "Ты точно хочешь закрыть майн?", "", 0);
-            Minecraft.getMinecraft().displayGuiScreen((GuiScreen)g);
+            Minecraft.getMinecraft().displayGuiScreen(g);
         } else {
             minecraft.shutdown();
         }
     }
+
     private void unload() {
         Thunderhack.unload(false);
     }

@@ -6,11 +6,11 @@ import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class Ghost extends Module {
+    private boolean bypass = false;
+
     public Ghost() {
         super("Ghost", "Жить после смерти", Category.MISC);
     }
-
-    private boolean bypass = false;
 
     @Override
     public void onEnable() {
@@ -19,13 +19,13 @@ public class Ghost extends Module {
 
     @Override
     public void onDisable() {
-        if(mc.player != null) mc.player.respawnPlayer();
+        if (mc.player != null) mc.player.respawnPlayer();
         bypass = false;
     }
 
     @Override
     public void onUpdate() {
-        if(mc.player == null || mc.world == null) return;
+        if (mc.player == null || mc.world == null) return;
 
         if (mc.player.getHealth() == 0.0f) {
             mc.player.setHealth(20.0f);
@@ -37,7 +37,7 @@ public class Ghost extends Module {
     }
 
     @SubscribeEvent
-    public void onPacketSend(PacketEvent.Send event){
-        if(bypass && event.getPacket() instanceof CPacketPlayer) event.setCanceled(true);
+    public void onPacketSend(PacketEvent.Send event) {
+        if (bypass && event.getPacket() instanceof CPacketPlayer) event.setCanceled(true);
     }
 }

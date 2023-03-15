@@ -1,4 +1,5 @@
 package com.mrzak34.thunderhack.mixin.mixins;
+
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.events.ElytraEvent;
 import com.mrzak34.thunderhack.events.EventJump;
@@ -19,35 +20,29 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(value={EntityLivingBase.class})
+@Mixin(value = {EntityLivingBase.class})
 public abstract class MixinEntityLivingBase
-        extends Entity implements  IEntityLivingBase
-{
-
-
-    public MixinEntityLivingBase(World worldIn) {
-        super(worldIn);
-    }
-
+        extends Entity implements IEntityLivingBase {
 
 
     @Shadow
     public float moveStrafing;
     @Shadow
     public float moveForward;
-
-    @Shadow public int jumpTicks;
+    @Shadow
+    public int jumpTicks;
     protected float lowestDura = Float.MAX_VALUE;
+    public MixinEntityLivingBase(World worldIn) {
+        super(worldIn);
+    }
 
     @Override
-    public void setLowestDura(float lowest)
-    {
+    public void setLowestDura(float lowest) {
         this.lowestDura = lowest;
     }
 
     @Override
-    public float getLowestDurability()
-    {
+    public float getLowestDurability() {
         return lowestDura;
     }
 
@@ -56,12 +51,12 @@ public abstract class MixinEntityLivingBase
     public abstract int getTicksSinceLastSwing();
 
     @Override
-    @Accessor(value = "activeItemStackUseCount")
-    public abstract int getActiveItemStackUseCount();
-
-    @Override
     @Accessor(value = "ticksSinceLastSwing")
     public abstract void setTicksSinceLastSwing(int ticks);
+
+    @Override
+    @Accessor(value = "activeItemStackUseCount")
+    public abstract int getActiveItemStackUseCount();
 
     @Override
     @Accessor(value = "activeItemStackUseCount")
@@ -76,7 +71,7 @@ public abstract class MixinEntityLivingBase
         }
     }
 
-    @Inject(method={"handleJumpWater"}, at={@At(value="HEAD")}, cancellable=true)
+    @Inject(method = {"handleJumpWater"}, at = {@At(value = "HEAD")}, cancellable = true)
     private void handleJumpWater(CallbackInfo ci) {
         HandleLiquidJumpEvent event = new HandleLiquidJumpEvent();
         if (event.isCanceled()) {
@@ -84,7 +79,7 @@ public abstract class MixinEntityLivingBase
         }
     }
 
-    @Inject(method={"handleJumpLava"}, at={@At(value="HEAD")}, cancellable=true)
+    @Inject(method = {"handleJumpLava"}, at = {@At(value = "HEAD")}, cancellable = true)
     private void handleJumpLava(CallbackInfo ci) {
         HandleLiquidJumpEvent event = new HandleLiquidJumpEvent();
         if (event.isCanceled()) {
@@ -101,7 +96,7 @@ public abstract class MixinEntityLivingBase
         }
     }
 
-    @Inject(method={"onItemUseFinish"}, at={@At(value="HEAD")}, cancellable=true)
+    @Inject(method = {"onItemUseFinish"}, at = {@At(value = "HEAD")}, cancellable = true)
     public void finishHook(CallbackInfo ci) {
         FinishUseItemEvent event = new FinishUseItemEvent();
         MinecraftForge.EVENT_BUS.post(event);
@@ -110,15 +105,16 @@ public abstract class MixinEntityLivingBase
         }
     }
 
-    @Inject(method = { "getArmSwingAnimationEnd" }, at = { @At("HEAD") }, cancellable = true)
+    @Inject(method = {"getArmSwingAnimationEnd"}, at = {@At("HEAD")}, cancellable = true)
     private void getArmSwingAnimationEnd(final CallbackInfoReturnable<Integer> info) {
         if (Thunderhack.moduleManager.getModuleByClass(Animations.class).isEnabled() && Thunderhack.moduleManager.getModuleByClass(Animations.class).rMode.getValue() == Animations.rmode.Slow) {
-            info.setReturnValue(Animations.getInstance().slowValue.getValue());}
+            info.setReturnValue(Animations.getInstance().slowValue.getValue());
+        }
     }
 
-    @Inject(method = { "onLivingUpdate" }, at = { @At("HEAD") })
+    @Inject(method = {"onLivingUpdate"}, at = {@At("HEAD")})
     public void onLivingUpdate(CallbackInfo ci) {
-        if(Thunderhack.moduleManager.getModuleByClass(NoJumpDelay.class).isEnabled()){
+        if (Thunderhack.moduleManager.getModuleByClass(NoJumpDelay.class).isEnabled()) {
             jumpTicks = 0;
         }
     }

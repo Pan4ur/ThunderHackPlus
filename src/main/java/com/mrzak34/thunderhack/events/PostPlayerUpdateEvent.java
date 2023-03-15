@@ -7,11 +7,11 @@ import net.minecraftforge.fml.common.eventhandler.Event;
 public class PostPlayerUpdateEvent extends Event {
     private int iterations;
 
-    public void setIterations(int in) {
-        iterations = in;
-    }
-
     public int getIterations() {
         return iterations;
+    }
+
+    public void setIterations(int in) {
+        iterations = in;
     }
 }

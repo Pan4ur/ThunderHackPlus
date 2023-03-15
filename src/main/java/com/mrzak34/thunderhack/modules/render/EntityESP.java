@@ -5,8 +5,8 @@ import com.mrzak34.thunderhack.events.Render3DEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.setting.Setting;
-import com.mrzak34.thunderhack.util.render.DrawHelper;
 import com.mrzak34.thunderhack.util.math.MathematicHelper;
+import com.mrzak34.thunderhack.util.render.DrawHelper;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GLAllocation;
 import net.minecraft.client.renderer.GlStateManager;
@@ -36,47 +36,22 @@ import java.util.List;
 
 public class EntityESP extends Module {
 
-    public EntityESP() {
-        super("EntityESP", "Ренднрит есп-сущностей", Category.RENDER);
-    }
-
-    private final int black = Color.BLACK.getRGB();
-
-    private Setting<healcolorModeEn> healcolorMode = register(new Setting("HealthMode", healcolorModeEn.Custom));
-    public enum healcolorModeEn {
-        Custom, Astolfo, Health,Rainbow,Client;
-    }
-    private Setting<colorModeEn> colorMode = register(new Setting("ColorBoxMode", colorModeEn.Custom));
-    public enum colorModeEn {
-        Custom, Astolfo,Rainbow,Client;
-    }
-    private Setting<espModeEn> espMode = register(new Setting("espMode", espModeEn.Flat));
-    public enum espModeEn {
-        Flat, Box;
-    }
-    private Setting<rectModeEn> rectMode = register(new Setting("RectMode", rectModeEn.Default));
-    public enum rectModeEn {
-        Default, Smooth;
-    }
-    private Setting<csgoModeEn> csgoMode = register(new Setting("csgoMode", csgoModeEn.Box));
-    public enum csgoModeEn {
-        Box, Corner;
-    }
-
-
-
-    private final Setting<ColorSetting> colorEsp = this.register(new Setting<>("ESPColor", new ColorSetting(0x2250b4b4)));
-    private final Setting<ColorSetting> healColor = this.register(new Setting<>("HealthColor", new ColorSetting(0x2250b4b4)));
-
-
-
-
     public final Setting<Boolean> border = this.register(new Setting<Boolean>("Border Rect", true));
     public final Setting<Boolean> fullBox = this.register(new Setting<Boolean>("Full Box", false));
     public final Setting<Boolean> heathPercentage = this.register(new Setting<Boolean>("HealthPercent", true));
     public final Setting<Boolean> healRect = this.register(new Setting<Boolean>("HealthRect", true));
     public final Setting<Boolean> ignoreInvisible = this.register(new Setting<Boolean>("IgnoreInvisible", true));
-
+    private final int black = Color.BLACK.getRGB();
+    private final Setting<ColorSetting> colorEsp = this.register(new Setting<>("ESPColor", new ColorSetting(0x2250b4b4)));
+    private final Setting<ColorSetting> healColor = this.register(new Setting<>("HealthColor", new ColorSetting(0x2250b4b4)));
+    private final Setting<healcolorModeEn> healcolorMode = register(new Setting("HealthMode", healcolorModeEn.Custom));
+    private final Setting<colorModeEn> colorMode = register(new Setting("ColorBoxMode", colorModeEn.Custom));
+    private final Setting<espModeEn> espMode = register(new Setting("espMode", espModeEn.Flat));
+    private final Setting<rectModeEn> rectMode = register(new Setting("RectMode", rectModeEn.Default));
+    private final Setting<csgoModeEn> csgoMode = register(new Setting("csgoMode", csgoModeEn.Box));
+    public EntityESP() {
+        super("EntityESP", "Ренднрит есп-сущностей", Category.RENDER);
+    }
 
     @SubscribeEvent
     public void onRender3D(Render3DEvent event3D) {
@@ -104,7 +79,6 @@ public class EntityESP extends Module {
             GlStateManager.popMatrix();
         }
     }
-
 
     @SubscribeEvent
     public void onRender2D(Render2DEvent event) {
@@ -333,7 +307,7 @@ public class EntityESP extends Module {
                                 if (living && heathPercentage.getValue() && (!(espMode.getValue() == espModeEn.Box))) {
                                     if (heathPercentage.getValue()) {
                                         GlStateManager.pushMatrix();
-                                       // mc.sfui18.drawStringWithOutline(string2, (float) posX - 30, (float) ((float) endPosY - hpHeight2), -1);
+                                        // mc.sfui18.drawStringWithOutline(string2, (float) posX - 30, (float) ((float) endPosY - hpHeight2), -1);
                                         mc.fontRenderer.drawStringWithShadow(string2, (float) posX - 30, (float) ((float) endPosY - hpHeight2), -1);
                                         GlStateManager.popMatrix();
                                     }
@@ -408,5 +382,26 @@ public class EntityESP extends Module {
         if (GLU.gluProject(xPos, yPos, zPos, modelview, projection, viewport, vector))
             return new Vector3d((vector.get(0) / scaleFactor), ((Display.getHeight() - vector.get(1)) / scaleFactor), vector.get(2));
         return null;
+    }
+    public enum healcolorModeEn {
+        Custom, Astolfo, Health, Rainbow, Client
+    }
+
+
+    public enum colorModeEn {
+        Custom, Astolfo, Rainbow, Client
+    }
+
+
+    public enum espModeEn {
+        Flat, Box
+    }
+
+    public enum rectModeEn {
+        Default, Smooth
+    }
+
+    public enum csgoModeEn {
+        Box, Corner
     }
 }

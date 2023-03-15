@@ -1,51 +1,36 @@
 package com.mrzak34.thunderhack.modules.combat;
 
-import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.events.EventPreMotion;
 import com.mrzak34.thunderhack.events.StopUsingItemEvent;
+import com.mrzak34.thunderhack.mixin.mixins.IEntityPlayerSP;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
-import com.mrzak34.thunderhack.mixin.mixins.IEntityPlayerSP;
-import com.mrzak34.thunderhack.util.*;
-
-import net.minecraft.init.*;
-import net.minecraft.network.play.client.*;
-import net.minecraft.potion.Potion;
-import net.minecraft.potion.PotionEffect;
-import net.minecraft.potion.PotionType;
-import net.minecraft.potion.PotionUtils;
-import net.minecraft.util.EnumHand;
-import net.minecraft.inventory.*;
 import com.mrzak34.thunderhack.util.Timer;
-
-import net.minecraft.item.*;
+import net.minecraft.init.Items;
+import net.minecraft.init.MobEffects;
+import net.minecraft.inventory.ClickType;
+import net.minecraft.item.ItemFood;
+import net.minecraft.item.ItemStack;
+import net.minecraft.network.play.client.CPacketPlayer;
+import net.minecraft.util.EnumHand;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
-
-public class Quiver extends Module
-{
+public class Quiver extends Module {
 
 
-    public Quiver() {
-        super("Quiver",  "Накладывать эффекты-на себя с лука ",  Category.COMBAT);
-    }
-
-    public  final Setting<Boolean> speed = this.register(new Setting<>("Swiftness", false));
-    public  final Setting<Boolean> strength = this.register(new Setting<>("Strength", false));
-    public  final Setting<Boolean> toggelable = this.register(new Setting<>("Toggelable", false));
-    public  final Setting<Boolean> autoSwitch = this.register(new Setting<>("AutoSwitch", false));
-    public  final Setting<Boolean> rearrange = this.register(new Setting<>("Rearrange", false));
-    public  final Setting<Boolean> noGapSwitch = this.register(new Setting<>("NoGapSwitch", false));
-    public  final Setting<Integer> health = this.register(new Setting<>("MinHealth", 20, 0, 36));
-
-
-    private Timer timer = new Timer();
-
+    public final Setting<Boolean> speed = this.register(new Setting<>("Swiftness", false));
+    public final Setting<Boolean> strength = this.register(new Setting<>("Strength", false));
+    public final Setting<Boolean> toggelable = this.register(new Setting<>("Toggelable", false));
+    public final Setting<Boolean> autoSwitch = this.register(new Setting<>("AutoSwitch", false));
+    public final Setting<Boolean> rearrange = this.register(new Setting<>("Rearrange", false));
+    public final Setting<Boolean> noGapSwitch = this.register(new Setting<>("NoGapSwitch", false));
+    public final Setting<Integer> health = this.register(new Setting<>("MinHealth", 20, 0, 36));
+    private final Timer timer = new Timer();
     private boolean cancelStopUsingItem = false;
 
+    public Quiver() {
+        super("Quiver", "Накладывать эффекты-на себя с лука ", Category.COMBAT);
+    }
 
     @SubscribeEvent
     public void onUpdateWalkingPlayer(EventPreMotion event) {
@@ -60,7 +45,8 @@ public class Quiver extends Module
         if (strength.getValue() && !mc.player.isPotionActive(MobEffects.STRENGTH)) {
             if (isFirstAmmoValid("Стрела силы")) {
                 shootBow();
-            }if (isFirstAmmoValid("Arrow of Strength")) {
+            }
+            if (isFirstAmmoValid("Arrow of Strength")) {
                 shootBow();
             } else if (toggelable.getValue()) {
                 toggle();
@@ -152,7 +138,7 @@ public class Quiver extends Module
         return false;
     }
 
-    private boolean rearrangeArrow(int fakeSlot, String type){
+    private boolean rearrangeArrow(int fakeSlot, String type) {
         for (int i = 0; i < 36; i++) {
             ItemStack itemStack = mc.player.inventory.getStackInSlot(i);
             if (itemStack.getItem() == Items.TIPPED_ARROW) {

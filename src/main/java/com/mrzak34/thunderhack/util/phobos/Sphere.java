@@ -1,4 +1,5 @@
 package com.mrzak34.thunderhack.util.phobos;
+
 import com.mrzak34.thunderhack.util.math.MathUtil;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3i;
@@ -7,20 +8,22 @@ import java.util.Set;
 import java.util.TreeSet;
 
 
-public class Sphere
-{
+public class Sphere {
     private static final Vec3i[] SPHERE = new Vec3i[4187707];
     private static final int[] INDICES = new int[101];
 
-    static
-    {
+    static {
         // Setting the last byte to a dummy value.
         // That way we can check if the sphere has been fully initialized.
         SPHERE[SPHERE.length - 1] = new Vec3i(Integer.MAX_VALUE, 0, 0);
     }
 
-    /** This class is a Utility class and shouldn't be instantiated. */
-    private Sphere() { throw new AssertionError(); }
+    /**
+     * This class is a Utility class and shouldn't be instantiated.
+     */
+    private Sphere() {
+        throw new AssertionError();
+    }
 
     /**
      * Gives you an Index for the Sphere.
@@ -32,8 +35,7 @@ public class Sphere
      * @param radius the radius to get the max index for.
      * @return the maximum index for the given radius.
      */
-    public static int getRadius(double radius)
-    {
+    public static int getRadius(double radius) {
         return INDICES[MathUtil.clamp((int) Math.ceil(radius), 0, INDICES.length)];
     }
 
@@ -43,18 +45,16 @@ public class Sphere
      * @param index the index of the Vector.
      * @return Vec3i at the given index.
      * @throws IndexOutOfBoundsException if the given index
-     *         lies outside 0 and {@link Sphere#getLength()}-1.
+     *                                   lies outside 0 and {@link Sphere#getLength()}-1.
      */
-    public static Vec3i get(int index)
-    {
+    public static Vec3i get(int index) {
         return SPHERE[index];
     }
 
     /**
      * @return the length of the sphere array.
      */
-    public static int getLength()
-    {
+    public static int getLength() {
         return SPHERE.length;
     }
 
@@ -62,21 +62,18 @@ public class Sphere
      * Initializes the Sphere.
      * With Forge this is called on PreInit, as soon as possible.
      */
-    public static void cacheSphere()
-    {
+    public static void cacheSphere() {
         long time = System.currentTimeMillis();
 
         BlockPos pos = BlockPos.ORIGIN;
         Set<BlockPos> positions = new TreeSet<>((o, p) ->
         {
-            if (o.equals(p))
-            {
+            if (o.equals(p)) {
                 return 0;
             }
 
             int compare = Double.compare(pos.distanceSq(o), pos.distanceSq(p));
-            if (compare == 0)
-            {
+            if (compare == 0) {
                 // This prioritizes positions closer to an axis
                 compare = Integer.compare(Math.abs(o.getX())
                                 + Math.abs(o.getY())
@@ -91,25 +88,20 @@ public class Sphere
 
         double r = 100.0;
         double rSquare = r * r;
-        for (int x = pos.getX() - (int) r; x <= pos.getX() + r; x++)
-        {
-            for (int z = pos.getZ() - (int) r; z <= pos.getZ() + r; z++)
-            {
-                for (int y = pos.getY() - (int) r; y < pos.getY() + r; y++)
-                {
+        for (int x = pos.getX() - (int) r; x <= pos.getX() + r; x++) {
+            for (int z = pos.getZ() - (int) r; z <= pos.getZ() + r; z++) {
+                for (int y = pos.getY() - (int) r; y < pos.getY() + r; y++) {
                     double dist = (pos.getX() - x) * (pos.getX() - x)
                             + (pos.getZ() - z) * (pos.getZ() - z)
                             + (pos.getY() - y) * (pos.getY() - y);
-                    if (dist < rSquare)
-                    {
+                    if (dist < rSquare) {
                         positions.add(new BlockPos(x, y, z));
                     }
                 }
             }
         }
 
-        if (positions.size() != SPHERE.length)
-        {
+        if (positions.size() != SPHERE.length) {
             throw new IllegalStateException("Unexpected Size for Sphere: "
                     + positions.size()
                     + ", expected "
@@ -119,24 +111,20 @@ public class Sphere
 
         int i = 0;
         int currentDistance = 0;
-        for (BlockPos off : positions)
-        {
-            if (Math.sqrt(pos.distanceSq(off)) > currentDistance)
-            {
+        for (BlockPos off : positions) {
+            if (Math.sqrt(pos.distanceSq(off)) > currentDistance) {
                 INDICES[currentDistance++] = i;
             }
 
             SPHERE[i++] = off;
         }
 
-        if (currentDistance != INDICES.length - 1)
-        {
+        if (currentDistance != INDICES.length - 1) {
             throw new IllegalStateException("Sphere Indices not initialized!");
         }
 
         INDICES[INDICES.length - 1] = SPHERE.length;
-        if (SPHERE[SPHERE.length - 1].getX() == Integer.MAX_VALUE)
-        {
+        if (SPHERE[SPHERE.length - 1].getX() == Integer.MAX_VALUE) {
             throw new IllegalStateException("Sphere wasn't filled!");
         }
 

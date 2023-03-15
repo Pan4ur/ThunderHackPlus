@@ -1,13 +1,11 @@
 package com.github.lunatrius.schematica.handler;
 
-import com.github.lunatrius.schematica.reference.Names;
 import com.github.lunatrius.schematica.reference.Reference;
 import com.github.lunatrius.schematica.world.chunk.SchematicContainer;
 import com.github.lunatrius.schematica.world.schematic.SchematicFormat;
 import com.mrzak34.thunderhack.command.Command;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
@@ -19,7 +17,8 @@ public class QueueTickHandler {
 
     private final Queue<SchematicContainer> queue = new ArrayDeque<SchematicContainer>();
 
-    private QueueTickHandler() {}
+    private QueueTickHandler() {
+    }
 
     @SubscribeEvent
     public void onClientTick(final TickEvent.ClientTickEvent event) {
@@ -59,7 +58,7 @@ public class QueueTickHandler {
 
         if (container.hasNext()) {
             if (container.isFirst()) {
-                Command.sendMessage("Начинаю сохранять схему! Кол-во чанков: " + container.chunkCount + " Название файла: " + container.file.getName() );
+                Command.sendMessage("Начинаю сохранять схему! Кол-во чанков: " + container.chunkCount + " Название файла: " + container.file.getName());
             }
 
             container.next();

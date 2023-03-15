@@ -3,7 +3,9 @@ package com.mrzak34.thunderhack.modules.combat;
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
-import com.mrzak34.thunderhack.util.*;
+import com.mrzak34.thunderhack.util.EntityUtil;
+import com.mrzak34.thunderhack.util.InventoryUtil;
+import com.mrzak34.thunderhack.util.SilentRotationUtil;
 import com.mrzak34.thunderhack.util.math.MathUtil;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -13,19 +15,15 @@ import net.minecraft.util.EnumHand;
 
 public class AntiBowBomb extends Module {
 
+    public final Setting<Boolean> stopa = this.register(new Setting<Boolean>("StopAura", true));
+    public Setting<Integer> range = this.register(new Setting<Object>("Range", 40, 0, 60));
+    public Setting<Integer> maxUse = this.register(new Setting<Object>("MaxUse", 0, 0, 20));
+    EntityPlayer target;
+    int old;
+    boolean b;
     public AntiBowBomb() {
         super("AntiBowBomb", "Ставит щит если-в тебя целится-игрок", Category.COMBAT);
     }
-
-    public final Setting<Boolean> stopa = this.register(new Setting<Boolean>("StopAura", true));
-    EntityPlayer target;
-    public Setting<Integer> range = this.register(new Setting<Object>("Range", 40, 0, 60));
-    public Setting<Integer> maxUse = this.register(new Setting<Object>("MaxUse", 0, 0, 20));
-
-
-
-    int old;
-    boolean b;
 
     @Override
     public void onToggle() {
@@ -64,23 +62,28 @@ public class AntiBowBomb extends Module {
         } else {
             old = mc.player.inventory.currentItem;
             int shield = InventoryUtil.findItem(ItemShield.class);
-            if (shield == -1){ target = null; return; }
+            if (shield == -1) {
+                target = null;
+                return;
+            }
             if (Thunderhack.friendManager.isFriend(target.getName())) return;
             if (target.getItemInUseMaxCount() <= maxUse.getValue()) return;
 
-            if(!(target.getHeldItem(EnumHand.MAIN_HAND).getItem() instanceof ItemBow && !(target.getHeldItem(EnumHand.OFF_HAND).getItem() instanceof ItemBow))){return;}
+            if (!(target.getHeldItem(EnumHand.MAIN_HAND).getItem() instanceof ItemBow && !(target.getHeldItem(EnumHand.OFF_HAND).getItem() instanceof ItemBow))) {
+                return;
+            }
 
-            if (stopa.getValue()){
-                if(Thunderhack.moduleManager.getModuleByClass(TargetStrafe.class).isEnabled()) {
+            if (stopa.getValue()) {
+                if (Thunderhack.moduleManager.getModuleByClass(TargetStrafe.class).isEnabled()) {
                     Thunderhack.moduleManager.getModuleByClass(TargetStrafe.class).toggle();
                 }
             }
-            InventoryUtil.switchToHotbarSlot(shield,false);
+            InventoryUtil.switchToHotbarSlot(shield, false);
 
             if (mc.player.getHeldItemMainhand().getItem() instanceof ItemShield) {
                 mc.gameSettings.keyBindUseItem.pressed = true;
                 InventoryUtil.swapToHotbarSlot(shield, false);
-                SilentRotaionUtil.lookAtEntity(target);
+                SilentRotationUtil.lookAtEntity(target);
                 b = true;
             }
         }

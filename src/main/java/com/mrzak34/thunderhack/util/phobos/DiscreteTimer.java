@@ -1,7 +1,6 @@
 package com.mrzak34.thunderhack.util.phobos;
 
-public interface DiscreteTimer extends Passable
-{
+public interface DiscreteTimer extends Passable {
     /**
      * Resets this timer. Passed will return
      * <tt>true</tt> until the delay has been

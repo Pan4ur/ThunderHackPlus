@@ -1,5 +1,7 @@
 package com.mrzak34.thunderhack.util.phobos;
 
+import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
 import com.mrzak34.thunderhack.manager.PositionManager;
 import com.mrzak34.thunderhack.manager.RotationManager;
 import com.mrzak34.thunderhack.util.RotationUtil;
@@ -12,8 +14,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.*;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import com.google.common.base.Predicate;
-import com.google.common.base.Predicates;
+
 import java.util.List;
 import java.util.function.BiPredicate;
 import java.util.stream.Collectors;
@@ -25,8 +26,7 @@ import static com.mrzak34.thunderhack.util.Util.mc;
  * (Custom EntityRaytrace, IBlockAccess, Predicates)
  */
 @SuppressWarnings("Guava")
-public class RayTracer
-{
+public class RayTracer {
     private static final Predicate<Entity> PREDICATE =
             Predicates.and(EntitySelectors.NOT_SPECTATING,
                     e -> e != null && e.canBeCollidedWith());
@@ -37,8 +37,7 @@ public class RayTracer
                                                   PositionManager position,
                                                   RotationManager rotation,
                                                   Predicate<Entity> entityCheck,
-                                                  Entity...additional)
-    {
+                                                  Entity... additional) {
         return rayTraceEntities(world,
                 from,
                 range,
@@ -62,8 +61,7 @@ public class RayTracer
                                                   float pitch,
                                                   AxisAlignedBB fromBB,
                                                   Predicate<Entity> entityCheck,
-                                                  Entity...additional)
-    {
+                                                  Entity... additional) {
         Vec3d eyePos =
                 new Vec3d(posX, posY + from.getEyeHeight(), posZ);
         Vec3d rot =
@@ -85,14 +83,11 @@ public class RayTracer
                 ? PREDICATE
                 : Predicates.and(PREDICATE, entityCheck);
 
-        if (mc.isCallingFromMinecraftThread())
-        {
+        if (mc.isCallingFromMinecraftThread()) {
             entities = world.getEntitiesInAABBexcluding(from,
                     within,
                     predicate);
-        }
-        else
-        {
+        } else {
             entities = mc.world.loadedEntityList
                     .stream()
                     .filter(e -> e != null
@@ -102,49 +97,38 @@ public class RayTracer
                     .collect(Collectors.toList());
         }
 
-        for (Entity entity : additional)
-        {
+        for (Entity entity : additional) {
             if (entity != null
-                    && entity.getEntityBoundingBox().intersects(within))
-            {
+                    && entity.getEntityBoundingBox().intersects(within)) {
                 entities.add(entity);
             }
         }
 
-        for (Entity entity : entities)
-        {
+        for (Entity entity : entities) {
             AxisAlignedBB bb = entity.getEntityBoundingBox()
                     .grow(entity.getCollisionBorderSize());
 
             RayTraceResult result = bb.calculateIntercept(eyePos, intercept);
 
-            if (bb.contains(eyePos))
-            {
-                if (distance >= 0.0)
-                {
+            if (bb.contains(eyePos)) {
+                if (distance >= 0.0) {
                     pointedEntity = entity;
                     hitVec = result == null ? eyePos : result.hitVec;
                     distance = 0.0;
                 }
-            }
-            else if (result != null)
-            {
+            } else if (result != null) {
                 double hitDistance = eyePos.distanceTo(result.hitVec);
 
-                if (hitDistance < distance || distance == 0.0)
-                {
+                if (hitDistance < distance || distance == 0.0) {
                     if (entity.getLowestRidingEntity()
                             == from.getLowestRidingEntity())
                     // TODO: && !entity.canRiderInteract()) for Vanilla?
                     {
-                        if (distance == 0.0)
-                        {
+                        if (distance == 0.0) {
                             pointedEntity = entity;
                             hitVec = result.hitVec;
                         }
-                    }
-                    else
-                    {
+                    } else {
                         pointedEntity = entity;
                         hitVec = result.hitVec;
                         distance = hitDistance;
@@ -153,8 +137,7 @@ public class RayTracer
             }
         }
 
-        if (pointedEntity != null && hitVec != null)
-        {
+        if (pointedEntity != null && hitVec != null) {
             return new RayTraceResult(pointedEntity, hitVec);
         }
 
@@ -171,8 +154,7 @@ public class RayTracer
                                        Vec3d end,
                                        boolean stopOnLiquid,
                                        boolean ignoreBlockWithoutBoundingBox,
-                                       boolean returnLastUncollidableBlock)
-    {
+                                       boolean returnLastUncollidableBlock) {
         return trace(world,
                 access,
                 start,
@@ -193,8 +175,7 @@ public class RayTracer
                                        boolean stopOnLiquid,
                                        boolean ignoreBlockWithoutBoundingBox,
                                        boolean returnLastUncollidableBlock,
-                                       BiPredicate<Block, BlockPos> blockChecker)
-    {
+                                       BiPredicate<Block, BlockPos> blockChecker) {
         return trace(world,
                 world,
                 start,
@@ -209,16 +190,15 @@ public class RayTracer
      * {@link World#rayTraceBlocks(Vec3d, Vec3d, boolean, boolean, boolean)}.
      * But allows you to use a custom {@link IBlockAccess}.
      *
-     * @param world used for
-     * {@link IBlockState#collisionRayTrace(World, BlockPos, Vec3d, Vec3d)}.
-     * @param access gets the IBlockStates.
-     * @param start the start.
-     * @param end the end.
-     * @param stopOnLiquid stops on liquids.
+     * @param world                         used for
+     *                                      {@link IBlockState#collisionRayTrace(World, BlockPos, Vec3d, Vec3d)}.
+     * @param access                        gets the IBlockStates.
+     * @param start                         the start.
+     * @param end                           the end.
+     * @param stopOnLiquid                  stops on liquids.
      * @param ignoreBlockWithoutBoundingBox ignores blocks without a BB.
-     * @param returnLastUncollidableBlock returns last uncollidable block.
-     * @return
-     * {@link World#rayTraceBlocks(Vec3d, Vec3d, boolean, boolean, boolean)}.
+     * @param returnLastUncollidableBlock   returns last uncollidable block.
+     * @return {@link World#rayTraceBlocks(Vec3d, Vec3d, boolean, boolean, boolean)}.
      */
     public static RayTraceResult trace(World world,
                                        IBlockAccess access,
@@ -227,8 +207,7 @@ public class RayTracer
                                        boolean stopOnLiquid,
                                        boolean ignoreBlockWithoutBoundingBox,
                                        boolean returnLastUncollidableBlock,
-                                       BiPredicate<Block, BlockPos> blockChecker)
-    {
+                                       BiPredicate<Block, BlockPos> blockChecker) {
         return traceTri(world,
                 access,
                 start,
@@ -238,7 +217,7 @@ public class RayTracer
                 returnLastUncollidableBlock,
                 blockChecker == null
                         ? null
-                        : (b,p,ef) -> blockChecker.test(b,p));
+                        : (b, p, ef) -> blockChecker.test(b, p));
     }
 
     public static RayTraceResult traceTri(World world,
@@ -248,8 +227,7 @@ public class RayTracer
                                           boolean stopOnLiquid,
                                           boolean ignoreBlockWithoutBoundingBox,
                                           boolean returnLastUncollidableBlock,
-                                          TriPredicate<Block, BlockPos, EnumFacing> blockChecker)
-    {
+                                          TriPredicate<Block, BlockPos, EnumFacing> blockChecker) {
         return traceTri(world,
                 access,
                 start,
@@ -269,8 +247,7 @@ public class RayTracer
                                           boolean ignoreBlockWithoutBoundingBox,
                                           boolean returnLastUncollidableBlock,
                                           TriPredicate<Block, BlockPos, EnumFacing> blockChecker,
-                                          TriPredicate<Block, BlockPos, EnumFacing> collideCheck)
-    {
+                                          TriPredicate<Block, BlockPos, EnumFacing> collideCheck) {
         return traceTri(world,
                 access,
                 start,
@@ -292,16 +269,13 @@ public class RayTracer
                                           boolean returnLastUncollidableBlock,
                                           TriPredicate<Block, BlockPos, EnumFacing> blockChecker,
                                           TriPredicate<Block, BlockPos, EnumFacing> collideCheck,
-                                          CollisionFunction crt)
-    {
+                                          CollisionFunction crt) {
         if (!Double.isNaN(start.x)
                 && !Double.isNaN(start.y)
-                && !Double.isNaN(start.z))
-        {
+                && !Double.isNaN(start.z)) {
             if (!Double.isNaN(end.x)
                     && !Double.isNaN(end.y)
-                    && !Double.isNaN(end.z))
-            {
+                    && !Double.isNaN(end.z)) {
                 int feX = MathHelper.floor(end.x);
                 int feY = MathHelper.floor(end.y);
                 int feZ = MathHelper.floor(end.z);
@@ -319,13 +293,11 @@ public class RayTracer
                         || collideCheck != null
                         && collideCheck.test(block, pos, null))
                         && (blockChecker == null
-                        || blockChecker.test(block, pos, null)))
-                {
+                        || blockChecker.test(block, pos, null))) {
                     RayTraceResult raytraceresult =
                             crt.collisionRayTrace(state, world, pos, start, end);
 
-                    if (raytraceresult != null)
-                    {
+                    if (raytraceresult != null) {
                         return raytraceresult;
                     }
                 }
@@ -333,17 +305,14 @@ public class RayTracer
                 RayTraceResult result = null;
                 int steps = 200;
 
-                while (steps-- >= 0)
-                {
+                while (steps-- >= 0) {
                     if (Double.isNaN(start.x)
                             || Double.isNaN(start.y)
-                            || Double.isNaN(start.z))
-                    {
+                            || Double.isNaN(start.z)) {
                         return null;
                     }
 
-                    if (fsX == feX && fsY == feY && fsZ == feZ)
-                    {
+                    if (fsX == feX && fsY == feY && fsZ == feZ) {
                         return returnLastUncollidableBlock
                                 ? result
                                 : null;
@@ -356,42 +325,27 @@ public class RayTracer
                     double y = 999.0;
                     double z = 999.0;
 
-                    if (feX > fsX)
-                    {
+                    if (feX > fsX) {
                         x = fsX + 1.0;
-                    }
-                    else if (feX < fsX)
-                    {
+                    } else if (feX < fsX) {
                         x = fsX + 0.0;
-                    }
-                    else
-                    {
+                    } else {
                         xEq = false;
                     }
 
-                    if (feY > fsY)
-                    {
+                    if (feY > fsY) {
                         y = fsY + 1.0;
-                    }
-                    else if (feY < fsY)
-                    {
+                    } else if (feY < fsY) {
                         y = fsY + 0.0;
-                    }
-                    else
-                    {
+                    } else {
                         yEq = false;
                     }
 
-                    if (feZ > fsZ)
-                    {
+                    if (feZ > fsZ) {
                         z = fsZ + 1.0;
-                    }
-                    else if (feZ < fsZ)
-                    {
+                    } else if (feZ < fsZ) {
                         z = fsZ + 0.0;
-                    }
-                    else
-                    {
+                    } else {
                         zEq = false;
                     }
 
@@ -402,40 +356,33 @@ public class RayTracer
                     double diffY = end.y - start.y;
                     double diffZ = end.z - start.z;
 
-                    if (xEq)
-                    {
+                    if (xEq) {
                         xOff = (x - start.x) / diffX;
                     }
 
-                    if (yEq)
-                    {
+                    if (yEq) {
                         yOff = (y - start.y) / diffY;
                     }
 
-                    if (zEq)
-                    {
+                    if (zEq) {
                         zOff = (z - start.z) / diffZ;
                     }
 
-                    if (xOff == -0.0)
-                    {
+                    if (xOff == -0.0) {
                         xOff = -1.0E-4D;
                     }
 
-                    if (yOff == -0.0)
-                    {
+                    if (yOff == -0.0) {
                         yOff = -1.0E-4D;
                     }
 
-                    if (zOff == -0.0)
-                    {
+                    if (zOff == -0.0) {
                         zOff = -1.0E-4D;
                     }
 
                     EnumFacing enumfacing;
 
-                    if (xOff < yOff && xOff < zOff)
-                    {
+                    if (xOff < yOff && xOff < zOff) {
                         enumfacing = feX > fsX
                                 ? EnumFacing.WEST
                                 : EnumFacing.EAST;
@@ -443,9 +390,7 @@ public class RayTracer
                         start = new Vec3d(x,
                                 start.y + diffY * xOff,
                                 start.z + diffZ * xOff);
-                    }
-                    else if (yOff < zOff)
-                    {
+                    } else if (yOff < zOff) {
                         enumfacing = feY > fsY
                                 ? EnumFacing.DOWN
                                 : EnumFacing.UP;
@@ -453,9 +398,7 @@ public class RayTracer
                         start = new Vec3d(start.x + diffX * yOff,
                                 y,
                                 start.z + diffZ * yOff);
-                    }
-                    else
-                    {
+                    } else {
                         enumfacing = feZ > fsZ
                                 ? EnumFacing.NORTH
                                 : EnumFacing.SOUTH;
@@ -479,25 +422,20 @@ public class RayTracer
                     if (!ignoreBlockWithoutBoundingBox
                             || state1.getMaterial() == Material.PORTAL
                             || state1.getCollisionBoundingBox(access, pos)
-                            != Block.NULL_AABB)
-                    {
+                            != Block.NULL_AABB) {
                         if ((block1.canCollideCheck(state1, stopOnLiquid)
                                 || collideCheck != null
                                 && collideCheck.test(block1, pos, enumfacing))
                                 && (blockChecker == null
-                                || blockChecker.test(block1, pos, enumfacing)))
-                        {
+                                || blockChecker.test(block1, pos, enumfacing))) {
                             RayTraceResult raytraceresult1 =
                                     crt.collisionRayTrace(
                                             state1, world, pos, start, end);
 
-                            if (raytraceresult1 != null)
-                            {
+                            if (raytraceresult1 != null) {
                                 return raytraceresult1;
                             }
-                        }
-                        else
-                        {
+                        } else {
                             result = new RayTraceResult(
                                     RayTraceResult.Type.MISS,
                                     start,
@@ -508,14 +446,10 @@ public class RayTracer
                 }
 
                 return returnLastUncollidableBlock ? result : null;
-            }
-            else
-            {
+            } else {
                 return null;
             }
-        }
-        else
-        {
+        } else {
             return null;
         }
     }

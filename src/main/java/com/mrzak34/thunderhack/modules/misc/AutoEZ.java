@@ -16,30 +16,11 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class AutoEZ extends Module {
-    public AutoEZ() {
-        super("AutoEZ", "Пишет изи убил убил - после килла","only for-mcfunny.su", Category.MISC);
-        loadEZ();
-    }
-
-    private Setting<ModeEn> Mode = register(new Setting("Mode", ModeEn.Basic));
-
-    public enum ModeEn {
-        Custom,
-        Basic
-    }
-
-    public Setting<Boolean> global = this.register ( new Setting <> ( "global", true));
+    public static ArrayList<String> EZWORDS = new ArrayList<>();
+    public Setting<Boolean> global = this.register(new Setting<>("global", true));
     String a = "";
     String b = "";
     String c = "";
-
-
-    @Override
-    public void onEnable(){
-        loadEZ();
-    }
-
-
     String[] EZ = new String[]{
             "%player% БЫЛ ПОПУЩЕН",
             "%player% БЫЛ ПРИХЛОПНУТ ТАПКОМ",
@@ -65,46 +46,18 @@ public class AutoEZ extends Module {
             "%player% ЛЕЖАТЬ ПЛЮС СОСАТЬ",
             "%player% ИЗИ БОТЯРА"
     };
+    private final Setting<ModeEn> Mode = register(new Setting("Mode", ModeEn.Basic));
 
-    @SubscribeEvent(priority = EventPriority.HIGHEST)
-    public void onPacketReceive(PacketEvent.Receive e){
-        if(fullNullCheck()) return;
-        if (e.getPacket() instanceof SPacketChat) {
-            final SPacketChat packet = e.getPacket();
-            if (packet.getType() != ChatType.GAME_INFO) {
-                a = packet.getChatComponent().getFormattedText();
-                if(a.contains("Вы убили игрока")){
-                    b = ThunderUtils.solvename(a);
 
-                    if(Mode.getValue() == ModeEn.Basic) {
-                        int n;
-                        n = (int) Math.floor(Math.random() * EZ.length);
-                        c = EZ[n].replace("%player%", b);
-                    } else {
-                        if(EZWORDS.isEmpty()){
-                            Command.sendMessage("Файл с AutoEZ пустой!");
-                            return;
-                        }
-                        c = EZWORDS.get(new Random().nextInt(EZWORDS.size()));
-                        c = c.replaceAll("%player%", b);
-                    }
-
-                    mc.player.sendChatMessage(global.getValue() ? "!" + c : c);
-                }
-            }
-        }
+    public AutoEZ() {
+        super("AutoEZ", "Пишет изи убил убил - после килла", "only for-mcfunny.su", Category.MISC);
+        loadEZ();
     }
-
-
-    public static ArrayList<String> EZWORDS = new ArrayList<>();
-
-
-
 
     public static void loadEZ() {
         try {
             File file = new File("ThunderHack/misc/AutoEZ.txt");
-            if (!file.exists()) file.createNewFile();;
+            if (!file.exists()) file.createNewFile();
 
             new Thread(() -> {
                 try {
@@ -112,7 +65,6 @@ public class AutoEZ extends Module {
                     FileInputStream fis = new FileInputStream(file);
                     InputStreamReader isr = new InputStreamReader(fis, StandardCharsets.UTF_8);
                     BufferedReader reader = new BufferedReader(isr);
-
 
 
                     ArrayList<String> lines = new ArrayList<>();
@@ -162,5 +114,45 @@ public class AutoEZ extends Module {
 
     }
 
- // Вы убили игрока Ken257 и забрали у него 802.06$ (нексус ебучий) лооооол и на фанике такое пишет
+    @Override
+    public void onEnable() {
+        loadEZ();
+    }
+
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    public void onPacketReceive(PacketEvent.Receive e) {
+        if (fullNullCheck()) return;
+        if (e.getPacket() instanceof SPacketChat) {
+            final SPacketChat packet = e.getPacket();
+            if (packet.getType() != ChatType.GAME_INFO) {
+                a = packet.getChatComponent().getFormattedText();
+                if (a.contains("Вы убили игрока")) {
+                    b = ThunderUtils.solvename(a);
+
+                    if (Mode.getValue() == ModeEn.Basic) {
+                        int n;
+                        n = (int) Math.floor(Math.random() * EZ.length);
+                        c = EZ[n].replace("%player%", b);
+                    } else {
+                        if (EZWORDS.isEmpty()) {
+                            Command.sendMessage("Файл с AutoEZ пустой!");
+                            return;
+                        }
+                        c = EZWORDS.get(new Random().nextInt(EZWORDS.size()));
+                        c = c.replaceAll("%player%", b);
+                    }
+
+                    mc.player.sendChatMessage(global.getValue() ? "!" + c : c);
+                }
+            }
+        }
+    }
+
+
+    public enum ModeEn {
+        Custom,
+        Basic
+    }
+
+    // Вы убили игрока Ken257 и забрали у него 802.06$ (нексус ебучий) лооооол и на фанике такое пишет
 }

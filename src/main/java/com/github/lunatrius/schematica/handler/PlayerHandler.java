@@ -10,7 +10,8 @@ import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 public class PlayerHandler {
     public static final PlayerHandler INSTANCE = new PlayerHandler();
 
-    private PlayerHandler() {}
+    private PlayerHandler() {
+    }
 
     @SubscribeEvent
     public void onPlayerLoggedIn(final PlayerEvent.PlayerLoggedInEvent event) {

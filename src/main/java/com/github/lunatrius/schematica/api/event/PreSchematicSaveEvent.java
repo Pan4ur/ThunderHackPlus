@@ -12,17 +12,15 @@ import java.util.Map;
  * Register to this event using MinecraftForge.EVENT_BUS
  */
 public class PreSchematicSaveEvent extends Event {
-    private final Map<String, Short> mappings;
-
     /**
      * The schematic that will be saved.
      */
     public final ISchematic schematic;
-
     /**
      * The Extended Metadata tag compound provides a facility to add custom metadata to the schematic.
      */
     public final NBTTagCompound extendedMetadata;
+    private final Map<String, Short> mappings;
 
     @Deprecated
     public PreSchematicSaveEvent(final Map<String, Short> mappings) {
@@ -38,10 +36,11 @@ public class PreSchematicSaveEvent extends Event {
     /**
      * Replaces the block mapping from one name to another. Use this method with care as it is possible that the schematic
      * will not be usable or will have blocks missing if you use an invalid value.
-     *
+     * <p>
      * Attempting to remap two blocks to the same name will result in a DuplicateMappingException. If you wish for this
      * type of collision, you can work around it by merging the two sets of block into a single BlockType in the
      * PostSchematicCaptureEvent.
+     *
      * @param oldName The old name of the block mapping.
      * @param newName The new name of the block Mapping.
      * @return true if a mapping was replaced.

@@ -14,45 +14,38 @@ import java.util.List;
 import static com.mrzak34.thunderhack.util.Util.mc;
 import static com.mrzak34.thunderhack.util.phobos.CalculationMotion.isLegit;
 
-public class HelperUtil
-{
-    public static AutoCrystal.BreakValidity isValid(AutoCrystal module, Entity crystal)
-    {
+public class HelperUtil {
+    public static AutoCrystal.BreakValidity isValid(AutoCrystal module, Entity crystal) {
         return isValid(module, crystal, false);
     }
 
     // TODO: make sure that we use the correct lastPos everywhere!
-    public static AutoCrystal.BreakValidity isValid(AutoCrystal module, Entity crystal, boolean lastPos)
-    {
+    public static AutoCrystal.BreakValidity isValid(AutoCrystal module, Entity crystal, boolean lastPos) {
         if (module.existed.getValue() != 0
                 && System.currentTimeMillis()
                 - ((IEntity) crystal).getTimeStampT()
                 + (module.pingExisted.getValue()
                 ? Thunderhack.serverManager.getPing() / 2.0
                 : 0)
-                < module.existed.getValue())
-        {
+                < module.existed.getValue()) {
             return AutoCrystal.BreakValidity.INVALID;
         }
 
         if (lastPos && !module.rangeHelper.isCrystalInRangeOfLastPosition(crystal)
-                || !lastPos && !module.rangeHelper.isCrystalInRange(crystal))
-        {
+                || !lastPos && !module.rangeHelper.isCrystalInRange(crystal)) {
             return AutoCrystal.BreakValidity.INVALID;
         }
 
         if (lastPos && Thunderhack.positionManager.getDistanceSq(crystal)
                 >= MathUtil.square(module.breakTrace.getValue())
                 || !lastPos && mc.player.getDistanceSq(crystal)
-                >= MathUtil.square(module.breakTrace.getValue()))
-        {
+                >= MathUtil.square(module.breakTrace.getValue())) {
             if (lastPos && !Thunderhack.positionManager.canEntityBeSeen(crystal)
                     || !lastPos && !RayTraceUtil.canBeSeen(
                     new Vec3d(crystal.posX,
                             crystal.posY + 1.7,
                             crystal.posZ),
-                    mc.player))
-            {
+                    mc.player)) {
                 return AutoCrystal.BreakValidity.INVALID;
             }
         }
@@ -65,33 +58,25 @@ public class HelperUtil
                 .arePreviousRotationsLegit(crystal,
                         module.rotationTicks
                                 .getValue(),
-                        true)))
-        {
+                        true))) {
             return AutoCrystal.BreakValidity.VALID;
         }
 
         return AutoCrystal.BreakValidity.ROTATIONS;
     }
 
-    public static void simulateExplosion(AutoCrystal module, double x, double y, double z)
-    {
+    public static void simulateExplosion(AutoCrystal module, double x, double y, double z) {
         List<Entity> entities = mc.world.loadedEntityList;
-        if (entities == null)
-        {
+        if (entities == null) {
             return;
         }
 
-        for (Entity entity : entities)
-        {
+        for (Entity entity : entities) {
             if (entity instanceof EntityEnderCrystal
-                    && entity.getDistanceSq(x, y, z) < 144)
-            {
-                if (module.pseudoSetDead.getValue())
-                {
+                    && entity.getDistanceSq(x, y, z) < 144) {
+                if (module.pseudoSetDead.getValue()) {
                     ((IEntity) entity).setPseudoDeadT(true);
-                }
-                else
-                {
+                } else {
                     Thunderhack.setDeadManager.setDead(entity);
                 }
             }
@@ -106,21 +91,17 @@ public class HelperUtil
      * @param pos the changed position.
      * @return <tt>true</tt> if the position exposes a player.
      */
-    public static boolean validChange(BlockPos pos, List<EntityPlayer> players)
-    {
-        for (EntityPlayer player : players)
-        {
+    public static boolean validChange(BlockPos pos, List<EntityPlayer> players) {
+        for (EntityPlayer player : players) {
             if (player == null
                     || player.equals(mc.player)
                     || (player.isDead)
-                    || Thunderhack.friendManager.isFriend(player))
-            {
+                    || Thunderhack.friendManager.isFriend(player)) {
                 continue;
             }
 
             if (player.getDistanceSqToCenter(pos) <= 4
-                    && player.posY >= pos.getY())
-            {
+                    && player.posY >= pos.getY()) {
                 return true;
             }
         }
@@ -128,17 +109,14 @@ public class HelperUtil
         return false;
     }
 
-    public static boolean valid(Entity entity, double range, double trace)
-    {
+    public static boolean valid(Entity entity, double range, double trace) {
         EntityPlayer player = mc.player;
         double d = entity.getDistanceSq(player);
-        if (d >= MathUtil.square(range))
-        {
+        if (d >= MathUtil.square(range)) {
             return false;
         }
 
-        if (d >= trace)
-        {
+        if (d >= trace) {
             return RayTraceUtil.canBeSeen(entity, player);
         }
 

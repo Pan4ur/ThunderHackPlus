@@ -5,17 +5,16 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.texture.DynamicTexture;
 import org.lwjgl.opengl.GL11;
 
-
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class CFontRenderer extends CFont {
 
+    private final int[] colorCode = new int[32];
     protected CFont.CharData[] boldChars = new CFont.CharData[1104];
     protected CFont.CharData[] italicChars = new CFont.CharData[1104];
     protected CFont.CharData[] boldItalicChars = new CFont.CharData[1104];
-    private final int[] colorCode = new int[32];
     protected DynamicTexture texBold;
     protected DynamicTexture texItalic;
     protected DynamicTexture texItalicBold;
@@ -28,10 +27,10 @@ public class CFontRenderer extends CFont {
 
     public void drawStringWithDropShadow(String text, float x, float y, int color) {
         for (int i = 0; i < 5; i++) {
-            this.drawString(text, (float) x + 0.5f * i, (float) y + 0.5f * i, new Color(0, 0, 0, 100 - i * 20).hashCode());
+            this.drawString(text, x + 0.5f * i, y + 0.5f * i, new Color(0, 0, 0, 100 - i * 20).hashCode());
 
         }
-        this.drawString(text, (float) x, (float) y, color);
+        this.drawString(text, x, y, color);
     }
 
 
@@ -61,7 +60,6 @@ public class CFontRenderer extends CFont {
     public float drawCenteredString(String text, float x, float y, int color) {
         return this.drawString(text, x - (float) this.getStringWidth(text) / 2.0f, y, color);
     }
-
 
 
     public float drawCenteredString(String text, double x, double y, int color) {

@@ -22,44 +22,38 @@ import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
-import java.util.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class Indicators extends Module {
-    public Indicators() {
-        super("WexIndicators", "Индикаторы как в вексайде-(из вексайда)", Category.HUD);
-    }
-
-
-    private static List<Indicator> indicators = new java.util.ArrayList();
     public static AstolfoAnimation astolfo = new AstolfoAnimation();
-
+    private static final List<Indicator> indicators = new java.util.ArrayList();
+    private final Setting<ColorSetting> cc = this.register(new Setting<>("Color", new ColorSetting(0x8800FF00)));
+    private final Setting<ColorSetting> cs = this.register(new Setting<>("RectColor", new ColorSetting(0x8800FF00)));
+    private final Setting<PositionSetting> pos = this.register(new Setting<>("Position", new PositionSetting(0.5f, 0.5f)));
     public Setting<Boolean> dmgflyy = register(new Setting<>("DMGFly", true));
     public Setting<Boolean> Memoryy = register(new Setting<>("Memory", true));
     public Setting<Boolean> Timerr = register(new Setting<>("Timer", true));
     public Setting<Boolean> TPS = register(new Setting<>("TPS", true));
     public Setting<Boolean> dmgspeed = register(new Setting<>("DMGSpeed", true));
-
     public Setting<Boolean> blur = register(new Setting<>("Blur", true));
-    private final Setting<ColorSetting> cc = this.register(new Setting<>("Color", new ColorSetting(0x8800FF00)));
-    private final Setting<ColorSetting> cs = this.register(new Setting<>("RectColor", new ColorSetting(0x8800FF00)));
-
-    private final Setting<PositionSetting> pos = this.register(new Setting<>("Position", new PositionSetting(0.5f,0.5f)));
-
     public Setting<Float> grange = register(new Setting("GlowRange", 3.6f, 0.0f, 10.0f));
     public Setting<Float> gmult = register(new Setting("GlowMultiplier", 3.6f, 0.0f, 10.0f));
     public Setting<Float> range = register(new Setting("RangeBetween", 46.0f, 46.0f, 100.0f));
+    boolean once = false;
+    int dragX, dragY = 0;
+    boolean mousestate = false;
+    float posX, posY = 0;
+    private final Setting<mode2> colorType = register(new Setting("Mode", mode2.Astolfo));
 
-
-
-    private Setting<mode2> colorType = register(new Setting("Mode", mode2.Astolfo));
-    public enum mode2 {
-        Static, StateBased, Astolfo;
+    public Indicators() {
+        super("WexIndicators", "Индикаторы как в вексайде-(из вексайда)", Category.HUD);
     }
 
-    boolean once = false;
-
+    public static float[] getRG(double input) {
+        return new float[]{255 - 255 * (float) input, 255 * (float) input, 100 * (float) input};
+    }
 
     protected void once() {
         indicators.add(new Indicator() {
@@ -153,20 +147,20 @@ public class Indicators extends Module {
     }
 
     @SubscribeEvent
-    public void onRender2D(Render2DEvent e){
+    public void onRender2D(Render2DEvent e) {
         posX = e.scaledResolution.getScaledWidth() * pos.getValue().getX();
-        posY  = e.scaledResolution.getScaledHeight() * pos.getValue().getY();
-        if(mc.currentScreen instanceof GuiChat || mc.currentScreen instanceof HudEditorGui || mc.currentScreen instanceof ThunderGui2){
-            if(isHovering(e.scaledResolution)){
-                if(Mouse.isButtonDown(0) && mousestate){
-                    pos.getValue().setX( (float) (normaliseX() - dragX) /  e.scaledResolution.getScaledWidth());
-                    pos.getValue().setY( (float) (normaliseY(e.scaledResolution) - dragY) / e.scaledResolution.getScaledHeight());
+        posY = e.scaledResolution.getScaledHeight() * pos.getValue().getY();
+        if (mc.currentScreen instanceof GuiChat || mc.currentScreen instanceof HudEditorGui || mc.currentScreen instanceof ThunderGui2) {
+            if (isHovering(e.scaledResolution)) {
+                if (Mouse.isButtonDown(0) && mousestate) {
+                    pos.getValue().setX((float) (normaliseX() - dragX) / e.scaledResolution.getScaledWidth());
+                    pos.getValue().setY((float) (normaliseY(e.scaledResolution) - dragY) / e.scaledResolution.getScaledHeight());
                 }
             }
         }
 
-        if(Mouse.isButtonDown(0) && isHovering(e.scaledResolution)){
-            if(!mousestate){
+        if (Mouse.isButtonDown(0) && isHovering(e.scaledResolution)) {
+            if (!mousestate) {
                 dragX = (int) (normaliseX() - (pos.getValue().getX() * e.scaledResolution.getScaledWidth()));
                 dragY = (int) (normaliseY(e.scaledResolution) - (pos.getValue().getY() * e.scaledResolution.getScaledHeight()));
             }
@@ -178,27 +172,21 @@ public class Indicators extends Module {
         draw(e.scaledResolution);
     }
 
-
-    int dragX, dragY = 0;
-    boolean mousestate = false;
-
-    public int normaliseX(){
-        return (int) ((Mouse.getX()/2f));
+    public int normaliseX() {
+        return (int) ((Mouse.getX() / 2f));
     }
 
-    public int normaliseY(ScaledResolution sr){
-        return (((-Mouse.getY() + sr.getScaledHeight()) + sr.getScaledHeight())/2);
+    public int normaliseY(ScaledResolution sr) {
+        return (((-Mouse.getY() + sr.getScaledHeight()) + sr.getScaledHeight()) / 2);
     }
 
-    public boolean isHovering(ScaledResolution sr){
-        return normaliseX() > posX && normaliseX()< posX + 150 && normaliseY(sr) > posY &&  normaliseY(sr) < posY + 50;
+    public boolean isHovering(ScaledResolution sr) {
+        return normaliseX() > posX && normaliseX() < posX + 150 && normaliseY(sr) > posY && normaliseY(sr) < posY + 50;
     }
-
-    float posX,posY = 0;
 
     @Override
     public void onUpdate() {
-        if(!once){
+        if (!once) {
             once();
             once = true;
             return;
@@ -222,11 +210,11 @@ public class Indicators extends Module {
                 GL11.glPushMatrix();
                 GL11.glTranslated(range.getValue() * i, 0, 0);
                 Indicator ind = enabledIndicators.get(i);
-             //   renderShadow(0, 0, 40, 40, ColorShell.rgba(25, 25, 25, 180), 3);
-                if(!blur.getValue()) {
-                    RenderUtil.drawSmoothRect(0, 0, 44, 44,new Color(25, 25, 25, 180).getRGB());
+                //   renderShadow(0, 0, 40, 40, ColorShell.rgba(25, 25, 25, 180), 3);
+                if (!blur.getValue()) {
+                    RenderUtil.drawSmoothRect(0, 0, 44, 44, new Color(25, 25, 25, 180).getRGB());
                 } else {
-                    DrawHelper.drawRectWithGlow(0, 0, 44, 44,grange.getValue(),gmult.getValue(),cs.getValue().getColorObject());
+                    DrawHelper.drawRectWithGlow(0, 0, 44, 44, grange.getValue(), gmult.getValue(), cs.getValue().getColorObject());
                 }
 
 
@@ -283,19 +271,19 @@ public class Indicators extends Module {
         if (!oldState)
             GL11.glDisable(GL11.GL_BLEND);
         GL11.glEnable(GL11.GL_TEXTURE_2D);
-      //  GL11.glShadeModel(GL11.GL_FLAT);
+        //  GL11.glShadeModel(GL11.GL_FLAT);
         GL11.glColor4f(1, 1, 1, 1);
-        if(!Objects.equals(name, "TPS")) {
+        if (!Objects.equals(name, "TPS")) {
             FontRender.drawCentString6((int) (offset * 100) + "%", 0.3f, -0.8f, new Color(200, 200, 200, 255).getRGB());
             FontRender.drawCentString6(name, 0, -20f, new Color(200, 200, 200, 255).getRGB());
         } else {
-            FontRender.drawCentString6(String.valueOf((int) (offset * 20)), 0f, -0.8f,new Color(200, 200, 200, 255).getRGB());
-            FontRender.drawCentString6(name, 0f, -20f,new Color(200, 200, 200, 255).getRGB());
+            FontRender.drawCentString6(String.valueOf((int) (offset * 20)), 0f, -0.8f, new Color(200, 200, 200, 255).getRGB());
+            FontRender.drawCentString6(name, 0f, -20f, new Color(200, 200, 200, 255).getRGB());
         }
     }
 
-    public static float[] getRG(double input) {
-        return new float[] { 255 - 255 * (float) input, 255 * (float) input, 100 * (float) input };
+    public enum mode2 {
+        Static, StateBased, Astolfo
     }
 
     public static abstract class Indicator {

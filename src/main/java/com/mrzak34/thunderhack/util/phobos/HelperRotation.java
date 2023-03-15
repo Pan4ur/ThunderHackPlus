@@ -27,24 +27,54 @@ import static com.mrzak34.thunderhack.util.phobos.CalculationMotion.rayTraceTo;
 import static com.mrzak34.thunderhack.util.phobos.RotationSmoother.getRotations;
 
 // TODO: make the resetting better!
-public class HelperRotation
-{
+public class HelperRotation {
     private static final AtomicInteger ID = new AtomicInteger();
-  //  private static final ModuleCache<Offhand> OFFHAND = Caches.getModule(Offhand.class);
+    //  private static final ModuleCache<Offhand> OFFHAND = Caches.getModule(Offhand.class);
 
 
     private final RotationSmoother smoother;
     private final AutoCrystal module;
 
-    public HelperRotation(AutoCrystal module)
-    {
+    public HelperRotation(AutoCrystal module) {
         this.smoother = new RotationSmoother(Thunderhack.rotationManager);
         this.module = module;
     }
 
+    public static Runnable wrap(Runnable runnable) {
+        return () -> acquire(runnable);
+    }
+
+    public static void acquire(Runnable runnable) {
+        try {
+            runnable.run();
+        } catch (Exception ignored) {
+
+        }
+    }
+
+    public static void startDigging(BlockPos pos, EnumFacing facing) {
+        Util.mc.player.connection.sendPacket(new CPacketPlayerDigging(
+                CPacketPlayerDigging.Action.START_DESTROY_BLOCK, pos, facing));
+    }
+
+    public static void stopDigging(BlockPos pos, EnumFacing facing) {
+        Util.mc.player.connection.sendPacket(new CPacketPlayerDigging(
+                CPacketPlayerDigging.Action.STOP_DESTROY_BLOCK, pos, facing));
+    }
+
+    public static WeaknessSwitch antiWeakness(AutoCrystal module) {
+        if (!module.weaknessHelper.isWeaknessed()) {
+            return WeaknessSwitch.NONE;
+        } else if (module.antiWeakness.getValue() == AutoCrystal.AntiWeakness.None
+                || module.cooldown.getValue() != 0) {
+            return WeaknessSwitch.INVALID;
+        }
+
+        return new WeaknessSwitch(DamageUtil.findAntiWeakness(), true);
+    }
+
     public RotationFunction forPlacing(BlockPos pos,
-                                       MutableWrapper<Boolean> hasPlaced)
-    {
+                                       MutableWrapper<Boolean> hasPlaced) {
         int id = ID.incrementAndGet();
         Timer timer = new Timer();
         MutableWrapper<Boolean> ended = new MutableWrapper<>(false);
@@ -58,23 +88,19 @@ public class HelperRotation
                     || (module.autoSwitch.getValue() != AutoCrystal.AutoSwitch.Always
                     && !module.switching
                     && !module.weaknessHelper.canSwitch()
-                    && !InventoryUtil.isHolding(Items.END_CRYSTAL)))
-            {
-                if (!ended.get())
-                {
+                    && !InventoryUtil.isHolding(Items.END_CRYSTAL))) {
+                if (!ended.get()) {
                     ended.set(true);
                     timer.reset();
                 }
 
                 if (!module.attack.getValue()
-                        || timer.passedMs(module.endRotations.getValue()))
-                {
-                    if (id == ID.get())
-                    {
+                        || timer.passedMs(module.endRotations.getValue())) {
+                    if (id == ID.get()) {
                         module.rotation = null;
                     }
 
-                    return new float[] { yaw, pitch };
+                    return new float[]{yaw, pitch};
                 }
 
                 breaking = true;
@@ -85,14 +111,10 @@ public class HelperRotation
                                 pos.getZ() + 0.5f,
                                 x, y, z,
                                 Util.mc.player.getEyeHeight());
-            }
-            else
-            {
+            } else {
                 double height = module.placeHeight.getValue();
-                if (module.smartTrace.getValue())
-                {
-                    for (EnumFacing facing : EnumFacing.values())
-                    {
+                if (module.smartTrace.getValue()) {
+                    for (EnumFacing facing : EnumFacing.values()) {
                         Ray ray = RayTraceFactory.rayTrace(
                                 Util.mc.player,
                                 pos,
@@ -100,27 +122,22 @@ public class HelperRotation
                                 Util.mc.world,
                                 Blocks.OBSIDIAN.getDefaultState(),
                                 module.traceWidth.getValue());
-                        if (ray.isLegit())
-                        {
+                        if (ray.isLegit()) {
                             rotations = ray.getRotations();
                             break;
                         }
                     }
                 }
 
-                if (rotations == null)
-                {
-                    if (module.fallbackTrace.getValue())
-                    {
+                if (rotations == null) {
+                    if (module.fallbackTrace.getValue()) {
                         rotations = getRotations(
                                 pos.getX() + 0.5,
                                 pos.getY() + 1.0,
                                 pos.getZ() + 0.5,
                                 x, y, z,
                                 Util.mc.player.getEyeHeight());
-                    }
-                    else
-                    {
+                    } else {
                         rotations = getRotations(
                                 pos.getX() + 0.5,
                                 pos.getY() + height,
@@ -133,45 +150,38 @@ public class HelperRotation
 
             return smoother.smoothen(rotations,
                     breaking ? module.angle.getValue()
-                            :  module.placeAngle.getValue());
+                            : module.placeAngle.getValue());
         };
     }
 
     public RotationFunction forBreaking(Entity entity,
-                                        MutableWrapper<Boolean> attacked)
-    {
+                                        MutableWrapper<Boolean> attacked) {
         int id = ID.incrementAndGet();
         Timer timer = new Timer();
         MutableWrapper<Boolean> ended = new MutableWrapper<>(false);
         return (x, y, z, yaw, pitch) ->
         {
-            if (Util.mc.player.getDistanceSq(entity) > 64)
-            {
+            if (Util.mc.player.getDistanceSq(entity) > 64) {
                 attacked.set(true);
             }
 
-            if (module.getTarget() == null)
-            {
+            if (module.getTarget() == null) {
                 attacked.set(true);
             }
 
-            if (attacked.get())
-            {
-                if (!ended.get())
-                {
+            if (attacked.get()) {
+                if (!ended.get()) {
                     ended.set(true);
                     timer.reset();
                 }
 
                 if (ended.get()
-                        && timer.passedMs(module.endRotations.getValue()))
-                {
-                    if (id == ID.get())
-                    {
+                        && timer.passedMs(module.endRotations.getValue())) {
+                    if (id == ID.get()) {
                         module.rotation = null;
                     }
 
-                    return new float[] { yaw, pitch };
+                    return new float[]{yaw, pitch};
                 }
             }
 
@@ -182,13 +192,11 @@ public class HelperRotation
         };
     }
 
-    public RotationFunction forObby(PositionData data)
-    {
-        return (x,y,z,yaw,pitch) ->
+    public RotationFunction forObby(PositionData data) {
+        return (x, y, z, yaw, pitch) ->
         {
-            if (data.getPath().length <= 0)
-            {
-                return new float[]{ yaw, pitch };
+            if (data.getPath().length <= 0) {
+                return new float[]{yaw, pitch};
             }
 
             Ray ray = data.getPath()[0];
@@ -202,25 +210,20 @@ public class HelperRotation
                          boolean realtime,
                          BlockPos pos,
                          MutableWrapper<Boolean> placed,
-                         MutableWrapper<Boolean> liquidBreak)
-    {
+                         MutableWrapper<Boolean> liquidBreak) {
         return () ->
         {
-            if (liquidBreak != null && !liquidBreak.get())
-            {
+            if (liquidBreak != null && !liquidBreak.get()) {
                 return;
             }
 
-            if (!InventoryUtil.isHolding(Items.END_CRYSTAL))
-            {
+            if (!InventoryUtil.isHolding(Items.END_CRYSTAL)) {
                 if (module.autoSwitch.getValue() == AutoCrystal.AutoSwitch.Always
                         || module.autoSwitch.getValue() == AutoCrystal.AutoSwitch.Bind
-                        && module.switching)
-                {
-                    if (!module.mainHand.getValue())
-                    {
+                        && module.switching) {
+                    if (!module.mainHand.getValue()) {
 
-                       // OFFHAND.computeIfPresent(o -> o.setMode(OffhandMode.CRYSTAL));
+                        // OFFHAND.computeIfPresent(o -> o.setMode(OffhandMode.CRYSTAL));
 /*
 
                         if (module.instantOffhand.getValue())
@@ -250,48 +253,37 @@ public class HelperRotation
 
  */
                     }
-                }
-                else
-                {
+                } else {
                     return;
                 }
             }
 
             int slot = -1;
             EnumHand hand = InventoryUtil.getHand(Items.END_CRYSTAL);
-            if (hand == null)
-            {
-                if (module.mainHand.getValue())
-                {
+            if (hand == null) {
+                if (module.mainHand.getValue()) {
                     slot = InventoryUtil.getCrysathotbar();
-                    if (slot == -1)
-                    {
+                    if (slot == -1) {
                         return;
                     }
                     // -2 shouldn't really happen, but just to be safe
                     hand = slot == -2 ? EnumHand.OFF_HAND : EnumHand.MAIN_HAND;
-                }
-                else
-                {
+                } else {
                     return;
                 }
             }
 
             RayTraceResult ray = rayTraceTo(pos, Util.mc.world);
-            if (ray == null || !pos.equals(ray.getBlockPos()))
-            {
-                if (!module.noRotateNigga(AutoCrystal.ACRotate.Place) && !module.isNotCheckingRotations())
-                {
+            if (ray == null || !pos.equals(ray.getBlockPos())) {
+                if (!module.noRotateNigga(AutoCrystal.ACRotate.Place) && !module.isNotCheckingRotations()) {
                     return;
                 }
 
                 ray = new RayTraceResult(new Vec3d(0.5, 1.0, 0.5), EnumFacing.UP);
-            }
-            else if (module.fallbackTrace.getValue()
+            } else if (module.fallbackTrace.getValue()
                     && Util.mc.world.getBlockState(ray.getBlockPos().offset(ray.sideHit))
                     .getMaterial()
-                    .isSolid())
-            {
+                    .isSolid()) {
                 ray = new RayTraceResult(
                         new Vec3d(0.5, 1.0, 0.5), EnumFacing.UP);
             }
@@ -303,8 +295,7 @@ public class HelperRotation
             // we need to check this here since we switch
             if (module.idHelper.isDangerous(Util.mc.player,
                     module.holdingCheck.getValue(),
-                    module.toolCheck.getValue()))
-            {
+                    module.toolCheck.getValue())) {
                 module.noGod = true;
                 noGodded = true;
             }
@@ -313,29 +304,28 @@ public class HelperRotation
             EnumHand finalHand = hand;
             RayTraceResult finalRay = ray;
             boolean finalNoGodded = noGodded;
-            acquire( () ->
+            acquire(() ->
             {
                 int lastSlot = Util.mc.player.inventory.currentItem;
-                if (finalSlot != -1 && finalSlot != -2){
-                        switch (module.cooldownBypass.getValue()) {
-                            case None:
-                                CooldownBypass.None.switchTo(finalSlot);
-                                break;
-                            case Pick:
-                                CooldownBypass.Pick.switchTo(finalSlot);
-                                break;
-                            case Slot:
-                                CooldownBypass.Slot.switchTo(finalSlot);
-                                break;
-                            case Swap:
-                                CooldownBypass.Swap.switchTo(finalSlot);
-                                break;
-                        }
+                if (finalSlot != -1 && finalSlot != -2) {
+                    switch (module.cooldownBypass.getValue()) {
+                        case None:
+                            CooldownBypass.None.switchTo(finalSlot);
+                            break;
+                        case Pick:
+                            CooldownBypass.Pick.switchTo(finalSlot);
+                            break;
+                        case Slot:
+                            CooldownBypass.Slot.switchTo(finalSlot);
+                            break;
+                        case Swap:
+                            CooldownBypass.Swap.switchTo(finalSlot);
+                            break;
+                    }
                 }
 
                 InventoryUtil.syncItem();
-                if (swingTime == AutoCrystal.SwingTime.Pre)
-                {
+                if (swingTime == AutoCrystal.SwingTime.Pre) {
                     swing(finalHand, false);
                 }
 
@@ -344,20 +334,17 @@ public class HelperRotation
                                 pos, finalRay.sideHit, finalHand, f[0], f[1], f[2]));
                 module.sequentialHelper.setExpecting(pos);
 
-                if (finalNoGodded)
-                {
+                if (finalNoGodded) {
                     module.noGod = false;
                 }
 
                 placed.set(true);
 
-                if (swingTime == AutoCrystal.SwingTime.Post)
-                {
+                if (swingTime == AutoCrystal.SwingTime.Post) {
                     swing(finalHand, false);
                 }
 
-                if (module.switchBack.getValue())
-                {
+                if (module.switchBack.getValue()) {
                     switch (module.cooldownBypass.getValue()) {
                         case None:
                             CooldownBypass.None.switchBack(lastSlot, finalSlot);
@@ -375,13 +362,11 @@ public class HelperRotation
                 }
             });
 
-            if (realtime)
-            {
+            if (realtime) {
                 module.setRenderPos(pos, damage);
             }
 
-            if (module.simulatePlace.getValue() != 0)
-            {
+            if (module.simulatePlace.getValue() != 0) {
                 module.crystalRender.addFakeCrystal(
                         new EntityEnderCrystal(Util.mc.world, pos.getX() + 0.5f,
                                 pos.getY() + 1,
@@ -390,8 +375,7 @@ public class HelperRotation
         };
     }
 
-    public Runnable post(Entity entity, MutableWrapper<Boolean> attacked)
-    {
+    public Runnable post(Entity entity, MutableWrapper<Boolean> attacked) {
         return () ->
         {
             WeaknessSwitch w = antiWeakness(module);
@@ -399,8 +383,7 @@ public class HelperRotation
                     || (EntityUtil.isDead(entity))
                     || !module.noRotateNigga(AutoCrystal.ACRotate.Break)
                     && !module.isNotCheckingRotations()
-                    && !isLegit(entity))
-            {
+                    && !isLegit(entity)) {
                 return;
             }
 
@@ -409,8 +392,7 @@ public class HelperRotation
             Runnable runnable = () ->
             {
                 int lastSlot = Util.mc.player.inventory.currentItem;
-                if (w.getSlot() != -1)
-                {
+                if (w.getSlot() != -1) {
                     switch (module.antiWeaknessBypass.getValue()) {
                         case None:
                             CooldownBypass.None.switchTo(w.getSlot());
@@ -427,21 +409,18 @@ public class HelperRotation
                     }
                 }
 
-                if (swingTime == AutoCrystal.SwingTime.Pre)
-                {
+                if (swingTime == AutoCrystal.SwingTime.Pre) {
                     swing(EnumHand.MAIN_HAND, true);
                 }
 
                 Util.mc.player.connection.sendPacket(packet);
                 attacked.set(true);
 
-                if (swingTime == AutoCrystal.SwingTime.Post)
-                {
+                if (swingTime == AutoCrystal.SwingTime.Post) {
                     swing(EnumHand.MAIN_HAND, true);
                 }
 
-                if (w.getSlot() != -1)
-                {
+                if (w.getSlot() != -1) {
                     switch (module.antiWeaknessBypass.getValue()) {
                         case None:
                             CooldownBypass.None.switchBack(lastSlot, w.getSlot());
@@ -459,29 +438,23 @@ public class HelperRotation
                 }
             };
 
-            if (w.getSlot() != -1)
-            {
-               acquire(runnable);
-            }
-            else
-            {
+            if (w.getSlot() != -1) {
+                acquire(runnable);
+            } else {
                 runnable.run();
             }
 
-            if (module.pseudoSetDead.getValue())
-            {
+            if (module.pseudoSetDead.getValue()) {
                 ((IEntity) entity).setPseudoDeadT(true);
             }
 
-            if (module.setDead.getValue())
-            {
+            if (module.setDead.getValue()) {
                 Thunderhack.setDeadManager.setDead(entity);
             }
         };
     }
 
-    public Runnable postBlock(PositionData data)
-    {
+    public Runnable postBlock(PositionData data) {
         return postBlock(data, -1, module.obbyRotate.getValue(), null, null);
     }
 
@@ -489,20 +462,17 @@ public class HelperRotation
                               int preSlot,
                               AutoCrystal.Rotate rotate,
                               MutableWrapper<Boolean> placed,
-                              MutableWrapper<Integer> switchBack)
-    {
+                              MutableWrapper<Integer> switchBack) {
         return () ->
         {
-            if (!data.isValid())
-            {
+            if (!data.isValid()) {
                 return;
             }
 
             int slot = preSlot == -1
                     ? InventoryUtil.findHotbarBlock(Blocks.OBSIDIAN)
                     : preSlot;
-            if (slot == -1)
-            {
+            if (slot == -1) {
                 return;
             }
 
@@ -512,8 +482,7 @@ public class HelperRotation
             acquire(() ->
             {
                 int lastSlot = Util.mc.player.inventory.currentItem;
-                if (switchBack != null)
-                {
+                if (switchBack != null) {
                     switchBack.set(lastSlot);
                 }
 
@@ -532,11 +501,9 @@ public class HelperRotation
                         break;
                 }
 
-                for (Ray ray : data.getPath())
-                {
+                for (Ray ray : data.getPath()) {
                     if (rotate == AutoCrystal.Rotate.Packet
-                            && !isLegit(ray.getPos(), ray.getFacing()))
-                    {
+                            && !isLegit(ray.getPos(), ray.getFacing())) {
                         Thunderhack.rotationManager.setBlocking(true);
                         float[] r = ray.getRotations();
                         Util.mc.player.connection.sendPacket(rotation(r[0], r[1], Util.mc.player.onGround));
@@ -555,12 +522,10 @@ public class HelperRotation
                                     f[1],
                                     f[2]));
 
-                    if (module.setState.getValue() && preSlot == -1)
-                    {
+                    if (module.setState.getValue() && preSlot == -1) {
                         Util.mc.addScheduledTask(() ->
                         {
-                            if (Util.mc.world != null)
-                            {
+                            if (Util.mc.world != null) {
                                 Util.mc.world.setBlockState(
                                         ray.getPos().offset(ray.getFacing()),
                                         Blocks.OBSIDIAN.getDefaultState());
@@ -568,14 +533,12 @@ public class HelperRotation
                         });
                     }
 
-                    if (placeSwing == AutoCrystal.PlaceSwing.Always)
-                    {
+                    if (placeSwing == AutoCrystal.PlaceSwing.Always) {
                         Swing.Packet.swing(hand);
                     }
                 }
 
-                if (placeSwing == AutoCrystal.PlaceSwing.Once)
-                {
+                if (placeSwing == AutoCrystal.PlaceSwing.Once) {
                     Swing.Packet.swing(hand);
                 }
 
@@ -594,49 +557,31 @@ public class HelperRotation
                         break;
                 }
 
-                if (placed != null)
-                {
+                if (placed != null) {
                     placed.set(true);
                 }
             });
 
             EnumHand swingHand = resolvehand3();
-            if (swingHand != null)
-            {
+            if (swingHand != null) {
                 Swing.Client.swing(swingHand);
             }
         };
     }
 
-    public static Runnable wrap( Runnable runnable)
-    {
-        return () -> acquire( runnable);
-    }
-    public static void acquire(Runnable runnable)
-    {
-        try
-        {
-            runnable.run();
-        } catch (Exception ignored){
-
-        }
-    }
     public Runnable breakBlock(int toolSlot,
                                MutableWrapper<Boolean> placed,
                                MutableWrapper<Integer> lastSlot,
                                int[] order,
-                               Ray...positions)
-    {
+                               Ray... positions) {
         return wrap(() ->
         {
-            if (order.length != positions.length)
-            {
+            if (order.length != positions.length) {
                 throw new IndexOutOfBoundsException("Order length: "
                         + order.length + ", Positions length: " + positions.length);
             }
 
-            if (!placed.get())
-            {
+            if (!placed.get()) {
                 return;
             }
 
@@ -654,12 +599,11 @@ public class HelperRotation
                     CooldownBypass.Swap.switchTo(toolSlot);
                     break;
             }
-            for (int i : order)
-            {
+            for (int i : order) {
                 Ray ray = positions[i];
                 BlockPos pos = ray.getPos().offset(ray.getFacing());
                 startDigging(pos, ray.getFacing().getOpposite());
-                stopDigging( pos, ray.getFacing().getOpposite());
+                stopDigging(pos, ray.getFacing().getOpposite());
                 Swing.Packet.swing(EnumHand.MAIN_HAND);
             }
 
@@ -680,33 +624,17 @@ public class HelperRotation
         });
     }
 
-
-
-    public static void startDigging(BlockPos pos, EnumFacing facing)
-    {
-        Util.mc.player.connection.sendPacket(new CPacketPlayerDigging(
-                CPacketPlayerDigging.Action.START_DESTROY_BLOCK, pos, facing));
-    }
-
-    public static void stopDigging(BlockPos pos, EnumFacing facing)
-    {
-        Util.mc.player.connection.sendPacket(new CPacketPlayerDigging(
-                CPacketPlayerDigging.Action.STOP_DESTROY_BLOCK, pos, facing));
-    }
-
-    public void swing(EnumHand hand, boolean breaking)
-    {
+    public void swing(EnumHand hand, boolean breaking) {
         Swing.Packet.swing(hand);
         EnumHand swingHand = breaking ? resolvehand() : resolvehand2();
 
-        if (swingHand != null)
-        {
+        if (swingHand != null) {
             Swing.Client.swing(swingHand);
         }
     }
 
-    EnumHand resolvehand(){
-        switch(module.swing.getValue()){
+    EnumHand resolvehand() {
+        switch (module.swing.getValue()) {
             case None:
                 return null;
             case OffHand:
@@ -717,8 +645,8 @@ public class HelperRotation
         return EnumHand.MAIN_HAND;
     }
 
-    EnumHand resolvehand2(){
-        switch(module.placeHand.getValue()){
+    EnumHand resolvehand2() {
+        switch (module.placeHand.getValue()) {
             case None:
                 return null;
             case OffHand:
@@ -729,8 +657,8 @@ public class HelperRotation
         return EnumHand.MAIN_HAND;
     }
 
-    EnumHand resolvehand3(){
-        switch(module.obbyHand.getValue()){
+    EnumHand resolvehand3() {
+        switch (module.obbyHand.getValue()) {
             case None:
                 return null;
             case OffHand:
@@ -739,21 +667,6 @@ public class HelperRotation
                 return EnumHand.MAIN_HAND;
         }
         return EnumHand.MAIN_HAND;
-    }
-
-    public static WeaknessSwitch antiWeakness(AutoCrystal module)
-    {
-        if (!module.weaknessHelper.isWeaknessed())
-        {
-            return WeaknessSwitch.NONE;
-        }
-        else if (module.antiWeakness.getValue() == AutoCrystal.AntiWeakness.None
-                || module.cooldown.getValue() != 0)
-        {
-            return WeaknessSwitch.INVALID;
-        }
-
-        return new WeaknessSwitch(DamageUtil.findAntiWeakness(), true);
     }
 
 }

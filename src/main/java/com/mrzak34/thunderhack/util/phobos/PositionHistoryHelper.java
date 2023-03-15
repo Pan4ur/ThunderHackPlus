@@ -15,40 +15,37 @@ import java.util.Deque;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
-public class PositionHistoryHelper extends Feature
-{
+public class PositionHistoryHelper extends Feature {
     private static final int REMOVE_TIME = 1000;
 
     private final Deque<RotationHistory> packets;
 
-    public PositionHistoryHelper()
-    {
+    public PositionHistoryHelper() {
         this.packets = new ConcurrentLinkedDeque<>();
     }
 
     @SubscribeEvent
-    public void onConnect(ConnectToServerEvent e){
+    public void onConnect(ConnectToServerEvent e) {
         packets.clear();
     }
 
     @SubscribeEvent
-    public void onPacketSend(PacketEvent.Send e){
-        if(e.getPacket() instanceof CPacketPlayer){
+    public void onPacketSend(PacketEvent.Send e) {
+        if (e.getPacket() instanceof CPacketPlayer) {
             onPlayerPacket(e.getPacket());
         }
-        if(e.getPacket() instanceof CPacketPlayer.Position){
+        if (e.getPacket() instanceof CPacketPlayer.Position) {
             onPlayerPacket(e.getPacket());
         }
-        if(e.getPacket() instanceof CPacketPlayer.Rotation){
+        if (e.getPacket() instanceof CPacketPlayer.Rotation) {
             onPlayerPacket(e.getPacket());
         }
-        if(e.getPacket() instanceof CPacketPlayer.PositionRotation){
+        if (e.getPacket() instanceof CPacketPlayer.PositionRotation) {
             onPlayerPacket(e.getPacket());
         }
     }
 
-    private void onPlayerPacket(CPacketPlayer packet)
-    {
+    private void onPlayerPacket(CPacketPlayer packet) {
         packets.removeIf(h ->
                 h == null || System.currentTimeMillis() - h.time > REMOVE_TIME);
         packets.addFirst(new RotationHistory(packet));
@@ -56,36 +53,26 @@ public class PositionHistoryHelper extends Feature
 
     public boolean arePreviousRotationsLegit(Entity entity,
                                              int time,
-                                             boolean skipFirst)
-    {
-        if (time == 0)
-        {
+                                             boolean skipFirst) {
+        if (time == 0) {
             return true;
         }
 
         Iterator<RotationHistory> itr = packets.iterator();
-        while (itr.hasNext())
-        {
+        while (itr.hasNext()) {
             RotationHistory next = itr.next();
-            if (skipFirst)
-            {
+            if (skipFirst) {
                 // SkipFirst, since in most cases we
                 // already checked the first Rotations
                 continue;
             }
 
-            if (next != null)
-            {
-                if (System.currentTimeMillis() - next.time > REMOVE_TIME)
-                {
+            if (next != null) {
+                if (System.currentTimeMillis() - next.time > REMOVE_TIME) {
                     itr.remove();
-                }
-                else if (System.currentTimeMillis() - next.time > time)
-                {
+                } else if (System.currentTimeMillis() - next.time > time) {
                     break;
-                }
-                else if (!isLegit(next, entity))
-                {
+                } else if (!isLegit(next, entity)) {
                     return false;
                 }
             }
@@ -94,8 +81,7 @@ public class PositionHistoryHelper extends Feature
         return true;
     }
 
-    private boolean isLegit(RotationHistory history, Entity entity)
-    {
+    private boolean isLegit(RotationHistory history, Entity entity) {
         RayTraceResult result =
                 RayTracer.rayTraceEntities(mc.world,
                         RotationUtil.getRotationPlayer(),
@@ -114,8 +100,11 @@ public class PositionHistoryHelper extends Feature
                 && entity.equals(result.entityHit);
     }
 
-    public static final class RotationHistory
-    {
+    public Deque<RotationHistory> getPackets() {
+        return packets;
+    }
+
+    public static final class RotationHistory {
         public final double x;
         public final double y;
         public final double z;
@@ -127,8 +116,7 @@ public class PositionHistoryHelper extends Feature
         public final boolean hasPos;
         public final boolean hasChanged;
 
-        public RotationHistory(CPacketPlayer packet)
-        {
+        public RotationHistory(CPacketPlayer packet) {
             this(packet.getX(Thunderhack.positionManager.getX()),
                     packet.getY(Thunderhack.positionManager.getY()),
                     packet.getZ(Thunderhack.positionManager.getZ()),
@@ -144,8 +132,7 @@ public class PositionHistoryHelper extends Feature
                                float yaw,
                                float pitch,
                                boolean hasLook,
-                               boolean hasPos)
-        {
+                               boolean hasPos) {
             this.x = x;
             this.y = y;
             this.z = z;
@@ -159,11 +146,6 @@ public class PositionHistoryHelper extends Feature
             this.bb = new AxisAlignedBB(x - w, y, z - w, x + w, y + h, z + w);
             this.hasChanged = hasLook || hasPos;
         }
-    }
-
-    public Deque<RotationHistory> getPackets()
-    {
-        return packets;
     }
 
 }

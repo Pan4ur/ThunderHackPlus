@@ -5,7 +5,7 @@ import com.mrzak34.thunderhack.macro.Macro;
 import java.io.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public class MacroManager  {
+public class MacroManager {
 
     private static CopyOnWriteArrayList<Macro> macros = new CopyOnWriteArrayList<>();
 
@@ -15,24 +15,7 @@ public class MacroManager  {
         }
     }
 
-    public void removeMacro(Macro macro) {
-        macros.remove(macro);
-    }
-
-    public  CopyOnWriteArrayList<Macro> getMacros() {
-        return macros;
-    }
-
-    public  Macro getMacroByName(String name) {
-        for (Macro macro : getMacros()) {
-            if (macro.getName().equalsIgnoreCase(name)) {
-                return macro;
-            }
-        }
-        return null;
-    }
-
-    public static void onLoad(){
+    public static void onLoad() {
         macros = new CopyOnWriteArrayList<>();
         try {
             File file = new File("ThunderHack/misc/macro.txt");
@@ -44,26 +27,45 @@ public class MacroManager  {
                         String name = nameandkey[0];
                         String key = nameandkey[1];
                         String command = nameandkey[2];
-                        addMacro(new Macro(name, command,Integer.parseInt(key)));
+                        addMacro(new Macro(name, command, Integer.parseInt(key)));
                     }
 
                 }
             }
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
     }
 
     public static void saveMacro() {
         File file = new File("ThunderHack/misc/macro.txt");
-            try {
-                new File("ThunderHack").mkdirs();
-                file.createNewFile();
-            } catch (Exception e){
+        try {
+            new File("ThunderHack").mkdirs();
+            file.createNewFile();
+        } catch (Exception e) {
 
-            }
+        }
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
             for (Macro macro : macros) {
                 writer.write(macro.getName() + ":" + macro.getBind() + ":" + macro.getText() + "\n");
             }
-        } catch (Exception ignored){}
+        } catch (Exception ignored) {
+        }
+    }
+
+    public void removeMacro(Macro macro) {
+        macros.remove(macro);
+    }
+
+    public CopyOnWriteArrayList<Macro> getMacros() {
+        return macros;
+    }
+
+    public Macro getMacroByName(String name) {
+        for (Macro macro : getMacros()) {
+            if (macro.getName().equalsIgnoreCase(name)) {
+                return macro;
+            }
+        }
+        return null;
     }
 }

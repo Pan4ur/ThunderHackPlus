@@ -1,11 +1,11 @@
 package com.mrzak34.thunderhack.modules.render;
 
 import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.events.Render3DEvent;
+import com.mrzak34.thunderhack.mixin.mixins.IRenderManager;
+import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.setting.Setting;
-import com.mrzak34.thunderhack.mixin.mixins.IRenderManager;
 import com.mrzak34.thunderhack.util.BlockUtils;
 import com.mrzak34.thunderhack.util.CrystalUtils;
 import com.mrzak34.thunderhack.util.FaceMasks;
@@ -13,15 +13,15 @@ import com.mrzak34.thunderhack.util.TessellatorUtil;
 import net.minecraft.block.BlockAir;
 import net.minecraft.block.BlockObsidian;
 import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.init.Blocks;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
@@ -53,291 +53,19 @@ public class HoleESP
     private final Setting<Boolean> obsidian = this.register(new Setting<>("Obsidian", true));
     private final Setting<Boolean> vunerable = this.register(new Setting<>("Vulnerable", false));
     private final Setting<Boolean> selfVunerable = this.register(new Setting<>("Self", false));
-
-    private List<BlockPos> obiHoles = new ArrayList<>();
-    private List<BlockPos> bedrockHoles = new ArrayList<>();
-    private List<TwoBlockHole> obiHolesTwoBlock = new ArrayList<>();
-    private List<TwoBlockHole> bedrockHolesTwoBlock = new ArrayList<>();
-
     private final Setting<ColorSetting> bRockHoleColor = this.register(new Setting<>("bRockHoleColor", new ColorSetting(0x8800FF00)));
     private final Setting<ColorSetting> bRockLineColor = this.register(new Setting<>("bRockLineColor", new ColorSetting(0x88FF0000)));
     private final Setting<ColorSetting> obiHoleColor = this.register(new Setting<>("obiHoleColor", new ColorSetting(0x8800FF00)));
     private final Setting<ColorSetting> obiLineHoleColor = this.register(new Setting<>("obiLineHoleColor", new ColorSetting(0xFFFF0000)));
     private final Setting<ColorSetting> vunerableColor = this.register(new Setting<>("vunerableColor", new ColorSetting(0x66FF00FF)));
     private final Setting<ColorSetting> vunerableLineColor = this.register(new Setting<>("vunerableLineColor", new ColorSetting(0xFFFF00FF)));
-
-    private enum Lines {
-        FULL, BOTTOM, TOP
-    }
+    private final List<BlockPos> obiHoles = new ArrayList<>();
+    private final List<BlockPos> bedrockHoles = new ArrayList<>();
+    private final List<TwoBlockHole> obiHolesTwoBlock = new ArrayList<>();
+    private final List<TwoBlockHole> bedrockHolesTwoBlock = new ArrayList<>();
 
     public HoleESP() {
         super("HoleESP", "рендерить безопасные-холки", Category.RENDER);
-    }
-
-    private enum Mode {
-        BOTTOM,
-        OUTLINE,
-        FULL,
-        WIREFRAME,
-        FADE
-    }
-
-    @Override
-    public void onUpdate() {
-        if (mc.world == null || mc.player == null) return;
-        obiHoles.clear();
-        bedrockHoles.clear();
-        obiHolesTwoBlock.clear();
-        bedrockHolesTwoBlock.clear();
-        Iterable<BlockPos> blocks = BlockPos.getAllInBox(mc.player.getPosition().add(-rangeXZ.getValue(), -rangeY.getValue(), -rangeXZ.getValue()), mc.player.getPosition().add(rangeXZ.getValue(), rangeY.getValue(), rangeXZ.getValue()));
-
-        for (BlockPos pos : blocks) {
-            if (!(
-                    mc.world.getBlockState(pos).getMaterial().blocksMovement() &&
-                            mc.world.getBlockState(pos.add(0, 1, 0)).getMaterial().blocksMovement() &&
-                            mc.world.getBlockState(pos.add(0, 2, 0)).getMaterial().blocksMovement()
-            )) {
-
-
-                if (BlockUtils.validObi(pos) && obsidian.getValue()) {
-                    this.obiHoles.add(pos);
-                } else {
-                    final BlockPos validTwoBlock = BlockUtils.validTwoBlockObiXZ(pos);
-                    if (validTwoBlock != null && obsidian.getValue() && twoBlock.getValue()) {
-                        this.obiHolesTwoBlock.add(new TwoBlockHole(pos, pos.add(validTwoBlock.getX(), validTwoBlock.getY(), validTwoBlock.getZ())));
-                    }
-                }
-
-                if (BlockUtils.validBedrock(pos) && bedrock.getValue()) {
-                    this.bedrockHoles.add(pos);
-                } else {
-                    final BlockPos validTwoBlock = BlockUtils.validTwoBlockBedrockXZ(pos);
-                    if (validTwoBlock != null && bedrock.getValue() && twoBlock.getValue()) {
-                        this.bedrockHolesTwoBlock.add(new TwoBlockHole(pos, pos.add(validTwoBlock.getX(), validTwoBlock.getY(), validTwoBlock.getZ())));
-                    }
-                }
-
-
-            }
-        }
-
-    }
-
-    /*
-    @Override
-    public String get() {
-        return mode.getValue().toString().charAt(0) + mode.getValue().toString().substring(1).toLowerCase(); // хуета чтоб в аррей листе было
-    }
-
-     */
-
-    @SubscribeEvent
-    public void onRender3D(Render3DEvent event) {
-        if (mc.world == null || mc.player == null) return;
-
-        if (mode.getValue() == Mode.BOTTOM) {
-            GlStateManager.pushMatrix();
-            beginRender();
-            GlStateManager.enableBlend();
-            GlStateManager.glLineWidth(5.0f);
-            GlStateManager.disableTexture2D();
-            GlStateManager.depthMask(false);
-            GlStateManager.disableDepth();
-
-            GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-
-            for (BlockPos pos : this.bedrockHoles) {
-                final AxisAlignedBB box = new AxisAlignedBB(pos.getX(), pos.getY(), pos.getZ(), pos.getX() + 1, pos.getY(), pos.getZ() + 1);
-
-                drawBoundingBox(box, bRockHoleColor.getValue().getColorObject());
-            }
-
-            for (BlockPos pos : this.obiHoles) {
-                final AxisAlignedBB box = new AxisAlignedBB(pos.getX(), pos.getY(), pos.getZ(), pos.getX() + 1, pos.getY(), pos.getZ() + 1);
-
-                drawBoundingBox(box, obiHoleColor.getValue().getColorObject());
-            }
-
-            for (TwoBlockHole pos : this.bedrockHolesTwoBlock) {
-                final AxisAlignedBB box = new AxisAlignedBB(pos.getOne().getX(), pos.getOne().getY(), pos.getOne().getZ(), pos.getExtra().getX() + 1, pos.getExtra().getY(), pos.getExtra().getZ() + 1);
-
-                drawBoundingBox(box, bRockHoleColor.getValue().getColorObject());
-            }
-
-            for (TwoBlockHole pos : this.obiHolesTwoBlock) {
-                final AxisAlignedBB box = new AxisAlignedBB(pos.getOne().getX(), pos.getOne().getY(), pos.getOne().getZ(), pos.getExtra().getX() + 1, pos.getExtra().getY(), pos.getExtra().getZ() + 1);
-
-                drawBoundingBox(box, obiHoleColor.getValue().getColorObject());
-            }
-
-            GlStateManager.color(1F, 1F, 1F, 1F);
-            GlStateManager.enableDepth();
-            GlStateManager.depthMask(true);
-            GlStateManager.enableTexture2D();
-            GlStateManager.disableBlend();
-            endRender();
-            GlStateManager.popMatrix();
-        } else {
-            for (BlockPos pos : this.bedrockHoles) {
-                drawHole(pos, bRockHoleColor.getValue(), bRockLineColor.getValue());
-            }
-
-            for (BlockPos pos : this.obiHoles) {
-                drawHole(pos, obiHoleColor.getValue(), obiLineHoleColor.getValue());
-            }
-
-            for (TwoBlockHole pos : this.bedrockHolesTwoBlock) {
-                drawHoleTwoBlock(pos.getOne(), pos.getExtra(), bRockHoleColor.getValue(), bRockLineColor.getValue());
-            }
-
-            for (TwoBlockHole pos : this.obiHolesTwoBlock) {
-                drawHoleTwoBlock(pos.getOne(), pos.getExtra(), obiHoleColor.getValue(), obiLineHoleColor.getValue());
-            }
-        }
-
-        if (vunerable.getValue()) {
-            List<Entity> targetsInRange = mc.world.loadedEntityList.
-                    stream()
-                    .filter(e -> e instanceof EntityPlayer)
-                    .filter(e -> e.getDistance(mc.player) < rangeXZ.getValue())
-                    .filter(e -> e != mc.player || selfVunerable.getValue())
-                    .filter(e -> !Thunderhack.friendManager.isFriend(e.getName()))
-                    .sorted(Comparator.comparing(e -> mc.player.getDistance(e)))
-                    .collect(Collectors.toList());
-
-            for (Entity target : targetsInRange) {
-                ArrayList<BlockPos> vuns = getVulnerablePositions(new BlockPos(target));
-
-                for (BlockPos pos : vuns) {
-                    AxisAlignedBB axisAlignedBB = mc.world.getBlockState(pos).getBoundingBox(mc.world, pos).offset(pos);
-                    TessellatorUtil.prepare();
-                    TessellatorUtil.drawBox(axisAlignedBB, true, 1, vunerableColor.getValue().getColorObject(), vunerableColor.getValue().getAlpha(), FaceMasks.Quad.ALL);
-                    TessellatorUtil.drawBoundingBox(axisAlignedBB, width.getValue(), vunerableLineColor.getValue().getColorObject());
-                    TessellatorUtil.release();
-                }
-            }
-        }
-    }
-
-    public void drawHole(BlockPos pos, ColorSetting color, ColorSetting lineColor) {
-        AxisAlignedBB axisAlignedBB = mc.world.getBlockState(pos).getBoundingBox(mc.world, pos).offset(pos);
-
-        axisAlignedBB = axisAlignedBB.setMaxY(axisAlignedBB.minY + height.getValue());
-
-        if (mode.getValue() == Mode.FULL) {
-            TessellatorUtil.prepare();
-            TessellatorUtil.drawBox(axisAlignedBB, true, 1, color.getColorObject(), color.getAlpha(), sides.getValue() ? FaceMasks.Quad.NORTH | FaceMasks.Quad.SOUTH | FaceMasks.Quad.WEST | FaceMasks.Quad.EAST : FaceMasks.Quad.ALL);
-            TessellatorUtil.release();
-        }
-
-        if (mode.getValue() == Mode.FULL || mode.getValue() == Mode.OUTLINE) {
-            TessellatorUtil.prepare();
-            TessellatorUtil.drawBoundingBox(axisAlignedBB, width.getValue(), lineColor.getColorObject());
-            TessellatorUtil.release();
-        }
-
-        if (mode.getValue() == Mode.WIREFRAME) {
-            prepareGL2();
-            drawWireframe2(axisAlignedBB.offset(-((IRenderManager) mc.getRenderManager()).getRenderPosX(), -((IRenderManager) mc.getRenderManager()).getRenderPosY(), -((IRenderManager) mc.getRenderManager()).getRenderPosZ()), lineColor.getColor(), width.getValue());
-            releaseGL2();
-        }
-
-        if (mode.getValue() == Mode.FADE) {
-            AxisAlignedBB tBB = mc.world.getBlockState(pos).getBoundingBox(mc.world, pos).offset(pos);
-            tBB = tBB.setMaxY(tBB.minY + height.getValue());
-
-            if (mc.player.getEntityBoundingBox() != null && tBB.intersects(mc.player.getEntityBoundingBox()) && notSelf.getValue()) {
-                tBB = tBB.setMaxY(Math.min(tBB.maxY, mc.player.posY + 1D));
-            }
-
-            TessellatorUtil.prepare();
-            if (depth.getValue()) {
-                GlStateManager.enableDepth();
-                tBB = tBB.shrink(0.01D);
-            }
-            TessellatorUtil.drawBox(tBB, true, height.getValue(), color.getColorObject(), fadeAlpha.getValue(), sides.getValue() ? FaceMasks.Quad.NORTH | FaceMasks.Quad.SOUTH | FaceMasks.Quad.WEST | FaceMasks.Quad.EAST : FaceMasks.Quad.ALL);
-            if (width.getValue() >= 0.1F) {
-                if (lines.getValue() == Lines.BOTTOM) {
-                    tBB = new AxisAlignedBB(tBB.minX, tBB.minY, tBB.minZ, tBB.maxX, tBB.minY, tBB.maxZ);
-                } else if (lines.getValue() == Lines.TOP) {
-                    tBB = new AxisAlignedBB(tBB.minX, tBB.maxY, tBB.minZ, tBB.maxX, tBB.maxY, tBB.maxZ);
-                }
-                if (noLineDepth.getValue()) {
-                    GlStateManager.disableDepth();
-                }
-                TessellatorUtil.drawBoundingBox(tBB, width.getValue(), lineColor.getColorObject(), fadeAlpha.getValue());
-            }
-            TessellatorUtil.release();
-        }
-    }
-
-    public void drawHoleTwoBlock(BlockPos pos, BlockPos two, ColorSetting color, ColorSetting lineColor) {
-        AxisAlignedBB axisAlignedBB = new AxisAlignedBB(pos.getX(), pos.getY(), pos.getZ(), two.getX() + 1, two.getY() + height.getValue(), two.getZ() + 1);
-
-        if (mode.getValue() == Mode.FULL) {
-            TessellatorUtil.prepare();
-            TessellatorUtil.drawBox(axisAlignedBB, true, 1, color.getColorObject(), color.getAlpha(), sides.getValue() ? FaceMasks.Quad.NORTH | FaceMasks.Quad.SOUTH | FaceMasks.Quad.WEST | FaceMasks.Quad.EAST : FaceMasks.Quad.ALL);
-            TessellatorUtil.release();
-        }
-
-        if (mode.getValue() == Mode.FULL || mode.getValue() == Mode.OUTLINE) {
-            TessellatorUtil.prepare();
-            TessellatorUtil.drawBoundingBox(axisAlignedBB, width.getValue(), lineColor.getColorObject());
-            TessellatorUtil.release();
-        }
-
-        if (mode.getValue() == Mode.WIREFRAME) {
-            prepareGL2();
-            drawWireframe2(axisAlignedBB.offset(-((IRenderManager) mc.getRenderManager()).getRenderPosX(), -((IRenderManager) mc.getRenderManager()).getRenderPosY(), -((IRenderManager) mc.getRenderManager()).getRenderPosZ()), lineColor.getColor(), width.getValue());
-            releaseGL2();
-        }
-
-        if (mode.getValue() == Mode.FADE) {
-            AxisAlignedBB tBB = new AxisAlignedBB(pos.getX(), pos.getY(), pos.getZ(), two.getX() + 1, two.getY() + height.getValue(), two.getZ() + 1);
-
-            if (tBB.intersects(mc.player.getEntityBoundingBox()) && notSelf.getValue()) {
-                tBB = tBB.setMaxY(Math.min(tBB.maxY, mc.player.posY + 1D));
-            }
-
-            TessellatorUtil.prepare();
-            if (depth.getValue()) {
-                GlStateManager.enableDepth();
-                tBB = tBB.shrink(0.01D);
-            }
-            TessellatorUtil.drawBox(tBB, true, height.getValue(), color.getColorObject(), fadeAlpha.getValue(), sides.getValue() ? FaceMasks.Quad.NORTH | FaceMasks.Quad.SOUTH | FaceMasks.Quad.WEST | FaceMasks.Quad.EAST : FaceMasks.Quad.ALL);
-            if (width.getValue() >= 0.1F) {
-                if (lines.getValue() == Lines.BOTTOM) {
-                    tBB = new AxisAlignedBB(tBB.minX, tBB.minY, tBB.minZ, tBB.maxX, tBB.minY, tBB.maxZ);
-                } else if (lines.getValue() == Lines.TOP) {
-                    tBB = new AxisAlignedBB(tBB.minX, tBB.maxY, tBB.minZ, tBB.maxX, tBB.maxY, tBB.maxZ);
-                }
-                if (noLineDepth.getValue()) {
-                    GlStateManager.disableDepth();
-                }
-                TessellatorUtil.drawBoundingBox(tBB, width.getValue(), lineColor.getColorObject(), fadeAlpha.getValue());
-            }
-            TessellatorUtil.release();
-        }
-    }
-
-    private static class TwoBlockHole {
-
-        private final BlockPos one;
-        private final BlockPos extra;
-
-        public TwoBlockHole(BlockPos one, BlockPos extra) {
-            this.one = one;
-            this.extra = extra;
-        }
-
-        public BlockPos getOne() {
-            return one;
-        }
-
-        public BlockPos getExtra() {
-            return extra;
-        }
-
     }
 
     public static void prepareGL2() {
@@ -547,7 +275,13 @@ public class HoleESP
         GL11.glPopMatrix();
     }
 
+    /*
+    @Override
+    public String get() {
+        return mode.getValue().toString().charAt(0) + mode.getValue().toString().substring(1).toLowerCase(); // хуета чтоб в аррей листе было
+    }
 
+     */
 
     public static ArrayList<BlockPos> getVulnerablePositions(BlockPos root) {
         ArrayList<BlockPos> vP = new ArrayList<>();
@@ -618,6 +352,269 @@ public class HoleESP
         GlStateManager.enableCull();
         GlStateManager.enableLighting();
         GlStateManager.disableBlend();
+    }
+
+    @Override
+    public void onUpdate() {
+        if (mc.world == null || mc.player == null) return;
+        obiHoles.clear();
+        bedrockHoles.clear();
+        obiHolesTwoBlock.clear();
+        bedrockHolesTwoBlock.clear();
+        Iterable<BlockPos> blocks = BlockPos.getAllInBox(mc.player.getPosition().add(-rangeXZ.getValue(), -rangeY.getValue(), -rangeXZ.getValue()), mc.player.getPosition().add(rangeXZ.getValue(), rangeY.getValue(), rangeXZ.getValue()));
+
+        for (BlockPos pos : blocks) {
+            if (!(
+                    mc.world.getBlockState(pos).getMaterial().blocksMovement() &&
+                            mc.world.getBlockState(pos.add(0, 1, 0)).getMaterial().blocksMovement() &&
+                            mc.world.getBlockState(pos.add(0, 2, 0)).getMaterial().blocksMovement()
+            )) {
+
+
+                if (BlockUtils.validObi(pos) && obsidian.getValue()) {
+                    this.obiHoles.add(pos);
+                } else {
+                    final BlockPos validTwoBlock = BlockUtils.validTwoBlockObiXZ(pos);
+                    if (validTwoBlock != null && obsidian.getValue() && twoBlock.getValue()) {
+                        this.obiHolesTwoBlock.add(new TwoBlockHole(pos, pos.add(validTwoBlock.getX(), validTwoBlock.getY(), validTwoBlock.getZ())));
+                    }
+                }
+
+                if (BlockUtils.validBedrock(pos) && bedrock.getValue()) {
+                    this.bedrockHoles.add(pos);
+                } else {
+                    final BlockPos validTwoBlock = BlockUtils.validTwoBlockBedrockXZ(pos);
+                    if (validTwoBlock != null && bedrock.getValue() && twoBlock.getValue()) {
+                        this.bedrockHolesTwoBlock.add(new TwoBlockHole(pos, pos.add(validTwoBlock.getX(), validTwoBlock.getY(), validTwoBlock.getZ())));
+                    }
+                }
+
+
+            }
+        }
+
+    }
+
+    @SubscribeEvent
+    public void onRender3D(Render3DEvent event) {
+        if (mc.world == null || mc.player == null) return;
+        glPushAttrib(GL_ALL_ATTRIB_BITS);
+        if (mode.getValue() == Mode.BOTTOM) {
+            GlStateManager.pushMatrix();
+            beginRender();
+            GlStateManager.enableBlend();
+            GlStateManager.glLineWidth(5.0f);
+            GlStateManager.disableTexture2D();
+            GlStateManager.depthMask(false);
+            GlStateManager.disableDepth();
+
+            GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+
+            for (BlockPos pos : this.bedrockHoles) {
+                final AxisAlignedBB box = new AxisAlignedBB(pos.getX(), pos.getY(), pos.getZ(), pos.getX() + 1, pos.getY(), pos.getZ() + 1);
+
+                drawBoundingBox(box, bRockHoleColor.getValue().getColorObject());
+            }
+
+            for (BlockPos pos : this.obiHoles) {
+                final AxisAlignedBB box = new AxisAlignedBB(pos.getX(), pos.getY(), pos.getZ(), pos.getX() + 1, pos.getY(), pos.getZ() + 1);
+
+                drawBoundingBox(box, obiHoleColor.getValue().getColorObject());
+            }
+
+            for (TwoBlockHole pos : this.bedrockHolesTwoBlock) {
+                final AxisAlignedBB box = new AxisAlignedBB(pos.getOne().getX(), pos.getOne().getY(), pos.getOne().getZ(), pos.getExtra().getX() + 1, pos.getExtra().getY(), pos.getExtra().getZ() + 1);
+
+                drawBoundingBox(box, bRockHoleColor.getValue().getColorObject());
+            }
+
+            for (TwoBlockHole pos : this.obiHolesTwoBlock) {
+                final AxisAlignedBB box = new AxisAlignedBB(pos.getOne().getX(), pos.getOne().getY(), pos.getOne().getZ(), pos.getExtra().getX() + 1, pos.getExtra().getY(), pos.getExtra().getZ() + 1);
+
+                drawBoundingBox(box, obiHoleColor.getValue().getColorObject());
+            }
+
+            GlStateManager.color(1F, 1F, 1F, 1F);
+            GlStateManager.enableDepth();
+            GlStateManager.depthMask(true);
+            GlStateManager.enableTexture2D();
+            GlStateManager.disableBlend();
+            endRender();
+            GlStateManager.popMatrix();
+        } else {
+            for (BlockPos pos : this.bedrockHoles) {
+                drawHole(pos, bRockHoleColor.getValue(), bRockLineColor.getValue());
+            }
+
+            for (BlockPos pos : this.obiHoles) {
+                drawHole(pos, obiHoleColor.getValue(), obiLineHoleColor.getValue());
+            }
+
+            for (TwoBlockHole pos : this.bedrockHolesTwoBlock) {
+                drawHoleTwoBlock(pos.getOne(), pos.getExtra(), bRockHoleColor.getValue(), bRockLineColor.getValue());
+            }
+
+            for (TwoBlockHole pos : this.obiHolesTwoBlock) {
+                drawHoleTwoBlock(pos.getOne(), pos.getExtra(), obiHoleColor.getValue(), obiLineHoleColor.getValue());
+            }
+        }
+
+        if (vunerable.getValue()) {
+            List<Entity> targetsInRange = mc.world.loadedEntityList.
+                    stream()
+                    .filter(e -> e instanceof EntityPlayer)
+                    .filter(e -> e.getDistance(mc.player) < rangeXZ.getValue())
+                    .filter(e -> e != mc.player || selfVunerable.getValue())
+                    .filter(e -> !Thunderhack.friendManager.isFriend(e.getName()))
+                    .sorted(Comparator.comparing(e -> mc.player.getDistance(e)))
+                    .collect(Collectors.toList());
+
+            for (Entity target : targetsInRange) {
+                ArrayList<BlockPos> vuns = getVulnerablePositions(new BlockPos(target));
+
+                for (BlockPos pos : vuns) {
+                    AxisAlignedBB axisAlignedBB = mc.world.getBlockState(pos).getBoundingBox(mc.world, pos).offset(pos);
+                    TessellatorUtil.prepare();
+                    TessellatorUtil.drawBox(axisAlignedBB, true, 1, vunerableColor.getValue().getColorObject(), vunerableColor.getValue().getAlpha(), FaceMasks.Quad.ALL);
+                    TessellatorUtil.drawBoundingBox(axisAlignedBB, width.getValue(), vunerableLineColor.getValue().getColorObject());
+                    TessellatorUtil.release();
+                }
+            }
+        }
+        glPopAttrib();
+    }
+
+    public void drawHole(BlockPos pos, ColorSetting color, ColorSetting lineColor) {
+        AxisAlignedBB axisAlignedBB = mc.world.getBlockState(pos).getBoundingBox(mc.world, pos).offset(pos);
+
+        axisAlignedBB = axisAlignedBB.setMaxY(axisAlignedBB.minY + height.getValue());
+
+        if (mode.getValue() == Mode.FULL) {
+            TessellatorUtil.prepare();
+            TessellatorUtil.drawBox(axisAlignedBB, true, 1, color.getColorObject(), color.getAlpha(), sides.getValue() ? FaceMasks.Quad.NORTH | FaceMasks.Quad.SOUTH | FaceMasks.Quad.WEST | FaceMasks.Quad.EAST : FaceMasks.Quad.ALL);
+            TessellatorUtil.release();
+        }
+
+        if (mode.getValue() == Mode.FULL || mode.getValue() == Mode.OUTLINE) {
+            TessellatorUtil.prepare();
+            TessellatorUtil.drawBoundingBox(axisAlignedBB, width.getValue(), lineColor.getColorObject());
+            TessellatorUtil.release();
+        }
+
+        if (mode.getValue() == Mode.WIREFRAME) {
+            prepareGL2();
+            drawWireframe2(axisAlignedBB.offset(-((IRenderManager) mc.getRenderManager()).getRenderPosX(), -((IRenderManager) mc.getRenderManager()).getRenderPosY(), -((IRenderManager) mc.getRenderManager()).getRenderPosZ()), lineColor.getColor(), width.getValue());
+            releaseGL2();
+        }
+
+        if (mode.getValue() == Mode.FADE) {
+            AxisAlignedBB tBB = mc.world.getBlockState(pos).getBoundingBox(mc.world, pos).offset(pos);
+            tBB = tBB.setMaxY(tBB.minY + height.getValue());
+
+            if (mc.player.getEntityBoundingBox() != null && tBB.intersects(mc.player.getEntityBoundingBox()) && notSelf.getValue()) {
+                tBB = tBB.setMaxY(Math.min(tBB.maxY, mc.player.posY + 1D));
+            }
+
+            TessellatorUtil.prepare();
+            if (depth.getValue()) {
+                GlStateManager.enableDepth();
+                tBB = tBB.shrink(0.01D);
+            }
+            TessellatorUtil.drawBox(tBB, true, height.getValue(), color.getColorObject(), fadeAlpha.getValue(), sides.getValue() ? FaceMasks.Quad.NORTH | FaceMasks.Quad.SOUTH | FaceMasks.Quad.WEST | FaceMasks.Quad.EAST : FaceMasks.Quad.ALL);
+            if (width.getValue() >= 0.1F) {
+                if (lines.getValue() == Lines.BOTTOM) {
+                    tBB = new AxisAlignedBB(tBB.minX, tBB.minY, tBB.minZ, tBB.maxX, tBB.minY, tBB.maxZ);
+                } else if (lines.getValue() == Lines.TOP) {
+                    tBB = new AxisAlignedBB(tBB.minX, tBB.maxY, tBB.minZ, tBB.maxX, tBB.maxY, tBB.maxZ);
+                }
+                if (noLineDepth.getValue()) {
+                    GlStateManager.disableDepth();
+                }
+                TessellatorUtil.drawBoundingBox(tBB, width.getValue(), lineColor.getColorObject(), fadeAlpha.getValue());
+            }
+            TessellatorUtil.release();
+        }
+    }
+
+    public void drawHoleTwoBlock(BlockPos pos, BlockPos two, ColorSetting color, ColorSetting lineColor) {
+        AxisAlignedBB axisAlignedBB = new AxisAlignedBB(pos.getX(), pos.getY(), pos.getZ(), two.getX() + 1, two.getY() + height.getValue(), two.getZ() + 1);
+
+        if (mode.getValue() == Mode.FULL) {
+            TessellatorUtil.prepare();
+            TessellatorUtil.drawBox(axisAlignedBB, true, 1, color.getColorObject(), color.getAlpha(), sides.getValue() ? FaceMasks.Quad.NORTH | FaceMasks.Quad.SOUTH | FaceMasks.Quad.WEST | FaceMasks.Quad.EAST : FaceMasks.Quad.ALL);
+            TessellatorUtil.release();
+        }
+
+        if (mode.getValue() == Mode.FULL || mode.getValue() == Mode.OUTLINE) {
+            TessellatorUtil.prepare();
+            TessellatorUtil.drawBoundingBox(axisAlignedBB, width.getValue(), lineColor.getColorObject());
+            TessellatorUtil.release();
+        }
+
+        if (mode.getValue() == Mode.WIREFRAME) {
+            prepareGL2();
+            drawWireframe2(axisAlignedBB.offset(-((IRenderManager) mc.getRenderManager()).getRenderPosX(), -((IRenderManager) mc.getRenderManager()).getRenderPosY(), -((IRenderManager) mc.getRenderManager()).getRenderPosZ()), lineColor.getColor(), width.getValue());
+            releaseGL2();
+        }
+
+        if (mode.getValue() == Mode.FADE) {
+            AxisAlignedBB tBB = new AxisAlignedBB(pos.getX(), pos.getY(), pos.getZ(), two.getX() + 1, two.getY() + height.getValue(), two.getZ() + 1);
+
+            if (tBB.intersects(mc.player.getEntityBoundingBox()) && notSelf.getValue()) {
+                tBB = tBB.setMaxY(Math.min(tBB.maxY, mc.player.posY + 1D));
+            }
+
+            TessellatorUtil.prepare();
+            if (depth.getValue()) {
+                GlStateManager.enableDepth();
+                tBB = tBB.shrink(0.01D);
+            }
+            TessellatorUtil.drawBox(tBB, true, height.getValue(), color.getColorObject(), fadeAlpha.getValue(), sides.getValue() ? FaceMasks.Quad.NORTH | FaceMasks.Quad.SOUTH | FaceMasks.Quad.WEST | FaceMasks.Quad.EAST : FaceMasks.Quad.ALL);
+            if (width.getValue() >= 0.1F) {
+                if (lines.getValue() == Lines.BOTTOM) {
+                    tBB = new AxisAlignedBB(tBB.minX, tBB.minY, tBB.minZ, tBB.maxX, tBB.minY, tBB.maxZ);
+                } else if (lines.getValue() == Lines.TOP) {
+                    tBB = new AxisAlignedBB(tBB.minX, tBB.maxY, tBB.minZ, tBB.maxX, tBB.maxY, tBB.maxZ);
+                }
+                if (noLineDepth.getValue()) {
+                    GlStateManager.disableDepth();
+                }
+                TessellatorUtil.drawBoundingBox(tBB, width.getValue(), lineColor.getColorObject(), fadeAlpha.getValue());
+            }
+            TessellatorUtil.release();
+        }
+    }
+
+    private enum Lines {
+        FULL, BOTTOM, TOP
+    }
+
+    private enum Mode {
+        BOTTOM,
+        OUTLINE,
+        FULL,
+        WIREFRAME,
+        FADE
+    }
+
+    private static class TwoBlockHole {
+
+        private final BlockPos one;
+        private final BlockPos extra;
+
+        public TwoBlockHole(BlockPos one, BlockPos extra) {
+            this.one = one;
+            this.extra = extra;
+        }
+
+        public BlockPos getOne() {
+            return one;
+        }
+
+        public BlockPos getExtra() {
+            return extra;
+        }
+
     }
 
 }

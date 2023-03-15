@@ -6,19 +6,17 @@ import com.mrzak34.thunderhack.events.EventPostMotion;
 import com.mrzak34.thunderhack.events.EventPreMotion;
 import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.events.Render3DEvent;
-
-
 import com.mrzak34.thunderhack.mixin.mixins.IEntityPlayerSP;
 import com.mrzak34.thunderhack.mixin.mixins.IRenderManager;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.*;
-import com.mrzak34.thunderhack.util.Timer;
-
-import com.mrzak34.thunderhack.util.math.MathUtil;
 import com.mrzak34.thunderhack.util.render.BlockRenderUtil;
-import net.minecraft.block.*;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockAir;
+import net.minecraft.block.BlockDirectional;
+import net.minecraft.block.BlockPistonBase;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityEnderCrystal;
 import net.minecraft.entity.player.EntityPlayer;
@@ -30,7 +28,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.client.*;
 import net.minecraft.network.play.server.SPacketBlockChange;
 import net.minecraft.network.play.server.SPacketSoundEffect;
-import net.minecraft.util.*;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.*;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
@@ -40,44 +40,50 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static com.mrzak34.thunderhack.util.CrystalUtils.calculateDamage;
-
-
 public class PistonAura extends Module {
-    private Setting<Mode> mode = register(new Setting<>("Mode", Mode.DAMAGE));
-    private Setting<Boolean> smart = register(new Setting<>("Smart", true, v-> mode.getValue() == Mode.PUSH));
-    private Setting<Boolean> triggerable = register(new Setting<>("DisablePush", true,v -> mode.getValue() == Mode.PUSH));
-    private Setting<Boolean> disableWhenNone = register(new Setting<>("DisableNone", false,v-> mode.getValue() == Mode.DAMAGE));
     private static PistonAura INSTANCE = new PistonAura();
-    private Setting<Integer> targetRange = register(new Setting<>("TargetRange", 3, 1, 6));
-    private Setting<Integer> breakDelay = register(new Setting<>("Delay", 25, 0, 100));
-    private  Setting<Integer> actionShift = register(new Setting<>("ActionShift", 3, 1, 8));
-    private  Setting<Integer> actionInterval = register(new Setting<>("ActionInterval", 0, 0, 10));
-    private Setting<Boolean> strict = register(new Setting<>("Strict", false));
-    private Setting<Boolean> raytrace = register(new Setting<>("RayTrace", false));
-    private Setting<Boolean> antiSuicide = register(new Setting<>("AntiSuicide", false));
-    private Setting<Boolean> mine = register(new Setting<>("Mine", false));
-    private Setting<Boolean> autotrap = register(new Setting<>("AutoTrap", false));
-    private   Setting<Boolean> ccrys = register(new Setting<>("WaitCrystal", true));
-
-    private Setting<rMode> rmode = register(new Setting<>("RotateMode", rMode.Strict));
-    private Setting<rMode> rmodepost = register(new Setting<>("PostRotate", rMode.Strict));
-
-    public   Setting<Boolean> render = register(new Setting<>("Render", true));
-
     public final Setting<ColorSetting> arrowColor = this.register(new Setting<>("Arrow Color", new ColorSetting(-2009289807)));
     public final Setting<ColorSetting> outlineColorCurrent = this.register(new Setting<>("Outline Color", new ColorSetting(-1323314462)));
     public final Setting<ColorSetting> colorFull = this.register(new Setting<>("Full Color", new ColorSetting(-2011093215)));
     public final Setting<ColorSetting> outlineColorFull = this.register(new Setting<>("OutlineColorF", new ColorSetting(-2009289807)));
     public final Setting<ColorSetting> colorCurrent = this.register(new Setting<>("ColorCurrent", new ColorSetting(-1323314462)));
-
-
-    private   Setting<Boolean> renderCurrent = register(new Setting<>("Current", true, v ->render.getValue()));
-    private   Setting<Boolean> renderFull = register(new Setting<>("Full", true, v ->render.getValue()));
-    private   Setting<Boolean> arrow = register(new Setting<>("Arrow", true, v ->render.getValue()));
-    private   Setting<Boolean> bottomArrow = register(new Setting<>("Bottom", true, v ->render.getValue()));
-    private   Setting<Boolean> topArrow = register(new Setting<>("Top", true, v ->render.getValue()));
-
+    public Setting<Boolean> render = register(new Setting<>("Render", true));
+    public BlockPos facePos;
+    public EnumFacing faceOffset;
+    public BlockPos crystalPos;
+    public BlockPos pistonNeighbour;
+    public EnumFacing pistonOffset;
+    private final Setting<Mode> mode = register(new Setting<>("Mode", Mode.DAMAGE));
+    private final Setting<Boolean> smart = register(new Setting<>("Smart", true, v -> mode.getValue() == Mode.PUSH));
+    private final Setting<Boolean> triggerable = register(new Setting<>("DisablePush", true, v -> mode.getValue() == Mode.PUSH));
+    private final Setting<Boolean> disableWhenNone = register(new Setting<>("DisableNone", false, v -> mode.getValue() == Mode.DAMAGE));
+    private final Setting<Integer> targetRange = register(new Setting<>("TargetRange", 3, 1, 6));
+    private final Setting<Integer> breakDelay = register(new Setting<>("Delay", 25, 0, 100));
+    private final Setting<Integer> actionShift = register(new Setting<>("ActionShift", 3, 1, 8));
+    private final Setting<Integer> actionInterval = register(new Setting<>("ActionInterval", 0, 0, 10));
+    private final Setting<Boolean> strict = register(new Setting<>("Strict", false));
+    private final Setting<Boolean> raytrace = register(new Setting<>("RayTrace", false));
+    private final Setting<Boolean> antiSuicide = register(new Setting<>("AntiSuicide", false));
+    private final Setting<Boolean> mine = register(new Setting<>("Mine", false));
+    private final Setting<Boolean> protocol = register(new Setting<>("Protocol", false));
+    private final Setting<Boolean> ccrys = register(new Setting<>("WaitCrystal", true));
+    private final Setting<Boolean> renderCurrent = register(new Setting<>("Current", true, v -> render.getValue()));
+    private final Setting<Boolean> renderFull = register(new Setting<>("Full", true, v -> render.getValue()));
+    private final Setting<Boolean> arrow = register(new Setting<>("Arrow", true, v -> render.getValue()));
+    private final Setting<Boolean> bottomArrow = register(new Setting<>("Bottom", true, v -> render.getValue()));
+    private final Setting<Boolean> topArrow = register(new Setting<>("Top", true, v -> render.getValue()));
+    private Stage stage = Stage.SEARCHING;
+    private BlockPos torchPos;
+    private final Timer torchTimer = new Timer();
+    private boolean skipPiston;
+    private final Timer delayTimer = new Timer();
+    private int delayTime;
+    private final Timer renderTimer = new Timer();
+    private Runnable postAction = null;
+    private int tickCounter = 0;
+    private BlockPos placedPiston = null;
+    private final Timer placedPistonTimer = new Timer();
+    private final Timer actionTimer = new Timer();
 
     public PistonAura() {
         super("PistonAura", "Поршни вталкивают-кристал в чела-(Охуенная хуйня)", Category.COMBAT);
@@ -91,44 +97,90 @@ public class PistonAura extends Module {
         return INSTANCE;
     }
 
+    public static int getPistonSlot() {
+        int slot = -1;
+        for (int i = 0; i < 9; i++) {
+            final ItemStack stack = mc.player.inventory.getStackInSlot(i);
+            if (stack != ItemStack.EMPTY && stack.getItem() instanceof ItemBlock) {
+                final Block block = ((ItemBlock) stack.getItem()).getBlock();
+                if (block instanceof BlockPistonBase) {
+                    slot = i;
+                    break;
+                }
+            }
+        }
+
+        return slot;
+    }
+
+    public static void invokeSync(float yaw, float pitch) {
+        boolean flag = mc.player.isSprinting();
+
+        if (flag != ((IEntityPlayerSP) mc.player).getServerSprintState()) {
+            if (flag) {
+                mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.START_SPRINTING));
+            } else {
+                mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.STOP_SPRINTING));
+            }
+
+            ((IEntityPlayerSP) mc.player).setServerSprintState(flag);
+        }
+
+        boolean flag1 = mc.player.isSneaking();
+
+        if (flag1 != ((IEntityPlayerSP) mc.player).getServerSneakState()) {
+            if (flag1) {
+                mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.START_SNEAKING));
+            } else {
+                mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.STOP_SNEAKING));
+            }
+
+            ((IEntityPlayerSP) mc.player).setServerSneakState(flag1);
+        }
+
+        if (mc.player == mc.getRenderViewEntity()) {
+            AxisAlignedBB axisalignedbb = mc.player.getEntityBoundingBox();
+            double dX = mc.player.posX - ((IEntityPlayerSP) mc.player).getLastReportedPosX();
+            double dY = axisalignedbb.minY - ((IEntityPlayerSP) mc.player).getLastReportedPosY();
+            double dZ = mc.player.posZ - ((IEntityPlayerSP) mc.player).getLastReportedPosZ();
+            double dYaw = (yaw - ((IEntityPlayerSP) mc.player).getLastReportedYaw());
+            double dPitch = (pitch - ((IEntityPlayerSP) mc.player).getLastReportedPitch());
+            ((IEntityPlayerSP) mc.player).setPositionUpdateTicks(((IEntityPlayerSP) mc.player).getPositionUpdateTicks() + 1);
+            boolean positionChanged = dX * dX + dY * dY + dZ * dZ > 9.0E-4D || ((IEntityPlayerSP) mc.player).getPositionUpdateTicks() >= 20;
+            boolean rotationChanged = dYaw != 0.0D || dPitch != 0.0D;
+
+            if (mc.player.isRiding()) {
+                mc.player.connection.sendPacket(new CPacketPlayer.PositionRotation(mc.player.motionX, -999.0D, mc.player.motionZ, yaw, pitch, mc.player.onGround));
+                positionChanged = false;
+            } else if (positionChanged && rotationChanged) {
+                mc.player.connection.sendPacket(new CPacketPlayer.PositionRotation(mc.player.posX, axisalignedbb.minY, mc.player.posZ, yaw, pitch, mc.player.onGround));
+            } else if (positionChanged) {
+                mc.player.connection.sendPacket(new CPacketPlayer.Position(mc.player.posX, axisalignedbb.minY, mc.player.posZ, mc.player.onGround));
+            } else if (rotationChanged) {
+                mc.player.connection.sendPacket(new CPacketPlayer.Rotation(yaw, pitch, mc.player.onGround));
+            } else if (((IEntityPlayerSP) mc.player).getPrevOnGround() != mc.player.onGround) {
+                mc.player.connection.sendPacket(new CPacketPlayer(mc.player.onGround));
+            }
+
+            if (positionChanged) {
+                ((IEntityPlayerSP) mc.player).setLastReportedPosX(mc.player.posX);
+                ((IEntityPlayerSP) mc.player).setLastReportedPosY(axisalignedbb.minY);
+                ((IEntityPlayerSP) mc.player).setLastReportedPosZ(mc.player.posZ);
+                ((IEntityPlayerSP) mc.player).setPositionUpdateTicks(0);
+            }
+
+            if (rotationChanged) {
+                ((IEntityPlayerSP) mc.player).setLastReportedYaw(yaw);
+                ((IEntityPlayerSP) mc.player).setLastReportedPitch(pitch);
+            }
+
+            ((IEntityPlayerSP) mc.player).setPrevOnGround(mc.player.onGround);
+            ((IEntityPlayerSP) mc.player).setAutoJumpEnabled(mc.gameSettings.autoJump);
+        }
+    }
+
     private void setInstance() {
         INSTANCE = this;
-    }
-
-    private enum Mode {
-        DAMAGE, PUSH
-    }
-
-    private Stage stage = Stage.SEARCHING;
-    public BlockPos facePos;
-    public EnumFacing faceOffset;
-    public BlockPos crystalPos;
-    public BlockPos pistonNeighbour;
-    public EnumFacing pistonOffset;
-    private BlockPos torchPos;
-    private Timer torchTimer = new Timer();
-    private boolean skipPiston;
-    private Timer delayTimer = new Timer();
-    private int delayTime;
-    private Timer renderTimer = new Timer();
-    private Runnable postAction = null;
-    private int tickCounter = 0;
-    private BlockPos placedPiston = null;
-    private Timer placedPistonTimer = new Timer();
-    private Timer actionTimer = new Timer();
-    private float yawToEvent,pitchToEvent;
-
-    private enum Stage {
-        SEARCHING,
-        CRYSTAL,
-        REDSTONE,
-        BREAKING,
-        EXPLOSION
-    }
-
-    private enum rMode {
-        Strict,
-        FakeEvent,
     }
 
     public void onEnable() {
@@ -147,23 +199,22 @@ public class PistonAura extends Module {
         placedPiston = null;
     }
 
-
+    @SubscribeEvent
+    public void onReceivePacket(PacketEvent.Receive event) {
+        if (event.getPacket() instanceof SPacketBlockChange && torchPos != null) {
+            if (((SPacketBlockChange) event.getPacket()).getBlockPosition().equals(torchPos) && ((SPacketBlockChange) event.getPacket()).getBlockState().getBlock() instanceof BlockAir) {
+                torchPos = null;
+            }
+        }
+    }
 
     private void handleAction(boolean extra) {
         if (actionTimer.passedMs(1000) && disableWhenNone.getValue()) {
             toggle();
         }
-        List<EntityPlayer> candidates2 = getTargets();
-        for (EntityPlayer candidate2 : candidates2) {
-            if (evaluateTarget(candidate2)) {
-                if (PistonAura.mc.world.getBlockState(new BlockPos(candidate2.posX, candidate2.posY + 2, candidate2.posZ)).getBlock().equals(Blocks.AIR) && autotrap.getValue()) {
-                    traptarget(candidate2);
-                    return;
-                }
-            }
-        }
         if (!delayTimer.passedMs(delayTime)) return;
-        if (strict.getValue() && Math.sqrt(mc.player.motionX * mc.player.motionX + mc.player.motionZ * mc.player.motionZ) > 9.0E-4D) return;
+        if (strict.getValue() && Math.sqrt(mc.player.motionX * mc.player.motionX + mc.player.motionZ * mc.player.motionZ) > 9.0E-4D)
+            return;
         if (mode.getValue() == Mode.DAMAGE) {
             switch (stage) {
                 case SEARCHING: {
@@ -187,25 +238,17 @@ public class PistonAura extends Module {
                             boolean isSprinting = mc.player.isSprinting();
                             boolean shouldSneak = BlockUtils.shouldSneakWhileRightClicking(pistonNeighbour);
 
-                            Vec3d vec = new Vec3d(pistonNeighbour).add(0.5, 0.5, 0.5).add(new Vec3d(pistonOffset.getDirectionVec()).scale(0.5));
+                            Vec3d vec = new Vec3d(pistonNeighbour)
+                                    .add(0.5, 0.5, 0.5)
+                                    .add(new Vec3d(pistonOffset.getDirectionVec()).scale(0.5));
 
-                            //TODO ROTATION
-                            //
                             if (extra) {
-                                float[] angle = calculateAngle(mc.player.getPositionEyes(mc.getRenderPartialTicks()), vec);
-                                updateWithFakeEvent(angle[0], angle[1]);
+                                float[] angle = SilentRotationUtil.calculateAngle(mc.player.getPositionEyes(mc.getRenderPartialTicks()), vec);
+                                invokeSync(angle[0], angle[1]);
                             } else {
-                                if(rmode.getValue() == rMode.Strict) {
-                                    float[] angle = calculateAngle(mc.player.getPositionEyes(mc.getRenderPartialTicks()), vec);
-                                    yawToEvent = angle[0];
-                                    pitchToEvent = angle[1];
-                                }
-                                if(rmode.getValue() == rMode.FakeEvent) {
-                                    float[] angle = calculateAngle(mc.player.getPositionEyes(mc.getRenderPartialTicks()), vec);
-                                    updateWithFakeEvent(angle[0], angle[1]);
-                                }
+                                SilentRotationUtil.lookAtVec3d(vec);
                             }
-                            //
+
                             postAction = () -> {
                                 renderTimer.reset();
 
@@ -222,6 +265,7 @@ public class PistonAura extends Module {
                                     mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.START_SNEAKING));
                                 }
 
+                                // Block utils has cringe right click method
                                 mc.playerController.processRightClickBlock(mc.player, mc.world, pistonNeighbour, pistonOffset, vec,
                                         EnumHand.MAIN_HAND);
                                 mc.player.connection.sendPacket(new CPacketAnimation(EnumHand.MAIN_HAND));
@@ -242,7 +286,6 @@ public class PistonAura extends Module {
                     break;
                 }
                 case CRYSTAL: {
-
                     if (torchPos != null) {
                         if (mc.world.getBlockState(torchPos).getBlock() == Blocks.AIR) {
                             torchPos = null;
@@ -257,15 +300,12 @@ public class PistonAura extends Module {
                                     .add(0.5, 0.5, 0.5)
                                     .add(new Vec3d(f.getDirectionVec()).scale(0.5));
 
-                            //TODO ROTATION
-                            //
                             if (extra) {
-                                float[] angle = calculateAngle(mc.player.getPositionEyes(mc.getRenderPartialTicks()), vec);
-                                updateWithFakeEvent(angle[0], angle[1]);
+                                float[] angle = SilentRotationUtil.calculateAngle(mc.player.getPositionEyes(mc.getRenderPartialTicks()), vec);
+                                invokeSync(angle[0], angle[1]);
                             } else {
-                                lookAtVec3d(vec);
+                                SilentRotationUtil.lookAtVec3d(vec);
                             }
-                            //
 
                             postAction = () -> {
                                 mc.player.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.START_DESTROY_BLOCK, torchPos, f));
@@ -296,22 +336,18 @@ public class PistonAura extends Module {
                         return;
                     }
 
-                    //TODO ROTATION
-                    //
                     if (extra) {
-                        float[] angle = SilentRotaionUtil.calculateAngle(mc.player.getPositionEyes(mc.getRenderPartialTicks()), new Vec3d(crystalPos.getX() + .5, crystalPos.getY() + .5, crystalPos.getZ() + .5));
-                        updateWithFakeEvent(angle[0], angle[1]);
+                        float[] angle = SilentRotationUtil.calculateAngle(mc.player.getPositionEyes(mc.getRenderPartialTicks()), new Vec3d(crystalPos.getX() + .5, crystalPos.getY() + .5, crystalPos.getZ() + .5));
+                        invokeSync(angle[0], angle[1]);
                     } else {
-                        float[] anglep = SilentRotaionUtil.calcAngle(mc.player.getPositionEyes(mc.getRenderPartialTicks()), new Vec3d(crystalPos.getX() + .5, crystalPos.getY() + .5, crystalPos.getZ() + .5));
-                        yawToEvent = anglep[0];
-                        pitchToEvent = anglep[1];
+                        SilentRotationUtil.lookAtVec3d(new Vec3d(crystalPos.getX() + .5, crystalPos.getY() + .5, crystalPos.getZ() + .5));
                     }
-                    //
 
                     postAction = () -> {
                         renderTimer.reset();
                         final RayTraceResult result = mc.world.rayTraceBlocks(new Vec3d(mc.player.posX, mc.player.posY + mc.player.getEyeHeight(), mc.player.posZ), new Vec3d(crystalPos.getX() + 0.5, crystalPos.getY() - 0.5, crystalPos.getZ() + 0.5));
                         final EnumFacing f = result == null || result.sideHit == null ? EnumFacing.UP : result.sideHit;
+                        //   FastUse.ignore = true; //TODO fast use sync
                         BlockUtils.rightClickBlock(crystalPos, mc.player.getPositionVector().add(0, mc.player.getEyeHeight(), 0), isOffhand() ? EnumHand.OFF_HAND : EnumHand.MAIN_HAND, f, true);
                         stage = Stage.REDSTONE;
                         torchTimer.reset();
@@ -322,13 +358,6 @@ public class PistonAura extends Module {
                     if (facePos == null) {
                         stage = Stage.SEARCHING;
                         return;
-                    }
-                    if(ccrys.getValue() && crystalPos != null){
-                        EntityEnderCrystal ent = CevBreaker.searchCrystal(crystalPos);
-                        if(ent == null){
-                            stage = Stage.CRYSTAL;
-                            return;
-                        }
                     }
 
                     int itemSlot = getRedstoneBlockSlot();
@@ -359,16 +388,12 @@ public class PistonAura extends Module {
                                 .add(0.5, 0.5, 0.5)
                                 .add(new Vec3d(posCL.get().opposite.getDirectionVec()).scale(0.5));
 
-
-                        //TODO ROTATION
-                        //
                         if (extra) {
-                            float[] angle = calculateAngle(mc.player.getPositionEyes(mc.getRenderPartialTicks()), vec);
-                            updateWithFakeEvent(angle[0], angle[1]);
+                            float[] angle = SilentRotationUtil.calculateAngle(mc.player.getPositionEyes(mc.getRenderPartialTicks()), vec);
+                            invokeSync(angle[0], angle[1]);
                         } else {
-                            lookAtVec3d(vec);
+                            SilentRotationUtil.lookAtVec3d(vec);
                         }
-                        //
 
                         final Optional<BlockUtils.ClickLocation> finalCL = posCL;
 
@@ -389,8 +414,10 @@ public class PistonAura extends Module {
                             if (shouldSneak) {
                                 mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.START_SNEAKING));
                             }
+
                             mc.playerController.processRightClickBlock(mc.player, mc.world, finalCL.get().neighbour, finalCL.get().opposite, vec, EnumHand.MAIN_HAND);
                             mc.player.connection.sendPacket(new CPacketAnimation(EnumHand.MAIN_HAND));
+
                             if (shouldSneak) {
                                 mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.STOP_SNEAKING));
                             }
@@ -414,37 +441,28 @@ public class PistonAura extends Module {
                             .orElse(null);
 
                     if (nearestCrystal != null) {
-                         if (antiSuicide.getValue() && calculateDamage(nearestCrystal.getPosition(), mc.player) >= mc.player.getHealth() + mc.player.getAbsorptionAmount()){
+                        if (antiSuicide.getValue() && CrystalUtils.calculateDamage((EntityEnderCrystal) nearestCrystal, mc.player) >= mc.player.getHealth() + mc.player.getAbsorptionAmount())
                             return;
-                        }
                         delayTimer.reset();
                         renderTimer.reset();
                         delayTime = breakDelay.getValue() * 10;
-
-                        //TODO ROTATION
-                        //
                         if (extra) {
-                            float[] angle = calculateAngle(mc.player.getPositionEyes(mc.getRenderPartialTicks()), nearestCrystal.getPositionVector());
-                            updateWithFakeEvent(angle[0], angle[1]);
+                            float[] angle = SilentRotationUtil.calculateAngle(mc.player.getPositionEyes(mc.getRenderPartialTicks()), nearestCrystal.getPositionVector());
+                            invokeSync(angle[0], angle[1]);
                         } else {
-                            lookAtVec3d(nearestCrystal.getPositionVector());
+                            SilentRotationUtil.lookAtVec3d(nearestCrystal.getPositionVector());
                         }
-                        //
-
                         postAction = () -> {
                             mc.playerController.attackEntity(mc.player, nearestCrystal);
                             mc.player.connection.sendPacket(new CPacketAnimation(isOffhand() ? EnumHand.OFF_HAND : EnumHand.MAIN_HAND));
                         };
                     } else {
-                        //TODO ROTATION
-                        //
                         if (extra) {
-                            float[] angle = calculateAngle(mc.player.getPositionEyes(mc.getRenderPartialTicks()), new Vec3d(facePos.getX() + 0.5, facePos.getY(), facePos.getZ() + 0.5));
-                            updateWithFakeEvent(angle[0], angle[1]);
+                            float[] angle = SilentRotationUtil.calculateAngle(mc.player.getPositionEyes(mc.getRenderPartialTicks()), new Vec3d(facePos.getX() + 0.5, facePos.getY(), facePos.getZ() + 0.5));
+                            invokeSync(angle[0], angle[1]);
                         } else {
-                            lookAtXYZ(facePos.getX() + 0.5, facePos.getY(), facePos.getZ() + 0.5);
+                            SilentRotationUtil.lookAtXYZ(facePos.getX() + 0.5, facePos.getY(), facePos.getZ() + 0.5);
                         }
-                        //
                     }
                 }
             }
@@ -469,13 +487,13 @@ public class PistonAura extends Module {
             candidateBlock:
             for (EntityPlayer candidate : candidates) {
                 if (smart.getValue()) {
-                    if (!BlockUtils.isHole(new BlockPos(candidate)) && mc.world.getBlockState(new BlockPos(candidate)).getBlock() == Blocks.AIR) continue;
+                    if (!BlockUtils.isHole(new BlockPos(candidate)) && mc.world.getBlockState(new BlockPos(candidate)).getBlock() == Blocks.AIR)
+                        continue;
                 }
-
                 BlockPos candidatePos = new BlockPos(candidate).up();
                 if (antiSuicide.getValue() && candidatePos.equals(new BlockPos(mc.player))) continue;
                 for (EnumFacing faceTryOffset : EnumFacing.HORIZONTALS) {
-                    if (mc.world.getBlockState(candidatePos.offset(faceTryOffset)).getBlock() instanceof BlockPistonBase || (!placedPistonTimer.passedMs(CrystalUtils.ping() + 150) && candidatePos.offset(faceTryOffset).equals(placedPiston))) {
+                    if (mc.world.getBlockState(candidatePos.offset(faceTryOffset)).getBlock() instanceof BlockPistonBase || (!placedPistonTimer.passed(CrystalUtils.ping() + 150) && candidatePos.offset(faceTryOffset).equals(placedPiston))) {
                         if (mc.world.getBlockState(candidatePos.offset(faceTryOffset)).getBlock() instanceof BlockPistonBase) {
                             EnumFacing enumfacing = mc.world.getBlockState(candidatePos.offset(faceTryOffset)).getValue(BlockDirectional.FACING);
                             if (!enumfacing.equals(faceTryOffset.getOpposite())) continue;
@@ -517,7 +535,7 @@ public class PistonAura extends Module {
                 }
                 for (EnumFacing faceTryOffset : EnumFacing.HORIZONTALS) {
                     if (InteractionUtil.canPlaceBlock(candidatePos.offset(faceTryOffset), raytrace.getValue()) && (raytrace.getValue() ? InteractionUtil.canPlaceBlock(candidatePos.offset(faceTryOffset, 2), true) : mc.world.getBlockState(candidatePos.offset(faceTryOffset, 2)).getBlock() == Blocks.AIR)) {
-                        float[] rots = SilentRotaionUtil.calculateAngle(mc.player.getPositionEyes(1F), new Vec3d(candidatePos.offset(faceTryOffset).getX() + 0.5, candidatePos.offset(faceTryOffset).getY() + 1D, candidatePos.offset(faceTryOffset).getZ() + 0.5));
+                        float[] rots = SilentRotationUtil.calculateAngle(mc.player.getPositionEyes(1F), new Vec3d(candidatePos.offset(faceTryOffset).getX() + 0.5, candidatePos.offset(faceTryOffset).getY() + 1D, candidatePos.offset(faceTryOffset).getZ() + 0.5));
                         EnumFacing facing = EnumFacing.fromAngle(rots[0]);
                         if (Math.abs(rots[1]) > 55) continue; // pitch
                         if (facing != faceTryOffset) continue;
@@ -549,33 +567,27 @@ public class PistonAura extends Module {
         }
     }
 
-
-
     @SubscribeEvent
-    public void onUpdateWalkingPlayerPre(EventPreMotion event) {
-            if (tickCounter < actionInterval.getValue()) {
-                tickCounter++;
-            }
+    public void onEntitySync(EventPreMotion event) {
+        if (tickCounter < actionInterval.getValue()) {
+            tickCounter++;
+        }
+        if (event.isCanceled() || !InteractionUtil.canPlaceNormally()) return;
 
-            if (event.isCanceled() || !InteractionUtil.canPlaceNormally()) return;
+        if (stage == Stage.BREAKING) {
+            float[] angle = SilentRotationUtil.calcAngle(mc.player.getPositionEyes(mc.getRenderPartialTicks()), new Vec3d(facePos.getX() + 0.5, facePos.getY(), facePos.getZ() + 0.5));
+            mc.player.rotationYaw = angle[0];
+            mc.player.rotationPitch = angle[1];
+        }
 
-            if (stage == Stage.BREAKING) {
-                //TODO ROTATION
-                //
-                lookAtXYZ(facePos.getX() + 0.5f, facePos.getY(), facePos.getZ() + 0.5f);
-                //
-            }
-
-            if (tickCounter < actionInterval.getValue()) {
-                return;
-            }
-            handleAction(false);
-            mc.player.rotationYaw =(yawToEvent);
-            mc.player.rotationPitch =(pitchToEvent);
+        if (tickCounter < actionInterval.getValue()) {
+            return;
+        }
+        handleAction(false);
     }
 
     @SubscribeEvent
-    public void onUpdateWalkingPlayerPost(EventPostMotion event) {
+    public void postEntitySync(EventPostMotion event) {
         if (postAction != null) {
             actionTimer.reset();
             tickCounter = 0;
@@ -608,11 +620,6 @@ public class PistonAura extends Module {
                 }
             }
         }
-        if (event.getPacket() instanceof SPacketBlockChange && torchPos != null) {
-            if (((SPacketBlockChange) event.getPacket()).getBlockPosition().equals(torchPos) && ((SPacketBlockChange) event.getPacket()).getBlockState().getBlock() instanceof BlockAir) {
-                torchPos = null;
-            }
-        }
     }
 
     @SubscribeEvent
@@ -626,11 +633,13 @@ public class PistonAura extends Module {
                 case SEARCHING: {
                     renderBlock = facePos.down().offset(faceOffset, 2);
                     break;
-                } case CRYSTAL:
+                }
+                case CRYSTAL:
                 case BREAKING: {
                     renderBlock = facePos.down().offset(faceOffset, 1);
                     break;
-                } case REDSTONE: {
+                }
+                case REDSTONE: {
                     renderBlock = facePos.down().offset(faceOffset, 3);
                     break;
                 }
@@ -642,11 +651,11 @@ public class PistonAura extends Module {
                 axisAlignedBB = axisAlignedBB.offset(-((IRenderManager) mc.getRenderManager()).getRenderPosX(), -((IRenderManager) mc.getRenderManager()).getRenderPosY(), -((IRenderManager) mc.getRenderManager()).getRenderPosZ());
 
                 BlockRenderUtil.prepareGL();
-                BlockRenderUtil.drawFill(axisAlignedBB, colorCurrent.getValue().getRawColor());
+                BlockRenderUtil.drawFill(axisAlignedBB, colorCurrent.getValue().getColor());
                 BlockRenderUtil.releaseGL();
 
                 BlockRenderUtil.prepareGL();
-                BlockRenderUtil.drawOutline(axisAlignedBB, outlineColorCurrent.getValue().getRawColor(), 1.5F);
+                BlockRenderUtil.drawOutline(axisAlignedBB, outlineColorCurrent.getValue().getColor(), 1.5F);
                 BlockRenderUtil.releaseGL();
             }
         }
@@ -657,13 +666,16 @@ public class PistonAura extends Module {
                 case NORTH: {
                     axisAlignedBB = new AxisAlignedBB(0.0D, 0.0D, 0D, 1.0D, 1.0D, -3.0D).offset(facePos.down());
                     break;
-                } case SOUTH: {
+                }
+                case SOUTH: {
                     axisAlignedBB = new AxisAlignedBB(0.0D, 0.0D, 0D, 1.0D, 1.0D, 3.0D).offset(facePos.down());
                     break;
-                } case EAST: {
+                }
+                case EAST: {
                     axisAlignedBB = new AxisAlignedBB(0D, 0.0D, 0.0D, 3.0D, 1.0D, 1.0D).offset(facePos.down());
                     break;
-                } case WEST: {
+                }
+                case WEST: {
                     axisAlignedBB = new AxisAlignedBB(0D, 0.0D, 0.0D, -3.0D, 1.0D, 1.0D).offset(facePos.down());
                     break;
                 }
@@ -674,11 +686,11 @@ public class PistonAura extends Module {
                 axisAlignedBB = axisAlignedBB.offset(-((IRenderManager) mc.getRenderManager()).getRenderPosX(), -((IRenderManager) mc.getRenderManager()).getRenderPosY(), -((IRenderManager) mc.getRenderManager()).getRenderPosZ());
 
                 BlockRenderUtil.prepareGL();
-                BlockRenderUtil.drawFill(axisAlignedBB, colorFull.getValue().getRawColor());
+                BlockRenderUtil.drawFill(axisAlignedBB, colorFull.getValue().getColor());
                 BlockRenderUtil.releaseGL();
 
                 BlockRenderUtil.prepareGL();
-                BlockRenderUtil.drawOutline(axisAlignedBB, outlineColorFull.getValue().getRawColor(), 1.5F);
+                BlockRenderUtil.drawOutline(axisAlignedBB, outlineColorFull.getValue().getColor(), 1.5F);
                 BlockRenderUtil.releaseGL();
             }
         }
@@ -689,7 +701,7 @@ public class PistonAura extends Module {
 
             BlockPos offsetPos = facePos.offset(faceOffset, 2);
 
-            Vec3d properPos = new Vec3d(offsetPos.getX() + 0.5 -((IRenderManager) mc.getRenderManager()).getRenderPosX(), offsetPos.getY() + 1 -((IRenderManager) mc.getRenderManager()).getRenderPosY(), offsetPos.getZ() + 0.5 -((IRenderManager) mc.getRenderManager()).getRenderPosZ());
+            Vec3d properPos = new Vec3d(offsetPos.getX() + 0.5 - ((IRenderManager) mc.getRenderManager()).getRenderPosX(), offsetPos.getY() + 1 - ((IRenderManager) mc.getRenderManager()).getRenderPosY(), offsetPos.getZ() + 0.5 - ((IRenderManager) mc.getRenderManager()).getRenderPosZ());
 
             switch (faceOffset) {
                 case NORTH: {
@@ -697,17 +709,20 @@ public class PistonAura extends Module {
                     secondVec = new Vec3d(properPos.x, properPos.y, properPos.z + 0.5D);
                     thirdVec = new Vec3d(properPos.x + 0.5D, properPos.y, properPos.z - 0.5D);
                     break;
-                } case SOUTH: {
+                }
+                case SOUTH: {
                     firstVec = new Vec3d(properPos.x - 0.5D, properPos.y, properPos.z + 0.5D);
                     secondVec = new Vec3d(properPos.x, properPos.y, properPos.z - 0.5D);
                     thirdVec = new Vec3d(properPos.x + 0.5D, properPos.y, properPos.z + 0.5D);
                     break;
-                } case EAST: {
+                }
+                case EAST: {
                     firstVec = new Vec3d(properPos.x + 0.5D, properPos.y, properPos.z - 0.5D);
                     secondVec = new Vec3d(properPos.x - 0.5D, properPos.y, properPos.z);
                     thirdVec = new Vec3d(properPos.x + 0.5D, properPos.y, properPos.z + 0.5D);
                     break;
-                } case WEST: {
+                }
+                case WEST: {
                     firstVec = new Vec3d(properPos.x - 0.5D, properPos.y, properPos.z - 0.5D);
                     secondVec = new Vec3d(properPos.x + 0.5D, properPos.y, properPos.z);
                     thirdVec = new Vec3d(properPos.x - 0.5D, properPos.y, properPos.z + 0.5D);
@@ -731,7 +746,7 @@ public class PistonAura extends Module {
 
                 GL11.glLineWidth(5F);
 
-                GL11.glColor4f(((arrowColor.getValue().getRawColor() >> 16) & 0xFF) / 255F, ((arrowColor.getValue().getRawColor() >> 8) & 0xFF) / 255F, ((arrowColor.getValue().getRawColor()) & 0xFF) / 255F, ((arrowColor.getValue().getRawColor() >> 24) & 0xFF) / 255F);
+                GL11.glColor4f(((arrowColor.getValue().getColor() >> 16) & 0xFF) / 255F, ((arrowColor.getValue().getColor() >> 8) & 0xFF) / 255F, ((arrowColor.getValue().getColor()) & 0xFF) / 255F, ((arrowColor.getValue().getColor() >> 24) & 0xFF) / 255F);
 
                 if (topArrow.getValue()) {
                     GL11.glBegin(GL11.GL_LINES);
@@ -753,7 +768,7 @@ public class PistonAura extends Module {
 
                     GL11.glBegin(GL11.GL_LINES);
                     GL11.glVertex3d(thirdVec.x, thirdVec.y - 1, thirdVec.z);
-                    GL11.glVertex3d(secondVec.x, secondVec.y -1, secondVec.z);
+                    GL11.glVertex3d(secondVec.x, secondVec.y - 1, secondVec.z);
                     GL11.glEnd();
                 }
 
@@ -792,156 +807,28 @@ public class PistonAura extends Module {
         return evaluateTarget(tempFacePos);
     }
 
-    public void traptarget2(Entity rt){
-        if(autotrap.getValue()){
-            if(PistonAura.mc.world.getBlockState(new BlockPos(rt.posX, rt.posY + 2, rt.posZ)).getBlock().equals(Blocks.AIR) ){
-                if(getobby() != -1) {
-                    mc.player.connection.sendPacket(new CPacketHeldItemChange(getobby()));
-                }
-                if((PistonAura.mc.world.getBlockState(new BlockPos(rt.posX + 1, rt.posY + 2, rt.posZ)).getBlock().equals(Blocks.OBSIDIAN) ||(PistonAura.mc.world.getBlockState(new BlockPos(rt.posX + 1, rt.posY + 2, rt.posZ)).getBlock().equals(Blocks.BEDROCK)) && (checkatomizer(new BlockPos(rt.posX + 1, rt.posY + 2, rt.posZ))) )){
-                    InteractionUtil.Placement aboba = InteractionUtil.preparePlacement(new BlockPos(rt.posX, rt.posY + 2, rt.posZ), true, true);
-                    InteractionUtil.placeBlock(aboba, EnumHand.MAIN_HAND, true);
-                    return;
-                }
-                if((PistonAura.mc.world.getBlockState(new BlockPos(rt.posX - 1, rt.posY + 2, rt.posZ)).getBlock().equals(Blocks.OBSIDIAN) ||(PistonAura.mc.world.getBlockState(new BlockPos(rt.posX - 1, rt.posY + 2, rt.posZ)).getBlock().equals(Blocks.BEDROCK)) && (checkatomizer(new BlockPos(rt.posX - 1, rt.posY + 2, rt.posZ))))){
-                    InteractionUtil.Placement aboba = InteractionUtil.preparePlacement(new BlockPos(rt.posX, rt.posY + 2, rt.posZ), true, true);
-                    InteractionUtil.placeBlock(aboba, EnumHand.MAIN_HAND, true);
-                    return;
-                }
-                if((PistonAura.mc.world.getBlockState(new BlockPos(rt.posX, rt.posY + 2, rt.posZ + 1)).getBlock().equals(Blocks.OBSIDIAN) ||(PistonAura.mc.world.getBlockState(new BlockPos(rt.posX, rt.posY + 2, rt.posZ + 1)).getBlock().equals(Blocks.BEDROCK)) && checkatomizer(new BlockPos(rt.posX, rt.posY + 2, rt.posZ + 1)) )){
-                    InteractionUtil.Placement aboba = InteractionUtil.preparePlacement(new BlockPos(rt.posX, rt.posY + 2, rt.posZ), true, true);
-                    InteractionUtil.placeBlock(aboba, EnumHand.MAIN_HAND, true);
-                    return;
-                }
-                if((PistonAura.mc.world.getBlockState(new BlockPos(rt.posX, rt.posY + 2, rt.posZ - 1)).getBlock().equals(Blocks.OBSIDIAN) ||(PistonAura.mc.world.getBlockState(new BlockPos(rt.posX, rt.posY + 2, rt.posZ - 1)).getBlock().equals(Blocks.BEDROCK)) && checkatomizer(new BlockPos(rt.posX, rt.posY + 2, rt.posZ - 1)))){
-                    InteractionUtil.Placement aboba = InteractionUtil.preparePlacement(new BlockPos(rt.posX, rt.posY + 2, rt.posZ), true, true);
-                    InteractionUtil.placeBlock(aboba, EnumHand.MAIN_HAND, true);
-                }
-            }
-        }
-    }
-
-    public void traptarget(Entity rt){
-        if(autotrap.getValue()){
-            if(PistonAura.mc.world.getBlockState(new BlockPos(rt.posX, rt.posY + 2, rt.posZ)).getBlock().equals(Blocks.AIR) ){
-                mc.player.connection.sendPacket(new CPacketHeldItemChange(getobby()));
-                if((PistonAura.mc.world.getBlockState(new BlockPos(rt.posX + 1, rt.posY + 2, rt.posZ)).getBlock().equals(Blocks.OBSIDIAN) ||(PistonAura.mc.world.getBlockState(new BlockPos(rt.posX + 1, rt.posY + 2, rt.posZ)).getBlock().equals(Blocks.BEDROCK)))){
-                    InteractionUtil.Placement aboba = InteractionUtil.preparePlacement(new BlockPos(rt.posX, rt.posY + 2, rt.posZ), true, true);
-                    InteractionUtil.placeBlock(aboba, EnumHand.MAIN_HAND, true);
-                    return;
-                }
-                if((PistonAura.mc.world.getBlockState(new BlockPos(rt.posX - 1, rt.posY + 2, rt.posZ)).getBlock().equals(Blocks.OBSIDIAN) ||(PistonAura.mc.world.getBlockState(new BlockPos(rt.posX - 1, rt.posY + 2, rt.posZ)).getBlock().equals(Blocks.BEDROCK)))){
-                    InteractionUtil.Placement aboba = InteractionUtil.preparePlacement(new BlockPos(rt.posX, rt.posY + 2, rt.posZ), true, true);
-                    InteractionUtil.placeBlock(aboba, EnumHand.MAIN_HAND, true);
-                    return;
-                }
-                if((PistonAura.mc.world.getBlockState(new BlockPos(rt.posX, rt.posY + 2, rt.posZ + 1)).getBlock().equals(Blocks.OBSIDIAN) ||(PistonAura.mc.world.getBlockState(new BlockPos(rt.posX, rt.posY + 2, rt.posZ + 1)).getBlock().equals(Blocks.BEDROCK)))){
-                    InteractionUtil.Placement aboba = InteractionUtil.preparePlacement(new BlockPos(rt.posX, rt.posY + 2, rt.posZ), true, true);
-                    InteractionUtil.placeBlock(aboba, EnumHand.MAIN_HAND, true);
-                    return;
-                }
-                if((PistonAura.mc.world.getBlockState(new BlockPos(rt.posX, rt.posY + 2, rt.posZ - 1)).getBlock().equals(Blocks.OBSIDIAN) ||(PistonAura.mc.world.getBlockState(new BlockPos(rt.posX, rt.posY + 2, rt.posZ - 1)).getBlock().equals(Blocks.BEDROCK)))){
-                    InteractionUtil.Placement aboba = InteractionUtil.preparePlacement(new BlockPos(rt.posX, rt.posY + 2, rt.posZ), true, true);
-                    InteractionUtil.placeBlock(aboba, EnumHand.MAIN_HAND, true);
-                    return;
-                }
-
-
-                if((PistonAura.mc.world.getBlockState(new BlockPos(rt.posX + 1, rt.posY + 1, rt.posZ)).getBlock().equals(Blocks.OBSIDIAN) ||(PistonAura.mc.world.getBlockState(new BlockPos(rt.posX + 1, rt.posY + 1, rt.posZ)).getBlock().equals(Blocks.BEDROCK)))){
-                    InteractionUtil.Placement aboba = InteractionUtil.preparePlacement(new BlockPos(rt.posX + 1, rt.posY + 2, rt.posZ), true, true);
-                    InteractionUtil.placeBlock(aboba, EnumHand.MAIN_HAND, true);
-                    repeattrap(rt);
-                    return;
-                }
-                if((PistonAura.mc.world.getBlockState(new BlockPos(rt.posX - 1, rt.posY + 1, rt.posZ)).getBlock().equals(Blocks.OBSIDIAN) ||(PistonAura.mc.world.getBlockState(new BlockPos(rt.posX - 1, rt.posY + 1, rt.posZ)).getBlock().equals(Blocks.BEDROCK)))){
-
-                    InteractionUtil.Placement aboba = InteractionUtil.preparePlacement(new BlockPos(rt.posX - 1, rt.posY + 2, rt.posZ), true, true);
-                    InteractionUtil.placeBlock(aboba, EnumHand.MAIN_HAND, true);
-                    repeattrap(rt);
-                    return;
-                }
-                if((PistonAura.mc.world.getBlockState(new BlockPos(rt.posX, rt.posY + 1, rt.posZ + 1)).getBlock().equals(Blocks.OBSIDIAN) ||(PistonAura.mc.world.getBlockState(new BlockPos(rt.posX, rt.posY + 1, rt.posZ + 1)).getBlock().equals(Blocks.BEDROCK)))){
-
-
-                    InteractionUtil.Placement aboba = InteractionUtil.preparePlacement(new BlockPos(rt.posX, rt.posY + 2, rt.posZ + 1), true, true);
-                    InteractionUtil.placeBlock(aboba, EnumHand.MAIN_HAND, true);
-                    repeattrap(rt);
-                    return;
-                }
-                if((PistonAura.mc.world.getBlockState(new BlockPos(rt.posX, rt.posY + 1, rt.posZ - 1)).getBlock().equals(Blocks.OBSIDIAN) ||(PistonAura.mc.world.getBlockState(new BlockPos(rt.posX, rt.posY + 1, rt.posZ - 1)).getBlock().equals(Blocks.BEDROCK)) )){
-                    InteractionUtil.Placement aboba = InteractionUtil.preparePlacement(new BlockPos(rt.posX, rt.posY + 2, rt.posZ - 1), true, true);
-                    InteractionUtil.placeBlock(aboba, EnumHand.MAIN_HAND, true);
-                    repeattrap(rt);
-                    return;
-                }
-                if(checkatomizer(new BlockPos(rt.posX + 1, rt.posY + 1, rt.posZ))) {
-                    InteractionUtil.Placement aboba = InteractionUtil.preparePlacement(new BlockPos(rt.posX + 1, rt.posY + 1, rt.posZ), true, true);
-                    InteractionUtil.placeBlock(aboba, EnumHand.MAIN_HAND, true);
-                    traptarget2(rt);
-                    return;
-                }
-                if(checkatomizer(new BlockPos(rt.posX - 1, rt.posY + 1, rt.posZ))) {
-                    InteractionUtil.Placement aboba = InteractionUtil.preparePlacement(new BlockPos(rt.posX - 1, rt.posY + 1, rt.posZ), true, true);
-                    InteractionUtil.placeBlock(aboba, EnumHand.MAIN_HAND, true);
-                    traptarget2(rt);
-                    return;
-                }
-                if(checkatomizer(new BlockPos(rt.posX, rt.posY + 1, rt.posZ+ 1))) {
-                    InteractionUtil.Placement aboba = InteractionUtil.preparePlacement(new BlockPos(rt.posX, rt.posY + 1, rt.posZ + 1), true, true);
-                    InteractionUtil.placeBlock(aboba, EnumHand.MAIN_HAND, true);
-                    traptarget2(rt);
-                    return;
-                }
-                if(checkatomizer(new BlockPos(rt.posX, rt.posY + 1, rt.posZ - 1))) {
-                    InteractionUtil.Placement aboba = InteractionUtil.preparePlacement(new BlockPos(rt.posX, rt.posY + 1, rt.posZ - 1), true, true);
-                    InteractionUtil.placeBlock(aboba, EnumHand.MAIN_HAND, true);
-                    traptarget2(rt);
-                }
-
-            }
-        }
-    }
-
-
-    public boolean checkatomizer(BlockPos bb){
-        return mc.player.getDistance(bb.x,bb.y,bb.z) > 2f;
-    }
-
-    public void repeattrap(Entity rt){
-        mc.player.connection.sendPacket(new CPacketHeldItemChange(getobby()));
-        if((PistonAura.mc.world.getBlockState(new BlockPos(rt.posX + 1, rt.posY + 2, rt.posZ)).getBlock().equals(Blocks.OBSIDIAN) ||(PistonAura.mc.world.getBlockState(new BlockPos(rt.posX + 1, rt.posY + 2, rt.posZ)).getBlock().equals(Blocks.BEDROCK)) )){
-            InteractionUtil.Placement aboba = InteractionUtil.preparePlacement(new BlockPos(rt.posX, rt.posY + 2, rt.posZ), true, true);
-            InteractionUtil.placeBlock(aboba, EnumHand.MAIN_HAND, true);
-        }
-        if((PistonAura.mc.world.getBlockState(new BlockPos(rt.posX - 1, rt.posY + 2, rt.posZ)).getBlock().equals(Blocks.OBSIDIAN) ||(PistonAura.mc.world.getBlockState(new BlockPos(rt.posX - 1, rt.posY + 2, rt.posZ)).getBlock().equals(Blocks.BEDROCK)) )){
-            InteractionUtil.Placement aboba = InteractionUtil.preparePlacement(new BlockPos(rt.posX, rt.posY + 2, rt.posZ), true, true);
-            InteractionUtil.placeBlock(aboba, EnumHand.MAIN_HAND, true);
-        }
-        if((PistonAura.mc.world.getBlockState(new BlockPos(rt.posX, rt.posY + 2, rt.posZ + 1)).getBlock().equals(Blocks.OBSIDIAN) ||(PistonAura.mc.world.getBlockState(new BlockPos(rt.posX, rt.posY + 2, rt.posZ + 1)).getBlock().equals(Blocks.BEDROCK)) )){
-            InteractionUtil.Placement aboba = InteractionUtil.preparePlacement(new BlockPos(rt.posX, rt.posY + 2, rt.posZ), true, true);
-            InteractionUtil.placeBlock(aboba, EnumHand.MAIN_HAND, true);
-        }
-        if((PistonAura.mc.world.getBlockState(new BlockPos(rt.posX, rt.posY + 2, rt.posZ - 1)).getBlock().equals(Blocks.OBSIDIAN) ||(PistonAura.mc.world.getBlockState(new BlockPos(rt.posX, rt.posY + 2, rt.posZ - 1)).getBlock().equals(Blocks.BEDROCK)) )){
-            InteractionUtil.Placement aboba = InteractionUtil.preparePlacement(new BlockPos(rt.posX, rt.posY + 2, rt.posZ), true, true);
-            InteractionUtil.placeBlock(aboba, EnumHand.MAIN_HAND, true);
-        }
-    }
-
-    public static boolean canPlaceCrystal(BlockPos blockPos) {
+    public boolean canPlaceCrystal(BlockPos blockPos) {
         if (!(mc.world.getBlockState(blockPos).getBlock() == Blocks.BEDROCK
                 || mc.world.getBlockState(blockPos).getBlock() == Blocks.OBSIDIAN)) return false;
 
         BlockPos boost = blockPos.add(0, 1, 0);
-        if (!(mc.world.getBlockState(boost).getBlock() == Blocks.AIR || mc.world.getBlockState(boost).getBlock() == Blocks.PISTON_HEAD)) return false;
-        BlockPos boost2 = blockPos.add(0, 2, 0);
-        if (!(mc.world.getBlockState(boost2).getBlock() == Blocks.AIR)) {
+
+        if (!(mc.world.getBlockState(boost).getBlock() == Blocks.AIR || mc.world.getBlockState(boost).getBlock() == Blocks.PISTON_HEAD))
             return false;
+
+        BlockPos boost2 = blockPos.add(0, 2, 0);
+
+        if (!protocol.getValue()) {
+            if (!(mc.world.getBlockState(boost2).getBlock() == Blocks.AIR)) {
+                return false;
+            }
         }
+
         return mc.world.getEntitiesWithinAABB(Entity.class, new AxisAlignedBB(boost, boost2.add(1, 1, 1))).isEmpty();
     }
 
     public boolean evaluateTarget(BlockPos tempFacePos) {
-        if (isAir(tempFacePos) && !mine.getValue()) return false;
+        if (!isAir(tempFacePos) && !mine.getValue()) return false;
         for (EnumFacing faceTryOffset : EnumFacing.HORIZONTALS) {
             torchPos = null;
             skipPiston = false;
@@ -952,9 +839,9 @@ public class PistonAura extends Module {
             }
 
             ItemStack stack = mc.player.inventory.getStackInSlot(getRedstoneBlockSlot());
-            Block block = ((ItemBlock)stack.getItem()).getBlock();
+            Block block = ((ItemBlock) stack.getItem()).getBlock();
             if (block == Blocks.REDSTONE_BLOCK) {
-                if (isAir(tempFacePos.offset(faceTryOffset, 3))) {
+                if (!isAir(tempFacePos.offset(faceTryOffset, 3))) {
                     if (mine.getValue() && (mc.world.getBlockState(tempFacePos.offset(faceTryOffset, 3)).getBlock() == Blocks.REDSTONE_TORCH || mc.world.getBlockState(tempFacePos.offset(faceTryOffset, 3)).getBlock() == Blocks.REDSTONE_BLOCK)) {
                         torchPos = tempFacePos.offset(faceTryOffset, 3);
                     } else {
@@ -968,9 +855,10 @@ public class PistonAura extends Module {
                     torchPos = tempFacePos.offset(faceTryOffset, 3);
                 }
 
-                if (!posCL.isPresent() && torchPos == null && ((ItemBlock)mc.player.inventory.getStackInSlot(getRedstoneBlockSlot()).getItem()).getBlock() == Blocks.REDSTONE_TORCH) {
+                if (!posCL.isPresent() && torchPos == null && ((ItemBlock) mc.player.inventory.getStackInSlot(getRedstoneBlockSlot()).getItem()).getBlock() == Blocks.REDSTONE_TORCH) {
                     for (EnumFacing torchFacing : EnumFacing.HORIZONTALS) {
-                        if (torchFacing.equals(faceTryOffset) || torchFacing.equals(faceTryOffset.getOpposite())) continue;
+                        if (torchFacing.equals(faceTryOffset) || torchFacing.equals(faceTryOffset.getOpposite()))
+                            continue;
                         posCL = BlockUtils.generateClickLocation(tempFacePos.offset(faceTryOffset, 2).offset(torchFacing), false, true);
                         if (posCL.isPresent()) {
                             break;
@@ -1052,7 +940,7 @@ public class PistonAura extends Module {
     }
 
     private boolean isAir(BlockPos pos) {
-        return !(mc.world.getBlockState(pos).getBlock() instanceof BlockAir);
+        return mc.world.getBlockState(pos).getBlock() instanceof BlockAir;
     }
 
     private List<EntityPlayer> getTargets() {
@@ -1064,29 +952,12 @@ public class PistonAura extends Module {
                 .collect(Collectors.toList());
     }
 
-    public static int getPistonSlot() {
+    private int getRedstoneBlockSlot() {
         int slot = -1;
         for (int i = 0; i < 9; i++) {
             final ItemStack stack = mc.player.inventory.getStackInSlot(i);
             if (stack != ItemStack.EMPTY && stack.getItem() instanceof ItemBlock) {
-                final Block block = ((ItemBlock)stack.getItem()).getBlock();
-                if (block instanceof BlockPistonBase) {
-                    slot = i;
-                    break;
-                }
-            }
-        }
-
-        return slot;
-    }
-
-
-    private int getRedstoneBlockSlot(){
-        int slot = -1;
-        for (int i = 0; i < 9; i++) {
-            final ItemStack stack = mc.player.inventory.getStackInSlot(i);
-            if (stack != ItemStack.EMPTY && stack.getItem() instanceof ItemBlock) {
-                final Block block = ((ItemBlock)stack.getItem()).getBlock();
+                final Block block = ((ItemBlock) stack.getItem()).getBlock();
                 if (block == Blocks.REDSTONE_BLOCK || block == Blocks.REDSTONE_TORCH) {
                     slot = i;
                     break;
@@ -1097,126 +968,16 @@ public class PistonAura extends Module {
         return slot;
     }
 
-    private int getobby() {
-        int slot = -1;
-        for (int i = 0; i < 9; i++) {
-            final ItemStack stack = mc.player.inventory.getStackInSlot(i);
-            if (stack != ItemStack.EMPTY && stack.getItem() instanceof ItemBlock) {
-                final Block block = ((ItemBlock) stack.getItem()).getBlock();
-                if (block instanceof BlockObsidian) {
-                    slot = i;
-                    break;
-                }
-            }
-        }
-
-        return slot;
-    }
-
-    public static float[] calculateAngle(Vec3d from, Vec3d to) {
-        double difX = to.x - from.x;
-        double difY = (to.y - from.y) * -1.0;
-        double difZ = to.z - from.z;
-        double dist = MathHelper.sqrt(difX * difX + difZ * difZ);
-        float yD = (float)MathHelper.wrapDegrees(Math.toDegrees(Math.atan2(difZ, difX)) - 90.0);
-        float pD = (float)MathHelper.wrapDegrees(Math.toDegrees(Math.atan2(difY, dist)));
-        if (pD > 90F) {
-            pD = 90F;
-        } else if (pD < -90F) {
-            pD = -90F;
-        }
-        return new float[]{yD, pD};
-    }
-
-    public void updateWithFakeEvent(float yaw, float pitch) {
-        if(rmodepost.getValue() == rMode.FakeEvent) {
-            boolean flag = mc.player.isSprinting();
-
-            if (flag != ((IEntityPlayerSP) mc.player).getServerSprintState()) {
-                if (flag) {
-                    mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.START_SPRINTING));
-                } else {
-                    mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.STOP_SPRINTING));
-                }
-
-                ((IEntityPlayerSP) mc.player).setServerSprintState(flag);
-            }
-
-            boolean flag1 = mc.player.isSneaking();
-
-            if (flag1 != ((IEntityPlayerSP) mc.player).getServerSneakState()) {
-                if (flag1) {
-                    mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.START_SNEAKING));
-                } else {
-                    mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.STOP_SNEAKING));
-                }
-
-                ((IEntityPlayerSP) mc.player).setServerSneakState(flag1);
-            }
-
-            if (mc.player == mc.getRenderViewEntity()) {
-                AxisAlignedBB axisalignedbb = mc.player.getEntityBoundingBox();
-                double dX = mc.player.posX - ((IEntityPlayerSP) mc.player).getLastReportedPosX();
-                double dY = axisalignedbb.minY - ((IEntityPlayerSP) mc.player).getLastReportedPosY();
-                double dZ = mc.player.posZ - ((IEntityPlayerSP) mc.player).getLastReportedPosZ();
-                double dYaw = (yaw - ((IEntityPlayerSP) mc.player).getLastReportedYaw());
-                double dPitch = (pitch - ((IEntityPlayerSP) mc.player).getLastReportedPitch());
-                ((IEntityPlayerSP) mc.player).setPositionUpdateTicks(((IEntityPlayerSP) mc.player).getPositionUpdateTicks() + 1);
-                boolean positionChanged = dX * dX + dY * dY + dZ * dZ > 9.0E-4D || ((IEntityPlayerSP) mc.player).getPositionUpdateTicks() >= 20;
-                boolean rotationChanged = dYaw != 0.0D || dPitch != 0.0D;
-
-                if (mc.player.isRiding()) {
-                    mc.player.connection.sendPacket(new CPacketPlayer.PositionRotation(mc.player.motionX, -999.0D, mc.player.motionZ, yaw, pitch, mc.player.onGround));
-                    positionChanged = false;
-                } else if (positionChanged && rotationChanged) {
-                    mc.player.connection.sendPacket(new CPacketPlayer.PositionRotation(mc.player.posX, axisalignedbb.minY, mc.player.posZ, yaw, pitch, mc.player.onGround));
-                } else if (positionChanged) {
-                    mc.player.connection.sendPacket(new CPacketPlayer.Position(mc.player.posX, axisalignedbb.minY, mc.player.posZ, mc.player.onGround));
-                } else if (rotationChanged) {
-                    mc.player.connection.sendPacket(new CPacketPlayer.Rotation(yaw, pitch, mc.player.onGround));
-                } else if (((IEntityPlayerSP) mc.player).getPrevOnGround() != mc.player.onGround) {
-                    mc.player.connection.sendPacket(new CPacketPlayer(mc.player.onGround));
-                }
-
-                if (positionChanged) {
-                    ((IEntityPlayerSP) mc.player).setLastReportedPosX(mc.player.posX);
-                    ((IEntityPlayerSP) mc.player).setLastReportedPosY(axisalignedbb.minY);
-                    ((IEntityPlayerSP) mc.player).setLastReportedPosZ(mc.player.posZ);
-                    ((IEntityPlayerSP) mc.player).setPositionUpdateTicks(0);
-                }
-
-                if (rotationChanged) {
-                    ((IEntityPlayerSP) mc.player).setLastReportedYaw(yaw);
-                    ((IEntityPlayerSP) mc.player).setLastReportedPitch(pitch);
-                }
-
-                ((IEntityPlayerSP) mc.player).setPrevOnGround(mc.player.onGround);
-                ((IEntityPlayerSP) mc.player).setAutoJumpEnabled(mc.gameSettings.autoJump);
-            }
-        } else {
-            yawToEvent = yaw;
-            pitchToEvent = pitch;
-        }
+    private enum Mode {
+        DAMAGE, PUSH
     }
 
 
-    public void lookAtVec3d(Vec3d vec3d) {
-        float[] angle = MathUtil.calcAngle(mc.player.getPositionEyes(mc.getRenderPartialTicks()), new Vec3d(vec3d.x, vec3d.y, vec3d.z));
-        yawToEvent = angle[0];
-        pitchToEvent = angle[1];
+    private enum Stage {
+        SEARCHING,
+        CRYSTAL,
+        REDSTONE,
+        BREAKING,
+        EXPLOSION
     }
-    public void lookAtXYZ(double x, double y, double z) {
-        Vec3d vec3d = new Vec3d(x, y, z);
-        lookAtVec3d(vec3d);
-    }
-
-    // поршень -> кристал -> редстоун -> лома
-
-    //       # <- redstone stage 3           x - TARGET
-    //       # <- piston stage 1           # - SUPPORT BLOCK
-    //       # <- crystal stage 2
-    //   ### x ###
-    //       #
-    //       #
-    //       #
 }

@@ -11,16 +11,18 @@ public class PaletteHelper {
     public static int getColor(int bright) {
         return getColor(bright, bright, bright, 255);
     }
+
     public static Color astolfo(float yDist, float yTotal, float saturation, float speedt) {
         float hue;
         float speed = 1800.0f;
-        for (hue = (float)(System.currentTimeMillis() % (long)((int)speed)) + (yTotal - yDist) * speedt; hue > speed; hue -= speed) {
+        for (hue = (float) (System.currentTimeMillis() % (long) ((int) speed)) + (yTotal - yDist) * speedt; hue > speed; hue -= speed) {
         }
-        if ((double)(hue /= speed) > 0.5) {
+        if ((double) (hue /= speed) > 0.5) {
             hue = 0.5f - (hue - 0.5f);
         }
         return Color.getHSBColor(hue += 0.5f, saturation, 1.0f);
     }
+
     public static int getColor(int red, int green, int blue, int alpha) {
         int color = 0;
         color |= alpha << 24;
@@ -29,6 +31,7 @@ public class PaletteHelper {
         color |= blue;
         return color;
     }
+
     public static Color astolfo(boolean clickgui, int yOffset) {
         float speed = clickgui ? 35 * 100 : 30 * 100;
         float hue = (System.currentTimeMillis() % (int) speed) + yOffset;

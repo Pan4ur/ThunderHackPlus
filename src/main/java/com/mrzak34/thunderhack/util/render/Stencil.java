@@ -7,6 +7,7 @@ import org.lwjgl.opengl.EXTFramebufferObject;
 
 import static com.mrzak34.thunderhack.util.Util.mc;
 import static org.lwjgl.opengl.GL11.*;
+
 public class Stencil {
 
     public static void dispose() {

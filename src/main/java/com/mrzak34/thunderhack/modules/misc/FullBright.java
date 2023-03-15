@@ -3,10 +3,10 @@ package com.mrzak34.thunderhack.modules.misc;
 import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraft.init.MobEffects;
 import net.minecraft.network.play.server.SPacketEntityEffect;
 import net.minecraft.potion.PotionEffect;
-import net.minecraft.init.MobEffects;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class FullBright
         extends Module {
@@ -44,7 +44,7 @@ public class FullBright
 
     @SubscribeEvent
     public void onPacketReceive(final PacketEvent.Receive event) {
-        if ( event.getPacket() instanceof SPacketEntityEffect && this.effects.getValue()) {
+        if (event.getPacket() instanceof SPacketEntityEffect && this.effects.getValue()) {
             final SPacketEntityEffect packet = event.getPacket();
             if (FullBright.mc.player != null && packet.getEntityId() == FullBright.mc.player.getEntityId() && (packet.getEffectId() == 9 || packet.getEffectId() == 15)) {
                 event.setCanceled(true);
@@ -52,9 +52,8 @@ public class FullBright
         }
     }
 
-    public enum Mode
-    {
+    public enum Mode {
         GAMMA,
-        POTION;
+        POTION
     }
 }

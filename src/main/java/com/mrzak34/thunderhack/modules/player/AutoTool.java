@@ -7,7 +7,6 @@ import net.minecraft.block.BlockEnderChest;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.init.Enchantments;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.play.client.CPacketHeldItemChange;
 import net.minecraft.util.math.BlockPos;
 
 import java.util.ArrayList;
@@ -15,22 +14,18 @@ import java.util.List;
 
 public class AutoTool extends Module {
 
-    public AutoTool() {
-        super("AutoTool", "Автоматом свапается на-луший инструмент", Category.PLAYER);
-    }
-
-
     public Setting<Boolean> swapBack = register(new Setting<>("SwapBack", true));
     public Setting<Boolean> saveItem = register(new Setting<>("SaveItem", true));
-   // public Setting<Boolean> silent = register(new Setting<>("Silent", false)); //TODO later
+    // public Setting<Boolean> silent = register(new Setting<>("Silent", false)); //TODO later
     public Setting<Boolean> echestSilk = register(new Setting<>("EchestSilk", true));
-
     public int itemIndex;
     private boolean swap;
     private long swapDelay;
-    private ItemStack swapedItem = null;
-    private List<Integer> lastItem = new ArrayList<>();
-
+    private final ItemStack swapedItem = null;
+    private final List<Integer> lastItem = new ArrayList<>();
+    public AutoTool() {
+        super("AutoTool", "Автоматом свапается на-луший инструмент", Category.PLAYER);
+    }
 
     @Override
     public void onUpdate() {
@@ -39,10 +34,10 @@ public class AutoTool extends Module {
             if (mc.player.inventory.getCurrentItem() != swapedItem) {
                 lastItem.add(mc.player.inventory.currentItem);
 
-              //  if (silent.getValue())
-             //       mc.player.connection.sendPacket(new CPacketHeldItemChange(getTool(mc.objectMouseOver.getBlockPos())));
-             //   else
-                    mc.player.inventory.currentItem = getTool(mc.objectMouseOver.getBlockPos());
+                //  if (silent.getValue())
+                //       mc.player.connection.sendPacket(new CPacketHeldItemChange(getTool(mc.objectMouseOver.getBlockPos())));
+                //   else
+                mc.player.inventory.currentItem = getTool(mc.objectMouseOver.getBlockPos());
 
                 itemIndex = getTool(mc.objectMouseOver.getBlockPos());
                 swap = true;
@@ -51,10 +46,10 @@ public class AutoTool extends Module {
 
         } else if (swap && !lastItem.isEmpty() && System.currentTimeMillis() >= swapDelay + 300 && swapBack.getValue()) {
 
-         //   if (silent.getValue())
-          //      mc.player.connection.sendPacket(new CPacketHeldItemChange(lastItem.get(0)));
-         //   else
-                mc.player.inventory.currentItem = lastItem.get(0);
+            //   if (silent.getValue())
+            //      mc.player.connection.sendPacket(new CPacketHeldItemChange(lastItem.get(0)));
+            //   else
+            mc.player.inventory.currentItem = lastItem.get(0);
 
             itemIndex = lastItem.get(0);
             lastItem.clear();
@@ -75,14 +70,13 @@ public class AutoTool extends Module {
                 final float digSpeed = EnchantmentHelper.getEnchantmentLevel(Enchantments.EFFICIENCY, stack);
                 final float destroySpeed = stack.getDestroySpeed(mc.world.getBlockState(pos));
 
-                if(mc.world.getBlockState(pos).getBlock() instanceof BlockAir) return -1;
+                if (mc.world.getBlockState(pos).getBlock() instanceof BlockAir) return -1;
                 if (mc.world.getBlockState(pos).getBlock() instanceof BlockEnderChest && echestSilk.getValue()) {
                     if (EnchantmentHelper.getEnchantmentLevel(Enchantments.SILK_TOUCH, stack) > 0 && digSpeed + destroySpeed > CurrentFastest) {
                         CurrentFastest = digSpeed + destroySpeed;
                         index = i;
                     }
-                }
-                else if (digSpeed + destroySpeed > CurrentFastest) {
+                } else if (digSpeed + destroySpeed > CurrentFastest) {
                     CurrentFastest = digSpeed + destroySpeed;
                     index = i;
                 }

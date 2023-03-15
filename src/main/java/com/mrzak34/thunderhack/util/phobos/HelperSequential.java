@@ -15,6 +15,7 @@ import net.minecraft.network.play.server.SPacketSpawnObject;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class HelperSequential extends Feature {
@@ -25,11 +26,12 @@ public class HelperSequential extends Feature {
 
     public HelperSequential(AutoCrystal module) {
         this.module = module;
+        MinecraftForge.EVENT_BUS.register(this);
     }
 
     @SubscribeEvent
-    public void onPacketSend(PacketEvent.SendPost e){
-        if(e.getPacket() instanceof  CPacketUseEntity){
+    public void onPacketSend(PacketEvent.SendPost e) {
+        if (e.getPacket() instanceof CPacketUseEntity) {
             Entity entity = mc.world.getEntityByID(((CPacketUseEntity) e.getPacket()).entityId);
             if (entity instanceof EntityEnderCrystal) {
                 if (module.endSequenceOnBreak.getValue()) {
@@ -42,40 +44,40 @@ public class HelperSequential extends Feature {
     }
 
     @SubscribeEvent
-    public void onPacketReceive(PacketEvent.Receive e){
-        if(fullNullCheck()){
+    public void onPacketReceive(PacketEvent.Receive e) {
+        if (fullNullCheck()) {
             return;
         }
-        if(e.getPacket() instanceof SPacketSoundEffect){
+        if (e.getPacket() instanceof SPacketSoundEffect) {
             Vec3d cPos = crystalPos;
             if (module.endSequenceOnExplosion.getValue()
-                    && ((SPacketSoundEffect)e.getPacket()).getCategory() == SoundCategory.BLOCKS
-                    && ((SPacketSoundEffect)e.getPacket()).getSound() == SoundEvents.ENTITY_GENERIC_EXPLODE
+                    && ((SPacketSoundEffect) e.getPacket()).getCategory() == SoundCategory.BLOCKS
+                    && ((SPacketSoundEffect) e.getPacket()).getSound() == SoundEvents.ENTITY_GENERIC_EXPLODE
                     && cPos != null
-                    && cPos.squareDistanceTo(((SPacketSoundEffect)e.getPacket()).getX(), ((SPacketSoundEffect)e.getPacket()).getY(), ((SPacketSoundEffect)e.getPacket()).getZ()) < 144) {
+                    && cPos.squareDistanceTo(((SPacketSoundEffect) e.getPacket()).getX(), ((SPacketSoundEffect) e.getPacket()).getY(), ((SPacketSoundEffect) e.getPacket()).getZ()) < 144) {
                 setExpecting(null);
             }
         }
-        if(e.getPacket() instanceof SPacketSpawnObject){
-            if (((SPacketSpawnObject)e.getPacket()).getType() == 51) {
-                BlockPos pos = new BlockPos(((SPacketSpawnObject)e.getPacket()).getX(),
-                        ((SPacketSpawnObject)e.getPacket()).getY(),
-                        ((SPacketSpawnObject)e.getPacket()).getZ());
+        if (e.getPacket() instanceof SPacketSpawnObject) {
+            if (((SPacketSpawnObject) e.getPacket()).getType() == 51) {
+                BlockPos pos = new BlockPos(((SPacketSpawnObject) e.getPacket()).getX(),
+                        ((SPacketSpawnObject) e.getPacket()).getY(),
+                        ((SPacketSpawnObject) e.getPacket()).getZ());
                 if (pos.down().equals(expecting)) {
                     if (module.endSequenceOnSpawn.getValue()) {
                         setExpecting(null);
                     } else if (crystalPos == null) {
                         crystalPos = new Vec3d(
-                                (((SPacketSpawnObject)e.getPacket())).getX(),
-                                (((SPacketSpawnObject)e.getPacket())).getY(),
-                                (((SPacketSpawnObject)e.getPacket())).getZ());
+                                (((SPacketSpawnObject) e.getPacket())).getX(),
+                                (((SPacketSpawnObject) e.getPacket())).getY(),
+                                (((SPacketSpawnObject) e.getPacket())).getZ());
                     }
                 }
             }
         }
-        if(e.getPacket() instanceof SPacketBlockChange){
+        if (e.getPacket() instanceof SPacketBlockChange) {
             BlockPos expected = expecting;
-            if (expected != null && expected.equals(((SPacketBlockChange)e.getPacket()).getBlockPosition())) {
+            if (expected != null && expected.equals(((SPacketBlockChange) e.getPacket()).getBlockPosition())) {
                 if (module.antiPlaceFail.getValue() && crystalPos == null) {
                     module.placeTimer.setTime(0);
                     setExpecting(null);

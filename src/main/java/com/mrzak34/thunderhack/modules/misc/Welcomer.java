@@ -9,37 +9,31 @@ import net.minecraft.client.network.NetworkPlayerInfo;
 import net.minecraft.network.play.server.SPacketPlayerListItem;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-import java.util.*;
+import java.util.LinkedHashMap;
+import java.util.UUID;
 
 public class Welcomer extends Module {
+    public final Setting<Boolean> serverside = register(new Setting<>("ServerSide", false));
+    public final Setting<Boolean> global = register(new Setting<>("Global", false, v -> serverside.getValue()));
+    private final String[] bb = new String[]{"See you later, ", "Catch ya later, ", "See you next time, ", "Farewell, ", "Bye, ", "Good bye, ", "Later, "};
+    private final String[] qq = new String[]{"Good to see you, ", "Greetings, ", "Hello, ", "Howdy, ", "Hey, ", "Good evening, ", "Welcome to SERVERIP1D5A9E, "};
+    private final Timer timer = new Timer();
+    private String string1 = "server";
+    private final LinkedHashMap<UUID, String> nameMap = new LinkedHashMap<>();
+
+
     public Welcomer() {
         super("Welcomer", "Приветствует игроков", Category.MISC);
     }
-
-
-    private String string1 = "server";
-
-
-    private final String[] bb = new String[]{ "See you later, ", "Catch ya later, ", "See you next time, ", "Farewell, ", "Bye, ", "Good bye, ", "Later, " };
-    private final String[] qq = new String[]{ "Good to see you, ", "Greetings, ", "Hello, ", "Howdy, ", "Hey, ", "Good evening, ", "Welcome to SERVERIP1D5A9E, " };;
-
-    public final Setting<Boolean> serverside = register(new Setting<>("ServerSide", false));
-    public final Setting<Boolean> global = register(new Setting<>("Global", false,v->serverside.getValue()));
-
-
-    private LinkedHashMap<UUID, String> nameMap = new LinkedHashMap<>();
-
 
     @Override
     public void onDisable() {
         nameMap.clear();
     }
 
-    private final Timer timer = new Timer();
-
     @Override
-    public void onUpdate(){
-        if(timer.passedMs(15000)) {
+    public void onUpdate() {
+        if (timer.passedMs(15000)) {
             for (NetworkPlayerInfo b : mc.player.connection.getPlayerInfoMap()) {
                 if (!nameMap.containsKey(b.getGameProfile().getId())) {
                     nameMap.put(b.getGameProfile().getId(), b.getGameProfile().getName());
@@ -68,10 +62,10 @@ public class Welcomer extends Module {
                         if (!nameMap.containsKey(item.getProfile().getId())) {
                             return;
                         }
-                        if(antiBot(nameMap.get(item.getProfile().getId()))){
+                        if (antiBot(nameMap.get(item.getProfile().getId()))) {
                             return;
                         }
-                        if(serverside.getValue()) {
+                        if (serverside.getValue()) {
                             mc.player.sendChatMessage((global.getValue() ? "!" : "") + bb[n] + nameMap.get(item.getProfile().getId()));
                         } else {
                             Command.sendMessage(bb[n] + nameMap.get(item.getProfile().getId()));
@@ -81,13 +75,13 @@ public class Welcomer extends Module {
                         nameMap.remove(item.getProfile().getId());
                         break;
                     case ADD_PLAYER:
-                        if(antiBot(item.getProfile().getName())){
+                        if (antiBot(item.getProfile().getName())) {
                             return;
                         }
-                        if(serverside.getValue()){
+                        if (serverside.getValue()) {
                             mc.player.sendChatMessage((global.getValue() ? "!" : "") + string1 + item.getProfile().getName());
                         } else {
-                           Command.sendMessage(string1 + item.getProfile().getName());
+                            Command.sendMessage(string1 + item.getProfile().getName());
                         }
                         nameMap.put(item.getProfile().getId(), item.getProfile().getName());
                         break;
@@ -106,9 +100,6 @@ public class Welcomer extends Module {
         }
         return false;
     }
-
-
-
 
 
 }

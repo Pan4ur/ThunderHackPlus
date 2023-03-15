@@ -5,7 +5,7 @@ import net.minecraft.util.math.BlockPos;
 
 import static com.mrzak34.thunderhack.util.Util.mc;
 
-public class NcpInteractTrace extends NcpTrace{
+public class NcpInteractTrace extends NcpTrace {
     protected final boolean strict = false;
     protected int lastBx, lastBy, lastBz;
     protected int targetX, targetY, targetZ;

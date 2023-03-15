@@ -1,12 +1,11 @@
 package com.mrzak34.thunderhack.gui.clickui;
 
 
-import java.awt.Color;
-import java.awt.image.BufferedImage;
-
 import com.mrzak34.thunderhack.util.math.MathUtil;
-
 import net.minecraft.client.renderer.GlStateManager;
+
+import java.awt.*;
+import java.awt.image.BufferedImage;
 
 public class ColorUtil {
 
@@ -121,8 +120,8 @@ public class ColorUtil {
     public static Color blendColors(float[] fractions, Color[] colors, float progress) {
         if (fractions.length == colors.length) {
             int[] indices = getFractionIndices(fractions, progress);
-            float[] range = { fractions[indices[0]], fractions[indices[1]] };
-            Color[] colorRange = { colors[indices[0]], colors[indices[1]] };
+            float[] range = {fractions[indices[0]], fractions[indices[1]]};
+            Color[] colorRange = {colors[indices[0]], colors[indices[1]]};
             float max = range[1] - range[0];
             float value = progress - range[0];
             float weight = value / max;
@@ -250,7 +249,7 @@ public class ColorUtil {
         }
         h *= 60;
         float s = c / M;
-        return new int[] { c == 0 ? -1 : (int) h, (int) (s * 100), (int) (M * 100) };
+        return new int[]{c == 0 ? -1 : (int) h, (int) (s * 100), (int) (M * 100)};
     }
 
     // RGB TO HSL AND HSL TO RGB FOUND HERE:
@@ -346,7 +345,7 @@ public class ColorUtil {
         float max = Math.max(Math.max(red, green), blue);
         float min = Math.min(Math.min(red, green), blue);
         float c = (max + min) / 2f;
-        float[] hsl = new float[] { c, c, c };
+        float[] hsl = new float[]{c, c, c};
 
         if (max == min) {
             hsl[0] = hsl[1] = 0;
@@ -488,8 +487,8 @@ public class ColorUtil {
     }
 
     public static int[] createColorArray(int color) {
-        return new int[] { bitChangeColor(color, 16), bitChangeColor(color, 8), bitChangeColor(color, 0),
-                bitChangeColor(color, 24) };
+        return new int[]{bitChangeColor(color, 16), bitChangeColor(color, 8), bitChangeColor(color, 0),
+                bitChangeColor(color, 24)};
     }
 
     public static int getOppositeColor(int color) {
@@ -506,6 +505,7 @@ public class ColorUtil {
     private static int bitChangeColor(int color, int bitChange) {
         return (color >> bitChange) & 255;
     }
+
     public static Double interpolate(double oldValue, double newValue, double interpolationValue) {
         return (oldValue + (newValue - oldValue) * interpolationValue);
     }

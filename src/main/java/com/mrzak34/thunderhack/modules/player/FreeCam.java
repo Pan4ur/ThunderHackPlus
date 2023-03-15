@@ -18,46 +18,19 @@ import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.input.Keyboard;
 
-public class FreeCam extends Module{
+public class FreeCam extends Module {
 
     private static FreeCam INSTANCE = new FreeCam();
-
-    public FreeCam() {
-        super("FreeCam", "свобоная камера", Category.PLAYER);
-        this.setInstance();
-
-    }
-
-    public static FreeCam getInstance() {
-        if (INSTANCE == null) {
-            INSTANCE = new FreeCam();
-        }
-        return INSTANCE;
-    }
-
-    private void setInstance() {
-        INSTANCE = this;
-    }
-
     public Setting<SubBind> movePlayer = this.register(new Setting<>("Control", new SubBind(Keyboard.KEY_LMENU)));
-
-
-
-    private Setting<Float> hSpeed = this.register(new Setting<>("HSpeed", 1.0f, 0.2f, 2.0f));
-    private Setting<Float> vSpeed = this.register(new Setting<>("VSpeed", 1.0f, 0.2f, 2.0f));
-
-    private Setting<Boolean> follow = register(new Setting<>("Follow", false));
-    private Setting<Boolean> copyInventory = register(new Setting<>("CopyInv", false));
-
-
+    private final Setting<Float> hSpeed = this.register(new Setting<>("HSpeed", 1.0f, 0.2f, 2.0f));
+    private final Setting<Float> vSpeed = this.register(new Setting<>("VSpeed", 1.0f, 0.2f, 2.0f));
+    private final Setting<Boolean> follow = register(new Setting<>("Follow", false));
+    private final Setting<Boolean> copyInventory = register(new Setting<>("CopyInv", false));
     private Entity cachedActiveEntity = null;
     private int lastActiveTick = -1;
-
     private Entity oldRenderEntity = null;
     private FreecamCamera camera = null;
-
-
-    private MovementInput cameraMovement = new MovementInputFromOptions(mc.gameSettings) {
+    private final MovementInput cameraMovement = new MovementInputFromOptions(mc.gameSettings) {
         @Override
         public void updatePlayerMoveState() {
             if (!PlayerUtils.isKeyDown(movePlayer.getValue().getKey())) {
@@ -74,8 +47,7 @@ public class FreeCam extends Module{
             }
         }
     };
-
-    private MovementInput playerMovement = new MovementInputFromOptions(mc.gameSettings) {
+    private final MovementInput playerMovement = new MovementInputFromOptions(mc.gameSettings) {
         @Override
         public void updatePlayerMoveState() {
             if (PlayerUtils.isKeyDown(movePlayer.getValue().getKey())) {
@@ -92,7 +64,22 @@ public class FreeCam extends Module{
             }
         }
     };
+    public FreeCam() {
+        super("FreeCam", "свобоная камера", Category.PLAYER);
+        this.setInstance();
 
+    }
+
+    public static FreeCam getInstance() {
+        if (INSTANCE == null) {
+            INSTANCE = new FreeCam();
+        }
+        return INSTANCE;
+    }
+
+    private void setInstance() {
+        INSTANCE = this;
+    }
 
     public Entity getActiveEntity() {
         if (cachedActiveEntity == null) {
@@ -133,13 +120,13 @@ public class FreeCam extends Module{
         String yCoord = "" + (-Math.round(mc.player.posY - getActiveEntity().posY));
 
         String str = ".vclip " + yCoord;
-        FontRender.drawString6(str, (float) ((sr.getScaledWidth() - FontRender.getStringWidth6(str)) / 1.98), (float) (sr.getScaledHeight() / 1.8 - 20), -1,false);
+        FontRender.drawString6(str, (float) ((sr.getScaledWidth() - FontRender.getStringWidth6(str)) / 1.98), (float) (sr.getScaledHeight() / 1.8 - 20), -1, false);
 
     }
 
     @Override
     public void onUpdate() {
-        if(mc.player == null || mc.world == null) return;
+        if (mc.player == null || mc.world == null) return;
         camera.setCopyInventory(copyInventory.getValue());
         camera.setFollow(follow.getValue());
         camera.sethSpeed(hSpeed.getValue());
@@ -148,7 +135,7 @@ public class FreeCam extends Module{
 
     @Override
     public void onEnable() {
-        if(mc.player == null) return;
+        if (mc.player == null) return;
 
         camera = new FreecamCamera(copyInventory.getValue(), follow.getValue(), hSpeed.getValue(), vSpeed.getValue());
         camera.movementInput = cameraMovement;
@@ -163,7 +150,7 @@ public class FreeCam extends Module{
     public void onDisable() {
         if (mc.player == null) return;
 
-        if(camera != null) mc.world.removeEntity(camera);
+        if (camera != null) mc.world.removeEntity(camera);
         camera = null;
         mc.player.movementInput = new MovementInputFromOptions(mc.gameSettings);
         mc.setRenderViewEntity(oldRenderEntity);

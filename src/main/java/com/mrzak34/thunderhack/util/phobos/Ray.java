@@ -12,8 +12,7 @@ import net.minecraft.util.math.Vec3d;
  * this class extend it or use the functions offered
  * by the {@link RayTraceFactory}.
  */
-public class Ray
-{
+public class Ray {
     private final RayTraceResult result;
     private final EnumFacing facing;
     private final BlockPos pos;
@@ -25,8 +24,7 @@ public class Ray
                float[] rotations,
                BlockPos pos,
                EnumFacing facing,
-               Vec3d vector)
-    {
+               Vec3d vector) {
         this.result = result;
         this.rotations = rotations;
         this.pos = pos;
@@ -34,13 +32,11 @@ public class Ray
         this.vector = vector;
     }
 
-    public RayTraceResult getResult()
-    {
+    public RayTraceResult getResult() {
         return result;
     }
 
-    public void updateRotations(Entity entity)
-    {
+    public void updateRotations(Entity entity) {
         if (vector != null) // TODO: what if null?
         {
             rotations = RayTraceFactory.rots(entity, vector);
@@ -48,30 +44,23 @@ public class Ray
     }
 
     // TODO: These could potentially not be valid anymore...
-    public float[] getRotations()
-    {
+    public float[] getRotations() {
         return rotations;
     }
 
-    public EnumFacing getFacing()
-    {
+    public EnumFacing getFacing() {
         return facing;
     }
 
-    public BlockPos getPos()
-    {
+    public BlockPos getPos() {
         return pos;
     }
 
-    /** @return <tt>true</tt> if this ray doesn't go through walls. */
-    public boolean isLegit()
-    {
+    /**
+     * @return <tt>true</tt> if this ray doesn't go through walls.
+     */
+    public boolean isLegit() {
         return legit;
-    }
-
-    public Vec3d getVector()
-    {
-        return vector;
     }
 
     /**
@@ -80,10 +69,13 @@ public class Ray
      * @param legit the legit value.
      * @return this Ray.
      */
-    public Ray setLegit(boolean legit)
-    {
+    public Ray setLegit(boolean legit) {
         this.legit = legit;
         return this;
+    }
+
+    public Vec3d getVector() {
+        return vector;
     }
 
 }

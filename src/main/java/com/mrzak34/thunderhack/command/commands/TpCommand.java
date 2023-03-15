@@ -17,7 +17,7 @@ public class TpCommand extends Command {
             return;
         }
         if (commands.length > 2) {
-            BlockPos pos = new BlockPos(Integer.parseInt(commands[0]),Integer.parseInt(commands[1]),Integer.parseInt(commands[2]));
+            BlockPos pos = new BlockPos(Integer.parseInt(commands[0]), Integer.parseInt(commands[1]), Integer.parseInt(commands[2]));
 
             for (int i = 0; i < 10; ++i) {
                 this.mc.player.connection.sendPacket(new CPacketPlayer.Position(pos.x, 1 + pos.y, pos.z, false));

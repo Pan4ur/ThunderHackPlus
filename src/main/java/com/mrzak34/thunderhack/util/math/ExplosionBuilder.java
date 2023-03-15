@@ -15,7 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
-public  class ExplosionBuilder {
+public class ExplosionBuilder {
     private final World worldObj;
     private final double explosionX;
     private final double explosionY;

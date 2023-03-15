@@ -1,22 +1,19 @@
 package com.mrzak34.thunderhack.mixin.mixins;
 
-import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.events.*;
+import com.mrzak34.thunderhack.mixin.ducks.IPlayerControllerMP;
 import com.mrzak34.thunderhack.modules.player.Reach;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.multiplayer.PlayerControllerMP;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.ClickType;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.common.MinecraftForge;
-import org.lwjgl.Sys;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.gen.Accessor;
@@ -25,7 +22,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import com.mrzak34.thunderhack.mixin.ducks.IPlayerControllerMP;
 
 @Mixin(value = {PlayerControllerMP.class})
 public abstract class MixinPlayerControllerMP implements IPlayerControllerMP {
@@ -33,7 +29,7 @@ public abstract class MixinPlayerControllerMP implements IPlayerControllerMP {
     @Inject(method = {"getBlockReachDistance"}, at = {@At("RETURN")}, cancellable = true)
     private void getReachDistanceHook(final CallbackInfoReturnable<Float> distance) {
         if (Reach.getInstance().isOn()) {
-            final float range = (float) distance.getReturnValue();
+            final float range = distance.getReturnValue();
             distance.setReturnValue((range + Reach.getInstance().add.getValue()));
         }
     }

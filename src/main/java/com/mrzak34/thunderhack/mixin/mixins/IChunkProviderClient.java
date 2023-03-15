@@ -13,5 +13,5 @@ import org.spongepowered.asm.mixin.gen.Accessor;
 @Mixin(value = ChunkProviderClient.class)
 public interface IChunkProviderClient {
     @Accessor(value = "loadedChunks")
-    public Long2ObjectMap<Chunk> getLoadedChunks();
+    Long2ObjectMap<Chunk> getLoadedChunks();
 }

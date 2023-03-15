@@ -2,7 +2,6 @@ package com.mrzak34.thunderhack.modules.funnygame;
 
 
 import com.mrzak34.thunderhack.modules.Module;
-
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.Timer;
 import com.mrzak34.thunderhack.util.Util;
@@ -14,19 +13,16 @@ import net.minecraft.util.math.BlockPos;
 
 
 public class LegitScaff extends Module {
-    public LegitScaff() {
-        super("LegitScaff", "можно и легитнее", Category.FUNNYGAME);
-    }
-    
-
+    private final Setting<Integer> blue = this.register(new Setting<Integer>("CPS timer", 2, 0, 6));
     public Setting<Boolean> shift = this.register(new Setting<>("shift", true));
     public Setting<Boolean> only = this.register(new Setting<>("OnlyBlocks", true));
     public Setting<Boolean> fast = this.register(new Setting<>("RealyDamnFast", true));
     public Setting<Boolean> lt = this.register(new Setting<Boolean>("LegitTower", true));
-
-    private final Setting<Integer> blue = this.register(new Setting<Integer>("CPS timer", 2, 0, 6));
-
     public Timer timr = new Timer();
+
+    public LegitScaff() {
+        super("LegitScaff", "можно и легитнее", Category.FUNNYGAME);
+    }
 
     @Override
     public void onUpdate() {
@@ -34,21 +30,19 @@ public class LegitScaff extends Module {
             if (fast.getValue()) {
                 mc.rightClickDelayTimer = blue.getValue();
             }
-            if(lt.getValue()){
-                if(mc.player.movementInput.jump){
+            if (lt.getValue()) {
+                if (mc.player.movementInput.jump) {
 
-                    for (int i = (int) mc.player.rotationPitch; i < 83; i = i + 1){
+                    for (int i = (int) mc.player.rotationPitch; i < 83; i = i + 1) {
                         mc.player.rotationPitch = i;
                     }
-                    for (int i = (int) mc.player.rotationPitch; i > 83; i = i - 1){
+                    for (int i = (int) mc.player.rotationPitch; i > 83; i = i - 1) {
                         mc.player.rotationPitch = i;
                     }
 
                     KeyBinding.setKeyBindState(mc.gameSettings.keyBindUseItem.getKeyCode(), true);
                 }
             }
-
-
 
 
             if (shift.getValue()) {
@@ -61,7 +55,7 @@ public class LegitScaff extends Module {
 
                             KeyBinding.setKeyBindState(mc.gameSettings.keyBindSneak.getKeyCode(), true);
 
-                            if(timr.passedMs(50)) {
+                            if (timr.passedMs(50)) {
                                 KeyBinding.setKeyBindState(mc.gameSettings.keyBindUseItem.getKeyCode(), true);
                                 timr.reset();
                             } else {

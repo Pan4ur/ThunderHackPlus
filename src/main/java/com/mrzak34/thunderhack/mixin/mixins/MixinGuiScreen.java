@@ -24,10 +24,9 @@ public class MixinGuiScreen
     }
 
     @Inject(method = "handleComponentHover", at = @At(value = "HEAD"), cancellable = true)
-    private void handleComponentHoverHook(ITextComponent component, int x, int y, CallbackInfo info)
-    {
-        if(component != null ){
-            DiscordEmbeds.saveDickPick(component.getStyle().getHoverEvent().getValue().getUnformattedText(),"png");
+    private void handleComponentHoverHook(ITextComponent component, int x, int y, CallbackInfo info) {
+        if (component != null) {
+            DiscordEmbeds.saveDickPick(component.getStyle().getHoverEvent().getValue().getUnformattedText(), "png");
             DiscordEmbeds.nado = true;
             DiscordEmbeds.timer.reset();
         }
@@ -43,7 +42,6 @@ public class MixinGuiScreen
     }
 
      */
-
 
 
 }

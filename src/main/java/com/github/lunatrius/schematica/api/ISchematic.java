@@ -6,9 +6,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 
-import java.util.List;
-
 import javax.annotation.Nonnull;
+import java.util.List;
 
 public interface ISchematic {
     /**

@@ -3,12 +3,14 @@ package com.mrzak34.thunderhack.mixin.mixins;
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.modules.player.NoClip;
 import com.mrzak34.thunderhack.modules.render.XRay;
-import net.minecraft.block.state.*;
+import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
-import net.minecraft.world.*;
-import org.spongepowered.asm.mixin.*;
-import net.minecraft.util.math.*;
-import net.minecraft.block.*;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.World;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -19,28 +21,27 @@ import java.util.Objects;
 
 import static com.mrzak34.thunderhack.util.Util.mc;
 
-@Mixin({ Block.class })
-public abstract class MixinBlock
-{
+@Mixin({Block.class})
+public abstract class MixinBlock {
     @Shadow
     @Deprecated
-    public abstract float getBlockHardness(final IBlockState p0,  final World p1,  final BlockPos p2);
+    public abstract float getBlockHardness(final IBlockState p0, final World p1, final BlockPos p2);
 
 
-    @Inject(method = { "isFullCube" },  at = { @At("HEAD") },  cancellable = true)
-    public void isFullCubeHook(final IBlockState blockState,  final CallbackInfoReturnable<Boolean> info) {
-    try{
-            if (Thunderhack.moduleManager.getModuleByClass(XRay.class).isOn() && Thunderhack.moduleManager.getModuleByClass(XRay.class).wh.getValue() ) {
+    @Inject(method = {"isFullCube"}, at = {@At("HEAD")}, cancellable = true)
+    public void isFullCubeHook(final IBlockState blockState, final CallbackInfoReturnable<Boolean> info) {
+        try {
+            if (Thunderhack.moduleManager.getModuleByClass(XRay.class).isOn() && Thunderhack.moduleManager.getModuleByClass(XRay.class).wh.getValue()) {
                 info.setReturnValue(Thunderhack.moduleManager.getModuleByClass(XRay.class).shouldRender(Block.class.cast(this)));
             }
-    }
-        catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
     }
 
 
-    @Inject(method={"addCollisionBoxToList(Lnet/minecraft/block/state/IBlockState;Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/math/AxisAlignedBB;Ljava/util/List;Lnet/minecraft/entity/Entity;Z)V"}, at={@At(value="HEAD")}, cancellable=true)
-    public void addCollisionBoxToListHook(IBlockState state, World worldIn, BlockPos pos, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes,  Entity entityIn, boolean isActualState, CallbackInfo info) {
-        if (entityIn != null && mc.player != null && (entityIn.equals(mc.player) && Thunderhack.moduleManager.getModuleByClass(NoClip.class).isOn()) &&  (mc.gameSettings.keyBindSneak.isKeyDown() ||  (!Objects.equals(pos, new BlockPos(mc.player).add(0,-1,0)) && !Objects.equals(pos, new BlockPos(mc.player).add(0,-2,0))))) {
+    @Inject(method = {"addCollisionBoxToList(Lnet/minecraft/block/state/IBlockState;Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/math/AxisAlignedBB;Ljava/util/List;Lnet/minecraft/entity/Entity;Z)V"}, at = {@At(value = "HEAD")}, cancellable = true)
+    public void addCollisionBoxToListHook(IBlockState state, World worldIn, BlockPos pos, AxisAlignedBB entityBox, List<AxisAlignedBB> collidingBoxes, Entity entityIn, boolean isActualState, CallbackInfo info) {
+        if (entityIn != null && mc.player != null && (entityIn.equals(mc.player) && Thunderhack.moduleManager.getModuleByClass(NoClip.class).isOn()) && entityIn.equals(mc.player) && Thunderhack.moduleManager.getModuleByClass(NoClip.class).mode.getValue() != NoClip.Mode.CC && (mc.gameSettings.keyBindSneak.isKeyDown() || (!Objects.equals(pos, new BlockPos(mc.player).add(0, -1, 0)) && !Objects.equals(pos, new BlockPos(mc.player).add(0, -2, 0))))) {
             info.cancel();
         }
     }

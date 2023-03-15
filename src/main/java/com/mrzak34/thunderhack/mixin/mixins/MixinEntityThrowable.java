@@ -7,7 +7,10 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.projectile.EntityThrowable;
 import net.minecraft.init.Blocks;
-import net.minecraft.util.math.*;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -20,50 +23,19 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-@Mixin({ EntityThrowable.class })
+@Mixin({EntityThrowable.class})
 public abstract class MixinEntityThrowable extends Entity {
 
 
     // https://fabricmc.net/wiki/tutorial:mixin_examples + 0iq =
 
-    public MixinEntityThrowable(World worldIn) {
-        super(worldIn);
-    }
-    
-    @Inject(method = { "setVelocity" },  at = { @At("RETURN") })
-    private void setVelocityHook(double x, double y, double z, CallbackInfo ci) {
-        if(!breaked && Thunderhack.moduleManager.getModuleByClass(PearlESP.class).isOn()) {
-             lastTickPosX2 = lastTickPosX;
-             lastTickPosY2 = lastTickPosY;
-             lastTickPosZ2 = lastTickPosZ;
-             posX2 = posX;
-             posY2 = posY;
-             posZ2 = posZ;
-             prevPosX2 = prevPosX;
-             prevPosY2 = prevPosY;
-             prevPosZ2 = prevPosZ;
-             motionX2 = motionX;
-             motionY2 = motionY;
-             motionZ2 = motionZ;
-             ticksInGround2 = ticksInGround;
-             ticksInAir2 = ticksInAir;
-             ignoreTime2 = ignoreTime;
-             ticksExisted2 = ticksExisted;
-             prevRotationYaw2 = prevRotationYaw;
-              prevRotationPitch2 = prevRotationPitch;
-             ignoreEntity2 = ignoreEntity;
-
-             onGround2 = onGround;
-             inGround2 = inGround;
-
-             rotationYaw2 = rotationYaw;
-              rotationPitch2 = rotationPitch;
-            buildPositions(200);
-
-        }
-    }
-
-
+    @Shadow
+    public Entity ignoreEntity;
+    public boolean predictTick, breaked;
+    @Shadow
+    protected EntityLivingBase thrower;
+    @Shadow
+    protected boolean inGround;
     double lastTickPosX2;
     double lastTickPosY2;
     double lastTickPosZ2;
@@ -81,26 +53,54 @@ public abstract class MixinEntityThrowable extends Entity {
     int ignoreTime2;
     int ticksExisted2;
     float prevRotationYaw2;
-    float  prevRotationPitch2;
+    float prevRotationPitch2;
     Entity ignoreEntity2;
-
     boolean onGround2;
     boolean inGround2;
-
     float rotationYaw2;
-    float  rotationPitch2;
-
+    float rotationPitch2;
     @Shadow
-    protected EntityLivingBase thrower;
+    private int ticksInGround;
+    @Shadow
+    private int ticksInAir;
+    @Shadow
+    private int ignoreTime;
+    public MixinEntityThrowable(World worldIn) {
+        super(worldIn);
+    }
 
+    @Inject(method = {"setVelocity"}, at = {@At("RETURN")})
+    private void setVelocityHook(double x, double y, double z, CallbackInfo ci) {
+        if (!breaked && Thunderhack.moduleManager.getModuleByClass(PearlESP.class).isOn()) {
+            lastTickPosX2 = lastTickPosX;
+            lastTickPosY2 = lastTickPosY;
+            lastTickPosZ2 = lastTickPosZ;
+            posX2 = posX;
+            posY2 = posY;
+            posZ2 = posZ;
+            prevPosX2 = prevPosX;
+            prevPosY2 = prevPosY;
+            prevPosZ2 = prevPosZ;
+            motionX2 = motionX;
+            motionY2 = motionY;
+            motionZ2 = motionZ;
+            ticksInGround2 = ticksInGround;
+            ticksInAir2 = ticksInAir;
+            ignoreTime2 = ignoreTime;
+            ticksExisted2 = ticksExisted;
+            prevRotationYaw2 = prevRotationYaw;
+            prevRotationPitch2 = prevRotationPitch;
+            ignoreEntity2 = ignoreEntity;
 
-    @Shadow private int ticksInGround;
-    @Shadow private int ticksInAir;
-    @Shadow private int ignoreTime;
-    @Shadow public Entity ignoreEntity;
-    @Shadow protected boolean inGround;
-    public boolean predictTick, breaked;
+            onGround2 = onGround;
+            inGround2 = inGround;
 
+            rotationYaw2 = rotationYaw;
+            rotationPitch2 = rotationPitch;
+            buildPositions(200);
+
+        }
+    }
 
     public void buildPositions(int ticks) {
 
@@ -109,7 +109,7 @@ public abstract class MixinEntityThrowable extends Entity {
         double prevLastPosX = lastTickPosX2;
         double prevLastPosY = lastTickPosY2;
         double prevLastPosZ = lastTickPosZ2;
-        double prevprevPosX= prevPosX2;
+        double prevprevPosX = prevPosX2;
         double prevprevPosY = prevPosY2;
         double prevprevPosZ = prevPosZ2;
         double prevPosX = posX2;
@@ -128,13 +128,12 @@ public abstract class MixinEntityThrowable extends Entity {
         float prevPrevPitch = prevRotationPitch2;
         Entity prevIgnoreEntity = ignoreEntity2;
         predictTick = true;
-        if(tm.entAndTrail.get(Util.mc.world.getEntityByID(getEntityId())) != null){
+        if (tm.entAndTrail.get(Util.mc.world.getEntityByID(getEntityId())) != null) {
             tm.entAndTrail.get(Util.mc.world.getEntityByID(getEntityId())).clear();
         }
 
         List<PearlESP.PredictedPosition> trails22 = new ArrayList<>();
         tm.entAndTrail.putIfAbsent(Util.mc.world.getEntityByID(getEntityId()), trails22);
-
 
 
         while (i < ticks) {
@@ -143,7 +142,7 @@ public abstract class MixinEntityThrowable extends Entity {
             pos.pos = getFakePosition();
             pos.tick = i;
             pos.color = new Color(-1);
-           // ..  pos.color.setRGBA(ESP.predict.getColor().getRed(), ESP.predict.getColor().getGreen(), ESP.predict.getColor().getBlue(), ESP.predict.getColor().getAlpha());
+            // ..  pos.color.setRGBA(ESP.predict.getColor().getRed(), ESP.predict.getColor().getGreen(), ESP.predict.getColor().getBlue(), ESP.predict.getColor().getAlpha());
             tm.entAndTrail.get(Util.mc.world.getEntityByID(getEntityId())).add(pos);
             if (i == 0) {
                 breaked = false;
@@ -180,7 +179,7 @@ public abstract class MixinEntityThrowable extends Entity {
     }
 
     private Vec3d getFakePosition() {
-        return new Vec3d(posX2,posY2,posZ2);
+        return new Vec3d(posX2, posY2, posZ2);
     }
 
 
@@ -190,9 +189,9 @@ public abstract class MixinEntityThrowable extends Entity {
         lastTickPosZ2 = posZ2;
         if (inGround2) {
             inGround2 = false;
-            motionX2 *= (double)(rand.nextFloat() * 0.2F);
-            motionY2 *= (double)(rand.nextFloat() * 0.2F);
-            motionZ2 *= (double)(rand.nextFloat() * 0.2F);
+            motionX2 *= rand.nextFloat() * 0.2F;
+            motionY2 *= rand.nextFloat() * 0.2F;
+            motionZ2 *= rand.nextFloat() * 0.2F;
             ticksInGround2 = 0;
             ticksInAir2 = 0;
         } else {
@@ -264,20 +263,20 @@ public abstract class MixinEntityThrowable extends Entity {
         posY2 += motionY2;
         posZ2 += motionZ2;
         float f = MathHelper.sqrt(motionX2 * motionX2 + motionZ2 * motionZ2);
-        rotationYaw2 = (float)(MathHelper.atan2(motionX2, motionZ2) * 57.29577951308232);
+        rotationYaw2 = (float) (MathHelper.atan2(motionX2, motionZ2) * 57.29577951308232);
 
-        for(rotationPitch2 = (float)(MathHelper.atan2(motionY2, (double)f) * 57.29577951308232); rotationPitch2 - prevRotationPitch2 < -180.0F; prevRotationPitch2 -= 360.0F) {
+        for (rotationPitch2 = (float) (MathHelper.atan2(motionY2, f) * 57.29577951308232); rotationPitch2 - prevRotationPitch2 < -180.0F; prevRotationPitch2 -= 360.0F) {
         }
 
-        while(rotationPitch2 - prevRotationPitch2 >= 180.0F) {
+        while (rotationPitch2 - prevRotationPitch2 >= 180.0F) {
             prevRotationPitch2 += 360.0F;
         }
 
-        while(rotationYaw2 - prevRotationYaw2 < -180.0F) {
+        while (rotationYaw2 - prevRotationYaw2 < -180.0F) {
             prevRotationYaw2 -= 360.0F;
         }
 
-        while(rotationYaw2 - prevRotationYaw2 >= 180.0F) {
+        while (rotationYaw2 - prevRotationYaw2 >= 180.0F) {
             prevRotationYaw2 += 360.0F;
         }
 
@@ -285,18 +284,16 @@ public abstract class MixinEntityThrowable extends Entity {
         rotationYaw2 = prevRotationYaw2 + (rotationYaw2 - prevRotationYaw2) * 0.2F;
         float f1 = 0.99F;
         float f2 = 0.03f;
-        motionX2 *= (double)f1;
-        motionY2 *= (double)f1;
-        motionZ2 *= (double)f1;
+        motionX2 *= f1;
+        motionY2 *= f1;
+        motionZ2 *= f1;
         if (!hasNoGravity()) {
-            motionY2 -= (double)f2;
+            motionY2 -= f2;
         }
     }
 
 
-
     //как меня заебали эти миксины
 
-    
 
 }

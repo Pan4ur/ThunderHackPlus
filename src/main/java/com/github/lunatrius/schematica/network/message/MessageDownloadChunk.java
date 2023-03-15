@@ -24,8 +24,8 @@ public class MessageDownloadChunk implements IMessage, IMessageHandler<MessageDo
     public int baseY;
     public int baseZ;
 
-    public short blocks[][][];
-    public byte metadata[][][];
+    public short[][][] blocks;
+    public byte[][][] metadata;
     public List<TileEntity> tileEntities;
     public List<Entity> entities;
 

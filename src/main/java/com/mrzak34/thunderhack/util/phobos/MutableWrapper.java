@@ -1,26 +1,21 @@
 package com.mrzak34.thunderhack.util.phobos;
 
-public class MutableWrapper<T>
-{
+public class MutableWrapper<T> {
     protected T value;
 
-    public MutableWrapper()
-    {
+    public MutableWrapper() {
         this(null);
     }
 
-    public MutableWrapper(T value)
-    {
+    public MutableWrapper(T value) {
         this.value = value;
     }
 
-    public T get()
-    {
+    public T get() {
         return value;
     }
 
-    public void set(T value)
-    {
+    public void set(T value) {
         this.value = value;
     }
 

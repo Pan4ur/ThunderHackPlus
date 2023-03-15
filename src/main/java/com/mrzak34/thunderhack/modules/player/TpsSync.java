@@ -12,11 +12,11 @@ public class TpsSync
 
 
     @Override
-    public void onUpdate(){
-        if(Thunderhack.moduleManager.getModuleByClass(Timer.class).isEnabled()){
+    public void onUpdate() {
+        if (Thunderhack.moduleManager.getModuleByClass(Timer.class).isEnabled()) {
             return;
         }
-        if(Thunderhack.serverManager.getTPS() > 1) {
+        if (Thunderhack.serverManager.getTPS() > 1) {
             Thunderhack.TICK_TIMER = Thunderhack.serverManager.getTPS() / 20f;
         } else {
             Thunderhack.TICK_TIMER = 1f;
@@ -25,7 +25,7 @@ public class TpsSync
 
 
     @Override
-    public void onDisable(){
+    public void onDisable() {
         Thunderhack.TICK_TIMER = 1f;
     }
 }

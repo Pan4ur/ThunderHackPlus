@@ -1,11 +1,9 @@
 package com.mrzak34.thunderhack.util;
 
-import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.fml.relauncher.Side;
-
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.item.ItemStack;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import java.util.UUID;
 
@@ -16,7 +14,7 @@ public class SpecialTagCompound extends NBTTagCompound {
 
 
     private boolean empty;
-    private int true_damage;
+    private final int true_damage;
 
     public SpecialTagCompound(boolean empty, int true_damage) {
         this.empty = empty;
@@ -25,9 +23,9 @@ public class SpecialTagCompound extends NBTTagCompound {
 
     public SpecialTagCompound(NBTTagCompound old, int true_damage) {
         super();
-        if(old == null) this.empty = true;
+        if (old == null) this.empty = true;
         else {
-            for(String key : old.getKeySet()) {
+            for (String key : old.getKeySet()) {
                 super.setTag(key, old.getTag(key));
             }
         }
@@ -39,7 +37,7 @@ public class SpecialTagCompound extends NBTTagCompound {
     }
 
     public byte getId() {
-        if(this.empty) return 0;
+        if (this.empty) return 0;
         return super.getId();
     }
 
@@ -47,7 +45,7 @@ public class SpecialTagCompound extends NBTTagCompound {
         NBTTagCompound copy = new SpecialTagCompound(this.empty, this.true_damage);
 
         for (String s : this.getKeySet()) {
-            ((SpecialTagCompound)copy).setTagLegacy(s, this.getTag(s).copy());
+            ((SpecialTagCompound) copy).setTagLegacy(s, this.getTag(s).copy());
         }
 
         return copy;
@@ -64,8 +62,6 @@ public class SpecialTagCompound extends NBTTagCompound {
 
 
      */
-
-
 
 
     public void setTag(String key, NBTBase value) {

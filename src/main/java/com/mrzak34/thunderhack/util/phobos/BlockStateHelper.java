@@ -25,29 +25,24 @@ import static com.mrzak34.thunderhack.util.Util.mc;
  * method.
  */
 @SuppressWarnings({"NullableProblems", "unused"})
-public class BlockStateHelper implements  IBlockStateHelper
-{
+public class BlockStateHelper implements IBlockStateHelper {
     private final Map<BlockPos, IBlockState> states;
     private final Supplier<IBlockAccess> world;
 
-    public BlockStateHelper()
-    {
+    public BlockStateHelper() {
         this(new HashMap<>());
     }
 
-    public BlockStateHelper(Supplier<IBlockAccess> world)
-    {
+    public BlockStateHelper(Supplier<IBlockAccess> world) {
         this(new HashMap<>(), world);
     }
 
-    public BlockStateHelper(Map<BlockPos, IBlockState> stateMap)
-    {
+    public BlockStateHelper(Map<BlockPos, IBlockState> stateMap) {
         this(stateMap, () -> mc.world);
     }
 
     public BlockStateHelper(Map<BlockPos, IBlockState> stateMap,
-                            Supplier<IBlockAccess> world)
-    {
+                            Supplier<IBlockAccess> world) {
         this.states = stateMap;
         this.world = world;
     }
@@ -62,11 +57,9 @@ public class BlockStateHelper implements  IBlockStateHelper
      * @return the BlockState at that Position.
      */
     @Override
-    public IBlockState getBlockState(BlockPos pos)
-    {
+    public IBlockState getBlockState(BlockPos pos) {
         IBlockState state = states.get(pos);
-        if (state == null)
-        {
+        if (state == null) {
             return world.get().getBlockState(pos);
         }
 
@@ -89,12 +82,11 @@ public class BlockStateHelper implements  IBlockStateHelper
      * is already added for that position.
      * for example.
      *
-     * @param pos the position to change the BlockState at.
+     * @param pos   the position to change the BlockState at.
      * @param state the state that will be at that position.
      */
     @Override
-    public void addBlockState(BlockPos pos, IBlockState state)
-    {
+    public void addBlockState(BlockPos pos, IBlockState state) {
         states.putIfAbsent(pos.toImmutable(), state);
     }
 
@@ -104,71 +96,60 @@ public class BlockStateHelper implements  IBlockStateHelper
      * @param pos the pos to remove.
      */
     @Override
-    public void delete(BlockPos pos)
-    {
+    public void delete(BlockPos pos) {
         states.remove(pos);
     }
 
     /**
-     *  Clears all BlockStates set by
+     * Clears all BlockStates set by
      * {@link BlockStateHelper#addBlockState(BlockPos, IBlockState)}.
      */
     @Override
-    public void clearAllStates()
-    {
+    public void clearAllStates() {
         states.clear();
     }
 
     @Override
-    public TileEntity getTileEntity(BlockPos pos)
-    {
+    public TileEntity getTileEntity(BlockPos pos) {
         return world.get().getTileEntity(pos);
     }
 
     @Override
-    public int getCombinedLight(BlockPos pos, int lightValue)
-    {
+    public int getCombinedLight(BlockPos pos, int lightValue) {
         return world.get().getCombinedLight(pos, lightValue);
     }
 
     @Override
-    public boolean isAirBlock(BlockPos pos)
-    {
+    public boolean isAirBlock(BlockPos pos) {
         return this.getBlockState(pos)
                 .getBlock()
                 .isAir(this.getBlockState(pos), this, pos);
     }
 
     @Override
-    public Biome getBiome(BlockPos pos)
-    {
+    public Biome getBiome(BlockPos pos) {
         return world.get().getBiome(pos);
     }
 
     @Override
-    public int getStrongPower(BlockPos pos, EnumFacing direction)
-    {
+    public int getStrongPower(BlockPos pos, EnumFacing direction) {
         return this.getBlockState(pos).getStrongPower(this, pos, direction);
     }
 
     @Override
-    public WorldType getWorldType()
-    {
+    public WorldType getWorldType() {
         return world.get().getWorldType();
     }
 
     @Override
-    public boolean isSideSolid(BlockPos pos, EnumFacing side, boolean _default)
-    {
-        if (!mc.world.isValid(pos))
-        {
+    public boolean isSideSolid(BlockPos pos, EnumFacing side, boolean _default) {
+        if (!mc.world.isValid(pos)) {
             return _default;
         }
 
         Chunk chunk = mc.world.getChunk(pos);
         //noinspection ConstantConditions
-        if (chunk == null || chunk.isEmpty())
-        {
+        if (chunk == null || chunk.isEmpty()) {
             return _default;
         }
 

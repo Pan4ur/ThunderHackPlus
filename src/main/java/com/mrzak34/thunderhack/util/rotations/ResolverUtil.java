@@ -1,7 +1,5 @@
 package com.mrzak34.thunderhack.util.rotations;
 
-import com.mrzak34.thunderhack.command.Command;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityOtherPlayerMP;
 import net.minecraft.util.math.Vec3d;
 
@@ -26,7 +24,7 @@ public class ResolverUtil {
         } else {
             target = from;
         }
-        if(prevServerX != 0 &&  prevServerZ != 0 && prevServerY != 0 && serverY != 0 && serverX != 0 && serverZ != 0)
+        if (prevServerX != 0 && prevServerZ != 0 && prevServerY != 0 && serverY != 0 && serverX != 0 && serverZ != 0)
             player.setPosition(target.x, target.y, target.z);
     }
 
@@ -41,12 +39,12 @@ public class ResolverUtil {
     public static void reset() {
         backUpX = 0;
         backUpY = -999;
-        backUpZ= 0;
-        serverX= 0;
-        serverY= 0;
-        serverZ= 0;
-        prevServerX= 0;
-        prevServerY= 0;
-        prevServerZ= 0;
+        backUpZ = 0;
+        serverX = 0;
+        serverY = 0;
+        serverZ = 0;
+        prevServerX = 0;
+        prevServerY = 0;
+        prevServerZ = 0;
     }
 }

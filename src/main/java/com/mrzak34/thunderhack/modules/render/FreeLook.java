@@ -7,17 +7,14 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.client.event.EntityViewRenderEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-public class FreeLook extends Module{
+public class FreeLook extends Module {
+    private float dYaw = 0F;
+    private float dPitch = 0F;
+    private final Setting<Boolean> autoThirdPerson = this.register(new Setting<>("AutoThirdPerson", true));
+
     public FreeLook() {
         super("FreeLook", "FreeLook", Module.Category.RENDER);
     }
-
-    private float dYaw = 0F;
-    private float dPitch = 0F;
-
-    private  Setting<Boolean> autoThirdPerson = this.register(new Setting<>("AutoThirdPerson", true));
-
-
 
     public void onEnable() {
         dYaw = 0;

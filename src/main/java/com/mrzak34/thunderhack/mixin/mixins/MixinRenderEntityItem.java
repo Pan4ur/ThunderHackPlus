@@ -10,12 +10,12 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin(value={RenderEntityItem.class})
+@Mixin(value = {RenderEntityItem.class})
 public abstract class MixinRenderEntityItem extends MixinRenderer {
-    @Inject(method={"doRender"}, at={@At(value="HEAD")}, cancellable=true)
+    @Inject(method = {"doRender"}, at = {@At(value = "HEAD")}, cancellable = true)
     private void doRender(EntityItem entityItem, double d, double d2, double d3, float f, float f2, CallbackInfo callbackInfo) {
         if (Thunderhack.moduleManager.getModuleByClass(ItemPhysics.class).isEnabled()) {
-            Thunderhack.moduleManager.getModuleByClass(ItemPhysics.class).Method2279((Entity)entityItem, d, d2, d3);
+            Thunderhack.moduleManager.getModuleByClass(ItemPhysics.class).Method2279(entityItem, d, d2, d3);
             callbackInfo.cancel();
         }
     }

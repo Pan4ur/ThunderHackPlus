@@ -27,34 +27,29 @@ import java.util.List;
 public class ClanInvite extends Module {
 
 
+    private static final Ordering<NetworkPlayerInfo> ENTRY_ORDERING = Ordering.from(new PlayerComparator());
+    public Setting<Integer> delay = this.register(new Setting<>("Delay", 10, 1, 30));
+    public Setting<Mode> b = this.register(new Setting<>("Donate", Mode.Creativ));
+    Timer timer = new Timer();
+    ArrayList<String> playersNames = new ArrayList<String>();
+    int aboba = 0;
+
     public ClanInvite() {
         super("ClanInvite", "Автоматически приглашает-в клан", Category.FUNNYGAME);
     }
-    private static final Ordering<NetworkPlayerInfo> ENTRY_ORDERING = Ordering.from(new PlayerComparator());
-
-    Timer timer = new Timer();
-
-    public Setting<Integer> delay = this.register ( new Setting <> ( "Delay", 10, 1, 30) );
-
-    ArrayList<String> playersNames = new ArrayList<String>();
-
-    public  Setting<Mode> b = this.register(new Setting<>("Donate", Mode.Creativ));
-    private enum Mode {
-        ALL, Vip, Premium, Creativ, Admin, Lord,glAdmin,Sozdatel,Osnovatel,Vladelec,Cesar,President,Bog,Vlastelin,Pravitel,Baron,Vladika,Sultan,Major,Gospod,Sponsor
-    }
 
     @Override
-    public void onUpdate(){
-        if(timer.passedS(delay.getValue())){
+    public void onUpdate() {
+        if (timer.passedS(delay.getValue())) {
             NetHandlerPlayClient nethandlerplayclient = mc.player.connection;
             List<NetworkPlayerInfo> list = ENTRY_ORDERING.sortedCopy(nethandlerplayclient.getPlayerInfoMap());
             for (NetworkPlayerInfo networkplayerinfo : list) {
-                if(!(resolveDonate(getPlayerName(networkplayerinfo))>= resolveMode())){
+                if (!(resolveDonate(getPlayerName(networkplayerinfo)) >= resolveMode())) {
                     continue;
                 }
                 playersNames.add(getPlayerName(networkplayerinfo));
             }
-            if(playersNames.size() > 1) {
+            if (playersNames.size() > 1) {
                 int randomName = (int) Math.floor(Math.random() * playersNames.size());
                 mc.player.sendChatMessage("/c invite " + playersNames.get(randomName));
                 playersNames.clear();
@@ -71,16 +66,8 @@ public class ClanInvite extends Module {
         return networkPlayerInfoIn.getGameProfile().getName();
     }
 
-    @SideOnly(Side.CLIENT)
-    static class PlayerComparator implements Comparator<NetworkPlayerInfo> {
-        private PlayerComparator() {
-        }
-
-        public int compare(NetworkPlayerInfo p_compare_1_, NetworkPlayerInfo p_compare_2_) {
-            ScorePlayerTeam scoreplayerteam = p_compare_1_.getPlayerTeam();
-            ScorePlayerTeam scoreplayerteam1 = p_compare_2_.getPlayerTeam();
-            return ComparisonChain.start().compareTrueFirst(p_compare_1_.getGameType() != GameType.SPECTATOR, p_compare_2_.getGameType() != GameType.SPECTATOR).compare(scoreplayerteam != null ? scoreplayerteam.getName() : "", scoreplayerteam1 != null ? scoreplayerteam1.getName() : "").compare(p_compare_1_.getGameProfile().getName(), p_compare_2_.getGameProfile().getName()).result();
-        }
+    public int resolveMode() {
+        return b.getValue().ordinal();
     }
 
     /*
@@ -107,12 +94,7 @@ public class ClanInvite extends Module {
      20 - СПОНСОР
      */
 
-    public int resolveMode(){
-        return b.getValue().ordinal();
-    }
-
-
-    public int resolveDonate(String nick){
+    public int resolveDonate(String nick) {
         String donate = "null";
         NetHandlerPlayClient nethandlerplayclient = this.mc.player.connection;
         List<NetworkPlayerInfo> list = ENTRY_ORDERING.sortedCopy(nethandlerplayclient.getPlayerInfoMap());
@@ -120,64 +102,64 @@ public class ClanInvite extends Module {
         for (NetworkPlayerInfo networkplayerinfo : list) {
             if (getPlayerName2(networkplayerinfo).contains(nick)) {
                 String raw = getPlayerName2(networkplayerinfo);
-                if(raw.contains("Вип")){
+                if (raw.contains("Вип")) {
                     return 1;
                 }
-                if(raw.contains("Премиум")){
+                if (raw.contains("Премиум")) {
                     return 2;
                 }
-                if(raw.contains("Креатив")){
+                if (raw.contains("Креатив")) {
                     return 3;
                 }
-                if(raw.contains("Админ")){
+                if (raw.contains("Админ")) {
                     return 4;
                 }
-                if(raw.contains("Лорд")){
+                if (raw.contains("Лорд")) {
                     return 5;
                 }
-                if(raw.contains("Гл.Админ")){
+                if (raw.contains("Гл.Админ")) {
                     return 6;
                 }
-                if(raw.contains("Создатель")){
+                if (raw.contains("Создатель")) {
                     return 7;
                 }
-                if(raw.contains("Основатель")){
+                if (raw.contains("Основатель")) {
                     return 8;
                 }
-                if(raw.contains("Владелец")){
+                if (raw.contains("Владелец")) {
                     return 9;
                 }
-                if(raw.contains("Цезарь")){
+                if (raw.contains("Цезарь")) {
                     return 10;
                 }
-                if(raw.contains("Президент")){
+                if (raw.contains("Президент")) {
                     return 11;
                 }
-                if(raw.contains("БОГ")){
+                if (raw.contains("БОГ")) {
                     return 12;
                 }
-                if(raw.contains("Властелин")){
+                if (raw.contains("Властелин")) {
                     return 13;
                 }
-                if(raw.contains("ПРАВИТЕЛЬ")){
+                if (raw.contains("ПРАВИТЕЛЬ")) {
                     return 14;
                 }
-                if(raw.contains("БАРОН")){
+                if (raw.contains("БАРОН")) {
                     return 15;
                 }
-                if(raw.contains("Владыка")){
+                if (raw.contains("Владыка")) {
                     return 16;
                 }
-                if(raw.contains("Султан")){
+                if (raw.contains("Султан")) {
                     return 17;
                 }
-                if(raw.contains("МАЖОР")){
+                if (raw.contains("МАЖОР")) {
                     return 18;
                 }
-                if(raw.contains("ГОСПОДЬ")){
+                if (raw.contains("ГОСПОДЬ")) {
                     return 19;
                 }
-                if(raw.contains("СПОНСОР")){
+                if (raw.contains("СПОНСОР")) {
                     return 20;
                 }
             }
@@ -185,13 +167,13 @@ public class ClanInvite extends Module {
         return 0;
     }
 
-    public boolean helper(String nick){
+    public boolean helper(String nick) {
         NetHandlerPlayClient nethandlerplayclient = this.mc.player.connection;
         List<NetworkPlayerInfo> list = ENTRY_ORDERING.sortedCopy(nethandlerplayclient.getPlayerInfoMap());
         for (NetworkPlayerInfo networkplayerinfo : list) {
             if (getPlayerName2(networkplayerinfo).contains(nick)) {
                 String raw = getPlayerName2(networkplayerinfo);
-                if(check(raw.toLowerCase())){
+                if (check(raw.toLowerCase())) {
                     return true;
                 }
             }
@@ -203,28 +185,42 @@ public class ClanInvite extends Module {
         return name.contains("helper") || name.contains("moder") || name.contains("бог") || name.contains("admin") || name.contains("owner") || name.contains("curator") || name.contains("хелпер") || name.contains("модер") || name.contains("админ") || name.contains("куратор");
     }
 
-    int aboba = 0;
     @SubscribeEvent
-    public void onPacketReceive(PacketEvent.Receive e){
-        if(fullNullCheck()){
+    public void onPacketReceive(PacketEvent.Receive e) {
+        if (fullNullCheck()) {
             return;
         }
-        if(!Thunderhack.moduleManager.getModuleByClass(DiscordWebhook.class).isEnabled()){
+        if (!Thunderhack.moduleManager.getModuleByClass(DiscordWebhook.class).isEnabled()) {
             return;
         }
-        if(e.getPacket() instanceof SPacketChat) {
-            SPacketChat packet = (SPacketChat) e.getPacket();
+        if (e.getPacket() instanceof SPacketChat) {
+            SPacketChat packet = e.getPacket();
             if (packet.getType() != ChatType.GAME_INFO) {
 
                 if (packet.getChatComponent().getFormattedText().contains("принял ваше")) {
                     aboba++;
-                    String finalmsg  = "```"+"Игрок " + ThunderUtils.solvename(packet.getChatComponent().getFormattedText()) + " принял приглашение в клан!" + "\n" + "Приглашено за сегодня " + aboba + "```";
-                    DiscordWebhook.sendMsg(finalmsg,DiscordWebhook.readurl());
+                    String finalmsg = "```" + "Игрок " + ThunderUtils.solvename(packet.getChatComponent().getFormattedText()) + " принял приглашение в клан!" + "\n" + "Приглашено за сегодня " + aboba + "```";
+                    DiscordWebhook.sendMsg(finalmsg, DiscordWebhook.readurl());
                 }
             }
         }
     }
 
+    private enum Mode {
+        ALL, Vip, Premium, Creativ, Admin, Lord, glAdmin, Sozdatel, Osnovatel, Vladelec, Cesar, President, Bog, Vlastelin, Pravitel, Baron, Vladika, Sultan, Major, Gospod, Sponsor
+    }
+
+    @SideOnly(Side.CLIENT)
+    static class PlayerComparator implements Comparator<NetworkPlayerInfo> {
+        private PlayerComparator() {
+        }
+
+        public int compare(NetworkPlayerInfo p_compare_1_, NetworkPlayerInfo p_compare_2_) {
+            ScorePlayerTeam scoreplayerteam = p_compare_1_.getPlayerTeam();
+            ScorePlayerTeam scoreplayerteam1 = p_compare_2_.getPlayerTeam();
+            return ComparisonChain.start().compareTrueFirst(p_compare_1_.getGameType() != GameType.SPECTATOR, p_compare_2_.getGameType() != GameType.SPECTATOR).compare(scoreplayerteam != null ? scoreplayerteam.getName() : "", scoreplayerteam1 != null ? scoreplayerteam1.getName() : "").compare(p_compare_1_.getGameProfile().getName(), p_compare_2_.getGameProfile().getName()).result();
+        }
+    }
 
 
 }

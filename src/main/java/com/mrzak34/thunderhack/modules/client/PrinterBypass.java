@@ -1,11 +1,11 @@
 package com.mrzak34.thunderhack.modules.client;
 
 import com.github.lunatrius.schematica.client.printer.SchematicPrinter;
+import com.github.lunatrius.schematica.util.BlockInteractionHelper;
 import com.mrzak34.thunderhack.events.EventPreMotion;
 import com.mrzak34.thunderhack.events.EventSchematicaPlaceBlockFull;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
-import com.mrzak34.thunderhack.util.BlockInteractionHelper;
 import com.mrzak34.thunderhack.util.Timer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -15,37 +15,29 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class PrinterBypass extends Module {
 
-    public PrinterBypass() {
-        super("PrinterBypass", "PrinterBypass", Category.CLIENT);
-    }
-
-
-
+    public static ItemStack stacktoswap = null;
     public Setting<Float> Delay = register(new Setting("Delay", 0.20f, 0.1f, 1.0f));
     public Setting<Float> reach = register(new Setting("reach", 3.80f, 1.1f, 6.0f));
 
 
-
     private BlockPos BlockToPlace = null;
-    private Item NeededItem = null;
-    private Timer timer = new Timer();
+    private final Item NeededItem = null;
+    private final Timer timer = new Timer();
 
 
-    public static ItemStack stacktoswap = null;
-
-
+    public PrinterBypass() {
+        super("PrinterBypass", "PrinterBypass", Category.CLIENT);
+    }
 
     @Override
-    public void onEnable()
-    {
+    public void onEnable() {
         BlockToPlace = null;
         SchematicPrinter.INSTANCE.setPrinting(true);
 
     }
 
     @Override
-    public void onDisable()
-    {
+    public void onDisable() {
         BlockToPlace = null;
         SchematicPrinter.INSTANCE.setPrinting(false);
 
@@ -53,11 +45,11 @@ public class PrinterBypass extends Module {
 
 
     @SubscribeEvent
-    public void onEventSchematicaPlaceBlockFull(EventSchematicaPlaceBlockFull event){
+    public void onEventSchematicaPlaceBlockFull(EventSchematicaPlaceBlockFull event) {
 
 
         boolean l_Result = BlockToPlace == null;
-        if(l_Result)
+        if (l_Result)
             stacktoswap = event.ItemStack;
         if (l_Result)
             BlockToPlace = event.Pos;
@@ -83,16 +75,11 @@ public class PrinterBypass extends Module {
         mc.player.rotationYawHead = rotations[0];
 
 
-        BlockInteractionHelper.PlaceResult l_Place = BlockInteractionHelper.place(BlockToPlace, 5.0f, false, false,stacktoswap);
+        BlockInteractionHelper.PlaceResult l_Place = BlockInteractionHelper.place(BlockToPlace, 5.0f, false, false, stacktoswap);
 
 
         BlockToPlace = null;
     }
-
-
-
-
-
 
 
 }

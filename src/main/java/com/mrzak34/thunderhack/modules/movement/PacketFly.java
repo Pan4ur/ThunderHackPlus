@@ -5,11 +5,12 @@ import com.mrzak34.thunderhack.events.EventMove;
 import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.events.PlayerUpdateEvent;
 import com.mrzak34.thunderhack.events.PushEvent;
+import com.mrzak34.thunderhack.mixin.mixins.ISPacketPlayerPosLook;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.setting.SubBind;
-import com.mrzak34.thunderhack.mixin.mixins.ISPacketPlayerPosLook;
 import com.mrzak34.thunderhack.util.PlayerUtils;
+import com.mrzak34.thunderhack.util.TimeVec3d;
 import com.mrzak34.thunderhack.util.Timer;
 import net.minecraft.client.gui.GuiDisconnected;
 import net.minecraft.client.gui.GuiDownloadTerrain;
@@ -23,86 +24,70 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.input.Keyboard;
 
-
-import com.mrzak34.thunderhack.util.TimeVec3d;
-
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
-public class PacketFly extends Module{
-    public PacketFly() {
-        super("PacketFly", "летать на пакетах-из пятерочки", Category.MOVEMENT);
-    }
-    private  Setting<Type> type = this.register (new Setting<>("Type", Type.FAST));
-    private  Setting<Mode> packetMode = this.register (new Setting<>("PacketMode", Mode.UP)); // down seems to work best especially on 9b/0b
-    private  Setting<Phase> phase = this.register (new Setting<>("Phase", Phase.NCP));
-    private Setting<AntiKick> antiKickMode = this.register (new Setting<>("AntiKick", AntiKick.NORMAL));
-    private  Setting<Limit> limit = this.register (new Setting<>("Limit", Limit.NONE));
-    public Setting<SubBind> facrotize = this.register(new Setting<>("Snap", new SubBind(Keyboard.KEY_NONE), v-> type.getValue() == Type.FACTOR));
-    public Setting<Float> motion = register(new Setting("Distance", 5.0F, 1.0F, 20.0F, v-> type.getValue() == Type.FACTOR));
+
+public class PacketFly extends Module {
+    private static final Random random = new Random();
     public Setting<Float> speed = register(new Setting("Speed", 1.0F, 0.1F, 2.0F));
-    public Setting<Float> factor = register(new Setting("Factor", 1.0F, 1.0F, 10.0F, v-> type.getValue() == Type.FACTOR || type.getValue() == Type.DESYNC));
-    public Setting< Boolean > boost = this.register ( new Setting <> ( "Boost" , false) );
-    public Setting< Boolean > jitter = this.register ( new Setting <> ( "Jitter" , false) );
-    public Setting< Boolean > constrict = this.register ( new Setting <> ( "Constrict" , false) );
-    public Setting< Boolean > noPhaseSlow = this.register ( new Setting <> ( "NoPhaseSlow" , false) );
-    public Setting< Boolean > multiAxis = this.register ( new Setting <> ( "MultiAxis" , false) );
-    public  Setting< Boolean > bounds = this.register ( new Setting <> ( "Bounds" , false) );
-    public Setting< Boolean > strict = this.register ( new Setting <> ( "Strict" , true) );
-
-
-
-
-    private int teleportId;
-
-    private CPacketPlayer.Position startingOutOfBoundsPos;
-
-    private ArrayList<CPacketPlayer> packets = new ArrayList<>();
-    private Map<Integer, TimeVec3d> posLooks = new ConcurrentHashMap<>();
-
-    private int antiKickTicks = 0;
-    private int vDelay = 0;
-    private int hDelay = 0;
-
-    private boolean limitStrict = false;
-    private int limitTicks = 0;
-    private int jitterTicks = 0;
-
-    private boolean oddJitter = false;
-
+    public Setting<Boolean> boost = this.register(new Setting<>("Boost", false));
+    public Setting<Boolean> jitter = this.register(new Setting<>("Jitter", false));
+    public Setting<Boolean> constrict = this.register(new Setting<>("Constrict", false));
+    public Setting<Boolean> noPhaseSlow = this.register(new Setting<>("NoPhaseSlow", false));
+    public Setting<Boolean> multiAxis = this.register(new Setting<>("MultiAxis", false));
+    public Setting<Boolean> bounds = this.register(new Setting<>("Bounds", false));
+    public Setting<Boolean> strict = this.register(new Setting<>("Strict", true));
     double speedX = 0;
     double speedY = 0;
     double speedZ = 0;
-
+    private final Setting<Type> type = this.register(new Setting<>("Type", Type.FAST));
+    public Setting<SubBind> facrotize = this.register(new Setting<>("Snap", new SubBind(Keyboard.KEY_NONE), v -> type.getValue() == Type.FACTOR));
+    public Setting<Float> motion = register(new Setting("Distance", 5.0F, 1.0F, 20.0F, v -> type.getValue() == Type.FACTOR));
+    public Setting<Float> factor = register(new Setting("Factor", 1.0F, 1.0F, 10.0F, v -> type.getValue() == Type.FACTOR || type.getValue() == Type.DESYNC));
+    private final Setting<Mode> packetMode = this.register(new Setting<>("PacketMode", Mode.UP)); // down seems to work best especially on 9b/0b
+    private final Setting<Phase> phase = this.register(new Setting<>("Phase", Phase.NCP));
+    private final Setting<AntiKick> antiKickMode = this.register(new Setting<>("AntiKick", AntiKick.NORMAL));
+    private final Setting<Limit> limit = this.register(new Setting<>("Limit", Limit.NONE));
+    private int teleportId;
+    private CPacketPlayer.Position startingOutOfBoundsPos;
+    private final ArrayList<CPacketPlayer> packets = new ArrayList<>();
+    private final Map<Integer, TimeVec3d> posLooks = new ConcurrentHashMap<>();
+    private int antiKickTicks = 0;
+    private int vDelay = 0;
+    private int hDelay = 0;
+    private boolean limitStrict = false;
+    private int limitTicks = 0;
+    private int jitterTicks = 0;
+    private boolean oddJitter = false;
     private float postYaw = -400F;
     private float postPitch = -400F;
 
     private int factorCounter = 0;
 
-    private Timer intervalTimer = new Timer();
+    private final Timer intervalTimer = new Timer();
 
-    private static final Random random = new Random();
-
-    public enum Limit {
-        NONE, STRONG, STRICT
+    public PacketFly() {
+        super("PacketFly", "летать на пакетах-из пятерочки", Category.MOVEMENT);
     }
 
-    public enum Mode {
-        UP, PRESERVE, DOWN, LIMITJITTER, BYPASS, OBSCURE
+    public static double randomLimitedVertical() {
+        int randomValue = random.nextInt(22);
+        randomValue += 70;
+        if (random.nextBoolean()) {
+            return randomValue;
+        }
+        return -randomValue;
     }
 
-    public enum Type {
-        FACTOR, SETBACK, FAST, SLOW, DESYNC
-    }
-
-    public enum Phase {
-        NONE, VANILLA, NCP
-    }
-
-    private enum AntiKick {
-        NONE, NORMAL, LIMITED, STRICT
+    public static double randomLimitedHorizontal() {
+        int randomValue = random.nextInt(10);
+        if (random.nextBoolean()) {
+            return randomValue;
+        }
+        return -randomValue;
     }
 
     @Override
@@ -325,25 +310,8 @@ public class PacketFly extends Module{
         }
     }
 
-    public  double randomHorizontal() {
+    public double randomHorizontal() {
         int randomValue = random.nextInt(bounds.getValue() ? 80 : (packetMode.getValue() == Mode.OBSCURE ? (mc.player.ticksExisted % 2 == 0 ? 480 : 100) : 29000000)) + (bounds.getValue() ? 5 : 500);
-        if (random.nextBoolean()) {
-            return randomValue;
-        }
-        return -randomValue;
-    }
-
-    public static double randomLimitedVertical() {
-        int randomValue = random.nextInt(22);
-        randomValue += 70;
-        if (random.nextBoolean()) {
-            return randomValue;
-        }
-        return -randomValue;
-    }
-
-    public static double randomLimitedHorizontal() {
-        int randomValue = random.nextInt(10);
         if (random.nextBoolean()) {
             return randomValue;
         }
@@ -397,13 +365,13 @@ public class PacketFly extends Module{
     public void onReceive(PacketEvent.Receive event) {
 
 
-        if(fullNullCheck()){
+        if (fullNullCheck()) {
             return;
         }
 
         if (event.getPacket() instanceof SPacketPlayerPosLook) {
             if (!(mc.currentScreen instanceof GuiDownloadTerrain)) {
-                SPacketPlayerPosLook packet = (SPacketPlayerPosLook) event.getPacket();
+                SPacketPlayerPosLook packet = event.getPacket();
                 if (mc.player.isEntityAlive()) {
                     if (this.teleportId <= 0) {
                         this.teleportId = ((SPacketPlayerPosLook) event.getPacket()).getTeleportId();
@@ -473,7 +441,7 @@ public class PacketFly extends Module{
             event.setCanceled(true);
         }
         if (event.getPacket() instanceof CPacketPlayer) {
-            CPacketPlayer packet = (CPacketPlayer) event.getPacket();
+            CPacketPlayer packet = event.getPacket();
             if (this.packets.contains(packet)) {
                 this.packets.remove(packet);
                 return;
@@ -485,6 +453,26 @@ public class PacketFly extends Module{
     @SubscribeEvent
     public void onPush(PushEvent event) {
         event.setCanceled(true);
+    }
+
+    public enum Limit {
+        NONE, STRONG, STRICT
+    }
+
+    public enum Mode {
+        UP, PRESERVE, DOWN, LIMITJITTER, BYPASS, OBSCURE
+    }
+
+    public enum Type {
+        FACTOR, SETBACK, FAST, SLOW, DESYNC
+    }
+
+    public enum Phase {
+        NONE, VANILLA, NCP
+    }
+
+    private enum AntiKick {
+        NONE, NORMAL, LIMITED, STRICT
     }
 
 

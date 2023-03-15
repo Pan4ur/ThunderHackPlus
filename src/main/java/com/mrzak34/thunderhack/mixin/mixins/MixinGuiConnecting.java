@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(value = GuiConnecting.class, priority = 999)
 public class MixinGuiConnecting extends MixinGuiScreen {
     @Inject(method = {"connect"}, at = {@At(value = "HEAD")})
-    private void  connectHook(String ip, int port, CallbackInfo ci){
+    private void connectHook(String ip, int port, CallbackInfo ci) {
         ConnectToServerEvent event = new ConnectToServerEvent(ip);
         MinecraftForge.EVENT_BUS.post(event);
     }

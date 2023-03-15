@@ -21,9 +21,9 @@ public abstract class MixinBlockSnow extends Block {
     }
 
 
-    @Inject(method = { "getCollisionBoundingBox" }, at = { @At("HEAD") }, cancellable = true)
+    @Inject(method = {"getCollisionBoundingBox"}, at = {@At("HEAD")}, cancellable = true)
     public void getCollisionBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos, CallbackInfoReturnable<AxisAlignedBB> cir) {
-        if(Thunderhack.moduleManager.getModuleByClass(GroundBoost.class).isEnabled()){
+        if (Thunderhack.moduleManager.getModuleByClass(GroundBoost.class).isEnabled()) {
             cir.setReturnValue(null);
         }
     }

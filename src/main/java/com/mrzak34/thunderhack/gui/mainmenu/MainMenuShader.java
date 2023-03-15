@@ -1,9 +1,12 @@
 package com.mrzak34.thunderhack.gui.mainmenu;
+
+import org.lwjgl.opengl.GL20;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import org.lwjgl.opengl.GL20;
+
 public class MainMenuShader {
     private final int programId;
     private final int timeUniform;
@@ -31,8 +34,8 @@ public class MainMenuShader {
 
     public void useShader(int width, int height, float mouseX, float mouseY, float time) {
         GL20.glUseProgram(this.programId);
-        GL20.glUniform2f(this.resolutionUniform, (float)width, (float)height);
-        GL20.glUniform2f(this.mouseUniform, mouseX / (float)width, 1.0F - mouseY / (float)height);
+        GL20.glUniform2f(this.resolutionUniform, (float) width, (float) height);
+        GL20.glUniform2f(this.mouseUniform, mouseX / (float) width, 1.0F - mouseY / (float) height);
         GL20.glUniform1f(this.timeUniform, time);
     }
 
@@ -54,7 +57,7 @@ public class MainMenuShader {
         byte[] buffer = new byte[512];
 
         int read;
-        while((read = inputStream.read(buffer, 0, buffer.length)) != -1) {
+        while ((read = inputStream.read(buffer, 0, buffer.length)) != -1) {
             out.write(buffer, 0, read);
         }
 

@@ -5,6 +5,7 @@ import com.mrzak34.thunderhack.events.EventPreMotion;
 import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.modules.Feature;
 import com.mrzak34.thunderhack.util.math.MathUtil;
+import io.netty.util.internal.ConcurrentSet;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityEnderCrystal;
 import net.minecraft.init.SoundEvents;
@@ -12,7 +13,6 @@ import net.minecraft.network.play.server.SPacketDestroyEntities;
 import net.minecraft.network.play.server.SPacketSoundEffect;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.Vec3d;
-import io.netty.util.internal.ConcurrentSet;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
@@ -24,55 +24,50 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Manages entities that have been set dead manually.
  */
-public class SetDeadManager extends Feature
-{
-   // private static final SettingCache<Integer, NumberSetting<Integer>, Management> DEATH_TIME = Caches.getSetting(Management.class, Setting.class, "DeathTime", 500);
+public class SetDeadManager extends Feature {
+    // private static final SettingCache<Integer, NumberSetting<Integer>, Management> DEATH_TIME = Caches.getSetting(Management.class, Setting.class, "DeathTime", 500);
     //private static final SettingCache<Boolean, BooleanSetting, Management> SOUND_REMOVE = Caches.getSetting(Management.class, BooleanSetting.class, "SoundRemove", true);
 
     private final Map<Integer, EntityTime> killed;
     private final Set<SoundObserver> observers;
 
+    public SetDeadManager() {
+        this.observers = new ConcurrentSet<>();
+        this.killed = new ConcurrentHashMap<>();
+    }
+
     public void init() {
         MinecraftForge.EVENT_BUS.register(this);
     }
+
     public void unload() {
         MinecraftForge.EVENT_BUS.unregister(this);
     }
 
-    public SetDeadManager()
-    {
-        this.observers = new ConcurrentSet<>();
-        this.killed    = new ConcurrentHashMap<>();
-    }
-
-
     @SubscribeEvent
-    public void onPacketSend(PacketEvent.Receive e){
-        if(e.getPacket() instanceof SPacketDestroyEntities) {
+    public void onPacketReceive(PacketEvent.Receive e) {
+        if (e.getPacket() instanceof SPacketDestroyEntities) {
 
             mc.addScheduledTask(() ->
             {
-                for (int id : ((SPacketDestroyEntities)e.getPacket()).getEntityIDs()) {
+                for (int id : ((SPacketDestroyEntities) e.getPacket()).getEntityIDs()) {
                     confirmKill(id);
                 }
             });
         }
-        if(e.getPacket() instanceof SPacketSoundEffect) {
+        if (e.getPacket() instanceof SPacketSoundEffect) {
             SPacketSoundEffect p = e.getPacket();
             if (p.getCategory() == SoundCategory.BLOCKS
                     && p.getSound() == SoundEvents.ENTITY_GENERIC_EXPLODE
-                    && shouldRemove())
-            {
+                    && shouldRemove()) {
                 Vec3d pos = new Vec3d(p.getX(), p.getY(), p.getZ());
                 mc.addScheduledTask(() ->
                 {
                     //11.0f and not 12.0f, because distance inaccuracies (?)
                     removeCrystals(pos, 11.0f, mc.world.loadedEntityList);
-                    for (SoundObserver observer : observers)
-                    {
+                    for (SoundObserver observer : observers) {
                         // TODO: async observers
-                        if (observer.shouldBeNotified())
-                        {
+                        if (observer.shouldBeNotified()) {
                             observer.onChange(p);
                         }
                     }
@@ -83,46 +78,38 @@ public class SetDeadManager extends Feature
     }
 
     @SubscribeEvent
-    public void onUpdate(EventPreMotion e){
+    public void onUpdate(EventPreMotion e) {
         updateKilled();
     }
 
     @SubscribeEvent
-    public void onConnect(ConnectToServerEvent e){
+    public void onConnect(ConnectToServerEvent e) {
         clear();
     }
 
-    public Entity getEntity(int id)
-    {
+    public Entity getEntity(int id) {
         EntityTime time = killed.get(id);
-        if (time != null)
-        {
+        if (time != null) {
             return time.getEntity();
         }
 
         return null;
     }
 
-    public void setDeadCustom(Entity entity, long t)
-    {
+    public void setDeadCustom(Entity entity, long t) {
         EntityTime time = killed.get(entity.getEntityId());
-        if (time instanceof CustomEntityTime)
-        {
+        if (time instanceof CustomEntityTime) {
             time.getEntity().setDead();
             time.reset();
-        }
-        else
-        {
+        } else {
             entity.setDead();
             killed.put(entity.getEntityId(), new CustomEntityTime(entity, t));
         }
     }
 
-    public void revive(int id)
-    {
+    public void revive(int id) {
         EntityTime time = killed.remove(id);
-        if (time != null && time.isValid())
-        {
+        if (time != null && time.isValid()) {
             Entity entity = time.getEntity();
             entity.isDead = false;
             mc.world.addEntityToWorld(entity.getEntityId(), entity);
@@ -136,21 +123,16 @@ public class SetDeadManager extends Feature
      * and the kill hasn't been confirmed yet they will be added back
      * to the world.
      */
-    public void updateKilled()
-    {
-        for (Map.Entry<Integer, EntityTime> entry : killed.entrySet())
-        {
-            if (!entry.getValue().isValid())
-            {
+    public void updateKilled() {
+        for (Map.Entry<Integer, EntityTime> entry : killed.entrySet()) {
+            if (!entry.getValue().isValid()) {
                 entry.getValue().getEntity().setDead();
                 killed.remove(entry.getKey());
-            }
-            else if (entry.getValue().passed(500)) //DEATH
+            } else if (entry.getValue().passed(500)) //DEATH
             {
                 Entity entity = entry.getValue().getEntity();
                 entity.isDead = false;
-                if (!mc.world.loadedEntityList.contains(entity))
-                {
+                if (!mc.world.loadedEntityList.contains(entity)) {
                     mc.world.addEntityToWorld(entry.getKey(), entity);
                     entity.isDead = false;
                     killed.remove(entry.getKey());
@@ -163,18 +145,15 @@ public class SetDeadManager extends Feature
      * Kills all EndCrystals in the given EntityList that
      * lie within the given range (radius) around the BlockPos.
      *
-     * @param pos the center.
-     * @param range maxDistance to the center.
+     * @param pos      the center.
+     * @param range    maxDistance to the center.
      * @param entities the Entities to check.
      */
-    public void removeCrystals(Vec3d pos, float range, List<Entity> entities)
-    {
-        for (Entity entity : entities)
-        {
+    public void removeCrystals(Vec3d pos, float range, List<Entity> entities) {
+        for (Entity entity : entities) {
             if (entity instanceof EntityEnderCrystal
                     && entity.getDistanceSq(pos.x, pos.y, pos.z)
-                    <= MathUtil.square(range))
-            {
+                    <= MathUtil.square(range)) {
                 setDead(entity);
             }
         }
@@ -188,16 +167,12 @@ public class SetDeadManager extends Feature
      *
      * @param entity the entity to kill.
      */
-    public void setDead(Entity entity)
-    {
+    public void setDead(Entity entity) {
         EntityTime time = killed.get(entity.getEntityId());
-        if (time != null)
-        {
+        if (time != null) {
             time.getEntity().setDead();
             time.reset();
-        }
-        else if (!entity.isDead)
-        {
+        } else if (!entity.isDead) {
             entity.setDead();
             killed.put(entity.getEntityId(), new EntityTime(entity));
         }
@@ -209,31 +184,25 @@ public class SetDeadManager extends Feature
      *
      * @param id the id to confirm.
      */
-    public void confirmKill(int id)
-    {
+    public void confirmKill(int id) {
         EntityTime time = killed.get(id);
-        if (time != null)
-        {
+        if (time != null) {
             time.setValid(false);
             time.getEntity().setDead();
         }
     }
 
-    public boolean passedDeathTime(Entity entity, long deathTime)
-    {
+    public boolean passedDeathTime(Entity entity, long deathTime) {
         return passedDeathTime(entity.getEntityId(), deathTime);
     }
 
-    public boolean passedDeathTime(int id, long deathTime)
-    {
-        if (deathTime <= 0)
-        {
+    public boolean passedDeathTime(int id, long deathTime) {
+        if (deathTime <= 0) {
             return true;
         }
 
         EntityTime time = killed.get(id);
-        if (time != null && time.isValid())
-        {
+        if (time != null && time.isValid()) {
             return time.passed(deathTime);
         }
 
@@ -243,8 +212,7 @@ public class SetDeadManager extends Feature
     /**
      * Clears all killed entities.
      */
-    public void clear()
-    {
+    public void clear() {
         killed.clear();
     }
 
@@ -256,31 +224,27 @@ public class SetDeadManager extends Feature
      *
      * @param observer the observer to add.
      */
-    public void addObserver(SoundObserver observer)
-    {
+    public void addObserver(SoundObserver observer) {
         this.observers.add(observer);
     }
 
     /**
      * {@see SetDeadManager#addObserver(SoundObserver)}.
+     *
      * @param observer the observer to remove.
      */
-    public void removeObserver(SoundObserver observer)
-    {
+    public void removeObserver(SoundObserver observer) {
         this.observers.remove(observer);
     }
 
-    private boolean shouldRemove()
-    {
-        if (!true) //tru
+    private boolean shouldRemove() {
+        if (false) //tru
         {
             return false;
         }
 
-        for (SoundObserver soundObserver : observers)
-        {
-            if (soundObserver.shouldRemove())
-            {
+        for (SoundObserver soundObserver : observers) {
+            if (soundObserver.shouldRemove()) {
                 return true;
             }
         }

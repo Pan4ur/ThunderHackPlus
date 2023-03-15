@@ -1,11 +1,13 @@
 package com.mrzak34.thunderhack.modules.combat;
 
+import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.events.EventPreMotion;
 import com.mrzak34.thunderhack.events.PacketEvent;
-import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
-import com.mrzak34.thunderhack.util.*;
+import com.mrzak34.thunderhack.util.InteractionUtil;
+import com.mrzak34.thunderhack.util.InventoryUtil;
+import com.mrzak34.thunderhack.util.PlayerUtils;
 import com.mrzak34.thunderhack.util.Timer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityEnderCrystal;
@@ -17,24 +19,19 @@ import net.minecraft.network.play.client.CPacketUseEntity;
 import net.minecraft.network.play.server.SPacketBlockChange;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.math.*;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Surround extends Module {
 
 
-
-    public Surround() {
-        super("Surround", "Защищает тебя от-кристаллов", Module.Category.COMBAT);
-    }
-
     private final Timer delayTimer = new Timer();
-
-
-
-
     public Setting<Boolean> alertPlayerClip = register(new Setting("AlertBreaking", false));
     public Setting<Boolean> destroyAboveCrystal = register(new Setting("DestroyAboveCrys", false));
     public Setting<Boolean> destroyCrystal = register(new Setting("DestroyCrys", false));
@@ -44,19 +41,50 @@ public class Surround extends Module {
     public Setting<Boolean> disableOnJump = register(new Setting("DisableOnJump", false));
     public Setting<Boolean> onlyOnStop = register(new Setting("OnStop", false));
     public Setting<Boolean> allowNon1x1 = register(new Setting("Allownon1x1", true));
-    public Setting<Boolean> centre = register(new Setting("Centre", false, v-> !allowNon1x1.getValue() ));
-    public Setting <Integer> afterRotate = this.register ( new Setting <> ( "PostSecure", 3, 0, 5,v-> rotate.getValue()) );
-    public Setting <Integer> blocksPerTick = this.register ( new Setting <> ( "BlocksPerTick", 4, 1, 20) );
-    public Setting <Integer> delayTicks = this.register ( new Setting <> ( "TickDelay", 3, 0, 10) );
-
+    public Setting<Boolean> centre = register(new Setting("Centre", false, v -> !allowNon1x1.getValue()));
+    public Setting<Integer> afterRotate = this.register(new Setting<>("PostSecure", 3, 0, 5, v -> rotate.getValue()));
+    public Setting<Integer> blocksPerTick = this.register(new Setting<>("BlocksPerTick", 4, 1, 20));
+    public Setting<Integer> delayTicks = this.register(new Setting<>("TickDelay", 3, 0, 10));
     ArrayList<BlockPos> blockChanged = new ArrayList<>();
-
     int y;
+    Timer alertDelay = new Timer();
+    boolean hasPlaced;
+    int lookDown = -1;
+    public Surround() {
+        super("Surround", "Защищает тебя от-кристаллов", Module.Category.COMBAT);
+    }
+
+    public static void rotateTo(Vec3d vec, EventPreMotion event) {
+        float[] rotations = getNeededRotations2(vec);
+        mc.player.rotationYaw = (rotations[0]);
+        mc.player.rotationPitch = ((float) MathHelper.normalizeAngle((int) rotations[1], 360));
+    }
+
+    public static float[] getNeededRotations2(Vec3d vec) {
+        Vec3d eyesPos = new Vec3d(mc.player.posX, mc.player.posY + mc.player.getEyeHeight(), mc.player.posZ);
+        double diffX = vec.x - eyesPos.x;
+        double diffY = vec.y - eyesPos.y;
+        double diffZ = vec.z - eyesPos.z;
+        double diffXZ = Math.sqrt(diffX * diffX + diffZ * diffZ);
+        float yaw = (float) Math.toDegrees(Math.atan2(diffZ, diffX)) - 90F;
+        float pitch = (float) -Math.toDegrees(Math.atan2(diffY, diffXZ));
+        return new float[]{mc.player.rotationYaw + MathHelper.wrapDegrees(yaw - mc.player.rotationYaw), mc.player.rotationPitch + MathHelper.wrapDegrees(pitch - mc.player.rotationPitch)};
+    }
+
+    public static boolean getDown(BlockPos pos) {
+
+        for (EnumFacing e : EnumFacing.values())
+            if (!mc.world.isAirBlock(pos.add(e.getDirectionVec())))
+                return false;
+
+        return true;
+
+    }
 
     @SubscribeEvent
-    public void onPacketReceive(PacketEvent.Receive event){
+    public void onPacketReceive(PacketEvent.Receive event) {
 
-        if(fullNullCheck()){
+        if (fullNullCheck()) {
             return;
         }
         if (event.getPacket() instanceof SPacketBlockChange && this.predict.getValue()) {
@@ -71,7 +99,7 @@ public class Surround extends Module {
                     }
                     if (blockSlot != mc.player.inventory.currentItem)
                         mc.player.connection.sendPacket(new CPacketHeldItemChange(blockSlot));
-                    PlacementUtil.place(pos, EnumHand.MAIN_HAND, false, false);
+                    InteractionUtil.placeBlock(pos, true);
                     if (blockSlot != mc.player.inventory.currentItem) {
                         mc.player.connection.sendPacket(new CPacketHeldItemChange(mc.player.inventory.currentItem));
                         mc.playerController.updateController();
@@ -82,29 +110,25 @@ public class Surround extends Module {
             }
         }
     }
-    Timer alertDelay = new Timer();
-    boolean hasPlaced;
-    int lookDown = -1;
 
     @SubscribeEvent
-    public void onUpdateWalkingPlayer(EventPreMotion event){
+    public void onUpdateWalkingPlayer(EventPreMotion event) {
         if (mc.player == null || mc.world == null || lookDown == -1)
             return;
         mc.player.rotationPitch = (90);
-        mc.player.rotationYaw =(0);
+        mc.player.rotationYaw = (0);
         lookDown--;
 
     }
 
     int getSlot() {
         int slot = InventoryUtil.findFirstBlockSlot(Blocks.OBSIDIAN.getClass(), 0, 8);
-        ;
         if (slot == -1) {
             slot = InventoryUtil.findFirstBlockSlot(Blocks.ENDER_CHEST.getClass(), 0, 8);
-            ;
         }
         return slot;
     }
+
     @Override
     public void onEnable() {
         alertDelay.reset();
@@ -202,15 +226,16 @@ public class Surround extends Module {
                     }
                 }
 
-                if (PlacementUtil.place(targetPos, EnumHand.MAIN_HAND, rotate.getValue(), false)) {
-                    if (centre.getValue())
-                        PlayerUtils.centerPlayer(mc.player.getPositionVector());
-                    y = (int) Math.floor(mc.player.posY);
-                    blocksPlaced++;
-                    if (rotate.getValue())
-                        if (afterRotate.getValue() != 0)
-                            lookDown = afterRotate.getValue();
-                }
+
+                InteractionUtil.placeBlock(targetPos, true, true);
+                if (centre.getValue())
+                    PlayerUtils.centerPlayer(mc.player.getPositionVector());
+                y = (int) Math.floor(mc.player.posY);
+                blocksPlaced++;
+                if (rotate.getValue())
+                    if (afterRotate.getValue() != 0)
+                        lookDown = afterRotate.getValue();
+
             }
             if (hasSilentSwitched) {
                 mc.player.connection.sendPacket(new CPacketHeldItemChange(mc.player.inventory.currentItem));
@@ -218,31 +243,8 @@ public class Surround extends Module {
             }
 
         }
-
-        PlacementUtil.stopSneaking();
         blockChanged.clear();
-
-
     }
-
-
-    public static void rotateTo(Vec3d vec,EventPreMotion event) {
-        float[] rotations = getNeededRotations2(vec);
-        mc.player.rotationYaw =( rotations[0]);
-        mc.player.rotationPitch =((float) MathHelper.normalizeAngle((int) rotations[1], 360));
-    }
-
-    public static float[] getNeededRotations2(Vec3d vec) {
-        Vec3d eyesPos = new Vec3d(mc.player.posX, mc.player.posY + mc.player.getEyeHeight(), mc.player.posZ);
-        double diffX = vec.x - eyesPos.x;
-        double diffY = vec.y - eyesPos.y;
-        double diffZ = vec.z - eyesPos.z;
-        double diffXZ = Math.sqrt(diffX * diffX + diffZ * diffZ);
-        float yaw = (float) Math.toDegrees(Math.atan2(diffZ, diffX)) - 90F;
-        float pitch = (float) -Math.toDegrees(Math.atan2(diffY, diffXZ));
-        return new float[]{mc.player.rotationYaw + MathHelper.wrapDegrees(yaw - mc.player.rotationYaw), mc.player.rotationPitch + MathHelper.wrapDegrees(pitch - mc.player.rotationPitch)};
-    }
-
 
     // Say if two blockPos are the same
     boolean sameBlockPos(BlockPos first, BlockPos second) {
@@ -250,7 +252,6 @@ public class Surround extends Module {
             return false;
         return first.getX() == second.getX() && first.getY() == second.getY() + 2 && first.getZ() == second.getZ();
     }
-
 
     List<BlockPos> getOffsets() {
         BlockPos playerPos = this.getPlayerPos();
@@ -303,16 +304,6 @@ public class Surround extends Module {
             }
         }
         return offsets;
-    }
-
-    public static boolean getDown(BlockPos pos) {
-
-        for (EnumFacing e : EnumFacing.values())
-            if (!mc.world.isAirBlock(pos.add(e.getDirectionVec())))
-                return false;
-
-        return true;
-
     }
 
     int calcOffset(double dec) {

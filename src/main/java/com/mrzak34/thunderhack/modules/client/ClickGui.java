@@ -20,7 +20,6 @@ import java.awt.*;
 public class ClickGui extends Module {
 
     private static ClickGui INSTANCE = new ClickGui();
-    private Setting<colorModeEn> colorMode = register(new Setting("ColorMode", colorModeEn.Static));
     public final Setting<ColorSetting> hcolor1 = this.register(new Setting<>("MainColor", new ColorSetting(-6974059)));
     public final Setting<ColorSetting> acolor = this.register(new Setting<>("MainColor2", new ColorSetting(-8365735)));
     public final Setting<ColorSetting> plateColor = this.register(new Setting<>("PlateColor", new ColorSetting(-14474718)));
@@ -28,7 +27,8 @@ public class ClickGui extends Module {
     public final Setting<ColorSetting> downColor = this.register(new Setting<>("DownColor", new ColorSetting(-14474461)));
     public Setting<Integer> colorSpeed = this.register(new Setting<Integer>("ColorSpeed", 18, 2, 54));
     public Setting<Boolean> showBinds = this.register(new Setting<>("ShowBinds", true));
-    private Setting<Moderator> shader = register(new Setting("shader", Moderator.none));
+    private final Setting<colorModeEn> colorMode = register(new Setting("ColorMode", colorModeEn.Static));
+    private final Setting<Moderator> shader = register(new Setting("shader", Moderator.none));
 
     public ClickGui() {
         super("ClickGui", "кликгуи", Module.Category.CLIENT);
@@ -44,26 +44,26 @@ public class ClickGui extends Module {
 
 
     public Color getColor(int count) {
-        int index = (int) (count);
+        int index = count;
         switch (colorMode.getValue()) {
             case Sky:
-                return ColorUtil.skyRainbow((int) colorSpeed.getValue(), index);
+                return ColorUtil.skyRainbow(colorSpeed.getValue(), index);
             case LightRainbow:
-                return ColorUtil.rainbow((int) colorSpeed.getValue(), index, .6f, 1, 1);
+                return ColorUtil.rainbow(colorSpeed.getValue(), index, .6f, 1, 1);
 
             case Rainbow:
-                return ColorUtil.rainbow((int) colorSpeed.getValue(), index, 1f, 1, 1);
+                return ColorUtil.rainbow(colorSpeed.getValue(), index, 1f, 1, 1);
 
             case Fade:
-                return ColorUtil.fade((int) colorSpeed.getValue(), index, hcolor1.getValue().getColorObject(), 1);
+                return ColorUtil.fade(colorSpeed.getValue(), index, hcolor1.getValue().getColorObject(), 1);
 
             case DoubleColor:
-                return ColorUtil.interpolateColorsBackAndForth((int) colorSpeed.getValue(), index,
+                return ColorUtil.interpolateColorsBackAndForth(colorSpeed.getValue(), index,
                         hcolor1.getValue().getColorObject(), Colors.ALTERNATE_COLOR, true);
             case Analogous:
                 int val = 1;
                 Color analogous = ColorUtil.getAnalogousColor(acolor.getValue().getColorObject())[val];
-                return ColorUtil.interpolateColorsBackAndForth((int) colorSpeed.getValue(), index, hcolor1.getValue().getColorObject(), analogous, true);
+                return ColorUtil.interpolateColorsBackAndForth(colorSpeed.getValue(), index, hcolor1.getValue().getColorObject(), analogous, true);
             default:
                 return hcolor1.getValue().getColorObject();
         }
@@ -72,7 +72,7 @@ public class ClickGui extends Module {
 
     @Override
     public void onEnable() {
-            Util.mc.displayGuiScreen(ClickUI.getClickGui());
+        Util.mc.displayGuiScreen(ClickUI.getClickGui());
     }
 
 
@@ -82,8 +82,8 @@ public class ClickGui extends Module {
 
     @Override
     public void onUpdate() {
-        if(fullNullCheck()) return;
-        if(shader.getValue() != Moderator.none) {
+        if (fullNullCheck()) return;
+        if (shader.getValue() != Moderator.none) {
 
             if (OpenGlHelper.shadersSupported && ClickGui.mc.getRenderViewEntity() instanceof EntityPlayer) {
                 if (ClickGui.mc.entityRenderer.getShaderGroup() != null) {
@@ -104,9 +104,6 @@ public class ClickGui extends Module {
     public void onRender2D(Render2DEvent event) {
 
     }
-
-
-
 
 
     @Override
@@ -134,8 +131,7 @@ public class ClickGui extends Module {
         Analogous
     }
 
-    public enum Moderator
-    {
+    public enum Moderator {
         none,
         notch,
         antialias,
@@ -158,7 +154,7 @@ public class ClickGui extends Module {
         phosphor,
         sobel,
         spider,
-        wobble;
+        wobble
     }
 
 

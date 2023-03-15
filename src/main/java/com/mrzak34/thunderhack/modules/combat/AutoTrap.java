@@ -1,10 +1,10 @@
 package com.mrzak34.thunderhack.modules.combat;
 
 import com.mrzak34.thunderhack.Thunderhack;
+import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.events.EventPostMotion;
 import com.mrzak34.thunderhack.events.EventPreMotion;
 import com.mrzak34.thunderhack.events.Render3DEvent;
-import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.modules.movement.PacketFly;
 import com.mrzak34.thunderhack.setting.ColorSetting;
@@ -12,19 +12,19 @@ import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.setting.SubBind;
 import com.mrzak34.thunderhack.util.*;
 import com.mrzak34.thunderhack.util.render.RenderUtil;
-import net.minecraft.block.BlockObsidian;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.math.*;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
 import net.minecraft.block.BlockLiquid;
+import net.minecraft.block.BlockObsidian;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.client.CPacketEntityAction;
 import net.minecraft.network.play.client.CPacketHeldItemChange;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.input.Keyboard;
 
@@ -37,34 +37,29 @@ public class AutoTrap
         extends Module {
 
 
-    public AutoTrap() {
-        super("AutoTrap", "Трапит ньюфагов", Module.Category.COMBAT);
-    }
-    private  final Setting<Float> placeRange = this.register( new Setting<>("TargetRange", 4.5f, 1f, 16f));
-    private  Setting<Integer> actionShift = this.register(new Setting<>("ActionShift", 3, 1, 8));
-    private  Setting<Integer> actionInterval = this.register(new Setting<>("ActionInterval", 0, 0, 10));
-    private  final Setting<Boolean> top =this.register( new Setting<>("Top", true));
-    private  final Setting<Boolean> piston = this.register(new Setting<>("Piston", false));
-    private  final Setting<SubBind> self = this.register(new Setting<>("Self", new SubBind(Keyboard.KEY_NONE)));
+    public static ConcurrentHashMap<BlockPos, Long> shiftedBlocks = new ConcurrentHashMap<>();
     public final Setting<ColorSetting> Color = this.register(new Setting<>("Color", new ColorSetting(0x8800FF00)));
-
-
-    private  Setting<Boolean> strict = this.register(new Setting<>("Strict", false));
-    private  Setting<Boolean> rotate = this.register(new Setting<>("Rotate", true));
-    private  Setting<Boolean> toggelable = this.register(new Setting<>("DisableWhenDone", false));
-
-    private int itemSlot;
+    private final Setting<Float> placeRange = this.register(new Setting<>("TargetRange", 4.5f, 1f, 16f));
+    private final Setting<Boolean> top = this.register(new Setting<>("Top", true));
+    private final Setting<Boolean> piston = this.register(new Setting<>("Piston", false));
+    private final Setting<SubBind> self = this.register(new Setting<>("Self", new SubBind(Keyboard.KEY_NONE)));
     Timer renderTimer = new Timer();
+    private final Setting<Integer> actionShift = this.register(new Setting<>("ActionShift", 3, 1, 8));
+    private final Setting<Integer> actionInterval = this.register(new Setting<>("ActionInterval", 0, 0, 10));
+    private final Setting<Boolean> strict = this.register(new Setting<>("Strict", false));
+    private final Setting<Boolean> rotate = this.register(new Setting<>("Rotate", true));
+    private final Setting<Boolean> toggelable = this.register(new Setting<>("DisableWhenDone", false));
+    private int itemSlot;
     private BlockPos renderPos;
     private int tickCounter = 0;
     private BlockPos playerPos = null;
     private InteractionUtil.Placement placement;
     private InteractionUtil.Placement lastPlacement;
-    private Timer lastPlacementTimer = new Timer();
+    private final Timer lastPlacementTimer = new Timer();
 
-    public static ConcurrentHashMap<BlockPos, Long> shiftedBlocks = new ConcurrentHashMap<>();
-
-
+    public AutoTrap() {
+        super("AutoTrap", "Трапит ньюфагов", Module.Category.COMBAT);
+    }
 
     @Override
     public void onEnable() {
@@ -133,7 +128,7 @@ public class AutoTrap
         BlockPos firstPos = getNextPos(playerPos);
 
         if (firstPos != null) {
-            placement = InteractionUtil.preparePlacement(firstPos, rotate.getValue(),event);
+            placement = InteractionUtil.preparePlacement(firstPos, rotate.getValue(), event);
             if (placement != null) {
                 shiftedBlocks.put(firstPos, System.currentTimeMillis());
                 tickCounter = 0;
@@ -143,7 +138,6 @@ public class AutoTrap
         } else {
             if (toggelable.getValue()) {
                 toggle();
-                return;
             }
         }
     }
@@ -221,11 +215,9 @@ public class AutoTrap
     }
 
     private boolean pistonCheck(BlockPos facePos, EnumFacing facing) {
-        PistonAura pistonAura = (PistonAura) Thunderhack.moduleManager.getModuleByClass(PistonAura.class);
+        PistonAura pistonAura = Thunderhack.moduleManager.getModuleByClass(PistonAura.class);
         if (pistonAura.facePos != null) {
-            if (pistonAura.faceOffset.equals(facing)) {
-                return false;
-            }
+            return !pistonAura.faceOffset.equals(facing);
         } else {
             pistonAura.evaluateTarget(facePos);
             if (pistonAura.facePos != null) {
@@ -281,7 +273,7 @@ public class AutoTrap
             double furthestDistance = 0D;
             if (canPlaceBlock(playerPos.up().offset(enumFacing), false)) {
                 if (!piston.getValue() || pistonCheck(playerPos.up(), enumFacing)) {
-                    BlockPos tempBlock = playerPos.up().offset(enumFacing);;
+                    BlockPos tempBlock = playerPos.up().offset(enumFacing);
                     double tempDistance = mc.player.getDistance(tempBlock.getX() + 0.5, tempBlock.getY() + 0.5, tempBlock.getZ() + 0.5);
                     if (tempDistance >= furthestDistance) {
                         furthestBlock = tempBlock;
@@ -316,7 +308,7 @@ public class AutoTrap
         }
 
         if (renderPos != null && !renderTimer.passedMs(500)) {
-            RenderUtil.drawBlockOutline(renderPos, Color.getValue().getColorObject(), 0.3f, true,0);
+            RenderUtil.drawBlockOutline(renderPos, Color.getValue().getColorObject(), 0.3f, true, 0);
         }
     }
 
@@ -354,11 +346,6 @@ public class AutoTrap
 
         return !(baseBlock instanceof BlockAir) && !(baseBlock instanceof BlockLiquid);
     }
-
-
-
-
-
 
 
 }

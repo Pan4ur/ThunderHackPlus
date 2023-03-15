@@ -1,7 +1,6 @@
 package com.mrzak34.thunderhack.util.render;
 
 import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
 import org.lwjgl.opengl.GL11;
 
 public class BlockRenderUtil {
@@ -10,40 +9,40 @@ public class BlockRenderUtil {
 
         GL11.glPushMatrix();
 
-      //  GL11.glDisable(GL11.GL_ALPHA_TEST);
-       // GL11.glEnable(GL11.GL_BLEND);
+        //  GL11.glDisable(GL11.GL_ALPHA_TEST);
+        // GL11.glEnable(GL11.GL_BLEND);
 
-      //  GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+        //  GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 
-      //  GL11.glDisable(GL11.GL_TEXTURE_2D);
-       // GL11.glDisable(GL11.GL_DEPTH_TEST);
+        //  GL11.glDisable(GL11.GL_TEXTURE_2D);
+        // GL11.glDisable(GL11.GL_DEPTH_TEST);
 
-       // GL11.glDepthMask(false);
+        // GL11.glDepthMask(false);
 
         //if (!RenderModule.slowRender.getValue()) {
-      //  GL11.glEnable(GL11.GL_CULL_FACE);
+        //  GL11.glEnable(GL11.GL_CULL_FACE);
         //}
-     //   GL11.glEnable(GL11.GL_LINE_SMOOTH);
+        //   GL11.glEnable(GL11.GL_LINE_SMOOTH);
 
-      //  GL11.glHint(GL11.GL_LINE_SMOOTH_HINT, GL11.GL_FASTEST);
+        //  GL11.glHint(GL11.GL_LINE_SMOOTH_HINT, GL11.GL_FASTEST);
 
-     //  GL11.glDisable(GL11.GL_LIGHTING);
+        //  GL11.glDisable(GL11.GL_LIGHTING);
     }
 
     public static void releaseGL() {
-      //  GL11.glEnable(GL11.GL_LIGHTING);
-      //  GL11.glDisable(GL11.GL_LINE_SMOOTH);
+        //  GL11.glEnable(GL11.GL_LIGHTING);
+        //  GL11.glDisable(GL11.GL_LINE_SMOOTH);
         //GL11.glEnable(GL11.GL_TEXTURE_2D);
-       // GL11.glEnable(GL11.GL_DEPTH_TEST);
-      //  GL11.glDisable(GL11.GL_BLEND);
-      //  GL11.glEnable(GL11.GL_ALPHA_TEST);
+        // GL11.glEnable(GL11.GL_DEPTH_TEST);
+        //  GL11.glDisable(GL11.GL_BLEND);
+        //  GL11.glEnable(GL11.GL_ALPHA_TEST);
 
-       // GL11.glDepthMask(true);
+        // GL11.glDepthMask(true);
 
-       // GL11.glCullFace(GL11.GL_BACK);
+        // GL11.glCullFace(GL11.GL_BACK);
 
         GL11.glPopMatrix();
-      //  GL11.glPopAttrib();
+        //  GL11.glPopAttrib();
     }
 
     public static void drawOutline(AxisAlignedBB axisAlignedBB, int color, float lineWidth) {

@@ -2,16 +2,16 @@ package com.mrzak34.thunderhack.modules.render;
 
 import com.mrzak34.thunderhack.events.Render3DEvent;
 import com.mrzak34.thunderhack.gui.fontstuff.FontRender;
-import com.mrzak34.thunderhack.modules.Module;
-import com.mrzak34.thunderhack.setting.ColorSetting;
-import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.mixin.mixins.IEntityRenderer;
 import com.mrzak34.thunderhack.mixin.mixins.IPlayerControllerMP;
 import com.mrzak34.thunderhack.mixin.mixins.IRenderGlobal;
 import com.mrzak34.thunderhack.mixin.mixins.IRenderManager;
+import com.mrzak34.thunderhack.modules.Module;
+import com.mrzak34.thunderhack.setting.ColorSetting;
+import com.mrzak34.thunderhack.setting.Setting;
+import com.mrzak34.thunderhack.util.TessellatorUtil;
 import com.mrzak34.thunderhack.util.render.BlockRenderUtil;
 import com.mrzak34.thunderhack.util.render.RenderUtil;
-import com.mrzak34.thunderhack.util.TessellatorUtil;
 import net.minecraft.client.renderer.DestroyBlockProgress;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
@@ -26,44 +26,37 @@ import java.awt.*;
 
 public class BreakHighLight extends Module {
 
+    private final Setting<BreakRenderMode> bRenderMode = this.register(new Setting<>("BRenderMove", BreakRenderMode.GROW));
+    private final Setting<Float> bRange = this.register(new Setting<>("BRange", 15f, 5f, 255f));
+    private final Setting<Boolean> bOutline = this.register(new Setting<>("BOutline", true));
+    private final Setting<Boolean> bWireframe = this.register(new Setting<>("BWireframe", false));
+    private final Setting<Float> bWidth = this.register(new Setting<>("BWidth", 1.5f, 1f, 10f));
+    private final Setting<ColorSetting> bOutlineColor = this.register(new Setting<>("BOutlineColor", new ColorSetting(0xFFFF0000)));
+    private final Setting<ColorSetting> bCrossOutlineColor = this.register(new Setting<>("BCrossOutlineColor", new ColorSetting(0xFFFF0000)));
+    private final Setting<Boolean> naame = this.register(new Setting<>("Name", true));
+    private final Setting<Boolean> bFill = this.register(new Setting<>("BFill", true));
+    private final Setting<ColorSetting> bFillColor = this.register(new Setting<>("BFillColor", new ColorSetting(0x66FF0000)));
+    private final Setting<ColorSetting> bCrossFillColor = this.register(new Setting<>("BCrossFillColor", new ColorSetting(0x66FF0000)));
+    private final Setting<Boolean> bTracer = this.register(new Setting<>("BTracer", false));
+    private final Setting<ColorSetting> bTracerColor = this.register(new Setting<>("BTracerColor", new ColorSetting(0xFFFF0000)));
+    private final Setting<Boolean> pOutline = this.register(new Setting<>("POutline", true));
+    private final Setting<Boolean> pWireframe = this.register(new Setting<>("PWireframe", false));
+    private final Setting<Float> pWidth = this.register(new Setting<>("PWidth", 1.5f, 1f, 10f));
+    private final Setting<ColorSetting> pOutlineColor = this.register(new Setting<>("POutlineColor", new ColorSetting(0xFF0000FF)));
+    private final Setting<Boolean> pFill = this.register(new Setting<>("PFill", true));
+    private final Setting<ColorSetting> pFillColor = this.register(new Setting<>("PFillColor", new ColorSetting(0x660000FF)));
     public BreakHighLight() {
         super("BreakHighLight", "рендерит ломания-блоков", Category.RENDER);
     }
 
-    private  Setting<BreakRenderMode> bRenderMode = this.register(new Setting<>("BRenderMove", BreakRenderMode.GROW));
-
-    private  Setting<Float> bRange = this.register(new Setting<>("BRange", 15f, 5f, 255f));
-
-    private  Setting<Boolean> bOutline = this.register(new Setting<>("BOutline", true));
-    private  Setting<Boolean> bWireframe = this.register(new Setting<>("BWireframe", false));
-    private  Setting<Float> bWidth = this.register(new Setting<>("BWidth", 1.5f, 1f, 10f));
-    private  Setting<ColorSetting> bOutlineColor = this.register(new Setting<>("BOutlineColor", new ColorSetting(0xFFFF0000)));
-    private  Setting<ColorSetting> bCrossOutlineColor = this.register(new Setting<>("BCrossOutlineColor", new ColorSetting(0xFFFF0000)));
-
-    private  Setting<Boolean> naame = this.register(new Setting<>("Name", true));
-
-
-    private  Setting<Boolean> bFill = this.register(new Setting<>("BFill", true));
-    private  Setting<ColorSetting> bFillColor = this.register(new Setting<>("BFillColor", new ColorSetting(0x66FF0000)));
-    private  Setting<ColorSetting> bCrossFillColor = this.register(new Setting<>("BCrossFillColor", new ColorSetting(0x66FF0000)));
-
-    private  Setting<Boolean> bTracer = this.register(new Setting<>("BTracer", false));
-    private  Setting<ColorSetting> bTracerColor = this.register(new Setting<>("BTracerColor", new ColorSetting(0xFFFF0000)));
-
-
-    private  Setting<Boolean> pOutline = this.register(new Setting<>("POutline", true));
-    private  Setting<Boolean> pWireframe = this.register(new Setting<>("PWireframe", false));
-    private  Setting<Float> pWidth = this.register(new Setting<>("PWidth", 1.5f, 1f, 10f));
-    private  Setting<ColorSetting> pOutlineColor = this.register(new Setting<>("POutlineColor", new ColorSetting(0xFF0000FF)));
-
-    private  Setting<Boolean> pFill = this.register(new Setting<>("PFill", true));
-    private  Setting<ColorSetting> pFillColor = this.register(new Setting<>("PFillColor", new ColorSetting(0x660000FF)));
-
-    private enum BreakRenderMode {
-        GROW, SHRINK, CROSS, STATIC
+    public static void renderBreakingBB2(AxisAlignedBB bb, Color fill, Color outline) {
+        BlockRenderUtil.prepareGL();
+        TessellatorUtil.drawBox(bb, fill);
+        BlockRenderUtil.releaseGL();
+        BlockRenderUtil.prepareGL();
+        TessellatorUtil.drawBoundingBox(bb, 1, outline);
+        BlockRenderUtil.releaseGL();
     }
-
-
 
     @SubscribeEvent
     public void onRender3D(Render3DEvent event) {
@@ -86,14 +79,17 @@ public class BreakHighLight extends Module {
                 case GROW: {
                     renderBreakingBB(bb.shrink(0.5 - progress * 0.5), bFillColor.getValue(), bOutlineColor.getValue());
                     break;
-                } case SHRINK: {
+                }
+                case SHRINK: {
                     renderBreakingBB(bb.shrink(progress * 0.5), bFillColor.getValue(), bOutlineColor.getValue());
                     break;
-                } case CROSS: {
+                }
+                case CROSS: {
                     renderBreakingBB(bb.shrink(0.5 - progress * 0.5), bFillColor.getValue(), bOutlineColor.getValue());
                     renderBreakingBB(bb.shrink(progress * 0.5), bCrossFillColor.getValue(), bCrossOutlineColor.getValue());
                     break;
-                } default: {
+                }
+                default: {
                     renderBreakingBB(bb, bFillColor.getValue(), bOutlineColor.getValue());
                     break;
                 }
@@ -118,7 +114,7 @@ public class BreakHighLight extends Module {
             renderGlobalBreakage(destroyBlockProgress);
             Entity object = mc.world.getEntityByID(integer);
 
-            if(object != null && naame.getValue() && !object.getName().equals(mc.player.getName())){
+            if (object != null && naame.getValue() && !object.getName().equals(mc.player.getName())) {
                 GlStateManager.pushMatrix();
                 BlockPos pos = destroyBlockProgress.getPosition();
                 try {
@@ -157,14 +153,17 @@ public class BreakHighLight extends Module {
                 case GROW: {
                     renderBreakingBB(bb.shrink(0.5 - progress * 0.5), bFillColor.getValue(), bOutlineColor.getValue());
                     break;
-                } case SHRINK: {
+                }
+                case SHRINK: {
                     renderBreakingBB(bb.shrink(progress * 0.5), bFillColor.getValue(), bOutlineColor.getValue());
                     break;
-                } case CROSS: {
+                }
+                case CROSS: {
                     renderBreakingBB(bb.shrink(0.5 - progress * 0.5), bFillColor.getValue(), bOutlineColor.getValue());
                     renderBreakingBB(bb.shrink(progress * 0.5), bCrossFillColor.getValue(), bCrossOutlineColor.getValue());
                     break;
-                } default: {
+                }
+                default: {
                     renderBreakingBB(bb, bFillColor.getValue(), bOutlineColor.getValue());
                     break;
                 }
@@ -222,17 +221,7 @@ public class BreakHighLight extends Module {
         }
     }
 
-    public static void renderBreakingBB2(AxisAlignedBB bb, Color fill, Color outline) {
-            BlockRenderUtil.prepareGL();
-            TessellatorUtil.drawBox(bb, fill);
-            BlockRenderUtil.releaseGL();
-            BlockRenderUtil.prepareGL();
-            TessellatorUtil.drawBoundingBox(bb, 1, outline);
-            BlockRenderUtil.releaseGL();
-    }
-
-
-    private void renderTracer(double x, double y, double z, double x2, double y2, double z2, int color){
+    private void renderTracer(double x, double y, double z, double x2, double y2, double z2, int color) {
         GL11.glBlendFunc(770, 771);
         GL11.glEnable(GL11.GL_BLEND);
         GL11.glLineWidth(1.5f);
@@ -260,7 +249,12 @@ public class BreakHighLight extends Module {
         GL11.glEnable(GL11.GL_DEPTH_TEST);
         GL11.glDepthMask(true);
         GL11.glDisable(GL11.GL_BLEND);
-        GL11.glColor3d(1d,1d,1d);
+        GL11.glColor3d(1d, 1d, 1d);
         GlStateManager.enableLighting();
+    }
+
+
+    private enum BreakRenderMode {
+        GROW, SHRINK, CROSS, STATIC
     }
 }

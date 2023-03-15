@@ -21,26 +21,26 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 public abstract class MixinRenderLivingBase<T extends EntityLivingBase> extends Render<T> {
 
 
+    @Shadow
+    protected ModelBase mainModel;
+
     protected MixinRenderLivingBase(RenderManager renderManager) {
         super(renderManager);
     }
 
-    @Shadow
-    protected ModelBase mainModel;
-
     @Inject(method = "doRender", at = @At("HEAD"), cancellable = true)
     private <T extends EntityLivingBase> void injectChamsPre(T entity, double x, double y, double z, float entityYaw, float partialTicks, CallbackInfo callbackInfo) {
 
-        if ((entity instanceof EntityArmorStand) && ((NoRender.getInstance().isOn() && NoRender.getInstance().noarmorstands.getValue()) || ( Thunderhack.moduleManager.getModuleByClass(AntiTittle.class).isOn() && Thunderhack.moduleManager.getModuleByClass(AntiTittle.class).armorstands.getValue()))) {
+        if ((entity instanceof EntityArmorStand) && ((NoRender.getInstance().isOn() && NoRender.getInstance().noarmorstands.getValue()) || (Thunderhack.moduleManager.getModuleByClass(AntiTittle.class).isOn() && Thunderhack.moduleManager.getModuleByClass(AntiTittle.class).armorstands.getValue()))) {
             callbackInfo.cancel();
         }
     }
 
     @Inject(method = "interpolateRotation", at = @At("HEAD"))
     protected void interpolateRotation(float prevYawOffset, float yawOffset, float partialTicks, CallbackInfoReturnable<Float> cir) {
-       if(Thunderhack.moduleManager.getModuleByClass(EzingKids.class).isOn() ){
-           mainModel.isChild = true;
-       }
+        if (Thunderhack.moduleManager.getModuleByClass(EzingKids.class).isOn()) {
+            mainModel.isChild = true;
+        }
     }
 
 

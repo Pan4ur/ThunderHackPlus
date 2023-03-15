@@ -12,27 +12,26 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class CombatManager extends Feature
-{
+public class CombatManager extends Feature {
     private final Map<EntityPlayer, PopCounter> pops =
             new ConcurrentHashMap<>();
-
-
-    public void init() {
-        MinecraftForge.EVENT_BUS.register(this);
-    }
-    public void unload() {
-        MinecraftForge.EVENT_BUS.unregister(this);
-    }
 
 
     public CombatManager() {
     }
 
+    public void init() {
+        MinecraftForge.EVENT_BUS.register(this);
+    }
+
+    public void unload() {
+        MinecraftForge.EVENT_BUS.unregister(this);
+    }
+
     @SubscribeEvent
-    public void onPacketReceive(PacketEvent.Receive e){
-        if(fullNullCheck()) return;
-        if(e.getPacket() instanceof SPacketEntityStatus) {
+    public void onPacketReceive(PacketEvent.Receive e) {
+        if (fullNullCheck()) return;
+        if (e.getPacket() instanceof SPacketEntityStatus) {
             switch (((SPacketEntityStatus) e.getPacket()).getOpCode()) {
                 case 3:
                     mc.addScheduledTask(() ->

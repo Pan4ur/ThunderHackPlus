@@ -1,13 +1,13 @@
 package com.mrzak34.thunderhack.modules.misc;
 
-import com.mrzak34.thunderhack.events.Render3DEvent;
 import com.mrzak34.thunderhack.command.Command;
+import com.mrzak34.thunderhack.events.Render3DEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.notification.Notification;
-import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.notification.NotificationManager;
-import com.mrzak34.thunderhack.util.render.RenderUtil;
+import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.Timer;
+import com.mrzak34.thunderhack.util.render.RenderUtil;
 import com.mrzak34.thunderhack.util.seedoverlay.WorldLoader;
 import net.minecraft.block.*;
 import net.minecraft.init.Blocks;
@@ -21,17 +21,12 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class SeedOverlay extends Module{
-    public SeedOverlay() {
-    super("SeedOverlay", "рендерит фейковый-мир для поиска-несоответсвий", Module.Category.MISC);
-    }
-
-
-    public Setting <Integer> Distance = this.register ( new Setting <> ( "Distance", 6, 0, 15 ) );
-    public Setting <Integer> renderDistance = this.register ( new Setting <> ( "RenderDistance", 120, 0, 256 ) );
-
-
-
+public class SeedOverlay extends Module {
+    private static ExecutorService executor;
+    private static ExecutorService executor2;
+    private final Timer timer = new Timer();
+    public Setting<Integer> Distance = this.register(new Setting<>("Distance", 6, 0, 15));
+    public Setting<Integer> renderDistance = this.register(new Setting<>("RenderDistance", 120, 0, 256));
     public Setting<Boolean> GrassSpread = register(new Setting("GrassSpread", false));
     public Setting<Boolean> FalsePositive = register(new Setting("FalsePositive", false));
     public Setting<Boolean> LavaMix = register(new Setting("LavaMix", false));
@@ -39,20 +34,15 @@ public class SeedOverlay extends Module{
     public Setting<Boolean> Tree = register(new Setting("Tree", false));
     public Setting<Boolean> Liquid = register(new Setting("Liquid", false));
     public Setting<Boolean> Fallingblock = register(new Setting("Fallingblock", false));
-
     public Setting<String> sd = this.register(new Setting<String>("seed", "-4172144997902289642"));
-
-
-
-    private static ExecutorService executor;
-    private static ExecutorService executor2;
     public int currentdis = 0;
 
 
-
     private ArrayList<ChunkData> chunks = new ArrayList<>();
-    private ArrayList<int[]> tobesearch = new ArrayList<>();
-    private final Timer timer = new Timer();
+    private final ArrayList<int[]> tobesearch = new ArrayList<>();
+    public SeedOverlay() {
+        super("SeedOverlay", "рендерит фейковый-мир для поиска-несоответсвий", Module.Category.MISC);
+    }
 
     @Override
     public void onUpdate() {
@@ -72,7 +62,8 @@ public class SeedOverlay extends Module{
                 remove = vec2d;
                 executor.execute(() -> WorldLoader.CreateChunk(vec2d[0], vec2d[1], mc.player.dimension));
             }
-        } catch (Exception e){}
+        } catch (Exception e) {
+        }
 
         tobesearch.remove(remove);
     }
@@ -83,7 +74,8 @@ public class SeedOverlay extends Module{
         WorldLoader.seed = Long.parseLong(sd.getValue());
         try {
             NotificationManager.publicity("Current seed: " + WorldLoader.seed, 3, Notification.Type.INFO);
-        } catch (Exception e){}
+        } catch (Exception e) {
+        }
 
         if (mc.isSingleplayer()) {
             Command.sendMessage("Only in multiplayer");
@@ -104,13 +96,13 @@ public class SeedOverlay extends Module{
 
     private void searchViewDistance() {
         executor.execute(() -> {
-            for (int x = mc.player.chunkCoordX - (int) Distance.getValue(); x <= mc.player.chunkCoordX + (int) Distance.getValue(); x++) {
-                for (int z = mc.player.chunkCoordZ - (int) Distance.getValue(); z <= mc.player.chunkCoordZ + (int) Distance.getValue(); z++) {
+            for (int x = mc.player.chunkCoordX - Distance.getValue(); x <= mc.player.chunkCoordX + Distance.getValue(); x++) {
+                for (int z = mc.player.chunkCoordZ - Distance.getValue(); z <= mc.player.chunkCoordZ + Distance.getValue(); z++) {
                     if (havenotsearched(x, z))
                         if (mc.world.isChunkGeneratedAt(x, z)) {
                             boolean found = false;
                             for (int[] vec2d : tobesearch) {
-                                if ((int) vec2d[0] == x && (int) vec2d[1] == z) {
+                                if (vec2d[0] == x && vec2d[1] == z) {
                                     found = true;
                                     break;
                                 }
@@ -124,8 +116,8 @@ public class SeedOverlay extends Module{
     }
 
     private void runviewdistance() {
-        for (int x = mc.player.chunkCoordX - (int) Distance.getValue(); x <= mc.player.chunkCoordX + (int) Distance.getValue(); x++) {
-            for (int z = mc.player.chunkCoordZ - (int) Distance.getValue(); z <= mc.player.chunkCoordZ + (int) Distance.getValue(); z++) {
+        for (int x = mc.player.chunkCoordX - Distance.getValue(); x <= mc.player.chunkCoordX + Distance.getValue(); x++) {
+            for (int z = mc.player.chunkCoordZ - Distance.getValue(); z <= mc.player.chunkCoordZ + Distance.getValue(); z++) {
                 if (mc.world.isChunkGeneratedAt(x, z)) {
                     if (WorldLoader.fakeworld.isChunkGeneratedAt(x, z) && WorldLoader.fakeworld.isChunkGeneratedAt(x + 1, z) && WorldLoader.fakeworld.isChunkGeneratedAt(x, z + 1)
                             && WorldLoader.fakeworld.isChunkGeneratedAt(x + 1, z + 1)) {
@@ -255,17 +247,11 @@ public class SeedOverlay extends Module{
                     return false;
         }
 
-        if (!FakeChunk.getLocalizedName().equals(RealChunk.getLocalizedName())) {
-            return true;
-        }
-        return false;
+        return !FakeChunk.getLocalizedName().equals(RealChunk.getLocalizedName());
     }
 
     public boolean Treeroots(BlockPos b) {
-        if (mc.world.getBlockState(b.up()).getBlock() instanceof BlockLog) {
-            return true;
-        }
-        return false;
+        return mc.world.getBlockState(b.up()).getBlock() instanceof BlockLog;
     }
 
     public boolean Lavamix(BlockPos b) {
@@ -284,10 +270,7 @@ public class SeedOverlay extends Module{
         if (mc.world.getBlockState(b.add(-1, 0, 0)).getBlock() instanceof BlockLiquid) {
             return true;
         }
-        if (mc.world.getBlockState(b.add(0, 0, -1)).getBlock() instanceof BlockLiquid) {
-            return true;
-        }
-        return false;
+        return mc.world.getBlockState(b.add(0, 0, -1)).getBlock() instanceof BlockLiquid;
     }
 
     @SubscribeEvent
@@ -301,7 +284,7 @@ public class SeedOverlay extends Module{
                     for (BlockPos block : chunk.blocks) {
 
 
-                        if(mc.player.getDistanceSq(new BlockPos(block.x, block.y, block.z)) < renderDistance.getValue() * renderDistance.getValue()) {
+                        if (mc.player.getDistanceSq(new BlockPos(block.x, block.y, block.z)) < renderDistance.getValue() * renderDistance.getValue()) {
                             RenderUtil.blockEspFrame(new BlockPos(block.x, block.y, block.z), 0.0, 255.0, 255.0);
                         }
 
@@ -312,23 +295,21 @@ public class SeedOverlay extends Module{
             chunks.removeAll(Remove);
         } catch (Exception ignored) {
         }
-      //  super.onRenderWorldLast(event);
+        //  super.onRenderWorldLast(event);
     }
 
 
     public static class ChunkData {
-        private boolean Searched;
-
-        public List<BlockPos> getBlocks() {
-            return blocks;
-        }
-
         public final List<BlockPos> blocks = new ArrayList<>();
-        private ChunkPos chunkPos;
-
+        private boolean Searched;
+        private final ChunkPos chunkPos;
         public ChunkData(ChunkPos chunkPos, boolean Searched) {
             this.chunkPos = chunkPos;
             this.Searched = Searched;
+        }
+
+        public List<BlockPos> getBlocks() {
+            return blocks;
         }
     }
 }

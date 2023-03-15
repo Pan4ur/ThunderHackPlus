@@ -13,10 +13,6 @@ public class Render2DEvent
         this.scaledResolution = scaledResolution;
     }
 
-    public void setPartialTicks(float partialTicks) {
-        this.partialTicks = partialTicks;
-    }
-
     public void setScaledResolution(ScaledResolution scaledResolution) {
         this.scaledResolution = scaledResolution;
     }
@@ -31,6 +27,10 @@ public class Render2DEvent
 
     public float getPartialTicks() {
         return partialTicks;
+    }
+
+    public void setPartialTicks(float partialTicks) {
+        this.partialTicks = partialTicks;
     }
 }
 

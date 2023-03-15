@@ -1,7 +1,6 @@
 package com.mrzak34.thunderhack.modules.movement;
 
 import com.mrzak34.thunderhack.events.EventMove;
-import com.mrzak34.thunderhack.events.EventPreMotion;
 import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.events.PostPlayerUpdateEvent;
 import com.mrzak34.thunderhack.modules.Module;
@@ -11,29 +10,24 @@ import net.minecraft.network.play.server.SPacketPlayerPosLook;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class FastFall extends Module {
-    public FastFall() {
-        super("FastFall", "FastFall", Category.MOVEMENT);
-    }
-
+    private final Timer rubberbandTimer = new Timer();
+    private final Timer strictTimer = new Timer();
+    public Setting<Float> speed = register(new Setting("Speed", 1F, 3f, 5f));
+    public Setting<Float> shiftTicks = register(new Setting("Height", 2.0F, 1F, 2.5F));
+    public Setting<Float> height = register(new Setting("Height", 0.0F, 2F, 10F));
+    public Setting<Boolean> webs = this.register(new Setting<>("Webs", false));
     /**
      * @author linustouchtips
      * @since 04/18/2022
      */
 
-    private Setting<Mode> mode = this.register (new Setting<>("Mode", Mode.MOTION));
-    public Setting<Float> speed = register(new Setting("Speed", 1F, 3f, 5f));
-    public Setting<Float> shiftTicks = register(new Setting("Height", 2.0F, 1F, 2.5F));
-    public Setting<Float> height = register(new Setting("Height", 0.0F, 2F, 10F));
-    public Setting<Boolean> webs = this.register(new Setting<>("Webs", false));
-
-
+    private final Setting<Mode> mode = this.register(new Setting<>("Mode", Mode.MOTION));
     private boolean previousOnGround;
-
-    private final Timer rubberbandTimer = new Timer();
-    private final Timer strictTimer = new Timer();
-
     private int ticks;
     private boolean stop;
+    public FastFall() {
+        super("FastFall", "FastFall", Category.MOVEMENT);
+    }
 
     @Override
     public void onTick() {
@@ -119,7 +113,7 @@ public class FastFall extends Module {
 
     @SubscribeEvent
     public void onPacketReceive(PacketEvent.Receive event) {
-        if(fullNullCheck()) return;
+        if (fullNullCheck()) return;
         if (event.getPacket() instanceof SPacketPlayerPosLook) {
             rubberbandTimer.reset();
         }

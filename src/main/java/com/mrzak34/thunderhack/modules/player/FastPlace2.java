@@ -5,8 +5,10 @@ import com.mrzak34.thunderhack.events.Render2DEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.setting.SubBind;
+import com.mrzak34.thunderhack.util.PlayerUtils;
+import com.mrzak34.thunderhack.util.Timer;
+import com.mrzak34.thunderhack.util.Util;
 import com.mrzak34.thunderhack.util.render.PaletteHelper;
-import com.mrzak34.thunderhack.util.*;
 import com.mrzak34.thunderhack.util.render.RenderUtil;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.init.Items;
@@ -26,39 +28,43 @@ import java.awt.*;
 
 public class FastPlace2
         extends Module {
-    public FastPlace2() {
-        super("FastPlace", "пайро автоменд", Module.Category.PLAYER);
-    }
     public static BlockPos target;
-
-
-    private  Setting<Integer> threshold = this.register (new Setting<>("Percent", 100, 0, 100));
+    public static boolean isMending = false;
     public Setting<Integer> waterMarkZ1 = register(new Setting("Y", 10, 0, 524));
     public Setting<Integer> waterMarkZ2 = register(new Setting("X", 20, 0, 862));
-    private  Setting<Integer> dlay = this.register (new Setting<>("delay", 100, 0, 100));
-    private  Setting<Integer> armdlay = this.register (new Setting<>("ArmorDelay", 100, 0, 1000));
     public Setting<SubBind> aboba = this.register(new Setting<>("Butt", new SubBind(Keyboard.KEY_LMENU)));
-
-    public Setting<Boolean> afast = this.register ( new Setting <> ( "AlwaysFast", false));
-    private  Setting<Integer> rcdtimer = this.register (new Setting<>("click delay", 1, 0, 4));
-
-
-
-
-    public static boolean isMending = false;
-    private boolean shouldMend = false;
-
-
-    private Timer timer = new Timer();
-    private Timer timer2 = new Timer();
+    public Setting<Boolean> afast = this.register(new Setting<>("AlwaysFast", false));
+    public boolean rotate = true;
     int arm1;
     int arm2;
     int arm3;
     int arm4;
     int totalarmor;
+    int startingItem;
+    private final Setting<Integer> threshold = this.register(new Setting<>("Percent", 100, 0, 100));
+    private final Setting<Integer> dlay = this.register(new Setting<>("delay", 100, 0, 100));
+    private final Setting<Integer> armdlay = this.register(new Setting<>("ArmorDelay", 100, 0, 1000));
+    private final Setting<Integer> rcdtimer = this.register(new Setting<>("click delay", 1, 0, 4));
+    private boolean shouldMend = false;
+    private final Timer timer = new Timer();
+    private final Timer timer2 = new Timer();
 
+    public FastPlace2() {
+        super("FastPlace", "пайро автоменд", Module.Category.PLAYER);
+    }
 
-    int startingItem ;
+    public static float calculatePercentage(ItemStack stack) {
+        float durability = stack.getMaxDamage() - stack.getItemDamage();
+        return (durability / (float) stack.getMaxDamage()) * 100F;
+    }
+
+    public static float[] calcAngle(Vec3d from, Vec3d to) {
+        double difX = to.x - from.x;
+        double difY = (to.y - from.y) * -1.0;
+        double difZ = to.z - from.z;
+        double dist = MathHelper.sqrt(difX * difX + difZ * difZ);
+        return new float[]{(float) MathHelper.wrapDegrees(Math.toDegrees(Math.atan2(difZ, difX)) - 90.0), (float) MathHelper.wrapDegrees(Math.toDegrees(Math.atan2(difY, dist)))};
+    }
 
     @SubscribeEvent
     public void onUpdateWalkingPlayer(EventPreMotion e) {
@@ -78,93 +84,88 @@ public class FastPlace2
         if (PlayerUtils.isKeyDown(aboba.getValue().getKey()) && (calculatePercentage(stack2) < threshold.getValue() || calculatePercentage(stack3) < threshold.getValue() || calculatePercentage(stack4) < threshold.getValue() || calculatePercentage(stack5) < threshold.getValue())) {
 
 
-                int itemSlot = getXpSlot();
-                boolean changeItem = mc.player.inventory.currentItem != itemSlot && itemSlot != -1;
-                startingItem = mc.player.inventory.currentItem;
+            int itemSlot = getXpSlot();
+            boolean changeItem = mc.player.inventory.currentItem != itemSlot && itemSlot != -1;
+            startingItem = mc.player.inventory.currentItem;
 
-                if (changeItem) {
-                    mc.player.inventory.currentItem = itemSlot;
-                    mc.player.connection.sendPacket(new CPacketHeldItemChange(itemSlot));
-                }
+            if (changeItem) {
+                mc.player.inventory.currentItem = itemSlot;
+                mc.player.connection.sendPacket(new CPacketHeldItemChange(itemSlot));
+            }
         }
 
 
+        if (mc.player.getHeldItem(EnumHand.MAIN_HAND).getItem() == Items.EXPERIENCE_BOTTLE || (getXpSlot() != -1) && target != null) {
+            if (PlayerUtils.isKeyDown(aboba.getValue().getKey()) && (calculatePercentage(stack2) < threshold.getValue() || calculatePercentage(stack3) < threshold.getValue() || calculatePercentage(stack4) < threshold.getValue() || calculatePercentage(stack5) < threshold.getValue())) {
 
 
-            if (mc.player.getHeldItem(EnumHand.MAIN_HAND).getItem() == Items.EXPERIENCE_BOTTLE || ( getXpSlot() != -1) && target != null) {
-                if (PlayerUtils.isKeyDown(aboba.getValue().getKey()) && (calculatePercentage(stack2) < threshold.getValue() || calculatePercentage(stack3) < threshold.getValue() || calculatePercentage(stack4) < threshold.getValue() || calculatePercentage(stack5) < threshold.getValue())) {
+                shouldMend = false;
 
 
-                    shouldMend = false;
+                // FastPlace2.mc.player.connection.sendPacket((Packet)new CPacketPlayer.Rotation(0.0f,  90.0f,  true));
+                target = FastPlace2.mc.player.getPosition().add(0.0f, -1.0f, 0.0f);
 
 
+                ItemStack[] armorStacks = new ItemStack[]{
+                        mc.player.inventory.getStackInSlot(39),
+                        mc.player.inventory.getStackInSlot(38),
+                        mc.player.inventory.getStackInSlot(37),
+                        mc.player.inventory.getStackInSlot(36)
+                };
 
-                   // FastPlace2.mc.player.connection.sendPacket((Packet)new CPacketPlayer.Rotation(0.0f,  90.0f,  true));
-                    target = FastPlace2.mc.player.getPosition().add(0.0f,-1.0f,0.0f);
+                for (int i = 0; i < 4; i++) {
 
+                    ItemStack stack = armorStacks[i];
 
-                    ItemStack[] armorStacks = new ItemStack[]{
-                            mc.player.inventory.getStackInSlot(39),
-                            mc.player.inventory.getStackInSlot(38),
-                            mc.player.inventory.getStackInSlot(37),
-                            mc.player.inventory.getStackInSlot(36)
-                    };
+                    if (!(stack.getItem() instanceof ItemArmor)) continue;
 
-                    for (int i = 0; i < 4; i++) {
+                    if (calculatePercentage(stack) < threshold.getValue()) continue;
 
-                        ItemStack stack = armorStacks[i];
+                    for (int s = 0; s < 36; s++) {
 
-                        if (!(stack.getItem() instanceof ItemArmor)) continue;
+                        ItemStack emptyStack = mc.player.inventory.getStackInSlot(s);
 
-                        if (calculatePercentage(stack) < threshold.getValue()) continue;
+                        if (!emptyStack.isEmpty() || !(emptyStack.getItem() == Items.AIR)) continue;
 
-                        for (int s = 0; s < 36; s++) {
-
-                            ItemStack emptyStack = mc.player.inventory.getStackInSlot(s);
-
-                            if (!emptyStack.isEmpty() || !(emptyStack.getItem() == Items.AIR)) continue;
-
-                            isMending = true;
-                            if(timer2.passedMs(armdlay.getValue())) {
-                                mc.playerController.windowClick(mc.player.inventoryContainer.windowId, i + 5, 0, ClickType.PICKUP, mc.player);
-                                mc.playerController.windowClick(mc.player.inventoryContainer.windowId, s < 9 ? s + 36 : s, 0, ClickType.PICKUP, mc.player);
-                                mc.playerController.windowClick(mc.player.inventoryContainer.windowId, i + 5, 0, ClickType.PICKUP, mc.player);
-                                mc.playerController.updateController();
-                                timer2.reset();
-                                return;
-                            }
+                        isMending = true;
+                        if (timer2.passedMs(armdlay.getValue())) {
+                            mc.playerController.windowClick(mc.player.inventoryContainer.windowId, i + 5, 0, ClickType.PICKUP, mc.player);
+                            mc.playerController.windowClick(mc.player.inventoryContainer.windowId, s < 9 ? s + 36 : s, 0, ClickType.PICKUP, mc.player);
+                            mc.playerController.windowClick(mc.player.inventoryContainer.windowId, i + 5, 0, ClickType.PICKUP, mc.player);
+                            mc.playerController.updateController();
+                            timer2.reset();
+                            return;
                         }
-
                     }
 
-                    for (int i = 0; i < 4; i++) {
-                        ItemStack stack = armorStacks[i];
+                }
 
-                        if (!(stack.getItem() instanceof ItemArmor)) continue;
+                for (int i = 0; i < 4; i++) {
+                    ItemStack stack = armorStacks[i];
 
-                        if (calculatePercentage(stack) >= threshold.getValue()) continue;
+                    if (!(stack.getItem() instanceof ItemArmor)) continue;
 
-                        shouldMend = true;
-                    }
+                    if (calculatePercentage(stack) >= threshold.getValue()) continue;
 
-                    if (!shouldMend) {
-                        isMending = false;
-                    }
+                    shouldMend = true;
+                }
 
+                if (!shouldMend) {
+                    isMending = false;
+                }
 
 
                 if (shouldMend) {
 
 
-
                     if (mc.player.getHeldItem(EnumHand.MAIN_HAND).getItem() instanceof ItemExpBottle && timer.passedMs(dlay.getValue())) {
                         mc.playerController.processRightClick(mc.player, mc.world, EnumHand.MAIN_HAND);
-                       // FastPlace2.mc.player.connection.sendPacket((Packet)new CPacketPlayerTryUseItem(EnumHand.MAIN_HAND));
+                        // FastPlace2.mc.player.connection.sendPacket((Packet)new CPacketPlayerTryUseItem(EnumHand.MAIN_HAND));
                         timer.reset();
                     }
 
                 }
-            } else if(startingItem != -1) {
+            } else if (startingItem != -1) {
                 isMending = false;
                 mc.player.connection.sendPacket(new CPacketHeldItemChange(startingItem));
                 arm2 = 0;
@@ -174,12 +175,6 @@ public class FastPlace2
                 target = null;
             }
         }
-    }
-
-
-    public static float calculatePercentage(ItemStack stack) {
-        float durability = stack.getMaxDamage() - stack.getItemDamage();
-        return (durability / (float) stack.getMaxDamage()) * 100F;
     }
 
     private int getXpSlot() {
@@ -197,6 +192,7 @@ public class FastPlace2
         }
         return -1;
     }
+
     @Override
     public void onDisable() {
         isMending = false;
@@ -205,14 +201,12 @@ public class FastPlace2
 
     @Override
     public void onUpdate() {
-        if(afast.getValue() && mc.rightClickDelayTimer > rcdtimer.getValue())
+        if (afast.getValue() && mc.rightClickDelayTimer > rcdtimer.getValue())
             mc.rightClickDelayTimer = rcdtimer.getValue();
     }
 
-
-
     @SubscribeEvent
-    public void onRender2D(Render2DEvent e){
+    public void onRender2D(Render2DEvent e) {
         ItemStack[] armorStacks21 = new ItemStack[]{
                 mc.player.inventory.getStackInSlot(39),
                 mc.player.inventory.getStackInSlot(38),
@@ -264,20 +258,18 @@ public class FastPlace2
             float progress;
             progress = (float) (arm1 + arm3 + arm4 + arm2) / 400;
 
-            color = PaletteHelper.fade(new Color(255, 0, 0, 255).getRGB(),new Color(0, 255, 0, 255).getRGB(), progress);
+            color = PaletteHelper.fade(new Color(255, 0, 0, 255).getRGB(), new Color(0, 255, 0, 255).getRGB(), progress);
 
 
             final int expCount = this.getExpCount();
 
-            FastPlace2.mc.renderItem.renderItemIntoGUI(new ItemStack(Items.EXPERIENCE_BOTTLE), waterMarkZ2.getValue()  + 70 +11, waterMarkZ1.getValue() + 17);
+            FastPlace2.mc.renderItem.renderItemIntoGUI(new ItemStack(Items.EXPERIENCE_BOTTLE), waterMarkZ2.getValue() + 70 + 11, waterMarkZ1.getValue() + 17);
             final String s3 = String.valueOf(expCount);
-            Util.fr.drawStringWithShadow(s3, waterMarkZ2.getValue()  + 85 +11, waterMarkZ1.getValue() + 9  + 17, 16777215);
+            Util.fr.drawStringWithShadow(s3, waterMarkZ2.getValue() + 85 + 11, waterMarkZ1.getValue() + 9 + 17, 16777215);
 
             RenderUtil.drawSmoothRect(waterMarkZ2.getValue() + 3, waterMarkZ1.getValue() + 12, totalarmor + waterMarkZ2.getValue() + 5, 15 + waterMarkZ1.getValue(), color);
 
-            Util.fr.drawStringWithShadow("Mending...", waterMarkZ2.getValue() + 3, waterMarkZ1.getValue() + 1, PaletteHelper.astolfo(false, (int) 1).getRGB());
-
-
+            Util.fr.drawStringWithShadow("Mending...", waterMarkZ2.getValue() + 3, waterMarkZ1.getValue() + 1, PaletteHelper.astolfo(false, 1).getRGB());
 
 
             int width = waterMarkZ2.getValue() + -12;
@@ -306,11 +298,12 @@ public class FastPlace2
             GlStateManager.disableLighting();
         }
     }
+
     private int getExpCount() {
         int expCount = 0;
         for (int i = 0; i < 45; ++i) {
             if (FastPlace2.mc.player.inventory.getStackInSlot(i).getItem().equals(Items.EXPERIENCE_BOTTLE)) {
-                expCount = expCount + FastPlace2.mc.player.inventory.getStackInSlot(i).stackSize;;
+                expCount = expCount + FastPlace2.mc.player.inventory.getStackInSlot(i).stackSize;
             }
         }
         if (FastPlace2.mc.player.getHeldItemOffhand().getItem().equals(Items.EXPERIENCE_BOTTLE)) {
@@ -319,24 +312,12 @@ public class FastPlace2
         return expCount;
     }
 
-
-    public boolean rotate = true;
-
-
     @SubscribeEvent
     public void onUpdateWalkingPlayerEvent(EventPreMotion event) {
         if (target != null) {
             float[] angle = calcAngle(mc.player.getPositionEyes(mc.getRenderPartialTicks()), new Vec3d(target));
             mc.player.rotationPitch = (angle[1]);
         }
-    }
-
-    public static float[] calcAngle(Vec3d from, Vec3d to) {
-        double difX = to.x - from.x;
-        double difY = (to.y - from.y) * -1.0;
-        double difZ = to.z - from.z;
-        double dist = MathHelper.sqrt(difX * difX + difZ * difZ);
-        return new float[]{(float) MathHelper.wrapDegrees(Math.toDegrees(Math.atan2(difZ, difX)) - 90.0), (float) MathHelper.wrapDegrees(Math.toDegrees(Math.atan2(difY, dist)))};
     }
 
 

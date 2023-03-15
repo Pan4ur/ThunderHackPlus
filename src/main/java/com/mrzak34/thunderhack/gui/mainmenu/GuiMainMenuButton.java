@@ -22,11 +22,12 @@ public class GuiMainMenuButton extends GuiButton {
     boolean alt;
 
     String name;
-    public GuiMainMenuButton(int buttonId, int x, int y,boolean _double, String name, boolean alt ) {
-        super(buttonId, x, y,name);
+
+    public GuiMainMenuButton(int buttonId, int x, int y, boolean _double, String name, boolean alt) {
+        super(buttonId, x, y, name);
         sr = new ScaledResolution(mc);
         this._double = _double;
-        if(_double){
+        if (_double) {
             setWidth(222);
         } else {
             setWidth(107);
@@ -57,7 +58,7 @@ public class GuiMainMenuButton extends GuiButton {
             GlStateManager.pushMatrix();
 
 
-            if(!alt) {
+            if (!alt) {
                 if (_double) {
                     RoundedShader.drawGradientRound(hovered ? x + 1 : x, hovered ? y + 1 : y, hovered ? 220 : 222, hovered ? 33 : 35, 7f, color, color, color, color);
                     FontRender.drawCentString6(name, x + 111, y + 17f, hovered ? new Color(0x7A7A7A).getRGB() : -1);

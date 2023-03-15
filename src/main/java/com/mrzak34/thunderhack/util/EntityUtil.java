@@ -1,39 +1,21 @@
 package com.mrzak34.thunderhack.util;
 
-import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.util.phobos.IEntity;
 import net.minecraft.block.*;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.play.client.CPacketUseEntity;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
 
-import java.awt.*;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.*;
 
-public class EntityUtil
-        implements Util {
-    public static final Vec3d[] antiDropOffsetList = new Vec3d[]{new Vec3d(0.0, -2.0, 0.0)};
-    public static final Vec3d[] platformOffsetList = new Vec3d[]{new Vec3d(0.0, -1.0, 0.0), new Vec3d(0.0, -1.0, -1.0), new Vec3d(0.0, -1.0, 1.0), new Vec3d(-1.0, -1.0, 0.0), new Vec3d(1.0, -1.0, 0.0)};
-    public static final Vec3d[] legOffsetList = new Vec3d[]{new Vec3d(-1.0, 0.0, 0.0), new Vec3d(1.0, 0.0, 0.0), new Vec3d(0.0, 0.0, -1.0), new Vec3d(0.0, 0.0, 1.0)};
-    public static final Vec3d[] OffsetList = new Vec3d[]{new Vec3d(1.0, 1.0, 0.0), new Vec3d(-1.0, 1.0, 0.0), new Vec3d(0.0, 1.0, 1.0), new Vec3d(0.0, 1.0, -1.0), new Vec3d(0.0, 2.0, 0.0)};
-    public static final Vec3d[] antiStepOffsetList = new Vec3d[]{new Vec3d(-1.0, 2.0, 0.0), new Vec3d(1.0, 2.0, 0.0), new Vec3d(0.0, 2.0, 1.0), new Vec3d(0.0, 2.0, -1.0)};
-    public static final Vec3d[] antiScaffoldOffsetList = new Vec3d[]{new Vec3d(0.0, 3.0, 0.0)};
+public class EntityUtil implements Util {
 
-    public static double getDistance(double p_X, double p_Y, double p_Z, double x, double y, double z) {
-        double d0 = p_X - x;
-        double d1 = p_Y - y;
-        double d2 = p_Z - z;
-        return MathHelper.sqrt(d0 * d0 + d1 * d1 + d2 * d2);
-    }
 
-    public static boolean isDead(Entity entity)
-    {
+    public static boolean isDead(Entity entity) {
         return entity.isDead
                 || ((IEntity) entity).isPseudoDeadT()
                 || entity instanceof EntityLivingBase
@@ -58,25 +40,9 @@ public class EntityUtil
                 entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * (double) time);
     }
 
-
-
-    public static Vec3d getInterpolatedAmount(Entity entity, double x, double y, double z) {
-        return new Vec3d((entity.posX - entity.lastTickPosX) * x, (entity.posY - entity.lastTickPosY) * y, (entity.posZ - entity.lastTickPosZ) * z);
-    }
-
-
-
-    public static Vec3d getInterpolatedAmount(Entity entity, float partialTicks) {
-        return EntityUtil.getInterpolatedAmount(entity, partialTicks, partialTicks, partialTicks);
-    }
-
-
-
     public static boolean isSafe(Entity entity, int height, boolean floor) {
         return EntityUtil.getUnsafeBlocks(entity, height, floor).size() == 0;
     }
-
-
 
     public static boolean isSafe(Entity entity) {
         return EntityUtil.isSafe(entity, 0, false);
@@ -100,53 +66,6 @@ public class EntityUtil
         return vec3ds;
     }
 
-
-    public static List<Vec3d> targets(Vec3d vec3d, boolean antiScaffold, boolean antiStep, boolean legs, boolean platform, boolean antiDrop, boolean raytrace) {
-        ArrayList<Vec3d> placeTargets = new ArrayList<Vec3d>();
-        if (antiDrop) {
-            Collections.addAll(placeTargets, BlockUtils.convertVec3ds(vec3d, antiDropOffsetList));
-        }
-        if (platform) {
-            Collections.addAll(placeTargets, BlockUtils.convertVec3ds(vec3d, platformOffsetList));
-        }
-        if (legs) {
-            Collections.addAll(placeTargets, BlockUtils.convertVec3ds(vec3d, legOffsetList));
-        }
-        Collections.addAll(placeTargets, BlockUtils.convertVec3ds(vec3d, OffsetList));
-        if (antiStep) {
-            Collections.addAll(placeTargets, BlockUtils.convertVec3ds(vec3d, antiStepOffsetList));
-        } else {
-            List<Vec3d> vec3ds = EntityUtil.getUnsafeBlocksFromVec3d(vec3d, 2, false);
-            if (vec3ds.size() == 4) {
-                block5:
-                for (Vec3d vector : vec3ds) {
-                    BlockPos position = new BlockPos(vec3d).add(vector.x, vector.y, vector.z);
-                    switch (BlockUtils.isPositionPlaceable(position, raytrace)) {
-                        case 0: {
-                            break;
-                        }
-                        case -1:
-                        case 1:
-                        case 2: {
-                            continue block5;
-                        }
-                        case 3: {
-                            placeTargets.add(vec3d.add(vector));
-                            break;
-                        }
-                    }
-                    if (antiScaffold) {
-                        Collections.addAll(placeTargets, BlockUtils.convertVec3ds(vec3d, antiScaffoldOffsetList));
-                    }
-                    return placeTargets;
-                }
-            }
-        }
-        if (antiScaffold) {
-            Collections.addAll(placeTargets, BlockUtils.convertVec3ds(vec3d, antiScaffoldOffsetList));
-        }
-        return placeTargets;
-    }
 
     public static List<Vec3d> getOffsetList(int y, boolean floor) {
         ArrayList<Vec3d> offsets = new ArrayList<Vec3d>();
@@ -186,14 +105,14 @@ public class EntityUtil
         }
         return 0.0f;
     }
+
     public static boolean canSeeEntityAtFov(final Entity entityLiving, final float scope) {
         final double diffX = entityLiving.posX - mc.player.posX;
         final double diffZ = entityLiving.posZ - mc.player.posZ;
-        final float yaw = (float)(Math.toDegrees(Math.atan2(diffZ, diffX)) - 90.0);
+        final float yaw = (float) (Math.toDegrees(Math.atan2(diffZ, diffX)) - 90.0);
         final double difference = angleDifference(yaw, mc.player.rotationYaw);
         return difference <= scope;
     }
-
 
     public static double angleDifference(final float oldYaw, final float newYaw) {
         float yaw = Math.abs(oldYaw - newYaw) % 360.0f;
@@ -206,20 +125,5 @@ public class EntityUtil
     public static boolean canEntityBeSeen(Entity entityIn) {
         return mc.world.rayTraceBlocks(new Vec3d(mc.player.posX, mc.player.posX + (double) mc.player.getEyeHeight(), mc.player.posZ), new Vec3d(entityIn.posX, entityIn.posY + (double) entityIn.getEyeHeight(), entityIn.posZ), false, true, false) == null;
     }
-
-
-
-    public static Color getColor(Entity entity, int red, int green, int blue, int alpha, boolean colorFriends) {
-        Color color = new Color((float) red / 255.0f, (float) green / 255.0f, (float) blue / 255.0f, (float) alpha / 255.0f);
-        if (entity instanceof EntityPlayer && colorFriends && Thunderhack.friendManager.isFriend((EntityPlayer) entity)) {
-            color = new Color(0.33333334f, 1.0f, 1.0f, (float) alpha / 255.0f);
-        }
-        return color;
-    }
-
-
-
-
-
 }
 

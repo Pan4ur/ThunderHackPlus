@@ -5,7 +5,6 @@ import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.events.EventPlayerTravel;
 import com.mrzak34.thunderhack.mixin.ducks.IEntityPlayer;
 import com.mrzak34.thunderhack.modules.movement.KeepSprint;
-import com.mrzak34.thunderhack.modules.movement.LegitStrafe;
 import com.mrzak34.thunderhack.util.Util;
 import com.mrzak34.thunderhack.util.phobos.MotionTracker;
 import net.minecraft.entity.EntityLivingBase;
@@ -18,31 +17,28 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 
-@Mixin(value={EntityPlayer.class})
+@Mixin(value = {EntityPlayer.class})
 public abstract class MixinEntityPlayer extends EntityLivingBase implements IEntityPlayer {
-    public MixinEntityPlayer(World worldIn, GameProfile gameProfileIn) {
-        super(worldIn);
-    }
-
-
     @Unique
     private MotionTracker motionTrackerT;
     @Unique
     private MotionTracker breakMotionTrackerT;
     @Unique
     private MotionTracker blockMotionTrackerT;
-
-    @Override
-    public void setMotionTrackerT(MotionTracker motionTracker) {
-        this.motionTrackerT = motionTracker;
+    public MixinEntityPlayer(World worldIn, GameProfile gameProfileIn) {
+        super(worldIn);
     }
 
     @Override
     public MotionTracker getMotionTrackerT() {
         return motionTrackerT;
+    }
+
+    @Override
+    public void setMotionTrackerT(MotionTracker motionTracker) {
+        this.motionTrackerT = motionTracker;
     }
 
     @Override
@@ -66,11 +62,11 @@ public abstract class MixinEntityPlayer extends EntityLivingBase implements IEnt
     }
 
 
-    @Inject(method = { "travel" }, at = { @At("HEAD") }, cancellable = true)
+    @Inject(method = {"travel"}, at = {@At("HEAD")}, cancellable = true)
     public void travel(final float strafe, final float vertical, final float forward, final CallbackInfo info) {
         EntityPlayer us = null;
-        if(Util.mc.player != null) {
-            us = (EntityPlayer) Util.mc.player;
+        if (Util.mc.player != null) {
+            us = Util.mc.player;
         }
         if (us == null) {
             return;

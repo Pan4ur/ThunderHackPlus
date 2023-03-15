@@ -4,7 +4,8 @@ import com.mrzak34.thunderhack.events.EventPostMotion;
 import com.mrzak34.thunderhack.events.EventPreMotion;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
-import com.mrzak34.thunderhack.util.*;
+import com.mrzak34.thunderhack.util.InteractionUtil;
+import com.mrzak34.thunderhack.util.SilentRotationUtil;
 import com.mrzak34.thunderhack.util.Timer;
 import net.minecraft.block.BlockEnderChest;
 import net.minecraft.init.Blocks;
@@ -23,27 +24,15 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
-public class EChestFarmer extends Module{
-    public EChestFarmer() {super("EChestFarmer", "афк фарм обсы", Module.Category.MISC);}
-
-    private  final Setting<Integer> range = this.register(new Setting<>("Range", 2, 1, 3));
+public class EChestFarmer extends Module {
+    private final Setting<Integer> range = this.register(new Setting<>("Range", 2, 1, 3));
     private final Setting<Integer> bd = this.register(new Setting<Integer>("BreakDelay", 4000, 0, 5000));
-
-
-
-
-    private Timer timer = new Timer();
-    private Timer breakTimer = new Timer();
+    private final Timer timer = new Timer();
+    private final Timer breakTimer = new Timer();
     private InteractionUtil.Placement placement = null;
-
-
-
-    @Override
-    public void onEnable() {
-        placement = null;
-        breakTimer.reset();
+    public EChestFarmer() {
+        super("EChestFarmer", "афк фарм обсы", Module.Category.MISC);
     }
-
 
     public static List<BlockPos> getSphere(BlockPos loc, float r, int h, boolean hollow, boolean sphere, int plus_y) {
         List<BlockPos> circleblocks = new ArrayList<>();
@@ -64,80 +53,86 @@ public class EChestFarmer extends Module{
         return circleblocks;
     }
 
+    @Override
+    public void onEnable() {
+        placement = null;
+        breakTimer.reset();
+    }
+
     @SubscribeEvent
     public void onUpdateWalkingPlayer(EventPreMotion event) {
 
-            placement = null;
-            if (event.isCanceled() || !InteractionUtil.canPlaceNormally()) return;
+        placement = null;
+        if (event.isCanceled() || !InteractionUtil.canPlaceNormally()) return;
 
-            BlockPos closestEChest = getSphere(new BlockPos(mc.player), range.getValue(), range.getValue(), false, true, 0).stream()
-                    .filter(pos -> mc.world.getBlockState(pos).getBlock() instanceof BlockEnderChest)
-                    .min(Comparator.comparing(pos -> mc.player.getDistance(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5)))
-                    .orElse(null);
+        BlockPos closestEChest = getSphere(new BlockPos(mc.player), range.getValue(), range.getValue(), false, true, 0).stream()
+                .filter(pos -> mc.world.getBlockState(pos).getBlock() instanceof BlockEnderChest)
+                .min(Comparator.comparing(pos -> mc.player.getDistance(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5)))
+                .orElse(null);
 
-            if (closestEChest != null) {
-                if (breakTimer.passedMs(bd.getValue())) {
-                    boolean holdingPickaxe = mc.player.getHeldItemMainhand().getItem() == Items.DIAMOND_PICKAXE;
+        if (closestEChest != null) {
+            if (breakTimer.passedMs(bd.getValue())) {
+                boolean holdingPickaxe = mc.player.getHeldItemMainhand().getItem() == Items.DIAMOND_PICKAXE;
 
-                    if (!holdingPickaxe) {
-                        for (int i = 0; i < 9; ++i) {
-                            ItemStack stack = mc.player.inventory.getStackInSlot(i);
+                if (!holdingPickaxe) {
+                    for (int i = 0; i < 9; ++i) {
+                        ItemStack stack = mc.player.inventory.getStackInSlot(i);
 
-                            if (stack.isEmpty()) {
-                                continue;
-                            }
+                        if (stack.isEmpty()) {
+                            continue;
+                        }
 
-                            if (stack.getItem() == Items.DIAMOND_PICKAXE) {
-                                holdingPickaxe = true;
-                                mc.player.inventory.currentItem = i;
-                                mc.player.connection.sendPacket(new CPacketHeldItemChange(i));
-                                break;
-                            }
+                        if (stack.getItem() == Items.DIAMOND_PICKAXE) {
+                            holdingPickaxe = true;
+                            mc.player.inventory.currentItem = i;
+                            mc.player.connection.sendPacket(new CPacketHeldItemChange(i));
+                            break;
                         }
                     }
-
-                    if (!holdingPickaxe) {
-                        return;
-                    }
-
-                    EnumFacing facing = mc.player.getHorizontalFacing().getOpposite();
-
-                    SilentRotaionUtil.lookAtVector(new Vec3d(closestEChest.getX() + 0.5 + facing.getDirectionVec().getX() * 0.5,
-                            closestEChest.getY() + 0.5 + facing.getDirectionVec().getY() * 0.5,
-                            closestEChest.getZ() + 0.5 + facing.getDirectionVec().getZ() * 0.5));
-
-                    mc.player.swingArm(EnumHand.MAIN_HAND);
-                    mc.player.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.START_DESTROY_BLOCK, closestEChest, facing));
-                    mc.player.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.STOP_DESTROY_BLOCK, closestEChest, facing));
-                    breakTimer.reset();
                 }
-            } else if (timer.passedMs(350)) {
-                timer.reset();
-                if (mc.player.getHeldItemMainhand().getItem() instanceof ItemBlock) {
-                    final ItemBlock block = (ItemBlock) mc.player.getHeldItemMainhand().getItem();
-                    if (block.getBlock() != Blocks.ENDER_CHEST) {
-                        if (!changeToEChest()) return;
-                    }
-                } else {
+
+                if (!holdingPickaxe) {
+                    return;
+                }
+
+                EnumFacing facing = mc.player.getHorizontalFacing().getOpposite();
+
+                SilentRotationUtil.lookAtVector(new Vec3d(closestEChest.getX() + 0.5 + facing.getDirectionVec().getX() * 0.5,
+                        closestEChest.getY() + 0.5 + facing.getDirectionVec().getY() * 0.5,
+                        closestEChest.getZ() + 0.5 + facing.getDirectionVec().getZ() * 0.5));
+
+                mc.player.swingArm(EnumHand.MAIN_HAND);
+                mc.player.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.START_DESTROY_BLOCK, closestEChest, facing));
+                mc.player.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.STOP_DESTROY_BLOCK, closestEChest, facing));
+                breakTimer.reset();
+            }
+        } else if (timer.passedMs(350)) {
+            timer.reset();
+            if (mc.player.getHeldItemMainhand().getItem() instanceof ItemBlock) {
+                final ItemBlock block = (ItemBlock) mc.player.getHeldItemMainhand().getItem();
+                if (block.getBlock() != Blocks.ENDER_CHEST) {
                     if (!changeToEChest()) return;
                 }
+            } else {
+                if (!changeToEChest()) return;
+            }
 
-                for (BlockPos pos : getSphere(new BlockPos(mc.player), range.getValue(), range.getValue(), false, true, 0)) {
-                    InteractionUtil.Placement cPlacement = InteractionUtil.preparePlacement(pos, true,event);
-                    if (cPlacement != null) {
-                        placement = cPlacement;
-                    }
+            for (BlockPos pos : getSphere(new BlockPos(mc.player), range.getValue(), range.getValue(), false, true, 0)) {
+                InteractionUtil.Placement cPlacement = InteractionUtil.preparePlacement(pos, true, event);
+                if (cPlacement != null) {
+                    placement = cPlacement;
                 }
             }
+        }
 
     }
 
     @SubscribeEvent
     public void onUpdateWalkingPlayerPost(EventPostMotion event) {
-            if (placement != null) {
-                InteractionUtil.placeBlockSafely(placement, EnumHand.MAIN_HAND, false);
-                breakTimer.reset();
-            }
+        if (placement != null) {
+            InteractionUtil.placeBlockSafely(placement, EnumHand.MAIN_HAND, false);
+            breakTimer.reset();
+        }
     }
 
     private boolean changeToEChest() {

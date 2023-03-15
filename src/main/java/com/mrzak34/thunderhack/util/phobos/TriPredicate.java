@@ -8,8 +8,7 @@ import java.util.function.Predicate;
  */
 @FunctionalInterface
 @SuppressWarnings("unused")
-public interface TriPredicate<T, U, V>
-{
+public interface TriPredicate<T, U, V> {
     /**
      * {@link Predicate#test(Object)}
      */
@@ -18,8 +17,7 @@ public interface TriPredicate<T, U, V>
     /**
      * {@link Predicate#and(Predicate)}
      */
-    default TriPredicate<T, U, V> and(TriPredicate<? super T, ? super U, ? super V> other)
-    {
+    default TriPredicate<T, U, V> and(TriPredicate<? super T, ? super U, ? super V> other) {
         Objects.requireNonNull(other);
         return (T t, U u, V v) -> test(t, u, v) && other.test(t, u, v);
     }
@@ -27,16 +25,14 @@ public interface TriPredicate<T, U, V>
     /**
      * {@link Predicate#negate()}
      */
-    default TriPredicate<T, U, V> negate()
-    {
+    default TriPredicate<T, U, V> negate() {
         return (T t, U u, V v) -> !test(t, u, v);
     }
 
     /**
      * {@link Predicate#or(Predicate)}
      */
-    default TriPredicate<T, U, V> or(TriPredicate<? super T, ? super U, ? super V> other)
-    {
+    default TriPredicate<T, U, V> or(TriPredicate<? super T, ? super U, ? super V> other) {
         Objects.requireNonNull(other);
         return (T t, U u, V v) -> test(t, u, v) || other.test(t, u, v);
     }

@@ -1,10 +1,8 @@
 package com.mrzak34.thunderhack.util.seedoverlay;
 
-import com.google.common.collect.Sets;
 import com.mrzak34.thunderhack.util.Util;
 import net.minecraft.client.multiplayer.ChunkProviderClient;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.EnumDifficulty;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.IChunkProvider;
@@ -14,10 +12,6 @@ import net.minecraft.world.storage.WorldInfo;
 
 public class AwesomeWorld extends World {
 
-    public ChunkProviderClient getChunkProvider()
-    {
-        return (ChunkProviderClient)super.getChunkProvider();
-    }
     private ChunkProviderClient clientChunkProvider;
 
     protected AwesomeWorld(WorldInfo worldInfo) {
@@ -33,16 +27,18 @@ public class AwesomeWorld extends World {
         this.initCapabilities();
     }
 
+    public ChunkProviderClient getChunkProvider() {
+        return (ChunkProviderClient) super.getChunkProvider();
+    }
+
     @Override
-    protected IChunkProvider createChunkProvider()
-    {
+    protected IChunkProvider createChunkProvider() {
         this.clientChunkProvider = new ChunkProviderClient(this);
         return this.clientChunkProvider;
     }
 
     @Override
-    protected boolean isChunkLoaded(int x, int z, boolean allowEmpty)
-    {
+    protected boolean isChunkLoaded(int x, int z, boolean allowEmpty) {
         return allowEmpty || !this.getChunkProvider().provideChunk(x, z).isEmpty();
     }
 }

@@ -5,8 +5,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(CPacketPlayer.class)
-public interface ICPacketPlayer
-{
+public interface ICPacketPlayer {
     @Accessor(value = "x")
     void setX(double x);
 

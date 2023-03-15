@@ -3,7 +3,7 @@ package com.mrzak34.thunderhack.command.commands;
 import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.modules.client.DiscordWebhook;
 
-public class WebHookSetCommand extends Command{
+public class WebHookSetCommand extends Command {
 
     public WebHookSetCommand() {
         super("webhook");

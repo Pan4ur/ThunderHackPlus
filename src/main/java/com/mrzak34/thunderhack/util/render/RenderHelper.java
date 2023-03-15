@@ -1,8 +1,8 @@
 package com.mrzak34.thunderhack.util.render;
 
+import com.mrzak34.thunderhack.gui.fontstuff.FontRender;
 import com.mrzak34.thunderhack.util.Util;
 import com.mrzak34.thunderhack.util.gaussianblur.GaussianFilter;
-import com.mrzak34.thunderhack.gui.fontstuff.FontRender;
 import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.Tessellator;
@@ -13,7 +13,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.util.math.AxisAlignedBB;
 import org.lwjgl.opengl.GL11;
 
-
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
@@ -22,29 +21,29 @@ import static com.mrzak34.thunderhack.gui.hud.RadarRewrite.astolfo;
 import static com.mrzak34.thunderhack.modules.render.ItemESP.astolfo2;
 import static org.lwjgl.opengl.GL11.*;
 
-public class RenderHelper{
+public class RenderHelper {
 
     public static Frustum frustum = new Frustum();
 
-    private static HashMap<Integer, Integer> shadowCache = new HashMap();
+    private static final HashMap<Integer, Integer> shadowCache = new HashMap();
 
 
     public static void drawBlurredShadow(float x, float y, float width, float height, int blurRadius, Color color) {
         BufferedImage original = null;
         GaussianFilter op = null;
         GL11.glPushMatrix();
-        GlStateManager.alphaFunc((int)516, (float)0.01f);
-        float _X = (x -= (float)blurRadius) - 0.25f;
-        float _Y = (y -= (float)blurRadius) + 0.25f;
-        int identifier = String.valueOf((width += (float)(blurRadius * 2)) * (height += (float)(blurRadius * 2)) + width + (float)(1000000000 * blurRadius) + (float)blurRadius).hashCode();
-        GL11.glEnable((int)3553);
-        GL11.glDisable((int)2884);
-        GL11.glEnable((int)3008);
+        GlStateManager.alphaFunc(516, 0.01f);
+        float _X = (x -= (float) blurRadius) - 0.25f;
+        float _Y = (y -= (float) blurRadius) + 0.25f;
+        int identifier = String.valueOf((width += (float) (blurRadius * 2)) * (height += (float) (blurRadius * 2)) + width + (float) (1000000000 * blurRadius) + (float) blurRadius).hashCode();
+        GL11.glEnable(3553);
+        GL11.glDisable(2884);
+        GL11.glEnable(3008);
         GlStateManager.enableBlend();
         int texId = -1;
         if (shadowCache.containsKey(identifier)) {
             texId = shadowCache.get(identifier);
-            GlStateManager.bindTexture((int)texId);
+            GlStateManager.bindTexture(texId);
         } else {
             if (width <= 0.0f) {
                 width = 1.0f;
@@ -53,34 +52,34 @@ public class RenderHelper{
                 height = 1.0f;
             }
             if (original == null) {
-                original = new BufferedImage((int)width, (int)height, 3);
+                original = new BufferedImage((int) width, (int) height, 3);
             }
             Graphics g = original.getGraphics();
             g.setColor(Color.white);
-            g.fillRect(blurRadius, blurRadius, (int)(width - (float)(blurRadius * 2)), (int)(height - (float)(blurRadius * 2)));
+            g.fillRect(blurRadius, blurRadius, (int) (width - (float) (blurRadius * 2)), (int) (height - (float) (blurRadius * 2)));
             g.dispose();
             if (op == null) {
-                op = new GaussianFilter((float)blurRadius);
+                op = new GaussianFilter((float) blurRadius);
             }
             BufferedImage blurred = op.filter(original, null);
-            texId = TextureUtil.uploadTextureImageAllocate((int)TextureUtil.glGenTextures(), (BufferedImage)blurred, (boolean)true, (boolean)false);
+            texId = TextureUtil.uploadTextureImageAllocate(TextureUtil.glGenTextures(), blurred, true, false);
             shadowCache.put(identifier, texId);
         }
-        GlStateManager.color(color.getRed() / 255f,color.getGreen()/255f,color.getBlue()/255f,color.getAlpha()/255f);
+        GlStateManager.color(color.getRed() / 255f, color.getGreen() / 255f, color.getBlue() / 255f, color.getAlpha() / 255f);
         glBegin(7);
-        GL11.glTexCoord2f((float)0.0f, (float)0.0f);
-        glVertex2f((float)_X, (float)_Y);
-        GL11.glTexCoord2f((float)0.0f, (float)1.0f);
-        glVertex2f((float)_X, (float)(_Y + height));
-        GL11.glTexCoord2f((float)1.0f, (float)1.0f);
-        glVertex2f((float)(_X + width), (float)(_Y + height));
-        GL11.glTexCoord2f((float)1.0f, (float)0.0f);
-        glVertex2f((float)(_X + width), (float)_Y);
+        GL11.glTexCoord2f(0.0f, 0.0f);
+        glVertex2f(_X, _Y);
+        GL11.glTexCoord2f(0.0f, 1.0f);
+        glVertex2f(_X, _Y + height);
+        GL11.glTexCoord2f(1.0f, 1.0f);
+        glVertex2f(_X + width, _Y + height);
+        GL11.glTexCoord2f(1.0f, 0.0f);
+        glVertex2f(_X + width, _Y);
         glEnd();
         GlStateManager.enableTexture2D();
         GlStateManager.disableBlend();
         GlStateManager.resetColor();
-        GL11.glEnable((int)2884);
+        GL11.glEnable(2884);
         GL11.glPopMatrix();
     }
 
@@ -108,7 +107,7 @@ public class RenderHelper{
         GlStateManager.color(red, green, blue, alpha);
     }
 
-    public static void drawCircle3D(Entity entity, double radius, float partialTicks, int points, float width, int color,boolean astolfo) {
+    public static void drawCircle3D(Entity entity, double radius, float partialTicks, int points, float width, int color, boolean astolfo) {
         GL11.glPushMatrix();
         GL11.glDisable(GL11.GL_TEXTURE_2D);
         GL11.glEnable(GL11.GL_LINE_SMOOTH);
@@ -122,7 +121,7 @@ public class RenderHelper{
         double x = entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * partialTicks - Util.mc.getRenderManager().renderPosX;
         double y = entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * partialTicks - Util.mc.getRenderManager().renderPosY;
         double z = entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * partialTicks - Util.mc.getRenderManager().renderPosZ;
-        if(!astolfo) {
+        if (!astolfo) {
             setColor(color);
             for (int i = 0; i <= points; i++) {
                 GL11.glVertex3d(x + radius * Math.cos(i * 6.28 / points), y, z + radius * Math.sin(i * 6.28 / points));
@@ -144,8 +143,7 @@ public class RenderHelper{
     }
 
 
-
-    public static void drawEntityBox(Entity entity, Color color,Color color2, boolean fullBox, float alpha) {
+    public static void drawEntityBox(Entity entity, Color color, Color color2, boolean fullBox, float alpha) {
         GlStateManager.pushMatrix();
         GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
         GL11.glEnable(GL11.GL_BLEND);
@@ -206,9 +204,7 @@ public class RenderHelper{
     }
 
 
-
-
-    public static void drawCircle( float x, float y, float start, float end, float radius, boolean filled, Color color) {
+    public static void drawCircle(float x, float y, float start, float end, float radius, boolean filled, Color color) {
 
         float sin;
         float cos;
@@ -226,20 +222,20 @@ public class RenderHelper{
         GlStateManager.disableTexture2D();
         GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
 
-        if(color != null)
+        if (color != null)
             setColor(color.getRGB());
 
 
         GL11.glEnable(GL11.GL_LINE_SMOOTH);
         GL11.glLineWidth(2);
-        if(filled){
+        if (filled) {
             glBegin(GL11.GL_TRIANGLE_FAN);
         } else {
             glBegin(GL11.GL_LINE_STRIP);
         }
         for (i = end; i >= start; i -= 5) {
 
-            if(color == null) {
+            if (color == null) {
                 double stage = (i + 90) / 360.;
                 int clr = astolfo.getColor(stage);
                 int red = ((clr >> 16) & 255);
@@ -262,8 +258,7 @@ public class RenderHelper{
     }
 
 
-
-    public static void drawElipse( float x, float y,float rx, float ry, float start, float end, float radius, Color color,int stage1) {
+    public static void drawElipse(float x, float y, float rx, float ry, float start, float end, float radius, Color color, int stage1) {
         float sin;
         float cos;
         float i;
@@ -277,14 +272,14 @@ public class RenderHelper{
         GlStateManager.enableBlend();
         GlStateManager.disableTexture2D();
         GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
-        if(color != null)
+        if (color != null)
             setColor(color.getRGB());
         GL11.glEnable(GL11.GL_LINE_SMOOTH);
         GL11.glLineWidth(2);
         glBegin(GL11.GL_LINE_STRIP);
         for (i = start; i <= end; i += 5) {
-            if(color == null) {
-                double stage = (i - start)/360;
+            if (color == null) {
+                double stage = (i - start) / 360;
                 int clr = astolfo.getColor(stage);
                 int red = ((clr >> 16) & 255);
                 int green = ((clr >> 8) & 255);
@@ -293,33 +288,33 @@ public class RenderHelper{
                 GL11.glColor4f(red / 255f, green / 255f, blue / 255f, 1);
             }
 
-            cos = (float) Math.cos(i * Math.PI / 180) * (radius/ry);
-            sin = (float) Math.sin(i * Math.PI / 180) * (radius/rx);
+            cos = (float) Math.cos(i * Math.PI / 180) * (radius / ry);
+            sin = (float) Math.sin(i * Math.PI / 180) * (radius / rx);
             glVertex2f((x + cos), (y + sin));
         }
         glEnd();
         GL11.glDisable(GL11.GL_LINE_SMOOTH);
         GlStateManager.enableTexture2D();
         GlStateManager.disableBlend();
-        if(stage1 != -1) {
+        if (stage1 != -1) {
             cos = (float) Math.cos((start - 15) * Math.PI / 180) * (radius / ry);
             sin = (float) Math.sin((start - 15) * Math.PI / 180) * (radius / rx);
 
-            switch (stage1){
-                case 0 :{
+            switch (stage1) {
+                case 0: {
                     FontRender.drawCentString3("W", (x + cos), (y + sin), -1);
                     break;
                 }
-                case 1 :{
+                case 1: {
                     FontRender.drawCentString3("N", (x + cos), (y + sin), -1);
                     break;
                 }
-                case 2 :{
+                case 2: {
                     FontRender.drawCentString3("E", (x + cos), (y + sin), -1);
 
                     break;
                 }
-                case 3 :{
+                case 3: {
                     FontRender.drawCentString3("S", (x + cos), (y + sin), -1);
                     break;
                 }
@@ -332,8 +327,8 @@ public class RenderHelper{
         drawCircle(x, y, 0, 360, radius, filled, color);
     }
 
-    public static void drawEllipsCompas(int yaw,float x, float y,float x2, float y2, float radius, Color color,boolean Dir) {
-        if(Dir) {
+    public static void drawEllipsCompas(int yaw, float x, float y, float x2, float y2, float radius, Color color, boolean Dir) {
+        if (Dir) {
             drawElipse(x, y, x2, y2, 15 + yaw, 75 + yaw, radius, color, 0);
             drawElipse(x, y, x2, y2, 105 + yaw, 165 + yaw, radius, color, 1);
             drawElipse(x, y, x2, y2, 195 + yaw, 255 + yaw, radius, color, 2);
@@ -345,7 +340,6 @@ public class RenderHelper{
             drawElipse(x, y, x2, y2, 285 + yaw, 345 + yaw, radius, color, -1);
         }
     }
-
 
 
     public static void drawColorBox(AxisAlignedBB axisalignedbb, float red, float green, float blue, float alpha) {

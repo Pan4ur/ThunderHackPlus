@@ -2,7 +2,6 @@ package com.github.lunatrius.schematica.world.schematic;
 
 import com.github.lunatrius.schematica.api.ISchematic;
 import com.github.lunatrius.schematica.reference.Names;
-
 import net.minecraft.nbt.NBTTagCompound;
 
 // TODO: http://minecraft.gamepedia.com/Data_values_%28Classic%29

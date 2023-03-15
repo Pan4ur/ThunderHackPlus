@@ -6,12 +6,17 @@ import net.minecraftforge.fml.common.eventhandler.Event;
 
 @Cancelable
 public class MatrixMove extends Event {
-    private boolean toGround;
-    private AxisAlignedBB aabbFrom;
+    private final boolean toGround;
+    private final AxisAlignedBB aabbFrom;
 
-    private double fromX,fromY,fromZ,motionX,motionY,motionZ;
+    private final double fromX;
+    private final double fromY;
+    private final double fromZ;
+    private double motionX;
+    private double motionY;
+    private double motionZ;
 
-    public MatrixMove(double fromX,double fromY,double fromZ, double motionX,double motionY,double motionZ, boolean toGround, AxisAlignedBB aabbFrom) {
+    public MatrixMove(double fromX, double fromY, double fromZ, double motionX, double motionY, double motionZ, boolean toGround, AxisAlignedBB aabbFrom) {
         this.fromX = fromX;
         this.fromY = fromY;
         this.fromZ = fromZ;
@@ -57,6 +62,7 @@ public class MatrixMove extends Event {
     public AxisAlignedBB getAABBFrom() {
         return this.aabbFrom;
     }
+
     public boolean toGround() {
         return this.toGround;
     }

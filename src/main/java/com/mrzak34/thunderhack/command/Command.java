@@ -39,6 +39,7 @@ public abstract class Command extends Feature {
         }
         Command.mc.player.sendMessage(message);
     }
+
     public static String getCommandPrefix() {
         return Thunderhack.commandManager.getPrefix();
     }
@@ -50,7 +51,6 @@ public abstract class Command extends Feature {
     public String getName() {
         return this.name;
     }
-
 
 
     public static class ChatMessage

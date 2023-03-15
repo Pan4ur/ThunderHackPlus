@@ -1,9 +1,6 @@
 package com.mrzak34.thunderhack.util.rotations;
 
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.mrzak34.thunderhack.Thunderhack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
@@ -12,6 +9,9 @@ import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.passive.EntityVillager;
 import net.minecraft.entity.player.EntityPlayer;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class CastHelper {
 
@@ -55,6 +55,6 @@ public class CastHelper {
     }
 
     public enum EntityType {
-        PLAYERS, MOBS, ANIMALS, VILLAGERS, FRIENDS, SELF;
+        PLAYERS, MOBS, ANIMALS, VILLAGERS, FRIENDS, SELF
     }
 }

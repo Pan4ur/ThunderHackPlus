@@ -55,20 +55,20 @@ public class SchematicChunkRenderContainerVbo extends SchematicChunkRenderContai
             final int index = element.getIndex();
 
             switch (usage) {
-            case POSITION:
-                GL11.glDisableClientState(GL11.GL_VERTEX_ARRAY);
-                break;
+                case POSITION:
+                    GL11.glDisableClientState(GL11.GL_VERTEX_ARRAY);
+                    break;
 
-            case UV:
-                OpenGlHelper.setClientActiveTexture(OpenGlHelper.defaultTexUnit + index);
-                GL11.glDisableClientState(GL11.GL_TEXTURE_COORD_ARRAY);
-                OpenGlHelper.setClientActiveTexture(OpenGlHelper.defaultTexUnit);
-                break;
+                case UV:
+                    OpenGlHelper.setClientActiveTexture(OpenGlHelper.defaultTexUnit + index);
+                    GL11.glDisableClientState(GL11.GL_TEXTURE_COORD_ARRAY);
+                    OpenGlHelper.setClientActiveTexture(OpenGlHelper.defaultTexUnit);
+                    break;
 
-            case COLOR:
-                GL11.glDisableClientState(GL11.GL_COLOR_ARRAY);
-                GlStateManager.resetColor();
-                break;
+                case COLOR:
+                    GL11.glDisableClientState(GL11.GL_COLOR_ARRAY);
+                    GlStateManager.resetColor();
+                    break;
             }
         }
     }

@@ -27,16 +27,17 @@ public class MixinBlockLiquid extends Block {
     public void canCollideCheckHook(IBlockState blockState, boolean hitIfLiquid, CallbackInfoReturnable<Boolean> info) {
         info.setReturnValue(hitIfLiquid && (Integer) blockState.getValue((IProperty) BlockLiquid.LEVEL) == 0 || LiquidInteract.getInstance().isOn());
     }
-    @Inject(method = { "getCollisionBoundingBox" },  at = { @At("HEAD") },  cancellable = true)
-    public void getCollisionBoundingBoxHook(final IBlockState blockState,  final IBlockAccess worldIn,  final BlockPos pos,  final CallbackInfoReturnable<AxisAlignedBB> info) {
-        final JesusEvent event = new JesusEvent( pos);
+
+    @Inject(method = {"getCollisionBoundingBox"}, at = {@At("HEAD")}, cancellable = true)
+    public void getCollisionBoundingBoxHook(final IBlockState blockState, final IBlockAccess worldIn, final BlockPos pos, final CallbackInfoReturnable<AxisAlignedBB> info) {
+        final JesusEvent event = new JesusEvent(pos);
         MinecraftForge.EVENT_BUS.post(event);
         if (event.isCanceled()) {
             info.setReturnValue(event.getBoundingBox());
         }
     }
 
-    @Inject(method = { "getCollisionBoundingBox" }, at = { @At("HEAD") }, cancellable = true)
+    @Inject(method = {"getCollisionBoundingBox"}, at = {@At("HEAD")}, cancellable = true)
     public void getCollisionBoundingBox(final IBlockState blockState, final IBlockAccess worldIn, final BlockPos pos, final CallbackInfoReturnable<AxisAlignedBB> callbackInfoReturnable) {
         final EventBlockCollisionBoundingBox event = new EventBlockCollisionBoundingBox(pos);
         MinecraftForge.EVENT_BUS.post(event);

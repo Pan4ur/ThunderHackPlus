@@ -10,16 +10,13 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 
+import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import javax.annotation.Nonnull;
-
 public class Schematic implements ISchematic {
     private static final ItemStack DEFAULT_ICON = new ItemStack(Blocks.GRASS);
-
-    private ItemStack icon;
     private final short[][][] blocks;
     private final byte[][][] metadata;
     private final List<TileEntity> tileEntities = new ArrayList<TileEntity>();
@@ -27,6 +24,7 @@ public class Schematic implements ISchematic {
     private final int width;
     private final int height;
     private final int length;
+    private ItemStack icon;
     private String author;
 
     public Schematic(final ItemStack icon, final int width, final int height, final int length) {

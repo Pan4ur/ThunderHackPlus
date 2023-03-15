@@ -1,15 +1,16 @@
 package com.mrzak34.thunderhack.modules.player;
 
+import com.mojang.authlib.GameProfile;
 import com.mrzak34.thunderhack.events.EventPostMotion;
 import com.mrzak34.thunderhack.events.EventPreMotion;
 import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.events.TotemPopEvent;
-import com.mrzak34.thunderhack.modules.*;
-import com.mrzak34.thunderhack.util.math.DamageUtil;
+import com.mrzak34.thunderhack.modules.Module;
+import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.PositionforFP;
-import net.minecraft.client.entity.*;
-import com.mrzak34.thunderhack.setting.*;
-import com.mojang.authlib.*;
+import com.mrzak34.thunderhack.util.math.DamageUtil;
+import net.minecraft.client.entity.EntityOtherPlayerMP;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityEnderCrystal;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Enchantments;
@@ -17,55 +18,51 @@ import net.minecraft.init.Items;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.server.SPacketSoundEffect;
+import net.minecraft.potion.Potion;
+import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.SoundCategory;
-import net.minecraft.world.*;
-import net.minecraft.entity.*;
-import net.minecraft.network.*;
-import java.util.*;
-
-import net.minecraft.potion.*;
+import net.minecraft.world.GameType;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
 public class FakePlayer extends Module {
+    protected final List<PositionforFP> positions = new ArrayList<>();
     final private ItemStack[] armors = new ItemStack[]{
             new ItemStack(Items.DIAMOND_BOOTS),
             new ItemStack(Items.DIAMOND_LEGGINGS),
             new ItemStack(Items.DIAMOND_CHESTPLATE),
             new ItemStack(Items.DIAMOND_HELMET)
     };
-
-    private Setting<movingmode> moving = register(new Setting("Target", movingmode.None));
-
-    public Setting <Integer> vulnerabilityTick = this.register ( new Setting <> ( "Vulnerability Tick", 4, 0, 10) );
-    public Setting <Integer> resetHealth = this.register ( new Setting <> ( "Reset Health", 10, 0, 36) );
-    public Setting <Integer> tickRegenVal = this.register ( new Setting <> ( "Tick Regen", 4, 0, 30) );
-    public Setting <Integer> startHealth = this.register ( new Setting <> ( "Start Health", 20, 0, 30) );
-
-    public Setting<Float> speed = register(new Setting("Speed", Float.valueOf(0.36F), Float.valueOf(0.0F), Float.valueOf(4.0F),v-> !(moving.getValue() == movingmode.None && moving.getValue()== movingmode.Random)));
-    public Setting<Float> range = register(new Setting("Range", Float.valueOf(3.0F), Float.valueOf(0.0F), Float.valueOf(14.0F),v->moving.getValue() == movingmode.Circle));
-
-
-    public Setting<String> nameFakePlayer = this.register(new Setting<String>("Name FakePlayer", "Ebatte_Sratte"));
-    private Setting<Boolean> copyInventory = this.register(new Setting<Boolean>("Copy Inventory", false));
-    private Setting<Boolean> playerStacked = this.register(new Setting<Boolean>("Player Stacked", true,v-> !copyInventory.getValue()));
-    private Setting<Boolean> onShift = this.register(new Setting<Boolean>("On Shift", false));
-    private Setting<Boolean> simulateDamage = this.register(new Setting<Boolean>("Simulate Damage", false));
-    private Setting<Boolean> resistance = this.register(new Setting<Boolean>("Resistance", true));
-    private Setting<Boolean> pop = this.register(new Setting<Boolean>("Pop", true));
-
-    private Setting<Boolean> record2 = this.register(new Setting<Boolean>("Record", true));
-    private Setting<Boolean> play = this.register(new Setting<Boolean>("Play", true));
-
-    public enum movingmode {
-        None, Line,Circle,Random
-    }
+    public Setting<Integer> vulnerabilityTick = this.register(new Setting<>("Vulnerability Tick", 4, 0, 10));
+    public Setting<Integer> resetHealth = this.register(new Setting<>("Reset Health", 10, 0, 36));
+    public Setting<Integer> tickRegenVal = this.register(new Setting<>("Tick Regen", 4, 0, 30));
+    public Setting<Integer> startHealth = this.register(new Setting<>("Start Health", 20, 0, 30));
+    public Setting<String> nameFakePlayer = this.register(new Setting<>("Name FakePlayer", "Ebatte_Sratte"));
+    int incr;
+    EntityOtherPlayerMP clonedPlayer = null;
+    boolean beforePressed;
+    // Simple list of players for the pop
+    ArrayList<playerInfo> listPlayers = new ArrayList<>();
+    int index = 0;
+    private final Setting<Boolean> copyInventory = this.register(new Setting<>("Copy Inventory", false));
+    private final Setting<Boolean> playerStacked = this.register(new Setting<>("Player Stacked", true, v -> !copyInventory.getValue()));
+    private final Setting<Boolean> onShift = this.register(new Setting<>("On Shift", false));
+    private final Setting<Boolean> simulateDamage = this.register(new Setting<>("Simulate Damage", false));
+    private final Setting<Boolean> resistance = this.register(new Setting<>("Resistance", true));
+    private final Setting<Boolean> pop = this.register(new Setting<>("Pop", true));
+    private final Setting<Boolean> record2 = this.register(new Setting<>("Record", true));
+    private final Setting<Boolean> play = this.register(new Setting<>("Play", true));
+    private int ticks;
 
     public FakePlayer() {
         super("FakePlayer", "фейкплеер для тестов", Module.Category.PLAYER);
     }
-
 
     @Override
     public void onLogout() {
@@ -74,7 +71,6 @@ public class FakePlayer extends Module {
         }
     }
 
-    int incr;
     @Override
     public void onEnable() {
         incr = 0;
@@ -86,7 +82,7 @@ public class FakePlayer extends Module {
         if (!onShift.getValue())
             spawnPlayer();
     }
-    EntityOtherPlayerMP clonedPlayer = null;
+
     void spawnPlayer() {
         // Clone empty player
         clonedPlayer = new EntityOtherPlayerMP(mc.world, new GameProfile(UUID.fromString("fdee323e-7f0c-4c15-8d1c-0f277442342a"), nameFakePlayer.getValue()));
@@ -125,7 +121,7 @@ public class FakePlayer extends Module {
         clonedPlayer.onEntityUpdate();
         listPlayers.add(new playerInfo(clonedPlayer.getName()));
     }
-    boolean beforePressed;
+
     @Override
     public void onUpdate() {
         // OnShift add
@@ -135,7 +131,7 @@ public class FakePlayer extends Module {
         } else beforePressed = false;
 
         // Update tick explosion
-        for(int i = 0; i < listPlayers.size(); i++) {
+        for (int i = 0; i < listPlayers.size(); i++) {
             if (listPlayers.get(i).update()) {
                 int finalI = i;
                 Optional<EntityPlayer> temp = mc.world.playerEntities.stream().filter(
@@ -148,10 +144,97 @@ public class FakePlayer extends Module {
         }
     }
 
+    public void onDisable() {
+        if (mc.world != null) {
+            for (int i = 0; i < incr; i++) {
+                mc.world.removeEntityFromWorld((-1234 + i));
+            }
+        }
+        listPlayers.clear();
+        positions.clear();
+    }
 
+    @SubscribeEvent
+    public void onPacketReceive(PacketEvent.Receive event) {
+        if (simulateDamage.getValue()) {
+            if (event.getPacket() instanceof SPacketSoundEffect) {
+                final SPacketSoundEffect packetSoundEffect = event.getPacket();
+                if (packetSoundEffect.getCategory() == SoundCategory.BLOCKS && packetSoundEffect.getSound() == SoundEvents.ENTITY_GENERIC_EXPLODE) {
+                    for (Entity entity : new ArrayList<>(mc.world.loadedEntityList)) {
+                        if (entity instanceof EntityEnderCrystal) {
+                            if (entity.getDistanceSq(packetSoundEffect.getX(), packetSoundEffect.getY(), packetSoundEffect.getZ()) <= 36.0f) {
+                                for (EntityPlayer entityPlayer : mc.world.playerEntities) {
+                                    if (entityPlayer.getName().equals(nameFakePlayer.getValue())) {
 
-    // Simple list of players for the pop
-    ArrayList<playerInfo> listPlayers = new ArrayList<>();
+                                        Optional<playerInfo> temp = listPlayers.stream().filter(
+                                                e -> e.name.equals(entityPlayer.getName())
+                                        ).findAny();
+
+                                        if (!temp.isPresent() || !temp.get().canPop())
+                                            continue;
+
+                                        float damage = DamageUtil.calculateDamage(packetSoundEffect.getX(), packetSoundEffect.getY(), packetSoundEffect.getZ(), entityPlayer, false);
+                                        if (damage > entityPlayer.getHealth()) {
+                                            entityPlayer.setHealth(resetHealth.getValue());
+                                            if (pop.getValue()) {
+                                                mc.effectRenderer.emitParticleAtEntity(entityPlayer, EnumParticleTypes.TOTEM, 30);
+                                                mc.world.playSound(entityPlayer.posX, entityPlayer.posY, entityPlayer.posZ, SoundEvents.ITEM_TOTEM_USE, entity.getSoundCategory(), 1.0F, 1.0F, false);
+                                            }
+                                            MinecraftForge.EVENT_BUS.post(new TotemPopEvent(entityPlayer));
+                                        } else entityPlayer.setHealth(entityPlayer.getHealth() - damage);
+
+                                        temp.get().tickPop = 0;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @SubscribeEvent
+    public void onMotionUpdateEvent(EventPreMotion event) {
+        if (!record2.getValue()) {
+            if (play.getValue()) {
+                if (positions.isEmpty()) {
+                    return;
+                }
+
+                if (index >= positions.size()) {
+                    index = 0;
+                }
+
+                if (ticks++ % 2 == 0) {
+                    PositionforFP p = positions.get(index++);
+                    clonedPlayer.rotationYaw = p.getYaw();
+                    clonedPlayer.rotationPitch = p.getPitch();
+                    clonedPlayer.rotationYawHead = p.getHead();
+                    clonedPlayer.setPositionAndRotationDirect(
+                            p.getX(), p.getY(), p.getZ(), p.getYaw(), p.getPitch(),
+                            3, false);
+                }
+            } else {
+                index = 0;
+            }
+        }
+
+    }
+
+    @SubscribeEvent
+    public void onMotionUpdateEventPost(EventPostMotion event) {
+        if (record2.getValue()) {
+            if (ticks++ % 2 == 0) {
+                positions.add(new PositionforFP(mc.player));
+            }
+        }
+    }
+
+    public enum movingmode {
+        None, Line, Circle, Random
+    }
+
     class playerInfo {
         final String name;
         int tickPop = -1;
@@ -178,118 +261,6 @@ public class FakePlayer extends Module {
             return this.tickPop == -1;
         }
     }
-
-
-    public void onDisable() {
-        if (mc.world != null) {
-            for(int i = 0; i < incr; i++) {
-                mc.world.removeEntityFromWorld((-1234 + i));
-            }
-        }
-        listPlayers.clear();
-        positions.clear();
-    }
-
-
-    @SubscribeEvent
-    public void onPacketReceive(PacketEvent.Receive event){
-        // Simple crystal damage
-        if (simulateDamage.getValue()) {
-            Packet<?> packet = event.getPacket();
-            if (packet instanceof SPacketSoundEffect) {
-                final SPacketSoundEffect packetSoundEffect = (SPacketSoundEffect) packet;
-                if (packetSoundEffect.getCategory() == SoundCategory.BLOCKS && packetSoundEffect.getSound() == SoundEvents.ENTITY_GENERIC_EXPLODE) {
-                    for (Entity entity : new ArrayList<>(mc.world.loadedEntityList)) {
-                        if (entity instanceof EntityEnderCrystal) {
-                            if (entity.getDistanceSq(packetSoundEffect.getX(), packetSoundEffect.getY(), packetSoundEffect.getZ()) <= 36.0f) {
-                                for (EntityPlayer entityPlayer : mc.world.playerEntities) {
-                                    // If the player is like we want to be
-                                    if (entityPlayer.getName().split(nameFakePlayer.getValue()).length == 2) {
-
-                                        Optional<playerInfo> temp = listPlayers.stream().filter(
-                                                e -> e.name.equals(entityPlayer.getName())
-                                        ).findAny();
-                                        // If he is in wait, continue
-                                        if (!temp.isPresent() || !temp.get().canPop())
-                                            continue;
-
-                                        // Calculate damage
-                                        float damage = DamageUtil.calculateDamage(packetSoundEffect.getX(), packetSoundEffect.getY(), packetSoundEffect.getZ(), entityPlayer, false);
-                                        if (damage > entityPlayer.getHealth()) {
-                                            // If higher, new health and pop
-                                            entityPlayer.setHealth(resetHealth.getValue());
-                                            if (pop.getValue()) {
-                                                mc.effectRenderer.emitParticleAtEntity(entityPlayer, EnumParticleTypes.TOTEM, 30);
-                                                mc.world.playSound(entityPlayer.posX, entityPlayer.posY, entityPlayer.posZ, SoundEvents.ITEM_TOTEM_USE, entity.getSoundCategory(), 1.0F, 1.0F, false);
-                                            }
-                                            MinecraftForge.EVENT_BUS.post(new TotemPopEvent(entityPlayer));
-
-                                            // Else, setHealth
-                                        } else entityPlayer.setHealth(entityPlayer.getHealth() - damage);
-
-                                        // Add vulnerability
-                                        temp.get().tickPop = 0;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-    boolean wasRecording;
-    protected final List<PositionforFP> positions = new ArrayList<>();
-    int index = 0;
-    private int ticks;
-
-    @SubscribeEvent
-    public void onMotionUpdateEvent(EventPreMotion event){
-        if ( !record2.getValue())
-        {
-            if (play.getValue())
-            {
-                if (positions.isEmpty())
-                {
-                    return;
-                }
-
-                if (index >= positions.size())
-                {
-                    index = 0;
-                }
-
-                if (ticks++ % 2 == 0)
-                {
-                    PositionforFP p = positions.get(index++);
-                    clonedPlayer.rotationYaw     = p.getYaw();
-                    clonedPlayer.rotationPitch   = p.getPitch();
-                    clonedPlayer.rotationYawHead = p.getHead();
-                    clonedPlayer.setPositionAndRotationDirect(
-                            p.getX(), p.getY(), p.getZ(), p.getYaw(), p.getPitch(),
-                            3, false);
-                }
-            }
-            else
-            {
-                index = 0;
-            }
-        }
-
-    }
-
-
-    @SubscribeEvent
-    public void onMotionUpdateEventPost(EventPostMotion event){
-        if (record2.getValue())
-        {
-            if (ticks++ % 2 == 0)
-            {
-                positions.add(new PositionforFP(mc.player));
-            }
-        }
-    }
-
 
 
 }

@@ -47,7 +47,6 @@ public class PlayerUtils {
     }
 
 
-
     public static boolean isPlayerAboveVoid() {
         boolean aboveVoid = false;
         if (mc.player.posY <= 0.0D) return true;

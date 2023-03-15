@@ -15,14 +15,22 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import java.util.Comparator;
 
 public class AutoSheep extends Module {
+    public Setting<Boolean> Rotate = this.register(new Setting<>("Rotate", true));
+
     public AutoSheep() {
         super("AutoSheep", "стрегет овец", Category.MISC);
     }
 
-    public Setting<Boolean> Rotate = this.register(new Setting<>("Rotate", true));
+    public static float[] calcAngle(Vec3d from, Vec3d to) {
+        double difX = to.x - from.x;
+        double difY = (to.y - from.y) * -1.0;
+        double difZ = to.z - from.z;
+        double dist = MathHelper.sqrt(difX * difX + difZ * difZ);
+        return new float[]{(float) MathHelper.wrapDegrees(Math.toDegrees(Math.atan2(difZ, difX)) - 90.0), (float) MathHelper.wrapDegrees(Math.toDegrees(Math.atan2(difY, dist)))};
+    }
 
     @SubscribeEvent
-    public void onUpdateWalkingPlayerPre(EventPreMotion p_Event ) {
+    public void onUpdateWalkingPlayerPre(EventPreMotion p_Event) {
         if (!(mc.player.getHeldItemMainhand().getItem() instanceof ItemShears))
             return;
 
@@ -43,21 +51,12 @@ public class AutoSheep extends Module {
 
     }
 
-    private boolean IsValidSheep(Entity p_Entity)
-    {
+    private boolean IsValidSheep(Entity p_Entity) {
         if (!(p_Entity instanceof EntitySheep))
             return false;
         if (p_Entity.getDistance(mc.player) > 4)
             return false;
-        EntitySheep l_Sheep = (EntitySheep)p_Entity;
+        EntitySheep l_Sheep = (EntitySheep) p_Entity;
         return l_Sheep.isShearable(mc.player.getHeldItemMainhand(), mc.world, p_Entity.getPosition());
-    }
-
-    public static float[] calcAngle(Vec3d from, Vec3d to) {
-        double difX = to.x - from.x;
-        double difY = (to.y - from.y) * -1.0;
-        double difZ = to.z - from.z;
-        double dist = MathHelper.sqrt(difX * difX + difZ * difZ);
-        return new float[]{(float) MathHelper.wrapDegrees(Math.toDegrees(Math.atan2(difZ, difX)) - 90.0), (float) MathHelper.wrapDegrees(Math.toDegrees(Math.atan2(difY, dist)))};
     }
 }

@@ -10,20 +10,17 @@ import net.minecraft.inventory.ContainerChest;
 import net.minecraft.item.Item;
 
 public class ChestStealer extends Module {
+    public Setting<Integer> delayed = this.register(new Setting<>("Delay", 100, 0, 1000));
+    Timer timer = new Timer();
     public ChestStealer() {
         super("ChestStealer", "Стилит предметы-из сундука", Module.Category.MISC);
     }
-
-
-    Timer timer = new Timer();
-    public Setting<Integer> delayed = this.register ( new Setting <> ( "Delay", 100, 0, 1000 ) );
-
 
     @Override
     public void onUpdate() {
         if (Util.mc.player.openContainer != null) {
             if (Util.mc.player.openContainer instanceof ContainerChest) {
-                ContainerChest container = (ContainerChest)Util.mc.player.openContainer;
+                ContainerChest container = (ContainerChest) Util.mc.player.openContainer;
                 for (int i = 0; i < container.inventorySlots.size(); ++i) {
                     if (container.getLowerChestInventory().getStackInSlot(i).getItem() != Item.getItemById(0) && timer.passedMs(delayed.getValue())) {
                         mc.playerController.windowClick(container.windowId, i, 0, ClickType.QUICK_MOVE, Util.mc.player);

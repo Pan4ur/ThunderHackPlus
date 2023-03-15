@@ -21,10 +21,9 @@ public class Shader {
             vertexShaderID = this.createShader(IOUtils.toString(vertexStream), 35633);
             IOUtils.closeQuietly(vertexStream);
             final InputStream fragmentStream = this.getClass().getResourceAsStream("/assets/gamesense/fragment/" + fragmentShader);
-            fragmentShaderID = this.createShader( IOUtils.toString(fragmentStream), 35632);
+            fragmentShaderID = this.createShader(IOUtils.toString(fragmentStream), 35632);
             IOUtils.closeQuietly(fragmentStream);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return;
         }
@@ -71,14 +70,13 @@ public class Shader {
             if (shader == 0) {
                 return 0;
             }
-            ARBShaderObjects.glShaderSourceARB(shader, (CharSequence)shaderSource);
+            ARBShaderObjects.glShaderSourceARB(shader, shaderSource);
             ARBShaderObjects.glCompileShaderARB(shader);
             if (ARBShaderObjects.glGetObjectParameteriARB(shader, 35713) == 0) {
                 throw new RuntimeException("Error creating shader: " + this.getLogInfo(shader));
             }
             return shader;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             ARBShaderObjects.glDeleteObjectARB(shader);
             throw e;
         }
@@ -93,7 +91,7 @@ public class Shader {
     }
 
     public void setupUniform(final String uniformName) {
-        this.setUniform(uniformName, GL20.glGetUniformLocation(this.program, (CharSequence)uniformName));
+        this.setUniform(uniformName, GL20.glGetUniformLocation(this.program, uniformName));
     }
 
     public int getUniform(final String uniformName) {

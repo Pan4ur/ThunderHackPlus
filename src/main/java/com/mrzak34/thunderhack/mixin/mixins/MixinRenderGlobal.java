@@ -19,39 +19,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(RenderGlobal.class)
-public abstract class MixinRenderGlobal
-{
-
-    @Inject(
-            method = "renderEntities",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/util/math/BlockPos$PooledMutableBlockPos;release()V",
-                    shift = At.Shift.BEFORE))
-    private void renderEntitiesHook(Entity renderViewEntity,
-                                    ICamera camera,
-                                    float partialTicks,
-                                    CallbackInfo ci)
-    {
-        MinecraftForge.EVENT_BUS.post(new PostRenderEntitiesEvent(partialTicks, 0));
-    }
-
-    @Inject(method = { "renderEntities" }, at = { @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/RenderGlobal;preRenderDamagedBlocks()V", shift = At.Shift.BEFORE) })
-    public void renderEntities(final Entity entity, final ICamera camera, final float n, final CallbackInfo callbackInfo) {
-        StorageEsp esp = Thunderhack.moduleManager.getModuleByClass(StorageEsp.class);
-        if (esp.isEnabled() && esp.mode.getValue() == StorageEsp.Mode.ShaderBox || esp.mode.getValue() == StorageEsp.Mode.ShaderOutline) {
-            esp.renderNormal(n);
-            VZWQ(esp.lineWidth.getValue());
-            esp.renderNormal(n);
-            JLYv();
-            esp.renderColor(n);
-            feKn();
-            mptE();
-            esp.renderColor(n);
-            VdOT();
-        }
-    }
-
+public abstract class MixinRenderGlobal {
 
     private static void VZWQ(final float width) {
         MqiP();
@@ -121,6 +89,35 @@ public abstract class MixinRenderGlobal
         EXTFramebufferObject.glRenderbufferStorageEXT(36161, 34041, Minecraft.getMinecraft().displayWidth, Minecraft.getMinecraft().displayHeight);
         EXTFramebufferObject.glFramebufferRenderbufferEXT(36160, 36128, 36161, glGenRenderbuffersEXT);
         EXTFramebufferObject.glFramebufferRenderbufferEXT(36160, 36096, 36161, glGenRenderbuffersEXT);
+    }
+
+    @Inject(
+            method = "renderEntities",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/util/math/BlockPos$PooledMutableBlockPos;release()V",
+                    shift = At.Shift.BEFORE))
+    private void renderEntitiesHook(Entity renderViewEntity,
+                                    ICamera camera,
+                                    float partialTicks,
+                                    CallbackInfo ci) {
+        MinecraftForge.EVENT_BUS.post(new PostRenderEntitiesEvent(partialTicks, 0));
+    }
+
+    @Inject(method = {"renderEntities"}, at = {@At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/RenderGlobal;preRenderDamagedBlocks()V", shift = At.Shift.BEFORE)})
+    public void renderEntities(final Entity entity, final ICamera camera, final float n, final CallbackInfo callbackInfo) {
+        StorageEsp esp = Thunderhack.moduleManager.getModuleByClass(StorageEsp.class);
+        if (esp.isEnabled() && esp.mode.getValue() == StorageEsp.Mode.ShaderBox || esp.mode.getValue() == StorageEsp.Mode.ShaderOutline) {
+            esp.renderNormal(n);
+            VZWQ(esp.lineWidth.getValue());
+            esp.renderNormal(n);
+            JLYv();
+            esp.renderColor(n);
+            feKn();
+            mptE();
+            esp.renderColor(n);
+            VdOT();
+        }
     }
 
 }

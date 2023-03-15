@@ -21,7 +21,7 @@ public class PyroSpeed {
         double d3 = arrd[1];
         double d4 = d2;
         double d6 = d3;
-        List<AxisAlignedBB> list = mc.world.getCollisionBoxes((Entity)mc.player, mc.player.getEntityBoundingBox().expand(d2, 0.0, d3));
+        List<AxisAlignedBB> list = mc.world.getCollisionBoxes(mc.player, mc.player.getEntityBoundingBox().expand(d2, 0.0, d3));
         AxisAlignedBB axisAlignedBB = mc.player.getEntityBoundingBox();
         if (d2 != 0.0) {
             n2 = list.size();
@@ -45,7 +45,7 @@ public class PyroSpeed {
         double d9 = d3;
         AxisAlignedBB axisAlignedBB2 = mc.player.getEntityBoundingBox();
         double d10 = d;
-        List<AxisAlignedBB> list2 = mc.world.getCollisionBoxes((Entity)mc.player, axisAlignedBB.expand(d4, d10, d6));
+        List<AxisAlignedBB> list2 = mc.world.getCollisionBoxes(mc.player, axisAlignedBB.expand(d4, d10, d6));
         AxisAlignedBB axisAlignedBB3 = axisAlignedBB;
         AxisAlignedBB axisAlignedBB4 = axisAlignedBB3.expand(d4, 0.0, d6);
         double d11 = d10;
@@ -102,15 +102,17 @@ public class PyroSpeed {
         }
         return axisAlignedBB6;
     }
+
     public static boolean isMovingClient() {
         return mc.player != null && (mc.player.movementInput.moveForward != 0.0f || mc.player.movementInput.moveStrafe != 0.0f);
     }
+
     public static void Method744(EventMove event, double d) {
         MovementInput movementInput = mc.player.movementInput;
         double d2 = movementInput.moveForward;
         double d3 = movementInput.moveStrafe;
 
-        d3 = MathUtil.clamp(d3,-1,1);
+        d3 = MathUtil.clamp(d3, -1, 1);
 
         float f = mc.player.rotationYaw;
         if (d2 == 0.0 && d3 == 0.0) {
@@ -119,9 +121,9 @@ public class PyroSpeed {
         } else {
             if (d2 != 0.0) {
                 if (d3 > 0.0) {
-                    f += (float)(d2 > 0.0 ? -45 : 45);
+                    f += (float) (d2 > 0.0 ? -45 : 45);
                 } else if (d3 < 0.0) {
-                    f += (float)(d2 > 0.0 ? 45 : -45);
+                    f += (float) (d2 > 0.0 ? 45 : -45);
                 }
                 d3 = 0.0;
                 if (d2 > 0.0) {

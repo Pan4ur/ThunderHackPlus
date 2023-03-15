@@ -9,7 +9,8 @@ import com.mrzak34.thunderhack.mixin.mixins.IRenderManager;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.setting.Setting;
-import com.mrzak34.thunderhack.util.*;
+import com.mrzak34.thunderhack.util.TimeAnimation;
+import com.mrzak34.thunderhack.util.Trace;
 import com.mrzak34.thunderhack.util.math.AnimationMode;
 import com.mrzak34.thunderhack.util.render.DrawHelper;
 import com.mrzak34.thunderhack.util.render.Drawable;
@@ -37,50 +38,40 @@ import static org.lwjgl.opengl.GL11.*;
 
 public class PearlESP extends Module {
 
-    public PearlESP() {
-        super("Predictions", "Predictions", Category.RENDER);
-    }
-
-    private Setting<Boolean> triangleESP = this.register(new Setting<>("TriangleESP", true));
-
-    private Setting<Boolean> glow = this.register(new Setting<>("Glow", true));
-    private Setting<Float> width = register( new Setting<>("TracerHeight", 2.5f, 0.1f, 5f));
-    private Setting<Float> radius = register( new Setting<>("Radius", 50f, -50f, 50f));
-    private Setting<Float> rad22ius = register(new Setting<>("TracerDown", 3.0f, 0.1F, 20.0F));
-    private Setting<Float> tracerA = register(new Setting<>("TracerWidth", 0.50F, 0.0F, 8.0F));
-    private Setting<Integer> glowe = register(new Setting<>("GlowRadius", 10, 1, 20));
-    private Setting<Integer> glowa = register(new Setting<>("GlowAlpha", 150, 0, 255));
-
+    public static final Vec3d ORIGIN = new Vec3d(8.0, 64.0, 8.0);
+    private final Setting<ColorSetting> color = this.register(new Setting<>("Color1", new ColorSetting(0x8800FF00)));
+    private final Setting<ColorSetting> color2 = this.register(new Setting<>("Color2", new ColorSetting(0x8800FF00)));
+    private final Setting<ColorSetting> TriangleColor = this.register(new Setting<>("TriangleColor", new ColorSetting(0x8800FF00)));
     public Setting<Float> width2 = register(new Setting("Width", 1.6F, 0.1F, 10.0F));
     public Setting<Boolean> arrows = register(new Setting("Arrows", false));
     public Setting<Boolean> pearls = register(new Setting("Pearls", false));
     public Setting<Boolean> snowballs = register(new Setting("Snowballs", false));
-    public Setting <Integer> time = this.register ( new Setting <> ( "Time", 1, 1, 10) );
-    private final Setting<ColorSetting> color = this.register(new Setting<>("Color1", new ColorSetting(0x8800FF00)));
-    private final Setting<ColorSetting> color2 = this.register(new Setting<>("Color2", new ColorSetting(0x8800FF00)));
-    private final Setting<ColorSetting> TriangleColor = this.register(new Setting<>("TriangleColor", new ColorSetting(0x8800FF00)));
-
-
+    public Setting<Integer> time = this.register(new Setting<>("Time", 1, 1, 10));
+    public Map<Entity, List<PredictedPosition>> entAndTrail = new HashMap<>();
     protected Map<Integer, TimeAnimation> ids = new ConcurrentHashMap<>();
     protected Map<Integer, List<Trace>> traceLists = new ConcurrentHashMap<>();
     protected Map<Integer, Trace> traces = new ConcurrentHashMap<>();
-    public static final Vec3d ORIGIN = new Vec3d(8.0, 64.0, 8.0);
+    private final Setting<Boolean> triangleESP = this.register(new Setting<>("TriangleESP", true));
+    private final Setting<Boolean> glow = this.register(new Setting<>("Glow", true));
+    private final Setting<Float> width = register(new Setting<>("TracerHeight", 2.5f, 0.1f, 5f));
+    private final Setting<Float> radius = register(new Setting<>("Radius", 50f, -50f, 50f));
+    private final Setting<Float> rad22ius = register(new Setting<>("TracerDown", 3.0f, 0.1F, 20.0F));
+    private final Setting<Float> tracerA = register(new Setting<>("TracerWidth", 0.50F, 0.0F, 8.0F));
+    private final Setting<Integer> glowe = register(new Setting<>("GlowRadius", 10, 1, 20));
+    private final Setting<Integer> glowa = register(new Setting<>("GlowAlpha", 150, 0, 255));
+    private final Setting<Mode> mode = this.register(new Setting<>("LineMode", Mode.Mode1));
 
-
-    private  Setting<Mode> mode = this.register (new Setting<>("LineMode", Mode.Mode1));
-
-    public enum Mode {
-        NONE, Mode1, Mode2, Both
+    public PearlESP() {
+        super("Predictions", "Predictions", Category.RENDER);
     }
-
 
     @SubscribeEvent
     public void onRender3D(Render3DEvent event) {
-        if(mode.getValue() == Mode.Mode2){
+        if (mode.getValue() == Mode.Mode2) {
             PlayerToPearl(event);
-        } else if(mode.getValue() == Mode.Mode1){
+        } else if (mode.getValue() == Mode.Mode1) {
             PearlToDest(event);
-        } else if(mode.getValue() == Mode.Both){
+        } else if (mode.getValue() == Mode.Both) {
             PlayerToPearl(event);
             PearlToDest(event);
         }
@@ -117,10 +108,6 @@ public class PearlESP extends Module {
     }
 
 
-
-
-
-
     @Override
     public void onEnable() {
         ids = new ConcurrentHashMap<>();
@@ -152,7 +139,7 @@ public class PearlESP extends Module {
                             mc.world.provider.getDimensionType(),
                             new Vec3d(((SPacketSpawnObject) event.getPacket()).getX(), ((SPacketSpawnObject) event.getPacket()).getY(), ((SPacketSpawnObject) event.getPacket()).getZ()),
                             new ArrayList<>()));
-                } catch (Exception e){
+                } catch (Exception e) {
                     System.out.println(e.getMessage());
                 }
             }
@@ -192,7 +179,6 @@ public class PearlESP extends Module {
             GL11.glColor4f(color.getValue().getRed(), color.getValue().getGreen(), color.getValue().getBlue(), MathHelper.clamp((float) (color.getValue().getAlpha() - animation.getCurrent() / 255.0f), 0, 255));
 
 
-
             GL11.glBegin(GL11.GL_LINE_STRIP);
             Trace trace = traces.get(entry.getKey());
             if (trace != null) {
@@ -212,14 +198,12 @@ public class PearlESP extends Module {
         }
     }
 
-    private void renderVec(Trace.TracePos tracePos)
-    {
+    private void renderVec(Trace.TracePos tracePos) {
         double x = tracePos.getPos().x - ((IRenderManager) mc.getRenderManager()).getRenderPosX();
         double y = tracePos.getPos().y - ((IRenderManager) mc.getRenderManager()).getRenderPosY();
         double z = tracePos.getPos().z - ((IRenderManager) mc.getRenderManager()).getRenderPosZ();
         GL11.glVertex3d(x, y, z);
     }
-
 
 
     @Override
@@ -235,28 +219,24 @@ public class PearlESP extends Module {
             if (entity != null) {
                 Vec3d vec = entity.getPositionVector();
                 if (vec == null) continue;
-                if (vec.equals(ORIGIN))
-                {
+                if (vec.equals(ORIGIN)) {
                     continue;
                 }
 
-                if (!traces.containsKey(id) || idTrace == null)
-                {
+                if (!traces.containsKey(id) || idTrace == null) {
                     traces.put(id, new Trace(0, null, mc.world.provider.getDimensionType(), vec, new ArrayList<>()));
                     idTrace = traces.get(id);
                 }
 
                 List<Trace.TracePos> trace = idTrace.getTrace();
                 Vec3d vec3d = trace.isEmpty() ? vec : trace.get(trace.size() - 1).getPos();
-                if (!trace.isEmpty() && (vec.distanceTo(vec3d) > 100.0 || idTrace.getType() != mc.world.provider.getDimensionType()))
-                {
+                if (!trace.isEmpty() && (vec.distanceTo(vec3d) > 100.0 || idTrace.getType() != mc.world.provider.getDimensionType())) {
                     traceLists.get(id).add(idTrace);
                     trace = new ArrayList<>();
                     traces.put(id, new Trace(traceLists.get(id).size() + 1, null, mc.world.provider.getDimensionType(), vec, new ArrayList<>()));
                 }
 
-                if (trace.isEmpty() || !vec.equals(vec3d))
-                {
+                if (trace.isEmpty() || !vec.equals(vec3d)) {
                     trace.add(new Trace.TracePos(vec));
                 }
             }
@@ -291,26 +271,26 @@ public class PearlESP extends Module {
         hexColor(color);
         GL11.glBegin(7);
         GL11.glVertex2d(x, y);
-        GL11.glVertex2d((x - size * tracerA.getValue() ), (y + size));
-        GL11.glVertex2d(x, (y + size- rad22ius.getValue()));
+        GL11.glVertex2d((x - size * tracerA.getValue()), (y + size));
+        GL11.glVertex2d(x, (y + size - rad22ius.getValue()));
         GL11.glVertex2d(x, y);
         GL11.glEnd();
 
-        hexColor(ColorUtil.darker(new Color(color),0.8f).getRGB());
+        hexColor(ColorUtil.darker(new Color(color), 0.8f).getRGB());
         GL11.glBegin(7);
         GL11.glVertex2d(x, y); //top
-        GL11.glVertex2d(x, (y + size- rad22ius.getValue())); //midle
+        GL11.glVertex2d(x, (y + size - rad22ius.getValue())); //midle
         GL11.glVertex2d((x + size * tracerA.getValue()), (y + size)); // left right
         GL11.glVertex2d(x, y); //top
         GL11.glEnd();
 
 
-        hexColor(ColorUtil.darker(new Color(color),0.6f).getRGB());
+        hexColor(ColorUtil.darker(new Color(color), 0.6f).getRGB());
         GL11.glBegin(7);
-        GL11.glVertex2d((x - size * tracerA.getValue() ), (y + size ));
-        GL11.glVertex2d((x + size * tracerA.getValue()), (y + size )); // left right
+        GL11.glVertex2d((x - size * tracerA.getValue()), (y + size));
+        GL11.glVertex2d((x + size * tracerA.getValue()), (y + size)); // left right
         GL11.glVertex2d(x, (y + size - rad22ius.getValue())); //midle
-        GL11.glVertex2d((x - size * tracerA.getValue() ), (y + size ));
+        GL11.glVertex2d((x - size * tracerA.getValue()), (y + size));
         GL11.glEnd();
         GL11.glPopMatrix();
 
@@ -318,14 +298,12 @@ public class PearlESP extends Module {
         if (!blend)
             GL11.glDisable(GL_BLEND);
         GL11.glDisable(GL_LINE_SMOOTH);
-        if(glow.getValue())
-            Drawable.drawBlurredShadow(x- size * tracerA.getValue(),y,(x + size * tracerA.getValue()) -(x - size * tracerA.getValue() ),size,glowe.getValue(), DrawHelper.injectAlpha(new Color(color),glowa.getValue()) );
-        if(depth)
+        if (glow.getValue())
+            Drawable.drawBlurredShadow(x - size * tracerA.getValue(), y, (x + size * tracerA.getValue()) - (x - size * tracerA.getValue()), size, glowe.getValue(), DrawHelper.injectAlpha(new Color(color), glowa.getValue()));
+        if (depth)
             glEnable(GL_DEPTH_TEST);
     }
 
-
-    public Map<Entity, List<PredictedPosition> > entAndTrail = new HashMap<>();
     public void draw(List<PredictedPosition> list, Entity entity) {
         boolean first = true;
         boolean depth = GL11.glIsEnabled(GL_DEPTH_TEST);
@@ -342,7 +320,7 @@ public class PearlESP extends Module {
             Vec3d v = new Vec3d(pp.pos.x, pp.pos.y, pp.pos.z);
             if (list.size() > 2 && first) {
                 PredictedPosition next = list.get(i + 1);
-                v = v.add( (next.pos.x - v.x) * mc.getRenderPartialTicks(),
+                v = v.add((next.pos.x - v.x) * mc.getRenderPartialTicks(),
                         (next.pos.y - v.y) * mc.getRenderPartialTicks(),
                         (next.pos.z - v.z) * mc.getRenderPartialTicks());
             }
@@ -353,24 +331,23 @@ public class PearlESP extends Module {
         list.removeIf(w -> w.tick < entity.ticksExisted);
         GL11.glEnd();
 
-        if(depth)
+        if (depth)
             GL11.glEnable(GL11.GL_DEPTH_TEST);
-        if(texture)
+        if (texture)
             GL11.glEnable(GL11.GL_TEXTURE_2D);
 
         GL11.glPopMatrix();
     }
 
-
     public void PearlToDest(Render3DEvent event) {
         for (Entity entity : mc.world.loadedEntityList) {
             if (entity instanceof EntityEnderPearl) {
-                if(entAndTrail.get(entity) != null) {
+                if (entAndTrail.get(entity) != null) {
                     draw(entAndTrail.get(entity), entity);
                 }
             }
             if (entity instanceof EntityArrow) {
-                if(entAndTrail.get(entity) != null) {
+                if (entAndTrail.get(entity) != null) {
                     draw(entAndTrail.get(entity), entity);
                 }
             }
@@ -379,6 +356,9 @@ public class PearlESP extends Module {
     }
 
 
+    public enum Mode {
+        NONE, Mode1, Mode2, Both
+    }
 
     public static class PredictedPosition {
         public Color color;

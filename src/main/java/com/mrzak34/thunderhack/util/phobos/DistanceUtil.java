@@ -19,7 +19,7 @@ public class DistanceUtil {
     }
 
     public static double distanceSq2Bottom(BlockPos pos) {
-        return distanceSq(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5,mc.player);
+        return distanceSq(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5, mc.player);
     }
 
     public static double distanceSq2Bottom(BlockPos pos, Entity entity) {

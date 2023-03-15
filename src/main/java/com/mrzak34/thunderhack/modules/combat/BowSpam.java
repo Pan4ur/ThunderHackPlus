@@ -11,22 +11,20 @@ import net.minecraft.network.play.client.CPacketPlayerTryUseItem;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import org.lwjgl.input.Mouse;
 
 public class BowSpam
         extends Module {
+    private final Timer timer = new Timer();
     public Setting<Mode> mode = this.register(new Setting<>("Mode", Mode.FAST));
     public Setting<Boolean> allowOffhand = this.register(new Setting<Object>("Offhand", Boolean.TRUE, v -> this.mode.getValue() != Mode.AUTORELEASE));
     public Setting<Integer> ticks = this.register(new Setting<Object>("Ticks", 3, 0, 20, v -> this.mode.getValue() == Mode.FAST));
     public Setting<Integer> delay = this.register(new Setting<Object>("Delay", 50, 0, 500, v -> this.mode.getValue() == Mode.AUTORELEASE));
-    private final Timer timer = new Timer();
     private boolean offhand = false;
 
 
     public BowSpam() {
         super("BowSpam", "Спамит стрелами", Module.Category.COMBAT);
     }
-
 
 
     @SubscribeEvent

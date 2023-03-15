@@ -13,19 +13,12 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayDeque;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Queue;
-import java.util.Set;
+import java.util.*;
 
 public class ConfigurationHandler {
     public static final ConfigurationHandler INSTANCE = new ConfigurationHandler();
 
     public static final String VERSION = "1";
-
-    public static Configuration configuration;
-
     public static final boolean DUMP_BLOCK_LIST_DEFAULT = false;
     public static final boolean SHOW_DEBUG_INFO_DEFAULT = true;
     public static final boolean ENABLE_ALPHA_DEFAULT = false;
@@ -41,18 +34,21 @@ public class ConfigurationHandler {
     public static final boolean DESTROY_BLOCKS_DEFAULT = false;
     public static final boolean DESTROY_INSTANTLY_DEFAULT = false;
     public static final boolean PLACE_ADJACENT_DEFAULT = true;
-    public static final boolean[] SWAP_SLOTS_DEFAULT = new boolean[] {
+    public static final boolean[] SWAP_SLOTS_DEFAULT = new boolean[]{
             false, false, false, false, false, true, true, true, true
     };
     public static final String SCHEMATIC_DIRECTORY_STR = "./schematics";
     public static final File SCHEMATIC_DIRECTORY_DEFAULT = new File(Schematica.proxy.getDataDirectory(), SCHEMATIC_DIRECTORY_STR);
+    public static File schematicDirectory = SCHEMATIC_DIRECTORY_DEFAULT;
     public static final String[] EXTRA_AIR_BLOCKS_DEFAULT = {};
     public static final String SORT_TYPE_DEFAULT = "";
     public static final boolean PRINTER_ENABLED_DEFAULT = true;
     public static final boolean SAVE_ENABLED_DEFAULT = true;
     public static final boolean LOAD_ENABLED_DEFAULT = true;
     public static final int PLAYER_QUOTA_KILOBYTES_DEFAULT = 8192;
-
+    public static final Queue<Integer> swapSlotsQueue = new ArrayDeque<Integer>();
+    private static final Set<Block> extraAirBlockList = new HashSet<Block>();
+    public static Configuration configuration;
     public static boolean dumpBlockList = DUMP_BLOCK_LIST_DEFAULT;
     public static boolean showDebugInfo = SHOW_DEBUG_INFO_DEFAULT;
     public static boolean enableAlpha = ENABLE_ALPHA_DEFAULT;
@@ -69,15 +65,12 @@ public class ConfigurationHandler {
     public static boolean destroyInstantly = DESTROY_INSTANTLY_DEFAULT;
     public static boolean placeAdjacent = PLACE_ADJACENT_DEFAULT;
     public static boolean[] swapSlots = Arrays.copyOf(SWAP_SLOTS_DEFAULT, SWAP_SLOTS_DEFAULT.length);
-    public static final Queue<Integer> swapSlotsQueue = new ArrayDeque<Integer>();
-    public static File schematicDirectory = SCHEMATIC_DIRECTORY_DEFAULT;
     public static String[] extraAirBlocks = Arrays.copyOf(EXTRA_AIR_BLOCKS_DEFAULT, EXTRA_AIR_BLOCKS_DEFAULT.length);
     public static String sortType = SORT_TYPE_DEFAULT;
     public static boolean printerEnabled = PRINTER_ENABLED_DEFAULT;
     public static boolean saveEnabled = SAVE_ENABLED_DEFAULT;
     public static boolean loadEnabled = LOAD_ENABLED_DEFAULT;
     public static int playerQuotaKilobytes = PLAYER_QUOTA_KILOBYTES_DEFAULT;
-
     public static Property propDumpBlockList = null;
     public static Property propShowDebugInfo = null;
     public static Property propEnableAlpha = null;
@@ -102,7 +95,8 @@ public class ConfigurationHandler {
     public static Property propLoadEnabled = null;
     public static Property propPlayerQuotaKilobytes = null;
 
-    private static final Set<Block> extraAirBlockList = new HashSet<Block>();
+    private ConfigurationHandler() {
+    }
 
     public static void init(final File configFile) {
         if (configuration == null) {
@@ -285,16 +279,14 @@ public class ConfigurationHandler {
         playerQuotaKilobytes = propPlayerQuotaKilobytes.getInt(PLAYER_QUOTA_KILOBYTES_DEFAULT);
     }
 
-    private ConfigurationHandler() {}
+    public static boolean isExtraAirBlock(final Block block) {
+        return extraAirBlockList.contains(block);
+    }
 
     @SubscribeEvent
     public void onConfigurationChangedEvent(final ConfigChangedEvent.OnConfigChangedEvent event) {
         if (event.getModID().equalsIgnoreCase(Reference.MODID)) {
             loadConfiguration();
         }
-    }
-
-    public static boolean isExtraAirBlock(final Block block) {
-        return extraAirBlockList.contains(block);
     }
 }

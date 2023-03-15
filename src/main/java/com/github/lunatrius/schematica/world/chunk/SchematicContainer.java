@@ -6,9 +6,8 @@ import com.github.lunatrius.schematica.reference.Reference;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
 
-import java.io.File;
-
 import javax.annotation.Nullable;
+import java.io.File;
 
 public class SchematicContainer {
     public final ISchematic schematic;
@@ -29,11 +28,9 @@ public class SchematicContainer {
     public final int maxChunkX;
     public final int minChunkZ;
     public final int maxChunkZ;
-
+    public final int chunkCount;
     public int curChunkX;
     public int curChunkZ;
-
-    public final int chunkCount;
     public int processedChunks;
 
     public SchematicContainer(final ISchematic schematic, final EntityPlayer player, final World world, final File file, @Nullable final String format, final int minX, final int maxX, final int minY, final int maxY, final int minZ, final int maxZ) {

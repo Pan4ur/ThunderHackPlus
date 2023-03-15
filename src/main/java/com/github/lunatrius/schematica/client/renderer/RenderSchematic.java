@@ -24,12 +24,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.multiplayer.WorldClient;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.client.renderer.RenderGlobal;
-import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
 import net.minecraft.client.renderer.chunk.CompiledChunk;
 import net.minecraft.client.renderer.chunk.RenderChunk;
@@ -63,12 +58,7 @@ import org.lwjgl.util.vector.Vector3f;
 
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.util.Collection;
-import java.util.EnumSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @SideOnly(Side.CLIENT)
 @MethodsReturnNonnullByDefault
@@ -168,13 +158,16 @@ public class RenderSchematic extends RenderGlobal {
     }
 
     @Override
-    public void onResourceManagerReload(final IResourceManager resourceManager) {}
+    public void onResourceManagerReload(final IResourceManager resourceManager) {
+    }
 
     @Override
-    public void makeEntityOutlineShader() {}
+    public void makeEntityOutlineShader() {
+    }
 
     @Override
-    public void renderEntityOutlineFramebuffer() {}
+    public void renderEntityOutlineFramebuffer() {
+    }
 
     @Override
     public boolean isRenderEntityOutlines() {
@@ -448,7 +441,8 @@ public class RenderSchematic extends RenderGlobal {
     }
 
     @Override
-    public void createBindEntityOutlineFbs(final int width, final int height) {}
+    public void createBindEntityOutlineFbs(final int width, final int height) {
+    }
 
     @Override
     public void renderEntities(final Entity renderViewEntity, final ICamera camera, final float partialTicks) {
@@ -861,13 +855,16 @@ public class RenderSchematic extends RenderGlobal {
     }
 
     @Override
-    public void renderWorldBorder(final Entity entity, final float partialTicks) {}
+    public void renderWorldBorder(final Entity entity, final float partialTicks) {
+    }
 
     @Override
-    public void drawBlockDamageTexture(final Tessellator tessellator, final BufferBuilder buffer, final Entity entity, final float partialTicks) {}
+    public void drawBlockDamageTexture(final Tessellator tessellator, final BufferBuilder buffer, final Entity entity, final float partialTicks) {
+    }
 
     @Override
-    public void drawSelectionBox(final EntityPlayer player, final RayTraceResult rayTraceResult, final int execute, final float partialTicks) {}
+    public void drawSelectionBox(final EntityPlayer player, final RayTraceResult rayTraceResult, final int execute, final float partialTicks) {
+    }
 
     @Override
     public void notifyBlockUpdate(final World world, final BlockPos pos, final IBlockState oldState, final IBlockState newState, final int flags) {
@@ -900,34 +897,44 @@ public class RenderSchematic extends RenderGlobal {
     }
 
     @Override
-    public void playRecord(final SoundEvent soundEvent, final BlockPos pos) {}
+    public void playRecord(final SoundEvent soundEvent, final BlockPos pos) {
+    }
 
     @Override
-    public void playSoundToAllNearExcept(final EntityPlayer player, final SoundEvent soundEvent, final SoundCategory category, final double x, final double y, final double z, final float volume, final float pitch) {}
+    public void playSoundToAllNearExcept(final EntityPlayer player, final SoundEvent soundEvent, final SoundCategory category, final double x, final double y, final double z, final float volume, final float pitch) {
+    }
 
     @Override
-    public void spawnParticle(final int particleID, final boolean ignoreRange, final double x, final double y, final double z, final double xOffset, final double yOffset, final double zOffset, final int... parameters) {}
+    public void spawnParticle(final int particleID, final boolean ignoreRange, final double x, final double y, final double z, final double xOffset, final double yOffset, final double zOffset, final int... parameters) {
+    }
 
     @Override
-    public void spawnParticle(final int particleID, final boolean ignoreRange, final boolean minParticles, final double x, final double y, final double z, final double xOffset, final double yOffset, final double zOffset, final int... parameters) {}
+    public void spawnParticle(final int particleID, final boolean ignoreRange, final boolean minParticles, final double x, final double y, final double z, final double xOffset, final double yOffset, final double zOffset, final int... parameters) {
+    }
 
     @Override
-    public void onEntityAdded(final Entity entity) {}
+    public void onEntityAdded(final Entity entity) {
+    }
 
     @Override
-    public void onEntityRemoved(final Entity entity) {}
+    public void onEntityRemoved(final Entity entity) {
+    }
 
     @Override
-    public void deleteAllDisplayLists() {}
+    public void deleteAllDisplayLists() {
+    }
 
     @Override
-    public void broadcastSound(final int soundID, final BlockPos pos, final int data) {}
+    public void broadcastSound(final int soundID, final BlockPos pos, final int data) {
+    }
 
     @Override
-    public void playEvent(final EntityPlayer player, final int type, final BlockPos pos, final int data) {}
+    public void playEvent(final EntityPlayer player, final int type, final BlockPos pos, final int data) {
+    }
 
     @Override
-    public void sendBlockBreakProgress(final int breakerId, final BlockPos pos, final int progress) {}
+    public void sendBlockBreakProgress(final int breakerId, final BlockPos pos, final int progress) {
+    }
 
     @Override
     public boolean hasNoChunkUpdates() {
@@ -940,7 +947,8 @@ public class RenderSchematic extends RenderGlobal {
     }
 
     @Override
-    public void updateTileEntities(final Collection<TileEntity> tileEntitiesToRemove, final Collection<TileEntity> tileEntitiesToAdd) {}
+    public void updateTileEntities(final Collection<TileEntity> tileEntitiesToRemove, final Collection<TileEntity> tileEntitiesToAdd) {
+    }
 
     @SideOnly(Side.CLIENT)
     class ContainerLocalRenderInformation {

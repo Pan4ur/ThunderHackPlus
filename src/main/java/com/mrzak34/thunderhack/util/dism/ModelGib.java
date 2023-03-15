@@ -6,10 +6,19 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.monster.EntityZombie;
 import net.minecraft.entity.player.EntityPlayer;
 
-public class ModelGib extends ModelBase
-{
-    public ModelGib()
-    {
+public class ModelGib extends ModelBase {
+    //fields
+    public ModelRenderer skeleLeg;
+    public ModelRenderer skeleArm;
+    public ModelRenderer creeperFoot;
+    public ModelRenderer head64;
+    public ModelRenderer body64;
+    public ModelRenderer leg64;
+    public ModelRenderer arm64;
+    public ModelRenderer head32;
+    //  public ModelRenderer layerhead;
+    public ModelRenderer body32;
+    public ModelGib() {
         textureWidth = 64;
         textureHeight = 64;
         leg64 = new ModelRenderer(this, 0, 16);
@@ -66,7 +75,7 @@ public class ModelGib extends ModelBase
         head64.rotateAngleZ = 0F;
         head64.mirror = false;
 
-        head64.setTextureOffset(32,0);
+        head64.setTextureOffset(32, 0);
         head64.addBox(-4F, -4F, -4F, 8, 8, 8, 1.1f);
         head64.setRotationPoint(0F, 20F, 0F);
         head64.rotateAngleX = 0F;
@@ -89,8 +98,6 @@ public class ModelGib extends ModelBase
         layerhead.mirror = false;
 
          */
-
-
 
 
         body64 = new ModelRenderer(this, 16, 16);
@@ -122,64 +129,43 @@ public class ModelGib extends ModelBase
     }
 
     @Override
-    public void render(Entity ent, float f, float f1, float f2, float f3, float f4, float f5)
-    {
+    public void render(Entity ent, float f, float f1, float f2, float f3, float f4, float f5) {
         setRotationAngles(f, f1, f2, f3, f4, f5, ent);
 
-        if(ent instanceof EntityGib)
-        {
-            EntityGib gib = (EntityGib)ent;
+        if (ent instanceof EntityGib) {
+            EntityGib gib = (EntityGib) ent;
 
-            if(gib.type == -1)
-            {
-             //   layerhead.render(f5);
+            if (gib.type == -1) {
+                //   layerhead.render(f5);
             }
 
-            if(gib.type == 0)
-            {
-                if(gib.parent instanceof EntityZombie || gib.parent instanceof EntityPlayer)
-                {
+            if (gib.type == 0) {
+                if (gib.parent instanceof EntityZombie || gib.parent instanceof EntityPlayer) {
                     head64.render(f5);
-                }
-                else
-                {
+                } else {
                     head32.render(f5);
                 }
-            }
-            else if(gib.type == 1 || gib.type == 2)
-            {
-                if(gib.parent instanceof EntityZombie || gib.parent instanceof EntityPlayer)
-                {
+            } else if (gib.type == 1 || gib.type == 2) {
+                if (gib.parent instanceof EntityZombie || gib.parent instanceof EntityPlayer) {
                     arm64.render(f5);
-                }
-                else
-                {
+                } else {
                     skeleArm.render(f5);
                 }
-            }
-            else if(gib.type == 3) //body
+            } else if (gib.type == 3) //body
             {
-                if(gib.parent instanceof EntityZombie || gib.parent instanceof EntityPlayer)
-                {
+                if (gib.parent instanceof EntityZombie || gib.parent instanceof EntityPlayer) {
                     body64.render(f5);
-                }
-                else
-                {
+                } else {
                     body32.render(f5);
                 }
-            }
-            else if(gib.type == 4 || gib.type == 5) //legs
+            } else if (gib.type == 4 || gib.type == 5) //legs
             {
-                if(gib.parent instanceof EntityZombie || gib.parent instanceof EntityPlayer)
-                {
+                if (gib.parent instanceof EntityZombie || gib.parent instanceof EntityPlayer) {
                     leg64.render(f5);
-                }
-                else
-                {
+                } else {
                     skeleLeg.render(f5);
                 }
-            }
-            else if(gib.type >= 6) //creeper feet
+            } else if (gib.type >= 6) //creeper feet
             {
                 creeperFoot.render(f5);
             }
@@ -187,8 +173,7 @@ public class ModelGib extends ModelBase
     }
 
     @Override
-    public void setRotationAngles(float f, float f1, float f2, float f3, float f4, float f5, Entity ent)
-    {
+    public void setRotationAngles(float f, float f1, float f2, float f3, float f4, float f5, Entity ent) {
         arm64.rotateAngleY = f3 / 57.29578F;
         arm64.rotateAngleX = f4 / 57.29578F;
 
@@ -207,8 +192,8 @@ public class ModelGib extends ModelBase
         head64.rotateAngleY = f3 / 57.29578F;
         head64.rotateAngleX = f4 / 57.29578F;
 
-      //  layerhead.rotateAngleY = f3 / 57.29578F;
-     //   layerhead.rotateAngleX = f4 / 57.29578F;
+        //  layerhead.rotateAngleY = f3 / 57.29578F;
+        //   layerhead.rotateAngleX = f4 / 57.29578F;
 
         body64.rotateAngleY = f3 / 57.29578F;
         body64.rotateAngleX = f4 / 57.29578F;
@@ -219,21 +204,5 @@ public class ModelGib extends ModelBase
         body32.rotateAngleY = f3 / 57.29578F;
         body32.rotateAngleX = f4 / 57.29578F;
     }
-
-    //fields
-    public ModelRenderer skeleLeg;
-    public ModelRenderer skeleArm;
-
-    public ModelRenderer creeperFoot;
-
-    public ModelRenderer head64;
-    public ModelRenderer body64;
-  //  public ModelRenderer layerhead;
-
-    public ModelRenderer leg64;
-    public ModelRenderer arm64;
-
-    public ModelRenderer head32;
-    public ModelRenderer body32;
 
 }

@@ -1,9 +1,8 @@
 package com.mrzak34.thunderhack.command.commands;
 
-import com.mrzak34.thunderhack.command.Command;
-
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.mrzak34.thunderhack.command.Command;
 import net.minecraft.item.ItemStack;
 
 import java.io.BufferedWriter;
@@ -28,7 +27,41 @@ public class KitCommand extends Command {
         super("kit");
     }
 
+    private static void errorMessage(String e) {
+        Command.sendMessage("Error: " + errorMessage.get(e));
+    }
 
+    public static String getCurrentSet() {
+
+        JsonObject completeJson = new JsonObject();
+        try {
+            // Read json
+            completeJson = new JsonParser().parse(new FileReader(pathSave)).getAsJsonObject();
+            if (!completeJson.get("pointer").getAsString().equals("none"))
+                return completeJson.get("pointer").getAsString();
+
+
+        } catch (IOException e) {
+            // Case not found, reset
+        }
+        errorMessage("NoEx");
+        return "";
+    }
+
+    public static String getInventoryKit(String kit) {
+        JsonObject completeJson = new JsonObject();
+        try {
+            // Read json
+            completeJson = new JsonParser().parse(new FileReader(pathSave)).getAsJsonObject();
+            return completeJson.get(kit).getAsString();
+
+
+        } catch (IOException e) {
+            // Case not found, reset
+        }
+        errorMessage("NoEx");
+        return "";
+    }
 
     @Override
     public void execute(String[] commands) {
@@ -37,11 +70,9 @@ public class KitCommand extends Command {
             return;
         }
         if (commands.length == 2) {
-            switch (commands[0]) {
-                case "list": {
-                    listMessage();
-                    return;
-                }
+            if (commands[0].equals("list")) {
+                listMessage();
+                return;
             }
             return;
         }
@@ -64,7 +95,6 @@ public class KitCommand extends Command {
             KitCommand.sendMessage(".kit create/set/del");
         }
     }
-
 
     private void listMessage() {
         JsonObject completeJson = new JsonObject();
@@ -165,42 +195,6 @@ public class KitCommand extends Command {
         } catch (IOException e) {
             errorMessage("Saving");
         }
-    }
-
-    private static void errorMessage(String e) {
-        Command.sendMessage("Error: " + errorMessage.get(e));
-    }
-
-    public static String getCurrentSet() {
-
-        JsonObject completeJson = new JsonObject();
-        try {
-            // Read json
-            completeJson = new JsonParser().parse(new FileReader(pathSave)).getAsJsonObject();
-            if (!completeJson.get("pointer").getAsString().equals("none"))
-                return completeJson.get("pointer").getAsString();
-
-
-        } catch (IOException e) {
-            // Case not found, reset
-        }
-        errorMessage("NoEx");
-        return "";
-    }
-
-    public static String getInventoryKit(String kit) {
-        JsonObject completeJson = new JsonObject();
-        try {
-            // Read json
-            completeJson = new JsonParser().parse(new FileReader(pathSave)).getAsJsonObject();
-            return completeJson.get(kit).getAsString();
-
-
-        } catch (IOException e) {
-            // Case not found, reset
-        }
-        errorMessage("NoEx");
-        return "";
     }
 
 }

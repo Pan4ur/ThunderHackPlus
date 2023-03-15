@@ -1,13 +1,12 @@
 package com.mrzak34.thunderhack.setting;
 
 import com.mrzak34.thunderhack.modules.Feature;
-import net.minecraftforge.common.MinecraftForge;
 
 import java.util.function.Predicate;
 
 public class Setting<T> {
     private final String name;
-    private  T defaultValue;
+    private final T defaultValue;
     private T value;
     private T plannedValue;
     private T min;
@@ -61,6 +60,15 @@ public class Setting<T> {
         this.plannedValue = defaultValue;
     }
 
+    public static Enum get(Enum clazz) {
+        int index = EnumConverter.currentEnum(clazz);
+        for (int i = 0; i < clazz.getClass().getEnumConstants().length; ++i) {
+            Enum e = clazz.getClass().getEnumConstants()[i];
+            if (i != index + 1) continue;
+            return e;
+        }
+        return clazz.getClass().getEnumConstants()[0];
+    }
 
     public String getName() {
         return this.name;
@@ -68,13 +76,6 @@ public class Setting<T> {
 
     public T getValue() {
         return this.value;
-    }
-
-    public float getPow2Value() {
-        if(this.value instanceof Float){
-            return ((Float) this.value).floatValue() * ((Float) this.value).floatValue();
-        }
-        return 0;
     }
 
     public void setValue(T value) {
@@ -88,6 +89,13 @@ public class Setting<T> {
             }
         }
         this.value = this.plannedValue;
+    }
+
+    public float getPow2Value() {
+        if (this.value instanceof Float) {
+            return ((Float) this.value).floatValue() * ((Float) this.value).floatValue();
+        }
+        return 0;
     }
 
     public T getPlannedValue() {
@@ -114,7 +122,6 @@ public class Setting<T> {
         this.max = max;
     }
 
-
     public Feature getFeature() {
         return this.feature;
     }
@@ -127,27 +134,15 @@ public class Setting<T> {
         return EnumConverter.getProperName((Enum) this.value);
     }
 
-    public int getEnumInt(){
+    public int getEnumInt() {
         return EnumConverter.getEnumInt((Enum) this.value);
     }
-
-
 
     public String[] getModes() {
         return EnumConverter.getNames((Enum) this.value);
     }
 
-    public static Enum get(Enum clazz) {
-        int index = EnumConverter.currentEnum(clazz);
-        for (int i = 0; i < clazz.getClass().getEnumConstants().length; ++i) {
-            Enum e = clazz.getClass().getEnumConstants()[i];
-            if (i != index + 1) continue;
-            return e;
-        }
-        return clazz.getClass().getEnumConstants()[0];
-    }
-
-    public void setEnum(Enum mod){
+    public void setEnum(Enum mod) {
         this.plannedValue = (T) mod;
     }
 
@@ -157,7 +152,7 @@ public class Setting<T> {
     }
 
     public void setEnumByNumber(int id) {
-        this.plannedValue = (T) EnumConverter.setEnumInt((Enum) this.value,id);
+        this.plannedValue = (T) EnumConverter.setEnumInt((Enum) this.value, id);
         this.value = this.plannedValue;
     }
 
@@ -170,10 +165,10 @@ public class Setting<T> {
         if (this.isEnumSetting()) {
             return "Enum";
         }
-        if(this.isColorSetting()){
+        if (this.isColorSetting()) {
             return "ColorSetting";
         }
-        if(this.isPositionSetting()){
+        if (this.isPositionSetting()) {
             return "PositionSetting";
         }
 
@@ -195,20 +190,20 @@ public class Setting<T> {
         return this.value instanceof Double || this.value instanceof Integer || this.value instanceof Short || this.value instanceof Long || this.value instanceof Float;
     }
 
-    public boolean isColorHeader(){
+    public boolean isColorHeader() {
         return this.value instanceof ColorSettingHeader;
     }
 
-    public boolean isInteger(){
+    public boolean isInteger() {
         return this.value instanceof Integer;
     }
 
-    public boolean isFloat(){
+    public boolean isFloat() {
         return this.value instanceof Float;
     }
 
     public boolean isEnumSetting() {
-        return !this.isPositionSetting()&& !this.isColorHeader()  && !this.isNumberSetting() &&!(this.value instanceof PositionSetting) && !(this.value instanceof String)  && !(this.value instanceof ColorSetting) && !(this.value instanceof Parent) && !(this.value instanceof Bind) && !(this.value instanceof SubBind)&& !(this.value instanceof Character) && !(this.value instanceof Boolean);
+        return !this.isPositionSetting() && !this.isColorHeader() && !this.isNumberSetting() && !(this.value instanceof PositionSetting) && !(this.value instanceof String) && !(this.value instanceof ColorSetting) && !(this.value instanceof Parent) && !(this.value instanceof Bind) && !(this.value instanceof SubBind) && !(this.value instanceof Character) && !(this.value instanceof Boolean);
     }
 
 
@@ -224,7 +219,7 @@ public class Setting<T> {
         return this.value instanceof ColorSetting;
     }
 
-    public boolean  isPositionSetting() {
+    public boolean isPositionSetting() {
         return this.value instanceof PositionSetting;
     }
 

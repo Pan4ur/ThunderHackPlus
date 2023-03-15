@@ -17,28 +17,25 @@ import net.minecraft.util.math.RayTraceResult;
 
 import java.util.Objects;
 
-public class EffectsRemover extends Module{
+public class EffectsRemover extends Module {
+    public static int nig = 0;
+    public static boolean jboost = false;
+    public Setting<Boolean> jumpBoost = this.register(new Setting<Boolean>("JumpBoostRemove", false));
+    public Setting<Boolean> oldr = this.register(new Setting<Boolean>("OldRemove", false));
+    public Timer timer = new Timer();
     public EffectsRemover() {
         super("PowderTweaks", "Убирает джампбуст от-пороха и юзает его автоматом", Module.Category.FUNNYGAME);
     }
-
-
-    public Setting<Boolean> jumpBoost = this.register(new Setting<Boolean>("JumpBoostRemove", false));
-    public Setting<Boolean> oldr = this.register(new Setting<Boolean>("OldRemove", false));
-
-    public Timer timer = new Timer();
-    public static int nig = 0;
-    public static boolean jboost = false;
 
     @Override
     public void onUpdate() {
         --nig;
 
-        if(fullNullCheck()){
+        if (fullNullCheck()) {
             return;
         }
 
-        if( timer.passedMs(500) &&  !(mc.player.isPotionActive(Objects.requireNonNull(Potion.getPotionFromResourceLocation("strength")))) && mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit != RayTraceResult.Type.BLOCK){
+        if (timer.passedMs(500) && !(mc.player.isPotionActive(Objects.requireNonNull(Potion.getPotionFromResourceLocation("strength")))) && mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit != RayTraceResult.Type.BLOCK) {
             int hotbarslot = mc.player.inventory.currentItem;
             ItemStack itemStack = Util.mc.player.inventory.getStackInSlot(InventoryUtil.getPowderAtHotbar());
             if (!(itemStack.getItem().getItemStackDisplayName(itemStack).equals("Порох"))) return;
@@ -48,8 +45,8 @@ public class EffectsRemover extends Module{
             timer.reset();
         }
 
-        if (this.jumpBoost.getValue() ) {
-            if (Thunderhack.moduleManager.getModuleByClass(Aura.class).isEnabled()){
+        if (this.jumpBoost.getValue()) {
+            if (Thunderhack.moduleManager.getModuleByClass(Aura.class).isEnabled()) {
                 if (mc.player.isPotionActive(MobEffects.JUMP_BOOST)) {
                     nig = Objects.requireNonNull(mc.player.getActivePotionEffect(MobEffects.JUMP_BOOST)).getDuration();
                     EffectsRemover.mc.player.removeActivePotionEffect(Potion.getPotionFromResourceLocation("jump_boost"));
@@ -57,7 +54,7 @@ public class EffectsRemover extends Module{
                 }
             }
         }
-        if(oldr.getValue()){
+        if (oldr.getValue()) {
             if (mc.player.isPotionActive(MobEffects.JUMP_BOOST)) {
                 EffectsRemover.mc.player.removeActivePotionEffect(Potion.getPotionFromResourceLocation("jump_boost"));
             }

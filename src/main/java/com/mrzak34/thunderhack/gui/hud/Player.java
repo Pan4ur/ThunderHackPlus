@@ -17,66 +17,19 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.input.Mouse;
 
 public class Player extends Module {
-    public Player() {
-        super("PlayerView", "Player", Category.HUD);
-    }
-
-
-
-
+    private final Setting<PositionSetting> pos = this.register(new Setting<>("Position", new PositionSetting(0.5f, 0.5f)));
     public Setting<Integer> scale = this.register(new Setting<Integer>("Scale", 50, 0, 200));
 
     public Setting<Boolean> yw = this.register(new Setting<Boolean>("Yaw", true));
     public Setting<Boolean> pch = this.register(new Setting<Boolean>("Pitch", true));
-    private final Setting<PositionSetting> pos = this.register(new Setting<>("Position", new PositionSetting(0.5f,0.5f)));
-
-
-    float x1 =0;
-    float y1= 0;
-
-    @SubscribeEvent
-    public void onRender2D(Render2DEvent e){
-        y1 = e.scaledResolution.getScaledHeight() * pos.getValue().getY();
-        x1 = e.scaledResolution.getScaledWidth() * pos.getValue().getX();
-        drawPlayerOnScreen((int) x1, (int) y1, scale.getValue(), -30, 0, Minecraft.getMinecraft().player, yw.getValue(), pch.getValue());
-        if(mc.currentScreen instanceof GuiChat || mc.currentScreen instanceof HudEditorGui || mc.currentScreen instanceof ThunderGui2){
-            if(isHovering()){
-                if(Mouse.isButtonDown(0) && mousestate){
-                    pos.getValue().setX( (float) (normaliseX() - dragX) /  e.scaledResolution.getScaledWidth());
-                    pos.getValue().setY( (float) (normaliseY() - dragY) / e.scaledResolution.getScaledHeight());
-                }
-
-            }
-        }
-
-        if(Mouse.isButtonDown(0) && isHovering()){
-            if(!mousestate){
-                dragX = (int) (normaliseX() - (pos.getValue().getX() * e.scaledResolution.getScaledWidth()));
-                dragY = (int) (normaliseY() - (pos.getValue().getY() * e.scaledResolution.getScaledHeight()));
-            }
-            mousestate = true;
-        } else {
-            mousestate = false;
-        }
-
-
-    }
-
-
-
+    float x1 = 0;
+    float y1 = 0;
     int dragX, dragY = 0;
     boolean mousestate = false;
 
-    public int normaliseX(){
-        return (int) ((Mouse.getX()/2f));
-    }
-    public int normaliseY(){
-        ScaledResolution sr = new ScaledResolution(mc);
-        return (((-Mouse.getY() + sr.getScaledHeight()) + sr.getScaledHeight())/2);
-    }
 
-    public boolean isHovering(){
-        return normaliseX() > x1 - scale.getValue() && normaliseX()< x1 + scale.getValue() && normaliseY() > y1 - scale.getValue() &&  normaliseY() < y1 + scale.getValue();
+    public Player() {
+        super("PlayerView", "Player", Category.HUD);
     }
 
     public static void drawPlayerOnScreen(int x, int y, int scale, float mouseX, float mouseY, EntityPlayer player, boolean yaw, boolean pitch) {
@@ -133,5 +86,46 @@ public class Player extends Module {
         GlStateManager.disableDepth();
         GlStateManager.popMatrix();
         // ESP.hackyFix = false;
+    }
+
+    @SubscribeEvent
+    public void onRender2D(Render2DEvent e) {
+        y1 = e.scaledResolution.getScaledHeight() * pos.getValue().getY();
+        x1 = e.scaledResolution.getScaledWidth() * pos.getValue().getX();
+        drawPlayerOnScreen((int) x1, (int) y1, scale.getValue(), -30, 0, Minecraft.getMinecraft().player, yw.getValue(), pch.getValue());
+        if (mc.currentScreen instanceof GuiChat || mc.currentScreen instanceof HudEditorGui || mc.currentScreen instanceof ThunderGui2) {
+            if (isHovering()) {
+                if (Mouse.isButtonDown(0) && mousestate) {
+                    pos.getValue().setX((float) (normaliseX() - dragX) / e.scaledResolution.getScaledWidth());
+                    pos.getValue().setY((float) (normaliseY() - dragY) / e.scaledResolution.getScaledHeight());
+                }
+
+            }
+        }
+
+        if (Mouse.isButtonDown(0) && isHovering()) {
+            if (!mousestate) {
+                dragX = (int) (normaliseX() - (pos.getValue().getX() * e.scaledResolution.getScaledWidth()));
+                dragY = (int) (normaliseY() - (pos.getValue().getY() * e.scaledResolution.getScaledHeight()));
+            }
+            mousestate = true;
+        } else {
+            mousestate = false;
+        }
+
+
+    }
+
+    public int normaliseX() {
+        return (int) ((Mouse.getX() / 2f));
+    }
+
+    public int normaliseY() {
+        ScaledResolution sr = new ScaledResolution(mc);
+        return (((-Mouse.getY() + sr.getScaledHeight()) + sr.getScaledHeight()) / 2);
+    }
+
+    public boolean isHovering() {
+        return normaliseX() > x1 - scale.getValue() && normaliseX() < x1 + scale.getValue() && normaliseY() > y1 - scale.getValue() && normaliseY() < y1 + scale.getValue();
     }
 }

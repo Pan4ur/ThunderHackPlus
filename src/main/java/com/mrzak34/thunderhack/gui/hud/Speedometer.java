@@ -18,44 +18,43 @@ import org.lwjgl.input.Mouse;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-public class Speedometer extends Module{
+public class Speedometer extends Module {
+    public final Setting<ColorSetting> color = this.register(new Setting<>("Color", new ColorSetting(0x8800FF00)));
+    private final Setting<PositionSetting> pos = this.register(new Setting<>("Position", new PositionSetting(0.5f, 0.5f)));
+    public double speedometerCurrentSpeed = 0.0;
+    float x1 = 0;
+    float y1 = 0;
+    int dragX, dragY = 0;
+    boolean mousestate = false;
+    private final Setting<Boolean> bps = this.register(new Setting<>("BPS", false));
     public Speedometer() {
         super("Speedometer", "Speedometer", Module.Category.HUD);
     }
 
-    public final Setting<ColorSetting> color = this.register(new Setting<>("Color", new ColorSetting(0x8800FF00)));
-    private final Setting<PositionSetting> pos = this.register(new Setting<>("Position", new PositionSetting(0.5f,0.5f)));
-    private Setting<Boolean> bps = this.register(new Setting<>("BPS", false));
-
-
-
-    float x1 =0;
-    float y1= 0;
-
     @SubscribeEvent
-    public void onRender2D(Render2DEvent e){
+    public void onRender2D(Render2DEvent e) {
         ScaledResolution sr = new ScaledResolution(mc);
-        String str ="";
-        if(!bps.getValue()) {
-            str = "Speed " + ChatFormatting.WHITE + round( getSpeedKpH()) + " km/h";
+        String str = "";
+        if (!bps.getValue()) {
+            str = "Speed " + ChatFormatting.WHITE + round(getSpeedKpH()) + " km/h";
         } else {
-            str = String.format("Speed " + ChatFormatting.WHITE +  round(getSpeedMpS()) + " b/s");
+            str = String.format("Speed " + ChatFormatting.WHITE + round(getSpeedMpS()) + " b/s");
         }
         y1 = sr.getScaledHeight() * pos.getValue().getY();
         x1 = sr.getScaledWidth() * pos.getValue().getX();
 
-        FontRender.drawString6(str,x1,y1, color.getValue().getRawColor(),true);
-        if(mc.currentScreen instanceof GuiChat || mc.currentScreen instanceof HudEditorGui || mc.currentScreen instanceof ThunderGui2){
-            if(isHovering()){
-                if(Mouse.isButtonDown(0) && mousestate){
-                    pos.getValue().setX( (float) (normaliseX() - dragX) /  sr.getScaledWidth());
-                    pos.getValue().setY( (float) (normaliseY() - dragY) / sr.getScaledHeight());
+        FontRender.drawString6(str, x1, y1, color.getValue().getRawColor(), true);
+        if (mc.currentScreen instanceof GuiChat || mc.currentScreen instanceof HudEditorGui || mc.currentScreen instanceof ThunderGui2) {
+            if (isHovering()) {
+                if (Mouse.isButtonDown(0) && mousestate) {
+                    pos.getValue().setX((float) (normaliseX() - dragX) / sr.getScaledWidth());
+                    pos.getValue().setY((float) (normaliseY() - dragY) / sr.getScaledHeight());
                 }
             }
         }
 
-        if(Mouse.isButtonDown(0) && isHovering()){
-            if(!mousestate){
+        if (Mouse.isButtonDown(0) && isHovering()) {
+            if (!mousestate) {
                 dragX = (int) (normaliseX() - (pos.getValue().getX() * sr.getScaledWidth()));
                 dragY = (int) (normaliseY() - (pos.getValue().getY() * sr.getScaledHeight()));
             }
@@ -65,21 +64,18 @@ public class Speedometer extends Module{
         }
     }
 
-    int dragX, dragY = 0;
-    boolean mousestate = false;
-
-    public int normaliseX(){
-        return (int) ((Mouse.getX()/2f));
+    public int normaliseX() {
+        return (int) ((Mouse.getX() / 2f));
     }
-    public int normaliseY(){
+
+    public int normaliseY() {
         ScaledResolution sr = new ScaledResolution(mc);
-        return (((-Mouse.getY() + sr.getScaledHeight()) + sr.getScaledHeight())/2);
+        return (((-Mouse.getY() + sr.getScaledHeight()) + sr.getScaledHeight()) / 2);
     }
 
-    public boolean isHovering(){
-        return normaliseX() > x1 - 10 && normaliseX()< x1 + 50 && normaliseY() > y1 &&  normaliseY() < y1 + 10;
+    public boolean isHovering() {
+        return normaliseX() > x1 - 10 && normaliseX() < x1 + 50 && normaliseY() > y1 && normaliseY() < y1 + 10;
     }
-
 
     private float round(double value) {
         BigDecimal bd = new BigDecimal(value);
@@ -87,16 +83,12 @@ public class Speedometer extends Module{
         return bd.floatValue();
     }
 
-    public double speedometerCurrentSpeed = 0.0;
-
-
     @SubscribeEvent
     public void updateValues(EventPreMotion e) {
         double distTraveledLastTickX = mc.player.posX - mc.player.prevPosX;
         double distTraveledLastTickZ = mc.player.posZ - mc.player.prevPosZ;
         this.speedometerCurrentSpeed = distTraveledLastTickX * distTraveledLastTickX + distTraveledLastTickZ * distTraveledLastTickZ;
     }
-
 
 
     public double turnIntoKpH(double input) {

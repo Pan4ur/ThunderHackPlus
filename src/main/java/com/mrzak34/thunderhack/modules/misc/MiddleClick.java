@@ -7,8 +7,7 @@ import com.mrzak34.thunderhack.events.EventPostMotion;
 import com.mrzak34.thunderhack.events.EventPreMotion;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
-import com.mrzak34.thunderhack.util.*;
-
+import com.mrzak34.thunderhack.util.InventoryUtil;
 import com.mrzak34.thunderhack.util.Timer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -19,12 +18,7 @@ import net.minecraft.util.EnumHand;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.input.Mouse;
 
-public class MiddleClick extends Module{
-    public MiddleClick() {
-            super("MiddleClick", "действия на колесико-мыши", Category.MISC);
-    }
-
-
+public class MiddleClick extends Module {
     public Setting<Boolean> fm = register(new Setting<>("FriendMessage", true));
     public Setting<Boolean> friend = register(new Setting<>("Friend", true));
     public Setting<Boolean> rocket = register(new Setting<>("Rocket", false));
@@ -34,13 +28,16 @@ public class MiddleClick extends Module{
     public Setting<Boolean> silent = register(new Setting<>("SilentXP", true));
     public Setting<Boolean> whileEating = register(new Setting<>("WhileEating", true));
     public Setting<Boolean> pickBlock = register(new Setting<>("CancelMC", true));
-
-
     public Timer timr = new Timer();
+    private int lastSlot = -1;
 
+
+    public MiddleClick() {
+        super("MiddleClick", "действия на колесико-мыши", Category.MISC);
+    }
 
     @SubscribeEvent
-    public void onPreMotion(EventPreMotion event){
+    public void onPreMotion(EventPreMotion event) {
         if (mc.player == null || mc.world == null) return;
 
         if (feetExp.getValue() && Mouse.isButtonDown(2)) {
@@ -57,7 +54,7 @@ public class MiddleClick extends Module{
                 } else {
                     Thunderhack.friendManager.addFriend(entity.getName());
                     if (fm.getValue()) {
-                        mc.player.sendChatMessage("/w "+ entity.getName() + " i friended u at ThunderHackPlus");
+                        mc.player.sendChatMessage("/w " + entity.getName() + " i friended u at ThunderHackPlus");
                     }
                     Command.sendMessage("Added §b" + entity.getName() + "§r as a friend!");
                 }
@@ -126,9 +123,6 @@ public class MiddleClick extends Module{
         }
     }
 
-
-
-
     private int findRocketSlot() {
         int rocketSlot = -1;
 
@@ -148,7 +142,6 @@ public class MiddleClick extends Module{
 
         return rocketSlot;
     }
-
 
     private int findEPSlot() {
         int epSlot = -1;
@@ -172,7 +165,7 @@ public class MiddleClick extends Module{
 
     @SubscribeEvent
     public void onMiddleClick(ClickMiddleEvent event) {
-        if(!xp.getValue()) return;
+        if (!xp.getValue()) return;
         if (pickBlock.getValue()) {
             int slot = InventoryUtil.findItemAtHotbar(Items.EXPERIENCE_BOTTLE);
             if (slot != -1 && slot != -2 && slot != mc.player.inventory.currentItem) {
@@ -180,5 +173,4 @@ public class MiddleClick extends Module{
             }
         }
     }
-    private int lastSlot = -1;
 }

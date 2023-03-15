@@ -2,18 +2,19 @@ package com.mrzak34.thunderhack.manager;
 
 import com.mojang.realmsclient.gui.ChatFormatting;
 import com.mrzak34.thunderhack.Thunderhack;
+import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.events.*;
-import com.mrzak34.thunderhack.gui.hud.RadarRewrite;
 import com.mrzak34.thunderhack.gui.fontstuff.FontRender;
+import com.mrzak34.thunderhack.gui.hud.RadarRewrite;
 import com.mrzak34.thunderhack.gui.thundergui2.ThunderGui2;
 import com.mrzak34.thunderhack.macro.Macro;
+import com.mrzak34.thunderhack.modules.Feature;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.modules.client.ClickGui;
 import com.mrzak34.thunderhack.modules.misc.Macros;
 import com.mrzak34.thunderhack.modules.render.PearlESP;
-import com.mrzak34.thunderhack.util.*;
-import com.mrzak34.thunderhack.modules.Feature;
-import com.mrzak34.thunderhack.command.Command;
+import com.mrzak34.thunderhack.util.RoundedShader;
+import com.mrzak34.thunderhack.util.Timer;
 import com.mrzak34.thunderhack.util.render.RenderUtil;
 import com.mrzak34.thunderhack.util.shaders.BetterDynamicAnimation;
 import net.minecraft.client.gui.GuiGameOver;
@@ -43,14 +44,25 @@ import org.lwjgl.opengl.GL11;
 import java.awt.*;
 
 import static com.mrzak34.thunderhack.modules.misc.Timer.TwoColoreffect;
-import static com.mrzak34.thunderhack.util.MovementUtil.isMoving;
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL11.GL_DEPTH_TEST;
 
 public class EventManager extends Feature {
     public static Module hoveredModule;
-    private final Timer logoutTimer = new Timer();
-    private final Timer chorusTimer= new Timer();
+    public static boolean serversprint = false;
+    public static int backX, backY, backZ;
+    public static float visualYaw, visualPitch, prevVisualYaw, prevVisualPitch;
+    public static boolean lock_sprint = false;
+    public static BetterDynamicAnimation timerAnimation = new BetterDynamicAnimation();
+    public static boolean isMacro = false;
+    private final Timer chorusTimer = new Timer();
+    com.mrzak34.thunderhack.util.Timer lastPacket = new com.mrzak34.thunderhack.util.Timer();
+    private float yaw;
+    private float pitch;
+
+    public static void setColor(int color) {
+        GL11.glColor4ub((byte) (color >> 16 & 0xFF), (byte) (color >> 8 & 0xFF), (byte) (color & 0xFF), (byte) (color >> 24 & 0xFF));
+    }
+
     public void init() {
         MinecraftForge.EVENT_BUS.register(this);
     }
@@ -59,27 +71,22 @@ public class EventManager extends Feature {
         MinecraftForge.EVENT_BUS.unregister(this);
     }
 
-
     @SubscribeEvent
     public void onUpdate(LivingEvent.LivingUpdateEvent event) {
         if (!fullNullCheck() && (event.getEntity().getEntityWorld()).isRemote && event.getEntityLiving().equals(mc.player)) {
             Thunderhack.moduleManager.onUpdate();
             Thunderhack.moduleManager.sortModules(true);
         }
-        if(!fullNullCheck()){
-            if(Thunderhack.moduleManager.getModuleByClass(ClickGui.class).getBind().getKey() == -1){
-                Command.sendMessage(ChatFormatting.RED +  "Default clickgui keybind --> P");
+        if (!fullNullCheck()) {
+            if (Thunderhack.moduleManager.getModuleByClass(ClickGui.class).getBind().getKey() == -1) {
+                Command.sendMessage(ChatFormatting.RED + "Default clickgui keybind --> P");
                 Thunderhack.moduleManager.getModuleByClass(ClickGui.class).setBind(Keyboard.getKeyIndex("P"));
             }
         }
     }
 
-    public static boolean serversprint = false;
-
-
     @SubscribeEvent
     public void onClientConnect(FMLNetworkEvent.ClientConnectedToServerEvent event) {
-        this.logoutTimer.reset();
         Thunderhack.moduleManager.onLogin();
 
     }
@@ -94,66 +101,59 @@ public class EventManager extends Feature {
         if (fullNullCheck())
             return;
 
-        if(event.phase != TickEvent.Phase.END){
+        if (event.phase != TickEvent.Phase.END) {
             return;
         }
 
-        Thunderhack.moduleManager.onTick();
-        ThunderGui2.getInstance().onTick();
-
-        timerAnimation.update();
-        if(mc.world != null) {
+        if (mc.world != null) {
             try {
                 for (EntityPlayer player : mc.world.playerEntities) {
                     if (player == null || player.getHealth() > 0.0F)
                         continue;
                     MinecraftForge.EVENT_BUS.post(new DeathEvent(player));
                 }
-            } catch (Exception ignored){
+            } catch (Exception ignored) {
 
             }
 
-            if (mc.currentScreen instanceof GuiGameOver){
+            if (mc.currentScreen instanceof GuiGameOver) {
                 backY = (int) mc.player.posY;
                 backZ = (int) mc.player.posZ;
                 backX = (int) mc.player.posX;
             }
         }
-    }
 
-    public static int backX, backY,backZ;
-    public static float visualYaw, visualPitch, prevVisualYaw, prevVisualPitch;
+        Thunderhack.moduleManager.onTick();
+        ThunderGui2.getInstance().onTick();
+        timerAnimation.update();
+    }
 
     @SubscribeEvent
     public void onPlayer(EventPreMotion event) {
         if (fullNullCheck())
             return;
         updateRotations();
-        if(!lastPacket.passedMs(100)){
+        if (!lastPacket.passedMs(100)) {
             Thunderhack.moduleManager.getModuleByClass(com.mrzak34.thunderhack.modules.misc.Timer.class).m();
         }
     }
 
-    com.mrzak34.thunderhack.util.Timer lastPacket = new com.mrzak34.thunderhack.util.Timer();
-
-    public static boolean lock_sprint = false;
-
     @SubscribeEvent
-    public void onPacketSend(PacketEvent.Send e){
-        if(e.getPacket() instanceof CPacketPlayer.Position || e.getPacket() instanceof CPacketPlayer.PositionRotation || e.getPacket() instanceof CPacketPlayer.Rotation){
+    public void onPacketSend(PacketEvent.Send e) {
+        if (e.getPacket() instanceof CPacketPlayer.Position || e.getPacket() instanceof CPacketPlayer.PositionRotation || e.getPacket() instanceof CPacketPlayer.Rotation) {
             lastPacket.reset();
         }
-        if(e.getPacket() instanceof CPacketEntityAction){
+        if (e.getPacket() instanceof CPacketEntityAction) {
             CPacketEntityAction ent = e.getPacket();
-            if(ent.getAction() == CPacketEntityAction.Action.START_SPRINTING) {
-                if(lock_sprint){
+            if (ent.getAction() == CPacketEntityAction.Action.START_SPRINTING) {
+                if (lock_sprint) {
                     e.setCanceled(true);
                     return;
                 }
                 serversprint = true;
             }
-            if(ent.getAction() == CPacketEntityAction.Action.STOP_SPRINTING) {
-                if(lock_sprint){
+            if (ent.getAction() == CPacketEntityAction.Action.STOP_SPRINTING) {
+                if (lock_sprint) {
                     e.setCanceled(true);
                     return;
                 }
@@ -162,16 +162,12 @@ public class EventManager extends Feature {
         }
     }
 
-
     @SubscribeEvent
     public void onUpdateWalkingPlayer(EventPostMotion event) {
         if (fullNullCheck())
             return;
         restoreRotations();
     }
-
-    private float yaw;
-    private float pitch;
 
     public void updateRotations() {
         this.yaw = EventManager.mc.player.rotationYaw;
@@ -197,9 +193,9 @@ public class EventManager extends Feature {
                 MinecraftForge.EVENT_BUS.post(new TotemPopEvent(player));
             }
         }
-        if (event.getPacket() instanceof SPacketSoundEffect && ((SPacketSoundEffect)event.getPacket()).getSound() == SoundEvents.ITEM_CHORUS_FRUIT_TELEPORT) {
+        if (event.getPacket() instanceof SPacketSoundEffect && ((SPacketSoundEffect) event.getPacket()).getSound() == SoundEvents.ITEM_CHORUS_FRUIT_TELEPORT) {
             if (!this.chorusTimer.passedMs(100L)) {
-                MinecraftForge.EVENT_BUS.post(new ChorusEvent(((SPacketSoundEffect)event.getPacket()).getX(),  ((SPacketSoundEffect)event.getPacket()).getY(),  ((SPacketSoundEffect)event.getPacket()).getZ()));
+                MinecraftForge.EVENT_BUS.post(new ChorusEvent(((SPacketSoundEffect) event.getPacket()).getX(), ((SPacketSoundEffect) event.getPacket()).getY(), ((SPacketSoundEffect) event.getPacket()).getZ()));
             }
             this.chorusTimer.reset();
         }
@@ -209,47 +205,19 @@ public class EventManager extends Feature {
     public void onWorldRender(RenderWorldLastEvent event) {
         if (event.isCanceled())
             return;
-
-
         mc.profiler.startSection("thunderhack");
-        GlStateManager.disableTexture2D();
-        GlStateManager.enableBlend();
-        GlStateManager.disableAlpha();
-        GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
-        GlStateManager.shadeModel(7425);
-        GlStateManager.disableDepth();
+        glPushAttrib(GL_ALL_ATTRIB_BITS);
+        GL11.glDisable(GL11.GL_CULL_FACE);
+        GL11.glDisable(GL11.GL_TEXTURE_2D);
+        GL11.glEnable(GL_BLEND);
+        GL11.glDisable(GL11.GL_DEPTH_TEST);
         GlStateManager.glLineWidth(1.0F);
-
-
-
-
-
-       // prepareGL();
         Render3DEvent render3dEvent = new Render3DEvent(event.getPartialTicks());
         Thunderhack.moduleManager.onRender3D(render3dEvent);
-       // releaseGL();
-
-
-
         GlStateManager.glLineWidth(1.0F);
-        GlStateManager.shadeModel(7424);
-       GlStateManager.disableBlend();
-       GlStateManager.enableAlpha();
-        GlStateManager.enableTexture2D();
-        GlStateManager.enableDepth();
-        GlStateManager.enableCull();
-        GlStateManager.enableCull();
-        GlStateManager.depthMask(true);
-        GlStateManager.enableTexture2D();
-        GlStateManager.enableBlend();
-        GlStateManager.enableDepth();
-           mc.profiler.endSection();
-
-
-
+        glPopAttrib();
+        mc.profiler.endSection();
     }
-
-    public static BetterDynamicAnimation timerAnimation = new BetterDynamicAnimation();
 
     @SubscribeEvent
     public void renderHUD(RenderGameOverlayEvent.Post event) {
@@ -259,22 +227,21 @@ public class EventManager extends Feature {
     public void onRenderGameOverlayEvent(RenderGameOverlayEvent.Text event) {
         if (event.getType().equals(RenderGameOverlayEvent.ElementType.TEXT)) {
 
-
             boolean blend = glIsEnabled(GL_BLEND);
             boolean depth = glIsEnabled(GL_DEPTH_TEST);
 
             ScaledResolution resolution = new ScaledResolution(mc);
             Render2DEvent render2DEvent = new Render2DEvent(event.getPartialTicks(), resolution);
             Thunderhack.moduleManager.onRender2D(render2DEvent);
-            if(Thunderhack.moduleManager.getModuleByClass(com.mrzak34.thunderhack.modules.misc.Timer.class).indicator.getValue()){
-                float posX = (resolution.getScaledWidth()/2f);
+            if (Thunderhack.moduleManager.getModuleByClass(com.mrzak34.thunderhack.modules.misc.Timer.class).indicator.getValue()) {
+                float posX = (resolution.getScaledWidth() / 2f);
                 float posY = (resolution.getScaledHeight() - Thunderhack.moduleManager.getModuleByClass(com.mrzak34.thunderhack.modules.misc.Timer.class).yyy.getValue());
 
                 Color a = TwoColoreffect(Thunderhack.moduleManager.getModuleByClass(com.mrzak34.thunderhack.modules.misc.Timer.class).color.getValue().getColorObject(), Thunderhack.moduleManager.getModuleByClass(com.mrzak34.thunderhack.modules.misc.Timer.class).color2.getValue().getColorObject(), Math.abs(System.currentTimeMillis() / 10) / 100.0 + 3.0F * (Thunderhack.moduleManager.getModuleByClass(com.mrzak34.thunderhack.modules.misc.Timer.class).slices.getValue() * 2.55) / 60);
                 Color b = TwoColoreffect(Thunderhack.moduleManager.getModuleByClass(com.mrzak34.thunderhack.modules.misc.Timer.class).color.getValue().getColorObject(), Thunderhack.moduleManager.getModuleByClass(com.mrzak34.thunderhack.modules.misc.Timer.class).color2.getValue().getColorObject(), Math.abs(System.currentTimeMillis() / 10) / 100.0 + 3.0F * (Thunderhack.moduleManager.getModuleByClass(com.mrzak34.thunderhack.modules.misc.Timer.class).slices1.getValue() * 2.55) / 60);
                 Color c = TwoColoreffect(Thunderhack.moduleManager.getModuleByClass(com.mrzak34.thunderhack.modules.misc.Timer.class).color.getValue().getColorObject(), Thunderhack.moduleManager.getModuleByClass(com.mrzak34.thunderhack.modules.misc.Timer.class).color2.getValue().getColorObject(), Math.abs(System.currentTimeMillis() / 10) / 100.0 + 3.0F * (Thunderhack.moduleManager.getModuleByClass(com.mrzak34.thunderhack.modules.misc.Timer.class).slices2.getValue() * 2.55) / 60);
                 Color d = TwoColoreffect(Thunderhack.moduleManager.getModuleByClass(com.mrzak34.thunderhack.modules.misc.Timer.class).color.getValue().getColorObject(), Thunderhack.moduleManager.getModuleByClass(com.mrzak34.thunderhack.modules.misc.Timer.class).color2.getValue().getColorObject(), Math.abs(System.currentTimeMillis() / 10) / 100.0 + 3.0F * (Thunderhack.moduleManager.getModuleByClass(com.mrzak34.thunderhack.modules.misc.Timer.class).slices3.getValue() * 2.55) / 60);
-                RenderUtil.drawBlurredShadow(posX - 33, posY - 3 , 66,16,10,a);
+                RenderUtil.drawBlurredShadow(posX - 33, posY - 3, 66, 16, 10, a);
 
 
                 float timerStatus = (float) (61f * ((10 - com.mrzak34.thunderhack.modules.misc.Timer.value) / (Math.abs(Thunderhack.moduleManager.getModuleByClass(com.mrzak34.thunderhack.modules.misc.Timer.class).getMin()) + 10)));
@@ -284,8 +251,8 @@ public class EventManager extends Feature {
                 int status = (int) (((10 - com.mrzak34.thunderhack.modules.misc.Timer.value) / (Math.abs(Thunderhack.moduleManager.getModuleByClass(com.mrzak34.thunderhack.modules.misc.Timer.class).getMin()) + 10)) * 100);
 
                 RoundedShader.drawGradientRound(posX - 31f, posY, 62, 12, 3f, new Color(1), new Color(1), new Color(1), new Color(1));
-                RoundedShader.drawGradientRound(posX - 30.5f, posY +0.5f ,timerStatus , 11, 3f, a, b, c, d);
-                FontRender.drawCentString6( status >= 99 ? "100%" : status + "%", resolution.getScaledWidth()/2f, posY + 5.25f, new Color(200, 200, 200, 255).getRGB());
+                RoundedShader.drawGradientRound(posX - 30.5f, posY + 0.5f, timerStatus, 11, 3f, a, b, c, d);
+                FontRender.drawCentString6(status >= 99 ? "100%" : status + "%", resolution.getScaledWidth() / 2f, posY + 5.25f, new Color(200, 200, 200, 255).getRGB());
             }
             GlStateManager.resetColor();
             if (blend)
@@ -293,16 +260,12 @@ public class EventManager extends Feature {
             if (depth)
                 glEnable(GL_DEPTH_TEST);
 
-
-
-
-
             if (Thunderhack.gps_position != null) {
                 float xOffset = resolution.getScaledWidth() / 2f;
                 float yOffset = resolution.getScaledHeight() / 2f;
 
                 GlStateManager.pushMatrix();
-                float yaw = RadarRewrite.getRotations(Thunderhack.gps_position ) - mc.player.rotationYaw;
+                float yaw = RadarRewrite.getRotations(Thunderhack.gps_position) - mc.player.rotationYaw;
                 glTranslatef(xOffset, yOffset, 0.0F);
                 glRotatef(yaw, 0.0F, 0.0F, 1.0F);
                 glTranslatef(-xOffset, -yOffset, 0.0F);
@@ -312,15 +275,11 @@ public class EventManager extends Feature {
                 glTranslatef(-xOffset, -yOffset, 0.0F);
                 glColor4f(1F, 1F, 1F, 1F);
                 GlStateManager.popMatrix();
-                FontRender.drawCentString6("gps (" + getDistance(Thunderhack.gps_position) + "m)", (float) get_x(yaw) + xOffset, (float) (yOffset - get_y(yaw)) - 20,-1);
-
+                FontRender.drawCentString6("gps (" + getDistance(Thunderhack.gps_position) + "m)", (float) get_x(yaw) + xOffset, (float) (yOffset - get_y(yaw)) - 20, -1);
 
             }
-
         }
     }
-
-
 
     @SubscribeEvent(priority = EventPriority.NORMAL, receiveCanceled = true)
     public void onKeyInput(InputEvent.KeyInputEvent event) {
@@ -328,13 +287,6 @@ public class EventManager extends Feature {
             Thunderhack.moduleManager.onKeyPressed(Keyboard.getEventKey());
         }
     }
-
-
-
-    public static void setColor(int color) {
-        GL11.glColor4ub((byte) (color >> 16 & 0xFF), (byte) (color >> 8 & 0xFF), (byte) (color & 0xFF), (byte) (color >> 24 & 0xFF));
-    }
-
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void onChatSent(ClientChatEvent event) {
@@ -354,13 +306,9 @@ public class EventManager extends Feature {
         }
     }
 
-    public static boolean isMacro = false;
-
     @SubscribeEvent
     public void onKeyPress(KeyEvent event) {
         if (event.getKey() == Keyboard.KEY_NONE) return;
-        if (Keyboard.isKeyDown(Keyboard.KEY_F3)) return;
-
         if (Thunderhack.moduleManager.getModuleByClass(Macros.class).isEnabled()) {
             for (Macro m : Thunderhack.macromanager.getMacros()) {
                 if (m.getBind() == event.getKey()) {
@@ -373,13 +321,12 @@ public class EventManager extends Feature {
     }
 
 
-
     private double get_x(double rad) {
         return Math.sin(Math.toRadians(rad)) * (50);
     }
 
     private double get_y(double rad) {
-        return Math.cos(Math.toRadians(rad))  * (50);
+        return Math.cos(Math.toRadians(rad)) * (50);
     }
 
     public int getDistance(BlockPos bp) {

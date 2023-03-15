@@ -11,9 +11,9 @@ import java.util.List;
 public interface IGuiScreen {
 
     @Accessor(value = "buttonList")
-    void setButtonList(List<GuiButton> buttonList);
+    List<GuiButton> getButtonList();
 
     @Accessor(value = "buttonList")
-    List<GuiButton> getButtonList();
+    void setButtonList(List<GuiButton> buttonList);
 
 }

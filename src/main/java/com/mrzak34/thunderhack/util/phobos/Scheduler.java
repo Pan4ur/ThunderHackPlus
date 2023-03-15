@@ -12,30 +12,36 @@ import java.util.Queue;
 /**
  * Helps with scheduling Tasks.
  */
-public class Scheduler extends Feature
-{
+public class Scheduler extends Feature {
     private static final Scheduler INSTANCE = new Scheduler();
 
-    private final Queue<Runnable> scheduled  = new LinkedList<>();
+    private final Queue<Runnable> scheduled = new LinkedList<>();
     private final Queue<Runnable> toSchedule = new LinkedList<>();
     private boolean executing;
     private int gameLoop;
 
-    public Scheduler()
-    {
+    public Scheduler() {
 
+    }
+
+    /**
+     * @return the Singleton Instance of the Scheduler.
+     */
+    public static Scheduler getInstance() {
+        return INSTANCE;
     }
 
     public void init() {
         MinecraftForge.EVENT_BUS.register(this);
     }
+
     public void unload() {
         MinecraftForge.EVENT_BUS.unregister(this);
     }
 
     @SubscribeEvent
-    public void onGameZaloop(GameZaloopEvent e){
-        gameLoop  = ((IMinecraft) mc).getGameLoop();
+    public void onGameZaloop(GameZaloopEvent e) {
+        gameLoop = ((IMinecraft) mc).getGameLoop();
 
         executing = true;
         CollectionUtil.emptyQueue(scheduled, Runnable::run);
@@ -44,35 +50,20 @@ public class Scheduler extends Feature
         CollectionUtil.emptyQueue(toSchedule, scheduled::add);
     }
 
-    /** @return the Singleton Instance of the Scheduler. */
-    public static Scheduler getInstance()
-    {
-        return INSTANCE;
-    }
-
-
-    public void scheduleAsynchronously(Runnable runnable)
-    {
+    public void scheduleAsynchronously(Runnable runnable) {
         mc.addScheduledTask(() -> schedule(runnable, false));
     }
 
 
-    public void schedule(Runnable runnable, boolean checkGameLoop)
-    {
-        if (mc.isCallingFromMinecraftThread())
-        {
+    public void schedule(Runnable runnable, boolean checkGameLoop) {
+        if (mc.isCallingFromMinecraftThread()) {
             if (executing || checkGameLoop
-                    && gameLoop !=  ((IMinecraft) mc).getGameLoop())
-            {
+                    && gameLoop != ((IMinecraft) mc).getGameLoop()) {
                 toSchedule.add(runnable);
-            }
-            else
-            {
+            } else {
                 scheduled.add(runnable);
             }
-        }
-        else
-        {
+        } else {
             mc.addScheduledTask(runnable);
         }
     }

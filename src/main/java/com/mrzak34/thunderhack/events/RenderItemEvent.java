@@ -12,13 +12,12 @@ class RenderItemEvent extends Event {
             offHandScaleX, offHandScaleY, offHandScaleZ/*, offHandItemWidth*/;
 
 
-    public
-    RenderItemEvent ( float mainX , float mainY , float mainZ ,
-                      float offX , float offY , float offZ ,
-                      float mainRotX , float mainRotY , float mainRotZ ,
-                      float offRotX , float offRotY , float offRotZ ,
-                      float mainHandScaleX , float mainHandScaleY , float mainHandScaleZ , /*float mainHandItemWidth ,*/
-                      float offHandScaleX , float offHandScaleY , float offHandScaleZ /*, float offHandItemWidth*/ ) {
+    public RenderItemEvent(float mainX, float mainY, float mainZ,
+                           float offX, float offY, float offZ,
+                           float mainRotX, float mainRotY, float mainRotZ,
+                           float offRotX, float offRotY, float offRotZ,
+                           float mainHandScaleX, float mainHandScaleY, float mainHandScaleZ, /*float mainHandItemWidth ,*/
+                           float offHandScaleX, float offHandScaleY, float offHandScaleZ /*, float offHandItemWidth*/) {
         this.mainX = mainX;
         this.mainY = mainY;
         this.mainZ = mainZ;
@@ -41,183 +40,147 @@ class RenderItemEvent extends Event {
         //this.offHandItemWidth = offHandItemWidth;
     }
 
-    public
-    float getMainX ( ) {
+    public float getMainX() {
         return mainX;
     }
 
-    public
-    void setMainX ( float v ) {
+    public void setMainX(float v) {
         this.mainX = v;
     }
 
-    public
-    float getMainY ( ) {
+    public float getMainY() {
         return mainY;
     }
 
-    public
-    void setMainY ( float v ) {
+    public void setMainY(float v) {
         this.mainY = v;
     }
 
-    public
-    float getMainZ ( ) {
+    public float getMainZ() {
         return mainZ;
     }
 
-    public
-    void setMainZ ( float v ) {
+    public void setMainZ(float v) {
         this.mainZ = v;
     }
 
-    public
-    float getOffX ( ) {
+    public float getOffX() {
         return offX;
     }
 
-    public
-    void setOffX ( float v ) {
+    public void setOffX(float v) {
         this.offX = v;
     }
 
-    public
-    float getOffY ( ) {
+    public float getOffY() {
         return offY;
     }
 
-    public
-    void setOffY ( float v ) {
+    public void setOffY(float v) {
         this.offY = v;
     }
 
-    public
-    float getOffZ ( ) {
+    public float getOffZ() {
         return offZ;
     }
 
-    public
-    void setOffZ ( float v ) {
+    public void setOffZ(float v) {
         this.offZ = v;
     }
 
-    public
-    float getMainRotX ( ) {
+    public float getMainRotX() {
         return mainRotX;
     }
 
-    public
-    void setMainRotX ( float v ) {
+    public void setMainRotX(float v) {
         this.mainRotX = v;
     }
 
-    public
-    float getMainRotY ( ) {
+    public float getMainRotY() {
         return mainRotY;
     }
 
-    public
-    void setMainRotY ( float v ) {
+    public void setMainRotY(float v) {
         this.mainRotY = v;
     }
 
-    public
-    float getMainRotZ ( ) {
+    public float getMainRotZ() {
         return mainRotZ;
     }
 
-    public
-    void setMainRotZ ( float v ) {
+    public void setMainRotZ(float v) {
         this.mainRotZ = v;
     }
 
-    public
-    float getOffRotX ( ) {
+    public float getOffRotX() {
         return offRotX;
     }
 
-    public
-    void setOffRotX ( float v ) {
+    public void setOffRotX(float v) {
         this.offRotX = v;
     }
 
-    public
-    float getOffRotY ( ) {
+    public float getOffRotY() {
         return offRotY;
     }
 
-    public
-    void setOffRotY ( float v ) {
+    public void setOffRotY(float v) {
         this.offRotY = v;
     }
 
-    public
-    float getOffRotZ ( ) {
+    public float getOffRotZ() {
         return offRotZ;
     }
 
-    public
-    void setOffRotZ ( float v ) {
+    public void setOffRotZ(float v) {
         this.offRotZ = v;
     }
 
-    public
-    float getMainHandScaleX ( ) {
+    public float getMainHandScaleX() {
         return mainHandScaleX;
     }
 
-    public
-    void setMainHandScaleX ( float v ) {
+    public void setMainHandScaleX(float v) {
         this.mainHandScaleX = v;
     }
 
-    public
-    float getMainHandScaleY ( ) {
+    public float getMainHandScaleY() {
         return mainHandScaleY;
     }
 
-    public
-    void setMainHandScaleY ( float v ) {
+    public void setMainHandScaleY(float v) {
         this.mainHandScaleY = v;
     }
 
-    public
-    float getMainHandScaleZ ( ) {
+    public float getMainHandScaleZ() {
         return mainHandScaleZ;
     }
 
-    public
-    void setMainHandScaleZ ( float v ) {
+    public void setMainHandScaleZ(float v) {
         this.mainHandScaleZ = v;
     }
 
-    public
-    float getOffHandScaleX ( ) {
+    public float getOffHandScaleX() {
         return offHandScaleX;
     }
 
-    public
-    void setOffHandScaleX ( float v ) {
+    public void setOffHandScaleX(float v) {
         this.offHandScaleX = v;
     }
 
-    public
-    float getOffHandScaleY ( ) {
+    public float getOffHandScaleY() {
         return offHandScaleY;
     }
 
-    public
-    void setOffHandScaleY ( float v ) {
+    public void setOffHandScaleY(float v) {
         this.offHandScaleY = v;
     }
 
-    public
-    float getOffHandScaleZ ( ) {
+    public float getOffHandScaleZ() {
         return offHandScaleZ;
     }
 
-    public
-    void setOffHandScaleZ ( float v ) {
+    public void setOffHandScaleZ(float v) {
         this.offHandScaleZ = v;
     }
 }

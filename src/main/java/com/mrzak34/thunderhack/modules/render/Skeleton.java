@@ -1,8 +1,8 @@
 package com.mrzak34.thunderhack.modules.render;
 
-import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.events.Render3DEvent;
+import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.BlockUtils;
@@ -16,12 +16,12 @@ import org.lwjgl.opengl.GL11;
 
 import java.util.HashMap;
 
-public class  Skeleton
+public class Skeleton
         extends Module {
     private static final HashMap<EntityPlayer, float[][]> entities = new HashMap();
+    public final Setting<ColorSetting> Color3 = this.register(new Setting<>("FriendColor", new ColorSetting(0x8800FF00)));
     private final Setting<Float> lineWidth = this.register(new Setting<Float>("LineWidth", Float.valueOf(1.0f), Float.valueOf(0.1f), Float.valueOf(5.0f)));
     private final Setting<Boolean> invisibles = this.register(new Setting<Boolean>("Invisibles", false));
-    public final Setting<ColorSetting> Color3 = this.register(new Setting<>("FriendColor", new ColorSetting(0x8800FF00)));
 
     public Skeleton() {
         super("Skeleton", "скелетон есп-на игроков", Module.Category.RENDER);
@@ -66,9 +66,9 @@ public class  Skeleton
             GL11.glEnable(2848);
             GL11.glLineWidth(this.lineWidth.getValue());
             if (Thunderhack.friendManager.isFriend(e.getName())) {
-                GlStateManager.color(Color3.getValue().getRed()/255f,Color3.getValue().getGreen()/255f,Color3.getValue().getBlue()/255f,Color3.getValue().getAlpha()/255f);
+                GlStateManager.color(Color3.getValue().getRed() / 255f, Color3.getValue().getGreen() / 255f, Color3.getValue().getBlue() / 255f, Color3.getValue().getAlpha() / 255f);
             } else {
-                GlStateManager.color(Color3.getValue().getRed()/255f,Color3.getValue().getGreen()/255f,Color3.getValue().getBlue()/255f,Color3.getValue().getAlpha()/255f);
+                GlStateManager.color(Color3.getValue().getRed() / 255f, Color3.getValue().getGreen() / 255f, Color3.getValue().getBlue() / 255f, Color3.getValue().getAlpha() / 255f);
             }
             Vec3d vec = this.getVec3(event, e);
             double x = vec.x - Skeleton.mc.getRenderManager().renderPosX;

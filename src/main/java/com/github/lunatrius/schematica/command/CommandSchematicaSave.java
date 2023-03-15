@@ -14,7 +14,6 @@ import net.minecraft.command.NumberInvalidException;
 import net.minecraft.command.WrongUsageException;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.util.text.TextComponentTranslation;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.File;
@@ -86,10 +85,10 @@ public class CommandSchematicaSave extends CommandSchematicaBase {
 
         try {
             Schematica.proxy.saveSchematic(player, schematicDirectory, filename, player.getEntityWorld(), format, from, to);
-            Command.sendMessage("Схема успешно сохранена в " + name );
+            Command.sendMessage("Схема успешно сохранена в " + name);
 
         } catch (final Exception e) {
-            Command.sendMessage("Ошибка сохранения схемы!" );
+            Command.sendMessage("Ошибка сохранения схемы!");
         }
     }
 

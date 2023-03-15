@@ -19,6 +19,10 @@ public class DynamicAnimation {
         this(0);
     }
 
+    public static double createAnimation(double value) {
+        return Math.sqrt(1 - Math.pow(value - 1, 2));
+    }
+
     public void update() {
         this.prevStep = step;
         this.step = MathHelper.clamp(this.step + speed, 0, 1);
@@ -29,11 +33,6 @@ public class DynamicAnimation {
         return this.startValue + this.delta * createAnimation(
                 this.prevStep + (this.step - this.prevStep) * Minecraft.getMinecraft().getRenderPartialTicks());
     }
-
-    public static double createAnimation(double value) {
-        return Math.sqrt(1 - Math.pow(value - 1, 2));
-    }
-
 
     public void setValue(double value) {
         if (value == targetValue)

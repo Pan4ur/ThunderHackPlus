@@ -2,10 +2,10 @@ package com.mrzak34.thunderhack.modules.player;
 
 import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.events.Render3DEvent;
+import com.mrzak34.thunderhack.mixin.mixins.IRenderManager;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.setting.Setting;
-import com.mrzak34.thunderhack.mixin.mixins.IRenderManager;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.*;
@@ -21,27 +21,21 @@ import java.util.Queue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Blink extends Module {
+    public Setting<Float> circleWidth = this.register(new Setting<>("Width", 2.5F, 5F, 0.1F));
+    public Setting<ColorSetting> circleColor = this.register(new Setting<>("Color", new ColorSetting(0x33da6464, true)));
+    private final Setting<Boolean> pulse = this.register(new Setting<>("Pulse", false));
+    private final Setting<Boolean> strict = this.register(new Setting<>("Strict", false));
+    private final Setting<Float> factor = this.register(new Setting<>("Factor", 1F, 0.1f, 10F));
+    private final Setting<Boolean> render = this.register(new Setting<>("Render", true));
+    private final Setting<Boolean> fill = this.register(new Setting<>("Fill", true));
+    private final Queue<Packet> storedPackets = new LinkedList<>();
+    private Vec3d lastPos = new Vec3d(BlockPos.ORIGIN);
+    private final AtomicBoolean sending = new AtomicBoolean(false);
+
+
     public Blink() {
         super("Blink", "Отменяет пакеты-движения", Category.MISC);
     }
-
-    private Setting<Boolean> pulse = this.register(new Setting<>("Pulse", false));
-    private Setting<Boolean> strict = this.register(new Setting<>("Strict", false));
-    private Setting<Float> factor = this.register(new Setting<>("Factor", 1F, 0.1f, 10F));
-    private  Setting<Boolean> render = this.register(new Setting<>("Render", true));
-    private  Setting<Boolean> fill = this.register(new Setting<>("Fill", true));
-    public  Setting<Float> circleWidth = this.register(new Setting<>("Width", 2.5F, 5F, 0.1F));
-    public  Setting<ColorSetting> circleColor = this.register(new Setting<>("Color", new ColorSetting(0x33da6464, true)));
-
-
-
-
-    private Queue<Packet> storedPackets = new LinkedList<>();
-
-    private Vec3d lastPos = new Vec3d(BlockPos.ORIGIN);
-
-
-    private AtomicBoolean sending = new AtomicBoolean(false);
 
     @SubscribeEvent
     public void onRender3D(Render3DEvent event) {
@@ -120,14 +114,14 @@ public class Blink extends Module {
 
     @SubscribeEvent
     public void onPacket(PacketEvent.Send event) {
-        if(fullNullCheck()) return;
+        if (fullNullCheck()) return;
         Packet packet = event.getPacket();
         if (sending.get()) return;
         if (pulse.getValue()) {
             if (event.getPacket() instanceof CPacketPlayer) {
                 if (strict.getValue() && !((CPacketPlayer) event.getPacket()).isOnGround()) {
                     sending.set(true);
-                    while(!storedPackets.isEmpty()) {
+                    while (!storedPackets.isEmpty()) {
                         Packet pckt = storedPackets.poll();
                         mc.player.connection.sendPacket(pckt);
                         if (pckt instanceof CPacketPlayer) {
@@ -156,7 +150,7 @@ public class Blink extends Module {
         if (pulse.getValue() && mc.player != null && mc.world != null) {
             if (storedPackets.size() >= factor.getValue() * 10F) {
                 sending.set(true);
-                while(!storedPackets.isEmpty()) {
+                while (!storedPackets.isEmpty()) {
                     Packet pckt = storedPackets.poll();
                     mc.player.connection.sendPacket(pckt);
                     if (pckt instanceof CPacketPlayer) {
@@ -171,8 +165,8 @@ public class Blink extends Module {
 
     @Override
     public void onDisable() {
-        if(mc.world == null || mc.player == null) return;
-        while(!storedPackets.isEmpty()) {
+        if (mc.world == null || mc.player == null) return;
+        while (!storedPackets.isEmpty()) {
             mc.player.connection.sendPacket(storedPackets.poll());
         }
     }

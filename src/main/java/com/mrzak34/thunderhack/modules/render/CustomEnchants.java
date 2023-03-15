@@ -2,11 +2,14 @@ package com.mrzak34.thunderhack.modules.render;
 
 import com.mrzak34.thunderhack.modules.Module;
 
-public class CustomEnchants extends Module{
+public class CustomEnchants extends Module {
+    private static CustomEnchants INSTANCE = new CustomEnchants();
+
     public CustomEnchants() {
         super("RainbowEnchants", "радужные зачары", Module.Category.RENDER);
         this.setInstance();
     }
+
     public static CustomEnchants getInstance() {
         if (INSTANCE == null) {
             INSTANCE = new CustomEnchants();
@@ -17,7 +20,6 @@ public class CustomEnchants extends Module{
     private void setInstance() {
         INSTANCE = this;
     }
-    private static CustomEnchants INSTANCE = new CustomEnchants();
 
 
 }

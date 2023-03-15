@@ -7,8 +7,9 @@ import com.mrzak34.thunderhack.events.Render3DEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.modules.render.BreakHighLight;
 import com.mrzak34.thunderhack.setting.Setting;
-import com.mrzak34.thunderhack.util.*;
+import com.mrzak34.thunderhack.util.SilentRotationUtil;
 import com.mrzak34.thunderhack.util.math.MathUtil;
+import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.GlStateManager;
@@ -20,16 +21,16 @@ import net.minecraft.inventory.ClickType;
 import net.minecraft.item.ItemAxe;
 import net.minecraft.item.ItemPickaxe;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.play.client.*;
+import net.minecraft.network.play.client.CPacketClickWindow;
+import net.minecraft.network.play.client.CPacketConfirmTransaction;
+import net.minecraft.network.play.client.CPacketHeldItemChange;
+import net.minecraft.network.play.client.CPacketPlayerDigging;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-
-import net.minecraft.block.Block;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
 
@@ -38,34 +39,27 @@ public class Speedmine extends Module {
 
     //https://github.com/momentumdevelopment/cosmos/
 
-    public Speedmine() {super("Speedmine", "позволяет быстро-копать","Allows you to dig-quickly", Module.Category.PLAYER);}
-
-    private Setting<Mode> mode = register(new Setting("Mode", Mode.Packet));
-
-    public enum Mode {
-        Packet, Damage, Creative,NexusGrief
-    }
-
+    private static float mineDamage;
+    private final Setting<Float> range = this.register(new Setting<Float>("Range", 4.2f, 3.0f, 10.0f));
+    public Setting<Boolean> rotate = this.register(new Setting<Boolean>("Rotate", false));
+    public Setting<Boolean> strict = this.register(new Setting<Boolean>("Strict", false));
+    public Setting<Boolean> strictReMine = this.register(new Setting<Boolean>("StrictBreak", false));
+    public Setting<Boolean> render = this.register(new Setting<Boolean>("Render", false));
+    private final Setting<Mode> mode = register(new Setting("Mode", Mode.Packet));
     private final Setting<Float> startDamage = this.register(new Setting<Float>("StartDamage", 0.1f, 0.0f, 1.0f, v -> mode.getValue() == Mode.Damage));
     private final Setting<Float> endDamage = this.register(new Setting<Float>("EndDamage", 0.9f, 0.0f, 1.0f, v -> mode.getValue() == Mode.Damage));
-    public Setting<Boolean> rotate  = this.register(new Setting<Boolean>("Rotate", false));
-    public Setting<Boolean> strict  = this.register(new Setting<Boolean>("Strict", false));
-    public Setting<Boolean> strictReMine  = this.register(new Setting<Boolean>("StrictBreak", false));
-    private final Setting<Float> range = this.register(new Setting<Float>("Range", 4.2f, 3.0f, 10.0f));
-    public Setting<Boolean> render  = this.register(new Setting<Boolean>("Render", false));
-
-
-
     private BlockPos minePosition;
     private EnumFacing mineFacing;
-    private static float mineDamage;
     private int mineBreaks;
+    public Speedmine() {
+        super("Speedmine", "позволяет быстро-копать", "Allows you to dig-quickly", Module.Category.PLAYER);
+    }
 
     @Override
     public void onUpdate() {
         if (!mc.player.capabilities.isCreativeMode) {
             if (minePosition != null) {
-                double mineDistance =  mc.player.getDistanceSq(minePosition.add(0.5,0.5,0.5));
+                double mineDistance = mc.player.getDistanceSq(minePosition.add(0.5, 0.5, 0.5));
                 if (mineBreaks >= 2 && strictReMine.getValue() || mineDistance > range.getPow2Value()) {
                     minePosition = null;
                     mineFacing = null;
@@ -81,21 +75,21 @@ public class Speedmine extends Module {
                     mc.playerController.curBlockDamageMP = 1.0f;
                 }
             } else if (mode.getValue() == Mode.NexusGrief) {
-                if(mc.player.getHeldItemMainhand().getItem() instanceof ItemPickaxe) {
+                if (mc.player.getHeldItemMainhand().getItem() instanceof ItemPickaxe) {
                     if (mc.playerController.curBlockDamageMP < 0.17f)
                         mc.playerController.curBlockDamageMP = 0.17f;
 
                     if (mc.playerController.curBlockDamageMP >= 0.83) {
                         mc.playerController.curBlockDamageMP = 1f;
                     }
-                } else if(mc.player.getHeldItemMainhand().getItem() instanceof ItemAxe){
+                } else if (mc.player.getHeldItemMainhand().getItem() instanceof ItemAxe) {
                     if (mc.playerController.curBlockDamageMP < 0.17f)
                         mc.playerController.curBlockDamageMP = 0.17f;
 
                     if (mc.playerController.curBlockDamageMP >= 1f) {
                         mc.playerController.curBlockDamageMP = 1.0f;
                     }
-                } else if(mc.player.getHeldItemMainhand().getItem() == Items.STONE_SHOVEL || mc.player.getHeldItemMainhand().getItem() == Items.IRON_SHOVEL || mc.player.getHeldItemMainhand().getItem() == Items.DIAMOND_SHOVEL ){
+                } else if (mc.player.getHeldItemMainhand().getItem() == Items.STONE_SHOVEL || mc.player.getHeldItemMainhand().getItem() == Items.IRON_SHOVEL || mc.player.getHeldItemMainhand().getItem() == Items.DIAMOND_SHOVEL) {
                     if (mc.playerController.curBlockDamageMP < 0.17f)
                         mc.playerController.curBlockDamageMP = 0.17f;
 
@@ -106,39 +100,39 @@ public class Speedmine extends Module {
             } else if (mode.getValue() == Mode.Packet) {
                 if (minePosition != null && !mc.world.isAirBlock(minePosition)) {
                     if (mineDamage >= 1) {
-                         int previousSlot = mc.player.inventory.currentItem;
-                            int swapSlot = getTool(minePosition);
-                            if(swapSlot == -1) return;
+                        int previousSlot = mc.player.inventory.currentItem;
+                        int swapSlot = getTool(minePosition);
+                        if (swapSlot == -1) return;
+                        if (strict.getValue()) {
+                            short nextTransactionID = mc.player.openContainer.getNextTransactionID(mc.player.inventory);
+                            ItemStack itemstack = mc.player.openContainer.slotClick(swapSlot, mc.player.inventory.currentItem, ClickType.SWAP, mc.player);
+                            mc.player.connection.sendPacket(new CPacketClickWindow(mc.player.inventoryContainer.windowId, swapSlot, mc.player.inventory.currentItem, ClickType.SWAP, itemstack, nextTransactionID));
+                        } else {
+                            mc.player.connection.sendPacket(new CPacketHeldItemChange(swapSlot));
+                        }
+
+                        mc.player.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.STOP_DESTROY_BLOCK, minePosition, mineFacing));
+                        mc.player.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.ABORT_DESTROY_BLOCK, minePosition, EnumFacing.UP));
+
+                        if (strict.getValue()) {
+                            mc.player.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.START_DESTROY_BLOCK, minePosition, mineFacing));
+                        }
+                        mc.player.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.STOP_DESTROY_BLOCK, minePosition, mineFacing));
+                        if (previousSlot != -1) {
                             if (strict.getValue()) {
                                 short nextTransactionID = mc.player.openContainer.getNextTransactionID(mc.player.inventory);
                                 ItemStack itemstack = mc.player.openContainer.slotClick(swapSlot, mc.player.inventory.currentItem, ClickType.SWAP, mc.player);
                                 mc.player.connection.sendPacket(new CPacketClickWindow(mc.player.inventoryContainer.windowId, swapSlot, mc.player.inventory.currentItem, ClickType.SWAP, itemstack, nextTransactionID));
+                                mc.player.connection.sendPacket(new CPacketConfirmTransaction(mc.player.inventoryContainer.windowId, nextTransactionID, true));
                             } else {
-                                mc.player.connection.sendPacket(new CPacketHeldItemChange(swapSlot));
+                                mc.player.connection.sendPacket(new CPacketHeldItemChange(previousSlot));
                             }
-
-                            mc.player.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.STOP_DESTROY_BLOCK, minePosition, mineFacing));
-                            mc.player.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.ABORT_DESTROY_BLOCK, minePosition, EnumFacing.UP));
-
-                            if (strict.getValue()) {
-                                mc.player.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.START_DESTROY_BLOCK, minePosition, mineFacing));
-                            }
-                            mc.player.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.STOP_DESTROY_BLOCK, minePosition, mineFacing));
-                            if (previousSlot != -1) {
-                                if (strict.getValue()) {
-                                    short nextTransactionID = mc.player.openContainer.getNextTransactionID(mc.player.inventory);
-                                    ItemStack itemstack = mc.player.openContainer.slotClick(swapSlot, mc.player.inventory.currentItem, ClickType.SWAP, mc.player);
-                                    mc.player.connection.sendPacket(new CPacketClickWindow(mc.player.inventoryContainer.windowId, swapSlot, mc.player.inventory.currentItem, ClickType.SWAP, itemstack, nextTransactionID));
-                                    mc.player.connection.sendPacket(new CPacketConfirmTransaction(mc.player.inventoryContainer.windowId, nextTransactionID, true));
-                                } else {
-                                    mc.player.connection.sendPacket(new CPacketHeldItemChange(previousSlot));
-                                }
-                            }
-                            mineDamage = 0;
-                            mineBreaks++;
+                        }
+                        mineDamage = 0;
+                        mineBreaks++;
                     }
-                    mineDamage += getBlockStrength(mc.world.getBlockState(minePosition), minePosition);                }
-                else {
+                    mineDamage += getBlockStrength(mc.world.getBlockState(minePosition), minePosition);
+                } else {
                     mineDamage = 0;
                 }
             }
@@ -266,14 +260,13 @@ public class Speedmine extends Module {
         if (rotate.getValue()) {
             if (mineDamage > 0.95) {
                 if (minePosition != null) {
-                    float[] angle = SilentRotaionUtil.calcAngle(mc.player.getPositionEyes(mc.getRenderPartialTicks()), new Vec3d(minePosition.add(0.5, 0.5, 0.5)));
+                    float[] angle = SilentRotationUtil.calcAngle(mc.player.getPositionEyes(mc.getRenderPartialTicks()), new Vec3d(minePosition.add(0.5, 0.5, 0.5)));
                     mc.player.rotationYaw = angle[0];
                     mc.player.rotationPitch = angle[1];
                 }
             }
         }
     }
-
 
     @SubscribeEvent
     public void onPacketSend(PacketEvent.Send event) {
@@ -283,7 +276,6 @@ public class Speedmine extends Module {
             }
         }
     }
-
 
     private int getTool(final BlockPos pos) {
         int index = -1;
@@ -311,7 +303,7 @@ public class Speedmine extends Module {
                 final float digSpeed = EnchantmentHelper.getEnchantmentLevel(Enchantments.EFFICIENCY, stack);
                 final float destroySpeed = stack.getDestroySpeed(pos);
 
-            if (digSpeed + destroySpeed > CurrentFastest) {
+                if (digSpeed + destroySpeed > CurrentFastest) {
                     CurrentFastest = digSpeed + destroySpeed;
                     itemStack = stack;
                 }
@@ -324,6 +316,10 @@ public class Speedmine extends Module {
         final IBlockState blockState = mc.world.getBlockState(pos);
         final Block block = blockState.getBlock();
         return block.getBlockHardness(blockState, mc.world, pos) != -1;
+    }
+
+    public enum Mode {
+        Packet, Damage, Creative, NexusGrief
     }
 }
 

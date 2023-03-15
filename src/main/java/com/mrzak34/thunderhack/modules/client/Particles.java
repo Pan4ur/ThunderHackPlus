@@ -19,24 +19,21 @@ import java.util.List;
 
 import static org.lwjgl.opengl.GL11.*;
 
-public class Particles extends Module{
-    public Particles() {
-        super("Particles", "рисует партиклы в гуи", Module.Category.CLIENT);
-        setInstance();
-    }
-
+public class Particles extends Module {
+    private static final float SPEED = 0.1f;
+    private static Particles INSTANCE = new Particles();
     public Setting<Integer> delta = this.register(new Setting<Object>("Speed", 1, 0, 60));
     public Setting<Integer> amount = this.register(new Setting<Object>("Amount ", 150, 0, 666));
     public Setting<Float> scale1 = register(new Setting("Scale", 5.0F, 0.1F, 30.0F));
     public Setting<Float> linet = register(new Setting("lineT", 1f, 0.1F, 10.0F));
     public Setting<Integer> dist = this.register(new Setting<Object>("Dist ", 50, 1, 500));
+    private final List<Particle> particleList = new ArrayList<>();
 
 
-    private static final float SPEED = 0.1f;
-    private List<Particle> particleList = new ArrayList<>();
-
-
-    private static Particles INSTANCE = new Particles();
+    public Particles() {
+        super("Particles", "рисует партиклы в гуи", Module.Category.CLIENT);
+        setInstance();
+    }
 
     public static Particles getInstance() {
         if (INSTANCE == null) {
@@ -45,66 +42,7 @@ public class Particles extends Module{
         return INSTANCE;
     }
 
-    private void setInstance() {
-        INSTANCE = this;
-    }
-
-    @Override
-    public void onUpdate(){
-        for (Particle particle : particleList) {
-            particle.tick(delta.getValue(), SPEED);
-        }
-    }
-
-
-    @SubscribeEvent
-    public void onGuiOpened(GuiOpenEvent event) {
-        if (event.getGui() != null) {
-            addParticles(amount.getValue());
-        } else {
-            particleList.clear();
-        }
-    }
-
-    public void addParticles(int amount) {
-        for (int i = 0; i < amount; i++) {
-            particleList.add(Particle.generateParticle(scale1.getValue()));
-        }
-    }
-
-    @SubscribeEvent
-    public void onRender2D(Render2DEvent e){
-        try {
-            render();
-        } catch (Exception ignored){
-
-        }
-    }
-
-    public void render() {
-
-        for (Particle particle : particleList) {
-            float nearestDistance = 0;
-            Particle nearestParticle = null;
-            for (Particle particle1 : particleList) {
-                float distance = particle.getDistanceTo(particle1);
-                if (distance <= dist.getValue() && (nearestDistance <= 0 || distance <= nearestDistance)) {
-                    nearestDistance = distance;
-                    nearestParticle = particle1;
-
-                }
-            }
-
-            if (nearestParticle != null) {
-                drawGradientLine(particle.getX(), particle.getY(), nearestParticle.getX(), nearestParticle.getY(),linet.getValue(),particle.getColor(),nearestParticle.getColor());
-            }
-            RenderHelper.drawCircle(particle.getX(), particle.getY(),particle.getSize(),true, particle.getColor());
-        }
-    }
-
-
-    public static void drawGradientLine(float x1, float y1, float x2, float y2, float lineWidth, Color color1, Color color2)
-    {
+    public static void drawGradientLine(float x1, float y1, float x2, float y2, float lineWidth, Color color1, Color color2) {
         GL11.glLineWidth(lineWidth);
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder bufferbuilder = tessellator.getBuffer();
@@ -125,8 +63,63 @@ public class Particles extends Module{
         GlStateManager.disableBlend();
     }
 
-
     public static double distance(float x, float y, float x1, float y1) {
         return Math.sqrt((x - x1) * (x - x1) + (y - y1) * (y - y1));
+    }
+
+    private void setInstance() {
+        INSTANCE = this;
+    }
+
+    @Override
+    public void onUpdate() {
+        for (Particle particle : particleList) {
+            particle.tick(delta.getValue(), SPEED);
+        }
+    }
+
+    @SubscribeEvent
+    public void onGuiOpened(GuiOpenEvent event) {
+        if (event.getGui() != null) {
+            addParticles(amount.getValue());
+        } else {
+            particleList.clear();
+        }
+    }
+
+    public void addParticles(int amount) {
+        for (int i = 0; i < amount; i++) {
+            particleList.add(Particle.generateParticle(scale1.getValue()));
+        }
+    }
+
+    @SubscribeEvent
+    public void onRender2D(Render2DEvent e) {
+        try {
+            render();
+        } catch (Exception ignored) {
+
+        }
+    }
+
+    public void render() {
+
+        for (Particle particle : particleList) {
+            float nearestDistance = 0;
+            Particle nearestParticle = null;
+            for (Particle particle1 : particleList) {
+                float distance = particle.getDistanceTo(particle1);
+                if (distance <= dist.getValue() && (nearestDistance <= 0 || distance <= nearestDistance)) {
+                    nearestDistance = distance;
+                    nearestParticle = particle1;
+
+                }
+            }
+
+            if (nearestParticle != null) {
+                drawGradientLine(particle.getX(), particle.getY(), nearestParticle.getX(), nearestParticle.getY(), linet.getValue(), particle.getColor(), nearestParticle.getColor());
+            }
+            RenderHelper.drawCircle(particle.getX(), particle.getY(), particle.getSize(), true, particle.getColor());
+        }
     }
 }

@@ -16,18 +16,18 @@ import java.util.List;
 public abstract class MixinGuiMultiplayer extends GuiScreen {
 
 
-
-
+    @Shadow
+    private ServerSelectionList serverListSelector;
 
     //.connectToServer(this.selectedServer);
     @Inject(method = "createButtons", at = @At("HEAD"))
     public void dobovlyaemhuiny(CallbackInfo ci) {
-        if(MultiConnect.getInstance().isEnabled()) {
-            IGuiScreen screen = (IGuiScreen) (GuiScreen) (Object) this;
+        if (MultiConnect.getInstance().isEnabled()) {
+            IGuiScreen screen = (IGuiScreen) this;
 
             List<GuiButton> buttonList = screen.getButtonList();
-            buttonList.add(new GuiButton(22810007, ((GuiScreen) (Object) this).width / 2 + 4 + 76 + 95, this.height - 52, 98, 20, "MultiConnect"));
-            buttonList.add(new GuiButton(1337339, ((GuiScreen) (Object) this).width / 2 + 4 + 76 + 95, this.height - 28, 98, 20, "Clear Selected"));
+            buttonList.add(new GuiButton(22810007, this.width / 2 + 4 + 76 + 95, this.height - 52, 98, 20, "MultiConnect"));
+            buttonList.add(new GuiButton(1337339, this.width / 2 + 4 + 76 + 95, this.height - 28, 98, 20, "Clear Selected"));
             screen.setButtonList(buttonList);
         }
 
@@ -35,7 +35,7 @@ public abstract class MixinGuiMultiplayer extends GuiScreen {
 
     @Inject(method = "actionPerformed", at = @At(value = "RETURN"))
     public void chekarmknopki(GuiButton button, CallbackInfo ci) {
-        if(MultiConnect.getInstance().isEnabled()) {
+        if (MultiConnect.getInstance().isEnabled()) {
             if (button.id == 1337339) {
                 MultiConnect.getInstance().serverData.clear();
             }
@@ -53,12 +53,8 @@ public abstract class MixinGuiMultiplayer extends GuiScreen {
 
     }
 
-
-    @Shadow
-    private ServerSelectionList serverListSelector;
-
     public void connectToSelected(int pizda) {
-        if(MultiConnect.getInstance().isEnabled()) {
+        if (MultiConnect.getInstance().isEnabled()) {
             GuiListExtended.IGuiListEntry guilistextended$iguilistentry = pizda < 0 ? null : serverListSelector.getListEntry(pizda);
             if (guilistextended$iguilistentry instanceof ServerListEntryNormal) {
                 FMLClientHandler.instance().connectToServer(this, ((ServerListEntryNormal) guilistextended$iguilistentry).getServerData());

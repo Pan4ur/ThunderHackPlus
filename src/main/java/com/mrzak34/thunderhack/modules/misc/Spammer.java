@@ -5,7 +5,6 @@ import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.Timer;
 
-
 import java.io.*;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -15,78 +14,21 @@ import java.util.Random;
 
 public class Spammer extends Module {
 
-    public Spammer() {
-        super("Spammer", "спаммер", Category.MISC);
-    }
-
-    private Setting<ModeEn> Mode = register(new Setting("Mode", ModeEn.API));
-
-    public enum ModeEn {
-        Custom,
-        API
-    }
-
-    public Setting<Boolean> global = this.register ( new Setting <> ( "global", true));
-    public Setting<Integer> delay = register(new Setting<>("delay", 5, 1, 30));
-
-
-    @Override
-    public void onEnable(){
-        loadSpammer();
-    }
-
-    private Timer timer_delay = new Timer();
-
-
-    @Override
-    public void onUpdate(){
-        if(timer_delay.passedS(delay.getValue())) {
-            if (Mode.getValue() != ModeEn.Custom) {
-                getMsg();
-                if (!Objects.equals(word_from_api, "-")) {
-                    word_from_api = word_from_api.replace("<p>", "");
-                    word_from_api = word_from_api.replace("</p>", "");
-                    word_from_api = word_from_api.replace(".", "");
-                    word_from_api = word_from_api.replace(",", "");
-
-                    mc.player.sendChatMessage(global.getValue() ? "!" + word_from_api : word_from_api);
-                }
-            } else {
-                if (SpamList.isEmpty()) {
-                    Command.sendMessage("Файл spammer пустой!");
-                    this.toggle();
-                    return;
-                }
-                String c = SpamList.get(new Random().nextInt(SpamList.size()));
-                mc.player.sendChatMessage(global.getValue() ? "!" + c : c);
-            }
-            timer_delay.reset();
-        }
-    }
-
-
-
     public static ArrayList<String> SpamList = new ArrayList<>();
+    public Setting<Boolean> global = this.register(new Setting<>("global", true));
+    public Setting<Integer> delay = register(new Setting<>("delay", 5, 1, 30));
+    private final Setting<ModeEn> Mode = register(new Setting("Mode", ModeEn.API));
+    private final Timer timer_delay = new Timer();
     private String word_from_api = "-";
 
-    public void getMsg(){
-        new Thread(() -> {
-            try {
-                URL api = new URL("https://fish-text.ru/get?format=html&number=1");
-                BufferedReader in = new BufferedReader(new InputStreamReader(api.openStream(), StandardCharsets.UTF_8));
-                String inputLine;
-                if ((inputLine = in.readLine()) != null) {
-                    word_from_api = inputLine;
-                }
-            } catch (Exception ignored) {
-            }
-        }).start();
+    public Spammer() {
+        super("Spammer", "спаммер", Category.MISC);
     }
 
     public static void loadSpammer() {
         try {
             File file = new File("ThunderHack/misc/spammer.txt");
-            if (!file.exists()) file.createNewFile();;
+            if (!file.exists()) file.createNewFile();
             new Thread(() -> {
                 try {
 
@@ -137,5 +79,55 @@ public class Spammer extends Module {
             System.err.println("Could not load file ");
         }
 
+    }
+
+    @Override
+    public void onEnable() {
+        loadSpammer();
+    }
+
+    @Override
+    public void onUpdate() {
+        if (timer_delay.passedS(delay.getValue())) {
+            if (Mode.getValue() != ModeEn.Custom) {
+                getMsg();
+                if (!Objects.equals(word_from_api, "-")) {
+                    word_from_api = word_from_api.replace("<p>", "");
+                    word_from_api = word_from_api.replace("</p>", "");
+                    word_from_api = word_from_api.replace(".", "");
+                    word_from_api = word_from_api.replace(",", "");
+
+                    mc.player.sendChatMessage(global.getValue() ? "!" + word_from_api : word_from_api);
+                }
+            } else {
+                if (SpamList.isEmpty()) {
+                    Command.sendMessage("Файл spammer пустой!");
+                    this.toggle();
+                    return;
+                }
+                String c = SpamList.get(new Random().nextInt(SpamList.size()));
+                mc.player.sendChatMessage(global.getValue() ? "!" + c : c);
+            }
+            timer_delay.reset();
+        }
+    }
+
+    public void getMsg() {
+        new Thread(() -> {
+            try {
+                URL api = new URL("https://fish-text.ru/get?format=html&number=1");
+                BufferedReader in = new BufferedReader(new InputStreamReader(api.openStream(), StandardCharsets.UTF_8));
+                String inputLine;
+                if ((inputLine = in.readLine()) != null) {
+                    word_from_api = inputLine;
+                }
+            } catch (Exception ignored) {
+            }
+        }).start();
+    }
+
+    public enum ModeEn {
+        Custom,
+        API
     }
 }

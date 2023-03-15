@@ -9,34 +9,31 @@ import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.Util;
-
-import java.awt.Color;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CopyOnWriteArrayList;
-
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
+import java.awt.*;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 
 public class DMGParticles extends Module {
-    public DMGParticles() { super("DMGParticles", "партиклы урона", Category.RENDER);}
-
-    private final Map<Integer, Float> hpData = Maps.newHashMap();
-    private final List<Particle> particles = new CopyOnWriteArrayList<>();
-
     public final Setting<ColorSetting> color1 = this.register(new Setting<>("HealthColor", new ColorSetting(3142544)));
     public final Setting<ColorSetting> color2 = this.register(new Setting<>("DamageColor", new ColorSetting(15811379)));
-
+    private final Map<Integer, Float> hpData = Maps.newHashMap();
+    private final List<Particle> particles = new CopyOnWriteArrayList<>();
+    public DMGParticles() {
+        super("DMGParticles", "партиклы урона", Category.RENDER);
+    }
 
     @SubscribeEvent
     public void onRespawn(DeathEvent event) {
-        if(event.player == mc.player) {
+        if (event.player == mc.player) {
             particles.clear();
         }
     }
@@ -108,7 +105,7 @@ public class DMGParticles extends Module {
         }
 
 
-        public boolean update(){
+        public boolean update() {
             return --ticks <= 0;
         }
     }

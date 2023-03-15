@@ -19,23 +19,44 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-public class InvManager extends Module{
+public class InvManager extends Module {
+    public static int weaponSlot = 36, pickaxeSlot = 37, axeSlot = 38, shovelSlot = 39;
+    public static List<Block> invalidBlocks = Arrays.asList(Blocks.ENCHANTING_TABLE, Blocks.FURNACE, Blocks.CARPET, Blocks.CRAFTING_TABLE, Blocks.TRAPPED_CHEST, Blocks.CHEST, Blocks.DISPENSER, Blocks.AIR, Blocks.WATER, Blocks.LAVA, Blocks.FLOWING_WATER, Blocks.FLOWING_LAVA, Blocks.SAND, Blocks.SNOW_LAYER, Blocks.TORCH, Blocks.ANVIL, Blocks.JUKEBOX, Blocks.STONE_BUTTON, Blocks.WOODEN_BUTTON, Blocks.LEVER, Blocks.NOTEBLOCK, Blocks.STONE_PRESSURE_PLATE, Blocks.LIGHT_WEIGHTED_PRESSURE_PLATE, Blocks.WOODEN_PRESSURE_PLATE, Blocks.HEAVY_WEIGHTED_PRESSURE_PLATE, Blocks.STONE_SLAB, Blocks.WOODEN_SLAB, Blocks.STONE_SLAB2, Blocks.RED_MUSHROOM, Blocks.BROWN_MUSHROOM, Blocks.YELLOW_FLOWER, Blocks.RED_FLOWER, Blocks.ANVIL, Blocks.GLASS_PANE, Blocks.STAINED_GLASS_PANE, Blocks.IRON_BARS, Blocks.CACTUS, Blocks.LADDER, Blocks.WEB);
+    public final Setting<Float> delay1 = this.register(new Setting<Float>("Sort Delay", Float.valueOf(1.0f), Float.valueOf(0.0f), Float.valueOf(10.0f)));
+    private final Timer timer = new Timer();
+
+
+    public Setting<Integer> cap = this.register(new Setting<>("Block Cap", 128, 8, 256));
+    public Setting<Boolean> archer = this.register(new Setting<>("Archer", false));
+    public Setting<Boolean> food = this.register(new Setting<>("Food", false));
+    public Setting<Boolean> sword = this.register(new Setting<>("Sword", true));
+    public Setting<Boolean> cleaner = this.register(new Setting<>("Inv Cleaner", true));
+    public Setting<Boolean> openinv = this.register(new Setting<>("Open Inv", true));
     public InvManager() {
         super("InvManager", "очищает инвентарь-от хлама", Category.FUNNYGAME);
     }
 
-    public static int weaponSlot = 36, pickaxeSlot = 37, axeSlot = 38, shovelSlot = 39;
-    public static List<Block> invalidBlocks = Arrays.asList(Blocks.ENCHANTING_TABLE, Blocks.FURNACE, Blocks.CARPET, Blocks.CRAFTING_TABLE, Blocks.TRAPPED_CHEST, Blocks.CHEST, Blocks.DISPENSER, Blocks.AIR, Blocks.WATER, Blocks.LAVA, Blocks.FLOWING_WATER, Blocks.FLOWING_LAVA, Blocks.SAND, Blocks.SNOW_LAYER, Blocks.TORCH, Blocks.ANVIL, Blocks.JUKEBOX, Blocks.STONE_BUTTON, Blocks.WOODEN_BUTTON, Blocks.LEVER, Blocks.NOTEBLOCK, Blocks.STONE_PRESSURE_PLATE, Blocks.LIGHT_WEIGHTED_PRESSURE_PLATE, Blocks.WOODEN_PRESSURE_PLATE, Blocks.HEAVY_WEIGHTED_PRESSURE_PLATE, Blocks.STONE_SLAB, Blocks.WOODEN_SLAB, Blocks.STONE_SLAB2, Blocks.RED_MUSHROOM, Blocks.BROWN_MUSHROOM, Blocks.YELLOW_FLOWER, Blocks.RED_FLOWER, Blocks.ANVIL, Blocks.GLASS_PANE, Blocks.STAINED_GLASS_PANE, Blocks.IRON_BARS, Blocks.CACTUS, Blocks.LADDER, Blocks.WEB);
-    private final Timer timer = new Timer();
-
-
-    public Setting <Integer> cap = this.register ( new Setting <> ( "Block Cap", 128, 8, 256 ) );
-    public final Setting<Float> delay1 = this.register(new Setting<Float>("Sort Delay", Float.valueOf(1.0f), Float.valueOf(0.0f), Float.valueOf(10.0f)));
-    public Setting <Boolean> archer = this.register ( new Setting <> ( "Archer", false));
-    public Setting <Boolean> food = this.register ( new Setting <> ( "Food", false));
-    public Setting <Boolean> sword = this.register ( new Setting <> ( "Sword", true));
-    public Setting <Boolean> cleaner = this.register ( new Setting <> ( "Inv Cleaner", true));
-    public Setting <Boolean> openinv = this.register ( new Setting <> ( "Open Inv", true));
+    public static boolean isBestArmor(ItemStack stack, int type) {
+        String armorType = "";
+        if (type == 1) {
+            armorType = "helmet";
+        } else if (type == 2) {
+            armorType = "chestplate";
+        } else if (type == 3) {
+            armorType = "leggings";
+        } else if (type == 4) {
+            armorType = "boots";
+        }
+        if (!stack.getItem().getUnlocalizedNameInefficiently(stack).contains(armorType)) {
+            return false;
+        }
+        for (int i = 5; i < 45; i++) {
+            if (mc.player.inventoryContainer.getSlot(i).getHasStack()) {
+                ItemStack is = mc.player.inventoryContainer.getSlot(i).getStack();
+            }
+        }
+        return true;
+    }
 
     @Override
     public void onUpdate() {
@@ -226,29 +247,6 @@ public class InvManager extends Module{
             }
         }
         return blockCount;
-    }
-
-
-    public static boolean isBestArmor(ItemStack stack, int type) {
-        String armorType = "";
-        if (type == 1) {
-            armorType = "helmet";
-        } else if (type == 2) {
-            armorType = "chestplate";
-        } else if (type == 3) {
-            armorType = "leggings";
-        } else if (type == 4) {
-            armorType = "boots";
-        }
-        if (!stack.getItem().getUnlocalizedNameInefficiently(stack).contains(armorType)) {
-            return false;
-        }
-        for (int i = 5; i < 45; i++) {
-            if (mc.player.inventoryContainer.getSlot(i).getHasStack()) {
-                ItemStack is = mc.player.inventoryContainer.getSlot(i).getStack();
-            }
-        }
-        return true;
     }
 
     private void getBestPickaxe() {

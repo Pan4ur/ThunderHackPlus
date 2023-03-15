@@ -15,33 +15,34 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
  * might flag the anticheat. This class manages the time that
  * passed after the last switch.
  */
-public class SwitchManager extends Feature
-{
-    public void unload() {
-        MinecraftForge.EVENT_BUS.unregister(this);
-    }
-    public void init() {
-        MinecraftForge.EVENT_BUS.register(this);
-    }
+public class SwitchManager extends Feature {
     private final Timer timer = new Timer();
     private volatile int last_slot;
 
-    public SwitchManager()
-    {
+    public SwitchManager() {
 
     }
 
+    public void unload() {
+        MinecraftForge.EVENT_BUS.unregister(this);
+    }
+
+    public void init() {
+        MinecraftForge.EVENT_BUS.register(this);
+    }
+
     @SubscribeEvent
-    public void onPacketSend(PacketEvent.Send e){
-        if(e.getPacket() instanceof CPacketHeldItemChange){
+    public void onPacketSend(PacketEvent.Send e) {
+        if (e.getPacket() instanceof CPacketHeldItemChange) {
             timer.reset();
-            last_slot = ((CPacketHeldItemChange)e.getPacket()).getSlotId();
+            last_slot = ((CPacketHeldItemChange) e.getPacket()).getSlotId();
         }
     }
+
     @SubscribeEvent
-    public void onPacketReceive(PacketEvent.Receive e){
-        if(fullNullCheck()) return;
-        if(e.getPacket() instanceof SPacketHeldItemChange){
+    public void onPacketReceive(PacketEvent.Receive e) {
+        if (fullNullCheck()) return;
+        if (e.getPacket() instanceof SPacketHeldItemChange) {
             last_slot = ((SPacketHeldItemChange) e.getPacket()).getHeldItemHotbarIndex();
         }
     }
@@ -49,18 +50,16 @@ public class SwitchManager extends Feature
 
     /**
      * @return the time in ms that passed since the last
-     *         {@link CPacketHeldItemChange} has been send.
+     * {@link CPacketHeldItemChange} has been send.
      */
-    public long getLastSwitch()
-    {
+    public long getLastSwitch() {
         return timer.getTime();
     }
 
     /**
      * @return the last slot reported to the server.
      */
-    public int getSlot()
-    {
+    public int getSlot() {
         return last_slot;
     }
 

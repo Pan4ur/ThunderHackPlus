@@ -11,16 +11,21 @@ import org.lwjgl.opengl.GL20;
 import java.awt.*;
 import java.util.HashMap;
 
-public final class CircleOutlineShader extends FramebufferShader
-{
+public final class CircleOutlineShader extends FramebufferShader {
     public static final CircleOutlineShader INSTANCE;
+
+    static {
+        INSTANCE = new CircleOutlineShader();
+    }
+
     public float time = 0;
 
     public CircleOutlineShader() {
         super("circleOutline.frag");
     }
 
-    @Override public void setupUniforms() {
+    @Override
+    public void setupUniforms() {
         this.setupUniform("texture");
         this.setupUniform("texelSize");
         this.setupUniform("colors");
@@ -28,10 +33,10 @@ public final class CircleOutlineShader extends FramebufferShader
         this.setupUniform("radius");
         this.setupUniform("maxSample");
         this.setupUniform("alpha0");
-        this.setupUniform( "resolution" );
-        this.setupUniform( "time" );
-        this.setupUniform( "PI" );
-        this.setupUniform( "rad" );
+        this.setupUniform("resolution");
+        this.setupUniform("time");
+        this.setupUniform("PI");
+        this.setupUniform("rad");
     }
 
     public void updateUniforms(final Color color, final float radius, final float quality, boolean gradientAlpha, int alphaOutline, float duplicate, float PI, float rad) {
@@ -42,27 +47,27 @@ public final class CircleOutlineShader extends FramebufferShader
         GL20.glUniform1f(this.getUniform("radius"), radius);
         GL20.glUniform1f(this.getUniform("maxSample"), 10.0f);
         GL20.glUniform1f(this.getUniform("alpha0"), gradientAlpha ? -1.0f : alphaOutline / 255.0f);
-        GL20.glUniform2f( getUniform( "resolution" ), new ScaledResolution( mc ).getScaledWidth( )/duplicate, new ScaledResolution( mc ).getScaledHeight( )/duplicate );
-        GL20.glUniform1f( getUniform( "time" ), time );
-        GL20.glUniform1f( getUniform( "PI" ), PI );
-        GL20.glUniform1f( getUniform( "rad" ), rad );
+        GL20.glUniform2f(getUniform("resolution"), new ScaledResolution(mc).getScaledWidth() / duplicate, new ScaledResolution(mc).getScaledHeight() / duplicate);
+        GL20.glUniform1f(getUniform("time"), time);
+        GL20.glUniform1f(getUniform("PI"), PI);
+        GL20.glUniform1f(getUniform("rad"), rad);
     }
 
     public void stopDraw(final Color color, final float radius, final float quality, boolean gradientAlpha, int alphaOutline, float duplicate, float PI, float rad) {
         mc.gameSettings.entityShadows = entityShadows;
-        framebuffer.unbindFramebuffer( );
-        GL11.glEnable( 3042 );
-        GL11.glBlendFunc( 770, 771 );
-        mc.getFramebuffer( ).bindFramebuffer( true );
-        mc.entityRenderer.disableLightmap( );
-        RenderHelper.disableStandardItemLighting( );
+        framebuffer.unbindFramebuffer();
+        GL11.glEnable(3042);
+        GL11.glBlendFunc(770, 771);
+        mc.getFramebuffer().bindFramebuffer(true);
+        mc.entityRenderer.disableLightmap();
+        RenderHelper.disableStandardItemLighting();
         startShader(color, radius, quality, gradientAlpha, alphaOutline, duplicate, PI, rad);
-        mc.entityRenderer.setupOverlayRendering( );
-        drawFramebuffer( framebuffer );
-        stopShader( );
-        mc.entityRenderer.disableLightmap( );
-        GlStateManager.popMatrix( );
-        GlStateManager.popAttrib( );
+        mc.entityRenderer.setupOverlayRendering();
+        drawFramebuffer(framebuffer);
+        stopShader();
+        mc.entityRenderer.disableLightmap();
+        GlStateManager.popMatrix();
+        GlStateManager.popAttrib();
     }
 
     public void startShader(final Color color, final float radius, final float quality, boolean gradientAlpha, int alphaOutline, float duplicate, float PI, float rad) {
@@ -73,10 +78,6 @@ public final class CircleOutlineShader extends FramebufferShader
             this.setupUniforms();
         }
         this.updateUniforms(color, radius, quality, gradientAlpha, alphaOutline, duplicate, PI, rad);
-    }
-
-    static {
-        INSTANCE = new CircleOutlineShader();
     }
 
     public void update(double speed) {

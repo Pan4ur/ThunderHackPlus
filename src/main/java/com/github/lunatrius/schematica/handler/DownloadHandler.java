@@ -17,12 +17,11 @@ import java.util.Map;
 
 public class DownloadHandler {
     public static final DownloadHandler INSTANCE = new DownloadHandler();
-
+    public final Map<EntityPlayerMP, SchematicTransfer> transferMap = new LinkedHashMap<EntityPlayerMP, SchematicTransfer>();
     public ISchematic schematic = null;
 
-    public final Map<EntityPlayerMP, SchematicTransfer> transferMap = new LinkedHashMap<EntityPlayerMP, SchematicTransfer>();
-
-    private DownloadHandler() {}
+    private DownloadHandler() {
+    }
 
     @SubscribeEvent
     public void onServerTick(final TickEvent.ServerTickEvent event) {

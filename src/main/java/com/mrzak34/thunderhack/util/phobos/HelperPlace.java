@@ -18,14 +18,12 @@ import java.util.Set;
 
 import static com.mrzak34.thunderhack.util.Util.mc;
 
-public class HelperPlace
-{
-   // private static final SettingCache<Float, Setting<Float>, Safety> MD = Caches.getSetting(Safety.class, NumberSetting.class, "MaxDamage", 4.0f);
+public class HelperPlace {
+    // private static final SettingCache<Float, Setting<Float>, Safety> MD = Caches.getSetting(Safety.class, NumberSetting.class, "MaxDamage", 4.0f);
 
     private final AutoCrystal module;
 
-    public HelperPlace(AutoCrystal module)
-    {
+    public HelperPlace(AutoCrystal module) {
         this.module = module;
     }
 
@@ -36,13 +34,11 @@ public class HelperPlace
                              List<Entity> entities,
                              float minDamage,
                              Set<BlockPos> blackList,
-                             double maxY)
-    {
+                             double maxY) {
         PlaceData data = new PlaceData(minDamage);
         EntityPlayer target = module.isSuicideModule() ? mc.player : module.getTTRG(players, enemies, module.targetRange.getValue());
 
-        if (target == null && module.targetMode.getValue() != AutoCrystal.Target.Damage)
-        {
+        if (target == null && module.targetMode.getValue() != AutoCrystal.Target.Damage) {
             return data;
         }
 
@@ -52,42 +48,33 @@ public class HelperPlace
         return data;
     }
 
-    private void evaluate(PlaceData data, List<EntityPlayer> players, List<EntityPlayer> friends, List<Entity> entities, Set<BlockPos> blackList, double maxY)
-    {
+    private void evaluate(PlaceData data, List<EntityPlayer> players, List<EntityPlayer> friends, List<Entity> entities, Set<BlockPos> blackList, double maxY) {
         boolean obby = module.obsidian.getValue()
                 && module.obbyTimer.passedMs(module.obbyDelay.getValue())
                 && (InventoryUtil.isHolding(Blocks.OBSIDIAN)
                 || module.obbySwitch.getValue()
                 && InventoryUtil.findHotbarBlock(Blocks.OBSIDIAN) != -1);
 
-        switch (module.preCalc.getValue())
-        {
+        switch (module.preCalc.getValue()) {
             case Damage:
-                for (EntityPlayer player : players)
-                {
+                for (EntityPlayer player : players) {
                     preCalc(data, player, obby, entities, friends, blackList);
                 }
             case Target:
-                if (data.getTarget() == null)
-                {
-                    if (data.getData().isEmpty())
-                    {
+                if (data.getTarget() == null) {
+                    if (data.getData().isEmpty()) {
                         break;
                     }
-                }
-                else
-                {
+                } else {
                     preCalc(data, data.getTarget(),
                             obby, entities, friends, blackList);
                 }
 
-                for (PositionData positionData : data.getData())
-                {
+                for (PositionData positionData : data.getData()) {
                     if (positionData.getMaxDamage()
                             > data.getMinDamage()
                             && positionData.getMaxDamage()
-                            > module.preCalcDamage.getValue())
-                    {
+                            > module.preCalcDamage.getValue()) {
                         return;
                     }
                 }
@@ -99,8 +86,7 @@ public class HelperPlace
         BlockPos middle = mc.player.getPosition();
 
         int maxRadius = Sphere.getRadius(module.placeRange.getValue());
-        for (int i = 1; i < maxRadius; i++)
-        {
+        for (int i = 1; i < maxRadius; i++) {
             calc(middle.add(Sphere.get(i)), data, players, friends, entities, obby, blackList, maxY);
         }
     }
@@ -110,8 +96,7 @@ public class HelperPlace
                          boolean obby,
                          List<Entity> entities,
                          List<EntityPlayer> friends,
-                         Set<BlockPos> blackList)
-    {
+                         Set<BlockPos> blackList) {
         MotionTracker extrapolationEntity;
         switch (module.preCalcExtra.getValue()) {
             case Place:
@@ -139,12 +124,10 @@ public class HelperPlace
                         ? (player.getPosition()).down()
                         : (extrapolationEntity.getPosition()).down();
 
-        for (EnumFacing facing : EnumFacing.HORIZONTALS)
-        {
+        for (EnumFacing facing : EnumFacing.HORIZONTALS) {
             PositionData pData = selfCalc(data, pos.offset(facing),
                     entities, friends, obby, blackList);
-            if (pData == null)
-            {
+            if (pData == null) {
                 continue;
             }
 
@@ -157,10 +140,8 @@ public class HelperPlace
                                   List<Entity> entities,
                                   List<EntityPlayer> friends,
                                   boolean obby,
-                                  Set<BlockPos> blackList)
-    {
-        if (blackList.contains(pos))
-        {
+                                  Set<BlockPos> blackList) {
+        if (blackList.contains(pos)) {
             return null;
         }
 
@@ -179,13 +160,11 @@ public class HelperPlace
                 module.water.getValue(),
                 module.ignoreLavaItems.getValue(), module);
 
-        if (data.isBlocked() && !module.fallBack.getValue())
-        {
+        if (data.isBlocked() && !module.fallBack.getValue()) {
             return null;
         }
 
-        if (data.isLiquid())
-        {
+        if (data.isLiquid()) {
             if (!data.isLiquidValid()
                     // we wont be able to raytrace the
                     // 2 blocks on top if its above us
@@ -199,15 +178,12 @@ public class HelperPlace
                     || BlockUtils.getDistanceSq(pos.up())
                     >= MathUtil.square(module.placeRange.getValue())
                     || BlockUtils.getDistanceSq(pos.up(2))
-                    >= MathUtil.square(module.placeRange.getValue()))
-            {
+                    >= MathUtil.square(module.placeRange.getValue())) {
                 return null;
             }
 
-            if (data.usesObby())
-            {
-                if (data.isObbyValid())
-                {
+            if (data.usesObby()) {
+                if (data.isObbyValid()) {
                     placeData.getLiquidObby().put(data.getPos(), data);
                 }
 
@@ -216,19 +192,15 @@ public class HelperPlace
 
             placeData.getLiquid().add(data);
             return null;
-        }
-        else if (data.usesObby())
-        {
-            if (data.isObbyValid())
-            {
+        } else if (data.usesObby()) {
+            if (data.isObbyValid()) {
                 placeData.getAllObbyData().put(data.getPos(), data);
             }
 
             return null;
         }
 
-        if (!data.isValid())
-        {
+        if (!data.isValid()) {
             return null;
         }
 
@@ -236,58 +208,48 @@ public class HelperPlace
     }
 
     public PositionData validate(PlaceData placeData, PositionData data,
-                                 List<EntityPlayer> friends)
-    {
+                                 List<EntityPlayer> friends) {
         if (BlockUtils.getDistanceSq(data.getPos())
                 >= MathUtil.square(module.placeTrace.getValue())
-                && noPlaceTrace(data.getPos()))
-        {
+                && noPlaceTrace(data.getPos())) {
             if (module.rayTraceBypass.getValue()
                     && module.forceBypass.getValue()
                     && !data.isLiquid()
-                    && !data.usesObby())
-            {
+                    && !data.usesObby()) {
                 data.setRaytraceBypass(true);
-            }
-            else
-            {
+            } else {
                 return null;
             }
         }
 
         float selfDamage = module.damageHelper.getDamage(data.getPos());
-        if (selfDamage > placeData.getHighestSelfDamage())
-        {
+        if (selfDamage > placeData.getHighestSelfDamage()) {
             placeData.setHighestSelfDamage(selfDamage);
         }
 
-        if (selfDamage > (mc.player.getHealth()) - 1.0)
-        {
-       //     if (!data.usesObby() && !data.isLiquid())
-         //   {
-         //       Managers.SAFETY.setSafe(false);
-          //  }
+        if (selfDamage > (mc.player.getHealth()) - 1.0) {
+            //     if (!data.usesObby() && !data.isLiquid())
+            //   {
+            //       Managers.SAFETY.setSafe(false);
+            //  }
 
-            if (!module.suicide.getValue())
-            {
+            if (!module.suicide.getValue()) {
                 return null;
             }
         }
 
-       // if (selfDamage > MD.getValue()
-       //         && (!data.usesObby() && !data.isLiquid()))
-      //  {
-       //     Managers.SAFETY.setSafe(false);
-       // }
+        // if (selfDamage > MD.getValue()
+        //         && (!data.usesObby() && !data.isLiquid()))
+        //  {
+        //     Managers.SAFETY.setSafe(false);
+        // }
 
         if (selfDamage > module.maxSelfPlace.getValue()
-                && !module.override.getValue())
-        {
+                && !module.override.getValue()) {
             return null;
         }
 
-        if (checkFriends(data, friends))
-        {
+        if (checkFriends(data, friends)) {
             return null;
         }
 
@@ -295,17 +257,13 @@ public class HelperPlace
         return data;
     }
 
-    private boolean noPlaceTrace(BlockPos pos)
-    {
-        if (module.isNotCheckingRotations() || module.rayTraceBypass.getValue() && !Visible.INSTANCE.check(pos, module.bypassTicks.getValue()))
-        {
+    private boolean noPlaceTrace(BlockPos pos) {
+        if (module.isNotCheckingRotations() || module.rayTraceBypass.getValue() && !Visible.INSTANCE.check(pos, module.bypassTicks.getValue())) {
             return false;
         }
 
-        if (module.smartTrace.getValue())
-        {
-            for (EnumFacing facing : EnumFacing.values())
-            {
+        if (module.smartTrace.getValue()) {
+            for (EnumFacing facing : EnumFacing.values()) {
                 Ray ray = RayTraceFactory.rayTrace(
                         mc.player,
                         pos,
@@ -313,8 +271,7 @@ public class HelperPlace
                         mc.world,
                         Blocks.OBSIDIAN.getDefaultState(),
                         module.traceWidth.getValue());
-                if (ray.isLegit())
-                {
+                if (ray.isLegit()) {
                     return false;
                 }
             }
@@ -322,10 +279,8 @@ public class HelperPlace
             return true;
         }
 
-        if (module.ignoreNonFull.getValue())
-        {
-            for (EnumFacing facing : EnumFacing.values())
-            {
+        if (module.ignoreNonFull.getValue()) {
+            for (EnumFacing facing : EnumFacing.values()) {
                 Ray ray = RayTraceFactory.rayTrace(
                         mc.player,
                         pos,
@@ -338,8 +293,7 @@ public class HelperPlace
                 if (!mc.world.getBlockState(ray.getResult().getBlockPos())
                         .getBlock()
                         .isFullBlock(mc.world.getBlockState(
-                                ray.getResult().getBlockPos())))
-                {
+                                ray.getResult().getBlockPos()))) {
                     return false;
                 }
             }
@@ -355,80 +309,64 @@ public class HelperPlace
                       List<Entity> entities,
                       boolean obby,
                       Set<BlockPos> blackList,
-                      double maxY)
-    {
+                      double maxY) {
         if (placeCheck(pos, maxY)
                 || (data.getTarget() != null
                 && data.getTarget().getDistanceSq(pos)
-                > MathUtil.square(module.range.getValue())))
-        {
+                > MathUtil.square(module.range.getValue()))) {
             return;
         }
 
         PositionData positionData = selfCalc(
                 data, pos, entities, friends, obby, blackList);
 
-        if (positionData == null)
-        {
+        if (positionData == null) {
             return;
         }
 
         calcPositionData(data, positionData, players);
     }
 
-    public void calcPositionData(PlaceData data, PositionData positionData, List<EntityPlayer> players)
-    {
+    public void calcPositionData(PlaceData data, PositionData positionData, List<EntityPlayer> players) {
 
         boolean isAntiTotem = false;
-        if (data.getTarget() == null)
-        {
-            for (EntityPlayer player : players)
-            {
+        if (data.getTarget() == null) {
+            for (EntityPlayer player : players) {
                 isAntiTotem = checkPlayer(data, player, positionData)
                         || isAntiTotem;
             }
-        }
-        else
-        {
+        } else {
             isAntiTotem = checkPlayer(data, data.getTarget(), positionData);
         }
 
         if (positionData.isRaytraceBypass()
                 && (module.rayBypassFacePlace.getValue()
                 && positionData.getFacePlacer() != null
-                || positionData.getMaxDamage() > data.getMinDamage()))
-        {
+                || positionData.getMaxDamage() > data.getMinDamage())) {
             data.getRaytraceData().add(positionData);
             return;
         }
 
-        if (positionData.isForce())
-        {
-            ForcePosition forcePosition = new ForcePosition(positionData,module);
-            for (EntityPlayer forced : positionData.getForced())
-            {
+        if (positionData.isForce()) {
+            ForcePosition forcePosition = new ForcePosition(positionData, module);
+            for (EntityPlayer forced : positionData.getForced()) {
                 data.addForceData(forced, forcePosition);
             }
         }
 
-        if (isAntiTotem)
-        {
+        if (isAntiTotem) {
             data.addAntiTotem(new AntiTotemData(positionData, module));
         }
 
-        if (positionData.getFacePlacer() != null || positionData.getMaxDamage() > data.getMinDamage())
-        {
+        if (positionData.getFacePlacer() != null || positionData.getMaxDamage() > data.getMinDamage()) {
             data.getData().add(positionData);
-        }
-        else if (module.shield.getValue()
+        } else if (module.shield.getValue()
                 && !positionData.usesObby()
                 && !positionData.isLiquid()
                 && positionData.isValid()
                 && positionData.getSelfDamage()
-                <= module.shieldSelfDamage.getValue())
-        {
-            if (module.shieldPrioritizeHealth.getValue())
-            {
+                <= module.shieldSelfDamage.getValue()) {
+            if (module.shieldPrioritizeHealth.getValue()) {
                 positionData.setDamage(0.0f);
             }
 
@@ -437,13 +375,11 @@ public class HelperPlace
         }
     }
 
-    private boolean placeCheck(BlockPos pos, double maxY)
-    {
+    private boolean placeCheck(BlockPos pos, double maxY) {
         if (pos.getY() < 0
                 || pos.getY() - 1 >= maxY
                 || BlockUtils.getDistanceSq(pos)
-                >= MathUtil.square(module.placeRange.getValue()))
-        {
+                >= MathUtil.square(module.placeRange.getValue())) {
             return true;
         }
 
@@ -453,8 +389,7 @@ public class HelperPlace
         }
 
         if (DistanceUtil.distanceSq(pos.getX() + 0.5f, pos.getY() + 1, pos.getZ() + 0.5f, mc.player)
-                > MathUtil.square(module.pbTrace.getValue()))
-        {
+                > MathUtil.square(module.pbTrace.getValue())) {
             return !RayTraceUtil.canBeSeen(
                     new Vec3d(pos.getX() + 0.5f,
                             pos.getY() + 1 + 1.7,
@@ -465,20 +400,16 @@ public class HelperPlace
         return false;
     }
 
-    private boolean checkFriends(PositionData data, List<EntityPlayer> friends)
-    {
-        if (!module.shouldCalcFuckinBitch(AutoCrystal.AntiFriendPop.Place))
-        {
+    private boolean checkFriends(PositionData data, List<EntityPlayer> friends) {
+        if (!module.shouldCalcFuckinBitch(AutoCrystal.AntiFriendPop.Place)) {
             return false;
         }
 
-        for (EntityPlayer friend : friends)
-        {
+        for (EntityPlayer friend : friends) {
             if (friend != null
                     && !EntityUtil.isDead(friend)
                     && module.damageHelper.getDamage(data.getPos(), friend)
-                    > (friend.getHealth()) - 0.5f)
-            {
+                    > (friend.getHealth()) - 0.5f) {
                 return true;
             }
         }
@@ -488,13 +419,11 @@ public class HelperPlace
 
     private boolean checkPlayer(PlaceData data,
                                 EntityPlayer player,
-                                PositionData positionData)
-    {
+                                PositionData positionData) {
         BlockPos pos = positionData.getPos();
         if (data.getTarget() == null
                 && player.getDistanceSq(pos)
-                > MathUtil.square(module.range.getValue()))
-        {
+                > MathUtil.square(module.range.getValue())) {
             return false;
         }
 
@@ -504,58 +433,44 @@ public class HelperPlace
         if (module.antiTotem.getValue()
                 && !positionData.usesObby()
                 && !positionData.isLiquid()
-                && !positionData.isRaytraceBypass())
-        {
-            if (module.antiTotemHelper.isDoublePoppable(player))
-            {
-                if (damage > module.popDamage.getValue())
-                {
+                && !positionData.isRaytraceBypass()) {
+            if (module.antiTotemHelper.isDoublePoppable(player)) {
+                if (damage > module.popDamage.getValue()) {
                     data.addCorrespondingData(player, positionData);
-                }
-                else if (damage < health + module.maxTotemOffset.getValue()
-                        && damage > health + module.minTotemOffset.getValue())
-                {
+                } else if (damage < health + module.maxTotemOffset.getValue()
+                        && damage > health + module.minTotemOffset.getValue()) {
                     positionData.addAntiTotem(player);
                     result = true;
                 }
-            }
-            else if (module.forceAntiTotem.getValue()
-                    && Thunderhack.combatManager.lastPop(player) > 500)
-            {
-                if (damage > module.popDamage.getValue())
-                {
+            } else if (module.forceAntiTotem.getValue()
+                    && Thunderhack.combatManager.lastPop(player) > 500) {
+                if (damage > module.popDamage.getValue()) {
                     data.confirmHighDamageForce(player);
                 }
 
                 if (damage > 0.0f
                         && damage < module.totemHealth.getValue()
-                        + module.maxTotemOffset.getValue())
-                {
+                        + module.maxTotemOffset.getValue()) {
                     data.confirmPossibleAntiTotem(player);
                 }
 
                 float force = health - damage;
-                if (force > 0.0f && force < module.totemHealth.getValue())
-                {
+                if (force > 0.0f && force < module.totemHealth.getValue()) {
                     positionData.addForcePlayer(player);
-                    if (force < positionData.getMinDiff())
-                    {
+                    if (force < positionData.getMinDiff()) {
                         positionData.setMinDiff(force);
                     }
                 }
             }
         }
 
-        if (damage > module.minFaceDmg.getValue())
-        {
-            if (health < module.facePlace.getValue() || ((IEntityLivingBase) player).getLowestDurability() <= module.armorPlace.getValue())
-            {
+        if (damage > module.minFaceDmg.getValue()) {
+            if (health < module.facePlace.getValue() || ((IEntityLivingBase) player).getLowestDurability() <= module.armorPlace.getValue()) {
                 positionData.setFacePlacer(player);
             }
         }
 
-        if (damage > positionData.getMaxDamage())
-        {
+        if (damage > positionData.getMaxDamage()) {
             positionData.setDamage(damage);
             positionData.setTarget(player);
         }

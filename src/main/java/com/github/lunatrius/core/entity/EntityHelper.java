@@ -1,8 +1,5 @@
 package com.github.lunatrius.core.entity;
 
-import com.github.lunatrius.core.util.vector.Vector3f;
-import com.github.lunatrius.core.util.vector.Vector3i;
-import net.minecraft.entity.Entity;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;

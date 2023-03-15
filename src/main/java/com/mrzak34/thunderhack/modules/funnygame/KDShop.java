@@ -13,21 +13,22 @@ import net.minecraft.network.play.server.SPacketCloseWindow;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.input.Keyboard;
 
-public class KDShop extends Module{
+public class KDShop extends Module {
+    public static GuiScreen lastGui;
+    public static boolean cancelRender = false;
+    public Setting<SubBind> breakBind = this.register(new Setting<>("Open", new SubBind(Keyboard.KEY_I)));
+    boolean closeInv;
+
     public KDShop() {
         super("KDShop", "Не всегда работает-но да ладно", Category.FUNNYGAME);
     }
-    
-    public static GuiScreen lastGui;
-    public Setting<SubBind> breakBind = this.register(new Setting<>("Open", new SubBind(Keyboard.KEY_I)));
-
 
     @Override
     public void onUpdate() {
         if (KDShop.mc.currentScreen instanceof GuiContainer) {
             KDShop.lastGui = KDShop.mc.currentScreen;
         }
-        if(PlayerUtils.isKeyDown(breakBind.getValue().getKey())){
+        if (PlayerUtils.isKeyDown(breakBind.getValue().getKey())) {
             mc.displayGuiScreen(lastGui);
         }
     }
@@ -35,19 +36,16 @@ public class KDShop extends Module{
     @SubscribeEvent
     public void onPacketSend(PacketEvent.Send event) {
         if (event.getPacket() instanceof CPacketCloseWindow) {
-                event.setCanceled(true);
+            event.setCanceled(true);
         }
     }
+
     @SubscribeEvent
     public void onPacketReceive(PacketEvent.Receive event) {
         if (event.getPacket() instanceof SPacketCloseWindow) {
             Command.sendMessage("fuck");
         }
     }
-
-
-    boolean closeInv;
-    public static boolean cancelRender = false;
 
     /*
     @Override

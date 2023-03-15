@@ -13,24 +13,22 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class AutoTPaccept extends Module {
 
+    public Setting<Boolean> onlyFriends = register(new Setting("onlyFriends", Boolean.TRUE));
+
     public AutoTPaccept() {
         super("AutoTPaccept", "Принимает тп автоматом", Category.FUNNYGAME);
     }
-    public Setting<Boolean> onlyFriends = register(new Setting("onlyFriends", Boolean.TRUE));
-
 
     @SubscribeEvent
-    public void onPacketReceive(PacketEvent.Receive event){
+    public void onPacketReceive(PacketEvent.Receive event) {
         if (event.getPacket() instanceof SPacketChat) {
-            final SPacketChat packet = (SPacketChat)event.getPacket();
+            final SPacketChat packet = event.getPacket();
             if (packet.getType() != ChatType.GAME_INFO && this.tryProcessChat(packet.getChatComponent().getFormattedText(), packet.getChatComponent().getUnformattedText())) {
-               // event.setCanceled(true);
+                // event.setCanceled(true);
 
             }
         }
     }
-
-
 
 
     private boolean tryProcessChat(String message, final String unformatted) {
@@ -39,21 +37,20 @@ public class AutoTPaccept extends Module {
         out = message;
 
 
+        if (Util.mc.player == null) {
+            return false;
+        }
 
-            if (Util.mc.player == null) {
-                return false;
-            }
-
-            if(out.contains("телепортироваться")){
-                if(onlyFriends.getValue()) {
-                    if (Thunderhack.friendManager.isFriend(ThunderUtils.solvename(out))) {
-                        mc.player.sendChatMessage("/tpaccept");
-                    }
-                } else {
-                        mc.player.sendChatMessage("/tpaccept");
+        if (out.contains("телепортироваться")) {
+            if (onlyFriends.getValue()) {
+                if (Thunderhack.friendManager.isFriend(ThunderUtils.solvename(out))) {
+                    mc.player.sendChatMessage("/tpaccept");
                 }
-
+            } else {
+                mc.player.sendChatMessage("/tpaccept");
             }
+
+        }
 
             /*
     [20:39:09] [Client thread/INFO]: [CHAT] MrZak34 просит телепортироваться к Вам.

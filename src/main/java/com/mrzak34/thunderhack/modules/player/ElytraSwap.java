@@ -1,14 +1,12 @@
 package com.mrzak34.thunderhack.modules.player;
 
-import com.mrzak34.thunderhack.events.Render2DEvent;
 import com.mrzak34.thunderhack.command.Command;
+import com.mrzak34.thunderhack.events.Render2DEvent;
 import com.mrzak34.thunderhack.modules.Module;
-
-
 import com.mrzak34.thunderhack.setting.Setting;
-import com.mrzak34.thunderhack.util.render.RenderUtil;
 import com.mrzak34.thunderhack.util.Timer;
 import com.mrzak34.thunderhack.util.Util;
+import com.mrzak34.thunderhack.util.render.RenderUtil;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.ClickType;
 import net.minecraft.item.Item;
@@ -20,45 +18,16 @@ import org.lwjgl.opengl.GL11;
 import java.awt.*;
 import java.util.ArrayList;
 
-public class ElytraSwap extends Module{
-    public ElytraSwap() {super("ElytraSwap", "свап между нагрудником-и элитрой", Module.Category.PLAYER);}
-
-    private final ResourceLocation toelytra= new ResourceLocation("textures/swapel.png");
+public class ElytraSwap extends Module {
+    private final ResourceLocation toelytra = new ResourceLocation("textures/swapel.png");
     private final ResourceLocation tochest = new ResourceLocation("textures/swapch.png");
     public Setting<Boolean> image = this.register(new Setting<Boolean>("indicator", true));
     public Setting<Integer> imagex = this.register(new Setting<Integer>("indicatorX", 512, 0, 1023, v -> image.getValue()));
     public Setting<Integer> imagey = this.register(new Setting<Integer>("indicatorY", 512, 0, 1023, v -> image.getValue()));
-
     public Timer timer = new Timer();
     public int swap = 0;
-
-
-
-    @Override
-    public void onEnable() {
-        mc.player.setSneaking(true);
-        timer.reset();
-        ItemStack itemStack = getItemStack(38);
-
-        if (itemStack.getItem() == Items.ELYTRA) {
-            int slot = getChestPlateSlot();
-            if (slot != -1) {
-                clickSlot(slot);
-                clickSlot(38);
-                clickSlot(slot);
-                swap = 1;
-            } else {
-                Command.sendMessage("У тебя нет честплейта!");
-            }
-        } else if (hasItem(Items.ELYTRA)) {
-            int slot = getSlot(Items.ELYTRA);
-            clickSlot(slot);
-            clickSlot(38);
-            clickSlot(slot);
-            swap = 2;
-        } else {
-            Command.sendMessage("У тебя нет элитры!");
-        }
+    public ElytraSwap() {
+        super("ElytraSwap", "свап между нагрудником-и элитрой", Module.Category.PLAYER);
     }
 
     public static int getChestPlateSlot() {
@@ -76,7 +45,7 @@ public class ElytraSwap extends Module{
     public static boolean hasItem(Item item) {
         return getAmountOfItem(item) != 0;
     }
-    
+
     public static int getAmountOfItem(Item item) {
         int count = 0;
 
@@ -88,6 +57,7 @@ public class ElytraSwap extends Module{
 
         return count;
     }
+
     public static void drawCompleteImage(float posX, float posY, int width, int height) {
         GL11.glPushMatrix();
         GL11.glTranslatef(posX, posY, 0.0f);
@@ -103,6 +73,7 @@ public class ElytraSwap extends Module{
         GL11.glEnd();
         GL11.glPopMatrix();
     }
+
     public static int getClickSlot(int id) {
         if (id == -1) {
             return id;
@@ -138,7 +109,6 @@ public class ElytraSwap extends Module{
         }
     }
 
-
     public static int getSlot(Item item) {
         try {
             for (ItemStackUtil itemStack : getAllItems()) {
@@ -163,16 +133,6 @@ public class ElytraSwap extends Module{
         return items;
     }
 
-    public static class ItemStackUtil {
-        public ItemStack itemStack;
-        public int slotId;
-
-        public ItemStackUtil(ItemStack itemStack, int slotId) {
-            this.itemStack = itemStack;
-            this.slotId = slotId;
-        }
-    }
-
     public static ItemStack getItemStack(int id) {
         try {
             return mc.player.inventory.getStackInSlot(id);
@@ -181,30 +141,65 @@ public class ElytraSwap extends Module{
         }
     }
 
+    @Override
+    public void onEnable() {
+        mc.player.setSneaking(true);
+        timer.reset();
+        ItemStack itemStack = getItemStack(38);
 
+        if (itemStack.getItem() == Items.ELYTRA) {
+            int slot = getChestPlateSlot();
+            if (slot != -1) {
+                clickSlot(slot);
+                clickSlot(38);
+                clickSlot(slot);
+                swap = 1;
+            } else {
+                Command.sendMessage("У тебя нет честплейта!");
+            }
+        } else if (hasItem(Items.ELYTRA)) {
+            int slot = getSlot(Items.ELYTRA);
+            clickSlot(slot);
+            clickSlot(38);
+            clickSlot(slot);
+            swap = 2;
+        } else {
+            Command.sendMessage("У тебя нет элитры!");
+        }
+    }
 
     @SubscribeEvent
-    public void onRender2D(Render2DEvent event){
+    public void onRender2D(Render2DEvent event) {
         System.out.println(swap);
         double psx = imagex.getValue();
         double psy = imagey.getValue();
         float xOffset = (float) psx + 10;
         float yOffset = (float) psy;
-        if(swap == 1){
+        if (swap == 1) {
             RenderUtil.drawRect(400, 400, 400, 400, new Color(252, 252, 252, 255).getRGB());
             Util.mc.getTextureManager().bindTexture(this.toelytra);
             drawCompleteImage(xOffset - 1.0f, yOffset - 160.0f, 49, 49);
         }
-        if(swap == 2){
+        if (swap == 2) {
             RenderUtil.drawRect(400, 400, 400, 400, new Color(252, 252, 252, 255).getRGB());
             Util.mc.getTextureManager().bindTexture(this.tochest);
             drawCompleteImage(xOffset - 1.0f, yOffset - 160.0f, 49, 49);
         }
-        if(timer.passedMs(1000)){
+        if (timer.passedMs(1000)) {
             mc.player.setSneaking(false);
             disable();
         }
 
+    }
+
+    public static class ItemStackUtil {
+        public ItemStack itemStack;
+        public int slotId;
+
+        public ItemStackUtil(ItemStack itemStack, int slotId) {
+            this.itemStack = itemStack;
+            this.slotId = slotId;
+        }
     }
 
 }

@@ -4,63 +4,52 @@ import com.mrzak34.thunderhack.events.Render2DEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.setting.Setting;
+import com.mrzak34.thunderhack.util.PNGtoResourceLocation;
+import com.mrzak34.thunderhack.util.Util;
 import com.mrzak34.thunderhack.util.render.PaletteHelper;
 import com.mrzak34.thunderhack.util.render.RectHelper;
 import com.mrzak34.thunderhack.util.render.RenderHelper;
-import com.mrzak34.thunderhack.util.PNGtoResourceLocation;
-import com.mrzak34.thunderhack.util.Util;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GLAllocation;
-
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-
-import java.awt.*;
-import javax.vecmath.Vector3d;
-import javax.vecmath.Vector4d;
-
-import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
-
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.Entity;
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.util.glu.GLU;
+
+import javax.vecmath.Vector3d;
+import javax.vecmath.Vector4d;
+import java.awt.*;
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 
 import static com.mrzak34.thunderhack.modules.player.ElytraSwap.drawCompleteImage;
 
 
 public class ImageESP extends Module {
-    public ImageESP() {
-        super("ImageESP", "ImageESP ImageESP.", Category.RENDER);
-    }
-
-    public Setting<Float> scalefactor = register(new Setting("Raytrace", Float.valueOf(2.0F), Float.valueOf(0.1F), Float.valueOf(4.0F)));
-
-
-    // public Setting <Integer> cca = this.register ( new Setting <> ( "CustomA", 255, 0, 255));
-
     private final int black = Color.BLACK.getRGB();
-    private Setting<mode2> Mode2 = register(new Setting("Color Mode", mode2.Rainbow));
-    public Setting<Boolean> wtf = register(new Setting("Not done", false));
-    public Setting<Float> scalefactor1 = register(new Setting("X", Float.valueOf(0.0F), Float.valueOf(-6.0F), Float.valueOf(6.0F)));
-    public Setting<Float> scalefactor2 = register(new Setting("Y", Float.valueOf(0.0F), Float.valueOf(-6.0F), Float.valueOf(6.0F)));
-
     private final Setting<ColorSetting> cc = this.register(new Setting<>("CustomColor", new ColorSetting(0x8800FF00)));
 
 
-    public enum mode2 {
-        Custom, Rainbow, Astolfo;
-    }///What the FUCK!!!! the fuck
+    // public Setting <Integer> cca = this.register ( new Setting <> ( "CustomA", 255, 0, 255));
+    public Setting<Float> scalefactor = register(new Setting("Raytrace", Float.valueOf(2.0F), Float.valueOf(0.1F), Float.valueOf(4.0F)));
+    public Setting<Boolean> wtf = register(new Setting("Not done", false));
+    public Setting<Float> scalefactor1 = register(new Setting("X", Float.valueOf(0.0F), Float.valueOf(-6.0F), Float.valueOf(6.0F)));
+    public Setting<Float> scalefactor2 = register(new Setting("Y", Float.valueOf(0.0F), Float.valueOf(-6.0F), Float.valueOf(6.0F)));
+    ResourceLocation customImg;
+    ResourceLocation customImg2;
+    ResourceLocation customImg3;
+    private final Setting<mode2> Mode2 = register(new Setting("Color Mode", mode2.Rainbow));
+    private final Setting<mode3> Mode3 = register(new Setting("Color Mode", mode3.CAT));
 
-    private Setting<mode3> Mode3 = register(new Setting("Color Mode", mode3.CAT));
-    public enum mode3 {
-        CAT, MrZak,Custom1,Custom2,Custom3;
+
+    public ImageESP() {
+        super("ImageESP", "ImageESP ImageESP.", Category.RENDER);
     }
-
-
 
     @SubscribeEvent
     public void onRender2D(Render2DEvent event) {
@@ -73,13 +62,13 @@ public class ImageESP extends Module {
         Color c = cc.getValue().getColorObject();
         int color = 0;
 
-        if(Mode2.getValue() == mode2.Custom) {
+        if (Mode2.getValue() == mode2.Custom) {
             color = c.getRGB();
         }
-        if(Mode2.getValue() == mode2.Astolfo) {
+        if (Mode2.getValue() == mode2.Astolfo) {
             color = PaletteHelper.astolfo(false, 1).getRGB();
         }
-        if(Mode2.getValue() == mode2.Rainbow) {
+        if (Mode2.getValue() == mode2.Rainbow) {
             color = PaletteHelper.rainbow(300, 1, 1).getRGB();
         }
 
@@ -88,7 +77,7 @@ public class ImageESP extends Module {
         for (Entity entity : mc.world.loadedEntityList) {
             if (isValid(entity) && RenderHelper.isInViewFrustum(entity)) {
                 EntityPlayer entityPlayer = (EntityPlayer) entity;
-                if(entityPlayer != ImageESP.mc.player) {
+                if (entityPlayer != ImageESP.mc.player) {
                     double x = entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * mc.getRenderPartialTicks();
                     double y = entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * mc.getRenderPartialTicks();
                     double z = entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * mc.getRenderPartialTicks();
@@ -113,7 +102,6 @@ public class ImageESP extends Module {
                     if (position != null) {
 
 
-
                         mc.entityRenderer.setupOverlayRendering();
                         double posX = position.x;
                         double posY = position.y;
@@ -132,14 +120,14 @@ public class ImageESP extends Module {
                         }
                         RectHelper.drawRect(posX, posY, posX, posY, color);
 
-                        if(Mode3.getValue() == mode3.CAT) {
-                            Util.mc.getMinecraft().getTextureManager().bindTexture(new ResourceLocation("textures/image9.png"));
+                        if (Mode3.getValue() == mode3.CAT) {
+                            Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation("textures/image9.png"));
                         }
-                        if(Mode3.getValue() == mode3.MrZak){
-                            Util.mc.getMinecraft().getTextureManager().bindTexture(new ResourceLocation("textures/image10.png"));
+                        if (Mode3.getValue() == mode3.MrZak) {
+                            Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation("textures/image10.png"));
                         }
                         if (Mode3.getValue() == mode3.Custom1) {
-                            if(customImg == null) {
+                            if (customImg == null) {
                                 if (PNGtoResourceLocation.getCustomImg("esp1", "png") != null) {
                                     customImg = PNGtoResourceLocation.getCustomImg("esp1", "png");
                                 }
@@ -148,7 +136,7 @@ public class ImageESP extends Module {
                             Util.mc.getTextureManager().bindTexture(this.customImg);
                         }
                         if (Mode3.getValue() == mode3.Custom2) {
-                            if(customImg2 == null) {
+                            if (customImg2 == null) {
                                 if (PNGtoResourceLocation.getCustomImg("esp2", "png") != null) {
                                     customImg2 = PNGtoResourceLocation.getCustomImg("esp2", "png");
                                 }
@@ -157,7 +145,7 @@ public class ImageESP extends Module {
                             Util.mc.getTextureManager().bindTexture(this.customImg2);
                         }
                         if (Mode3.getValue() == mode3.Custom3) {
-                            if(customImg3 == null) {
+                            if (customImg3 == null) {
                                 if (PNGtoResourceLocation.getCustomImg("esp3", "png") != null) {
                                     customImg3 = PNGtoResourceLocation.getCustomImg("esp3", "png");
                                 }
@@ -173,13 +161,6 @@ public class ImageESP extends Module {
         GL11.glEnable(GL11.GL_DEPTH_TEST);
         mc.entityRenderer.setupOverlayRendering();
     }
-
-    ResourceLocation customImg;
-    ResourceLocation customImg2;
-    ResourceLocation customImg3;
-
-
-
 
     private Vector3d project2D(Float scaleFactor, double x, double y, double z) {
         float xPos = (float) x;
@@ -199,6 +180,15 @@ public class ImageESP extends Module {
 
     private boolean isValid(Entity entity) {
         return entity instanceof EntityPlayer;
+    }
+
+
+    public enum mode2 {
+        Custom, Rainbow, Astolfo
+    }///What the FUCK!!!! the fuck
+
+    public enum mode3 {
+        CAT, MrZak, Custom1, Custom2, Custom3
     }
 
 }

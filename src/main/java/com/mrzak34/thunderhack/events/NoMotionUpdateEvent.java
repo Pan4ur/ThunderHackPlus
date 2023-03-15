@@ -6,7 +6,6 @@ import net.minecraftforge.fml.common.eventhandler.Event;
 /**
  * fired, but no {@link CPacketPlayer} has been sent.
  */
-public class NoMotionUpdateEvent extends Event
-{
+public class NoMotionUpdateEvent extends Event {
 
 }

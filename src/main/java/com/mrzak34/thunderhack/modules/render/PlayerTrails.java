@@ -2,49 +2,40 @@ package com.mrzak34.thunderhack.modules.render;
 
 import com.mrzak34.thunderhack.events.EventEntityMove;
 import com.mrzak34.thunderhack.events.PreRenderEvent;
+import com.mrzak34.thunderhack.events.Render3DEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.math.AstolfoAnimation;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.renderer.GlStateManager;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+public class PlayerTrails extends Module {
 
-import com.mrzak34.thunderhack.events.Render3DEvent;
-
-public class PlayerTrails extends Module{
+    public static AstolfoAnimation astolfo = new AstolfoAnimation();
+    private final Setting<ColorSetting> color = this.register(new Setting<>("Color", new ColorSetting(0x8800FF00)));
+    private final Setting<Boolean> shfix = this.register(new Setting<>("ShaderFix", false));
+    public Setting<Float> down = register(new Setting("Down", 0.5F, 0.0F, 2.0F));
+    public Setting<Float> width = register(new Setting("Height", 1.3F, 0.1F, 2.0F));
+    public Setting<modeEn> mode = register(new Setting<>("ColorMode", modeEn.Ukraine));
+    Map<EntityPlayer, List<Trail>> entAndTrail = new HashMap<>();
 
     public PlayerTrails() {
         super("PlayerTrails", "трейлы позади-игроков", Category.RENDER);
     }
 
-
-    public Setting<Float> down = register(new Setting("Down", 0.5F, 0.0F, 2.0F));
-    public Setting<Float> width = register(new Setting("Height", 1.3F, 0.1F, 2.0F));
-    private final Setting<ColorSetting> color = this.register(new Setting<>("Color", new ColorSetting(0x8800FF00)));
-    Map<EntityPlayer, List<Trail> > entAndTrail = new HashMap<>();
-    private  final Setting<Boolean> shfix =this.register( new Setting<>("ShaderFix", false));
-
-    public Setting<modeEn> mode = register(new Setting<>("ColorMode", modeEn.Ukraine));
-
-    public enum modeEn{
-        Default,
-        Ukraine,
-        RUSSIA
-    }
-    public static AstolfoAnimation astolfo = new AstolfoAnimation();
-
     @SubscribeEvent
     public void onRender3D(Render3DEvent event) {
-        if(shfix.getValue()){
+        if (shfix.getValue()) {
             return;
         }
 
@@ -71,7 +62,7 @@ public class PlayerTrails extends Module{
                 GL11.glEnable(GL11.GL_LINE_SMOOTH);
                 GL11.glBegin(GL11.GL_QUAD_STRIP);
 
-                if(mode.getValue() == modeEn.Default) {
+                if (mode.getValue() == modeEn.Default) {
                     for (int i = 0; i < entAndTrail.get(entity).size(); i++) {
                         Vec3d c = entAndTrail.get(entity).get(i).color();
                         Trail ctx = entAndTrail.get(entity).get(i);
@@ -107,13 +98,13 @@ public class PlayerTrails extends Module{
                         GL11.glColor4d(c.x, c.y, c.z, (alpha + 0.15f) * ctx.animation(mc.getRenderPartialTicks()));
                         GL11.glVertex3d(pos.x, pos.y + down.getValue(), pos.z);
                     }
-                } else if(mode.getValue() == modeEn.Ukraine ){
+                } else if (mode.getValue() == modeEn.Ukraine) {
                     for (int i = 0; i < entAndTrail.get(entity).size(); i++) {
                         Trail ctx = entAndTrail.get(entity).get(i);
                         Vec3d pos = ctx.interpolate(mc.getRenderPartialTicks());
-                        GL11.glColor4d(245f/255f, 227f/255f, 66f/255f, alpha * ctx.animation(mc.getRenderPartialTicks()));
+                        GL11.glColor4d(245f / 255f, 227f / 255f, 66f / 255f, alpha * ctx.animation(mc.getRenderPartialTicks()));
                         GL11.glVertex3d(pos.x, pos.y + down.getValue(), pos.z);
-                        GL11.glVertex3d(pos.x, pos.y + down.getValue() + (width.getValue()/2f), pos.z);
+                        GL11.glVertex3d(pos.x, pos.y + down.getValue() + (width.getValue() / 2f), pos.z);
                     }
                     GL11.glEnd();
                     GL11.glBegin(GL11.GL_QUAD_STRIP);
@@ -121,8 +112,8 @@ public class PlayerTrails extends Module{
                     for (int i = 0; i < entAndTrail.get(entity).size(); i++) {
                         Trail ctx = entAndTrail.get(entity).get(i);
                         Vec3d pos = ctx.interpolate(mc.getRenderPartialTicks());
-                        GL11.glColor4d(66f/255f, 102f/255f, 245f/255f, alpha * ctx.animation(mc.getRenderPartialTicks()));
-                        GL11.glVertex3d(pos.x, pos.y + down.getValue() + (width.getValue()/2f), pos.z);
+                        GL11.glColor4d(66f / 255f, 102f / 255f, 245f / 255f, alpha * ctx.animation(mc.getRenderPartialTicks()));
+                        GL11.glVertex3d(pos.x, pos.y + down.getValue() + (width.getValue() / 2f), pos.z);
                         GL11.glVertex3d(pos.x, pos.y + down.getValue() + width.getValue(), pos.z);
                     }
 
@@ -135,7 +126,7 @@ public class PlayerTrails extends Module{
                         Vec3d c = entAndTrail.get(entity).get(i).color();
                         Trail ctx = entAndTrail.get(entity).get(i);
                         Vec3d pos = ctx.interpolate(mc.getRenderPartialTicks());
-                        GL11.glColor4d(66f/255f, 102f/255f, 245f/255f, (alpha + 0.15f) * ctx.animation(mc.getRenderPartialTicks()));
+                        GL11.glColor4d(66f / 255f, 102f / 255f, 245f / 255f, (alpha + 0.15f) * ctx.animation(mc.getRenderPartialTicks()));
                         GL11.glVertex3d(pos.x, pos.y + width.getValue() + down.getValue(), pos.z);
                     }
 
@@ -148,16 +139,16 @@ public class PlayerTrails extends Module{
                         Vec3d c = entAndTrail.get(entity).get(i).color();
                         Trail ctx = entAndTrail.get(entity).get(i);
                         Vec3d pos = ctx.interpolate(mc.getRenderPartialTicks());
-                        GL11.glColor4d(245f/255f, 227f/255f, 66f/255f, (alpha + 0.15f) * ctx.animation(mc.getRenderPartialTicks()));
+                        GL11.glColor4d(245f / 255f, 227f / 255f, 66f / 255f, (alpha + 0.15f) * ctx.animation(mc.getRenderPartialTicks()));
                         GL11.glVertex3d(pos.x, pos.y + down.getValue(), pos.z);
                     }
-                } else if(mode.getValue() == modeEn.RUSSIA ){
+                } else if (mode.getValue() == modeEn.RUSSIA) {
                     for (int i = 0; i < entAndTrail.get(entity).size(); i++) {
                         Trail ctx = entAndTrail.get(entity).get(i);
                         Vec3d pos = ctx.interpolate(mc.getRenderPartialTicks());
                         GL11.glColor4d(1f, 0f, 0f, alpha * ctx.animation(mc.getRenderPartialTicks()));
                         GL11.glVertex3d(pos.x, pos.y + down.getValue(), pos.z);
-                        GL11.glVertex3d(pos.x, pos.y + down.getValue() + (width.getValue()/3f), pos.z);
+                        GL11.glVertex3d(pos.x, pos.y + down.getValue() + (width.getValue() / 3f), pos.z);
                     }
                     GL11.glEnd();
                     GL11.glBegin(GL11.GL_QUAD_STRIP);
@@ -166,8 +157,8 @@ public class PlayerTrails extends Module{
                         Trail ctx = entAndTrail.get(entity).get(i);
                         Vec3d pos = ctx.interpolate(mc.getRenderPartialTicks());
                         GL11.glColor4d(0f, 0f, 1f, alpha * ctx.animation(mc.getRenderPartialTicks()));
-                        GL11.glVertex3d(pos.x, pos.y + down.getValue() + (width.getValue()/3f), pos.z);
-                        GL11.glVertex3d(pos.x, pos.y + down.getValue() + (width.getValue() * (2f/3f)), pos.z);
+                        GL11.glVertex3d(pos.x, pos.y + down.getValue() + (width.getValue() / 3f), pos.z);
+                        GL11.glVertex3d(pos.x, pos.y + down.getValue() + (width.getValue() * (2f / 3f)), pos.z);
                     }
 
                     GL11.glEnd();
@@ -176,7 +167,7 @@ public class PlayerTrails extends Module{
                         Trail ctx = entAndTrail.get(entity).get(i);
                         Vec3d pos = ctx.interpolate(mc.getRenderPartialTicks());
                         GL11.glColor4d(1f, 1f, 1f, alpha * ctx.animation(mc.getRenderPartialTicks()));
-                        GL11.glVertex3d(pos.x, pos.y + down.getValue() + (width.getValue() * (2f/3f)), pos.z);
+                        GL11.glVertex3d(pos.x, pos.y + down.getValue() + (width.getValue() * (2f / 3f)), pos.z);
                         GL11.glVertex3d(pos.x, pos.y + down.getValue() + (width.getValue()), pos.z);
                     }
 
@@ -206,7 +197,6 @@ public class PlayerTrails extends Module{
                 }
 
 
-
                 GL11.glEnd();
                 GL11.glDisable(GL11.GL_LINE_SMOOTH);
                 GL11.glEnable(GL11.GL_TEXTURE_2D);
@@ -221,16 +211,10 @@ public class PlayerTrails extends Module{
         }
 
     }
-
-
-
-
-
-
 
     @SubscribeEvent
     public void onRenderPost(PreRenderEvent event) {
-        if(!shfix.getValue()){
+        if (!shfix.getValue()) {
             return;
         }
 
@@ -257,7 +241,7 @@ public class PlayerTrails extends Module{
                 GL11.glEnable(GL11.GL_LINE_SMOOTH);
                 GL11.glBegin(GL11.GL_QUAD_STRIP);
 
-                if(mode.getValue() == modeEn.Default) {
+                if (mode.getValue() == modeEn.Default) {
                     for (int i = 0; i < entAndTrail.get(entity).size(); i++) {
                         Vec3d c = entAndTrail.get(entity).get(i).color();
                         Trail ctx = entAndTrail.get(entity).get(i);
@@ -293,13 +277,13 @@ public class PlayerTrails extends Module{
                         GL11.glColor4d(c.x, c.y, c.z, (alpha + 0.15f) * ctx.animation(mc.getRenderPartialTicks()));
                         GL11.glVertex3d(pos.x, pos.y + down.getValue(), pos.z);
                     }
-                } else if(mode.getValue() == modeEn.Ukraine ){
+                } else if (mode.getValue() == modeEn.Ukraine) {
                     for (int i = 0; i < entAndTrail.get(entity).size(); i++) {
                         Trail ctx = entAndTrail.get(entity).get(i);
                         Vec3d pos = ctx.interpolate(mc.getRenderPartialTicks());
-                        GL11.glColor4d(245f/255f, 227f/255f, 66f/255f, alpha * ctx.animation(mc.getRenderPartialTicks()));
+                        GL11.glColor4d(245f / 255f, 227f / 255f, 66f / 255f, alpha * ctx.animation(mc.getRenderPartialTicks()));
                         GL11.glVertex3d(pos.x, pos.y + down.getValue(), pos.z);
-                        GL11.glVertex3d(pos.x, pos.y + down.getValue() + (width.getValue()/2f), pos.z);
+                        GL11.glVertex3d(pos.x, pos.y + down.getValue() + (width.getValue() / 2f), pos.z);
                     }
                     GL11.glEnd();
                     GL11.glBegin(GL11.GL_QUAD_STRIP);
@@ -307,8 +291,8 @@ public class PlayerTrails extends Module{
                     for (int i = 0; i < entAndTrail.get(entity).size(); i++) {
                         Trail ctx = entAndTrail.get(entity).get(i);
                         Vec3d pos = ctx.interpolate(mc.getRenderPartialTicks());
-                        GL11.glColor4d(66f/255f, 102f/255f, 245f/255f, alpha * ctx.animation(mc.getRenderPartialTicks()));
-                        GL11.glVertex3d(pos.x, pos.y + down.getValue() + (width.getValue()/2f), pos.z);
+                        GL11.glColor4d(66f / 255f, 102f / 255f, 245f / 255f, alpha * ctx.animation(mc.getRenderPartialTicks()));
+                        GL11.glVertex3d(pos.x, pos.y + down.getValue() + (width.getValue() / 2f), pos.z);
                         GL11.glVertex3d(pos.x, pos.y + down.getValue() + width.getValue(), pos.z);
                     }
 
@@ -321,7 +305,7 @@ public class PlayerTrails extends Module{
                         Vec3d c = entAndTrail.get(entity).get(i).color();
                         Trail ctx = entAndTrail.get(entity).get(i);
                         Vec3d pos = ctx.interpolate(mc.getRenderPartialTicks());
-                        GL11.glColor4d(66f/255f, 102f/255f, 245f/255f, (alpha + 0.15f) * ctx.animation(mc.getRenderPartialTicks()));
+                        GL11.glColor4d(66f / 255f, 102f / 255f, 245f / 255f, (alpha + 0.15f) * ctx.animation(mc.getRenderPartialTicks()));
                         GL11.glVertex3d(pos.x, pos.y + width.getValue() + down.getValue(), pos.z);
                     }
 
@@ -334,16 +318,16 @@ public class PlayerTrails extends Module{
                         Vec3d c = entAndTrail.get(entity).get(i).color();
                         Trail ctx = entAndTrail.get(entity).get(i);
                         Vec3d pos = ctx.interpolate(mc.getRenderPartialTicks());
-                        GL11.glColor4d(245f/255f, 227f/255f, 66f/255f, (alpha + 0.15f) * ctx.animation(mc.getRenderPartialTicks()));
+                        GL11.glColor4d(245f / 255f, 227f / 255f, 66f / 255f, (alpha + 0.15f) * ctx.animation(mc.getRenderPartialTicks()));
                         GL11.glVertex3d(pos.x, pos.y + down.getValue(), pos.z);
                     }
-                } else if(mode.getValue() == modeEn.RUSSIA ){
+                } else if (mode.getValue() == modeEn.RUSSIA) {
                     for (int i = 0; i < entAndTrail.get(entity).size(); i++) {
                         Trail ctx = entAndTrail.get(entity).get(i);
                         Vec3d pos = ctx.interpolate(mc.getRenderPartialTicks());
                         GL11.glColor4d(1f, 0f, 0f, alpha * ctx.animation(mc.getRenderPartialTicks()));
                         GL11.glVertex3d(pos.x, pos.y + down.getValue(), pos.z);
-                        GL11.glVertex3d(pos.x, pos.y + down.getValue() + (width.getValue()/3f), pos.z);
+                        GL11.glVertex3d(pos.x, pos.y + down.getValue() + (width.getValue() / 3f), pos.z);
                     }
                     GL11.glEnd();
                     GL11.glBegin(GL11.GL_QUAD_STRIP);
@@ -352,8 +336,8 @@ public class PlayerTrails extends Module{
                         Trail ctx = entAndTrail.get(entity).get(i);
                         Vec3d pos = ctx.interpolate(mc.getRenderPartialTicks());
                         GL11.glColor4d(0f, 0f, 1f, alpha * ctx.animation(mc.getRenderPartialTicks()));
-                        GL11.glVertex3d(pos.x, pos.y + down.getValue() + (width.getValue()/3f), pos.z);
-                        GL11.glVertex3d(pos.x, pos.y + down.getValue() + (width.getValue() * (2f/3f)), pos.z);
+                        GL11.glVertex3d(pos.x, pos.y + down.getValue() + (width.getValue() / 3f), pos.z);
+                        GL11.glVertex3d(pos.x, pos.y + down.getValue() + (width.getValue() * (2f / 3f)), pos.z);
                     }
 
                     GL11.glEnd();
@@ -362,7 +346,7 @@ public class PlayerTrails extends Module{
                         Trail ctx = entAndTrail.get(entity).get(i);
                         Vec3d pos = ctx.interpolate(mc.getRenderPartialTicks());
                         GL11.glColor4d(1f, 1f, 1f, alpha * ctx.animation(mc.getRenderPartialTicks()));
-                        GL11.glVertex3d(pos.x, pos.y + down.getValue() + (width.getValue() * (2f/3f)), pos.z);
+                        GL11.glVertex3d(pos.x, pos.y + down.getValue() + (width.getValue() * (2f / 3f)), pos.z);
                         GL11.glVertex3d(pos.x, pos.y + down.getValue() + (width.getValue()), pos.z);
                     }
 
@@ -404,7 +388,7 @@ public class PlayerTrails extends Module{
     }
 
     @SubscribeEvent
-    public void onEntityMove(EventEntityMove e){
+    public void onEntityMove(EventEntityMove e) {
         try {
             if (e.ctx() instanceof EntityPlayer) {
                 float red = color.getValue().getRed() / 255f, green = color.getValue().getGreen() / 255f, blue = color.getValue().getBlue() / 255f;
@@ -417,17 +401,25 @@ public class PlayerTrails extends Module{
     }
 
     @Override
-    public void onUpdate(){
+    public void onUpdate() {
         astolfo.update();
 
         for (EntityPlayer player : mc.world.playerEntities) {
-            if(entAndTrail.get(player) == null) return;
+            if (entAndTrail.get(player) == null) return;
             entAndTrail.get(player).removeIf(Trail::update);
         }
     }
 
+    public enum modeEn {
+        Default,
+        Ukraine,
+        RUSSIA
+    }
+
     public static class Trail {
-        private Vec3d from, to, color;
+        private final Vec3d from;
+        private final Vec3d to;
+        private final Vec3d color;
         private int ticks, prevTicks;
 
         public Trail(Vec3d from, Vec3d to, Vec3d color) {

@@ -19,11 +19,11 @@ import java.util.HashMap;
 public class PNGtoResourceLocation {
 
 
-    private static HashMap<String, ResourceLocation> image_cache = new HashMap<>();
+    private static final HashMap<String, ResourceLocation> image_cache = new HashMap<>();
 
-    public static ResourceLocation getTexture2(String name,String format) {
+    public static ResourceLocation getTexture2(String name, String format) {
 
-        if(image_cache.containsKey(name)){
+        if (image_cache.containsKey(name)) {
             return image_cache.get(name);
         }
 
@@ -35,12 +35,12 @@ public class PNGtoResourceLocation {
         }
         DynamicTexture texture = new DynamicTexture(bufferedImage);
         WrappedResource wr = new WrappedResource(FMLClientHandler.instance().getClient().getTextureManager().getDynamicTextureLocation(name + "." + format, texture));
-        image_cache.put(name,wr.location);
+        image_cache.put(name, wr.location);
         return wr.location;
     }
 
 
-    public static ResourceLocation getCustomImg(String name,String format) {
+    public static ResourceLocation getCustomImg(String name, String format) {
         BufferedImage bufferedImage = null;
         try {
             bufferedImage = ImageIO.read(new File("ThunderHack/images/" + name + "." + format));
@@ -52,7 +52,7 @@ public class PNGtoResourceLocation {
         return wr.location;
     }
 
-    public static ResourceLocation getTexture3(String name,String format) {
+    public static ResourceLocation getTexture3(String name, String format) {
         BufferedImage bufferedImage = null;
         try {
             bufferedImage = ImageIO.read(new File("ThunderHack/temp/skins/" + name + "." + format));
@@ -65,7 +65,7 @@ public class PNGtoResourceLocation {
     }
 
 
-    public static ResourceLocation getTexture(String name,String format) {
+    public static ResourceLocation getTexture(String name, String format) {
         BufferedImage bufferedImage = null;
         try {
             bufferedImage = ImageIO.read(new File("ThunderHack/temp/embeds/" + name + "." + format));
@@ -74,13 +74,12 @@ public class PNGtoResourceLocation {
         }
         float ratio = (float) bufferedImage.getWidth() / (float) bufferedImage.getHeight();  // ширина на высота 16/9 w 4   h 2  ratio 2
         DiscordEmbeds.nigw = Thunderhack.moduleManager.getModuleByClass(DiscordEmbeds.class).multip.getValue();
-        DiscordEmbeds.nigh = (float) (Thunderhack.moduleManager.getModuleByClass(DiscordEmbeds.class).multip.getValue() / ratio); // высота * (ширина / высота)
+        DiscordEmbeds.nigh = Thunderhack.moduleManager.getModuleByClass(DiscordEmbeds.class).multip.getValue() / ratio; // высота * (ширина / высота)
 
         DynamicTexture texture = new DynamicTexture(bufferedImage);
         WrappedResource wr = new WrappedResource(FMLClientHandler.instance().getClient().getTextureManager().getDynamicTextureLocation(name + "." + format, texture));
         return wr.location;
     }
-
 
 
     public static class WrappedResource {

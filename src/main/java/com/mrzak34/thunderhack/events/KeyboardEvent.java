@@ -9,30 +9,25 @@ public class KeyboardEvent extends Event {
     private final char character;
     private final int key;
 
-    public KeyboardEvent(boolean eventState, int key, char character)
-    {
+    public KeyboardEvent(boolean eventState, int key, char character) {
         this.eventState = eventState;
         this.key = key;
         this.character = character;
     }
 
-    public boolean getEventState()
-    {
+    public boolean getEventState() {
         return eventState;
     }
 
-    public int getKey()
-    {
+    public int getKey() {
         return key;
     }
 
-    public char getCharacter()
-    {
+    public char getCharacter() {
         return character;
     }
 
-    public static class Post
-    {
+    public static class Post {
         //Will be send after all KeyBoardEvents have been fired.
     }
 }

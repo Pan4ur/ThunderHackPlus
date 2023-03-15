@@ -10,6 +10,20 @@ import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class WorldHandler {
+    public static void addWorldAccess(final World world, final IWorldEventListener schematic) {
+        if (world != null && schematic != null) {
+            Reference.logger.debug("Adding world access to {}", world);
+            world.addEventListener(schematic);
+        }
+    }
+
+    public static void removeWorldAccess(final World world, final IWorldEventListener schematic) {
+        if (world != null && schematic != null) {
+            Reference.logger.debug("Removing world access from {}", world);
+            world.removeEventListener(schematic);
+        }
+    }
+
     @SubscribeEvent
     public void onLoad(final WorldEvent.Load event) {
         final World world = event.getWorld();
@@ -24,20 +38,6 @@ public class WorldHandler {
         final World world = event.getWorld();
         if (world.isRemote) {
             removeWorldAccess(world, RenderSchematic.INSTANCE);
-        }
-    }
-
-    public static void addWorldAccess(final World world, final IWorldEventListener schematic) {
-        if (world != null && schematic != null) {
-            Reference.logger.debug("Adding world access to {}", world);
-            world.addEventListener(schematic);
-        }
-    }
-
-    public static void removeWorldAccess(final World world, final IWorldEventListener schematic) {
-        if (world != null && schematic != null) {
-            Reference.logger.debug("Removing world access from {}", world);
-            world.removeEventListener(schematic);
         }
     }
 }

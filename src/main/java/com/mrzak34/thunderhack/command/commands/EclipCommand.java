@@ -47,52 +47,54 @@ public class EclipCommand extends Command {
         int i;
         float y = 0.0f;
         if (commands[0].equals("bedrock")) {
-            y = -((float)this.mc.player.posY) - 3.0f;
+            y = -((float) this.mc.player.posY) - 3.0f;
         }
         if (commands[0].equals("down")) {
             for (i = 1; i < 255; ++i) {
-                if (this.mc.world.getBlockState(new BlockPos((Entity)this.mc.player).add(0, -i, 0)) == Blocks.AIR.getDefaultState()) {
+                if (this.mc.world.getBlockState(new BlockPos(this.mc.player).add(0, -i, 0)) == Blocks.AIR.getDefaultState()) {
                     y = -i - 1;
                     break;
                 }
-                if (this.mc.world.getBlockState(new BlockPos((Entity)this.mc.player).add(0, -i, 0)) != Blocks.BEDROCK.getDefaultState()) continue;
-                Command.sendMessage((Object)ChatFormatting.RED + " можно телепортироваться только под бедрок");
-                Command.sendMessage((Object)ChatFormatting.RED + "eclip bedrock");
+                if (this.mc.world.getBlockState(new BlockPos(this.mc.player).add(0, -i, 0)) != Blocks.BEDROCK.getDefaultState())
+                    continue;
+                Command.sendMessage(ChatFormatting.RED + " можно телепортироваться только под бедрок");
+                Command.sendMessage(ChatFormatting.RED + "eclip bedrock");
                 return;
             }
         }
         if (commands[0].equals("up")) {
             for (i = 4; i < 255; ++i) {
-                if (this.mc.world.getBlockState(new BlockPos((Entity)this.mc.player).add(0, i, 0)) != Blocks.AIR.getDefaultState()) continue;
+                if (this.mc.world.getBlockState(new BlockPos(this.mc.player).add(0, i, 0)) != Blocks.AIR.getDefaultState())
+                    continue;
                 y = i + 1;
                 break;
             }
         }
         if (y == 0.0f) {
-            if (NumberUtils.isNumber((String)commands[0])) {
+            if (NumberUtils.isNumber(commands[0])) {
                 y = Float.parseFloat(commands[0]);
             } else {
-                Command.sendMessage((Object)ChatFormatting.RED + commands[0] + (Object)ChatFormatting.GRAY + "не являестя числом");
+                Command.sendMessage(ChatFormatting.RED + commands[0] + ChatFormatting.GRAY + "не являестя числом");
                 return;
             }
         }
         if ((elytra = getSlotIDFromItem(Items.ELYTRA)) == -1) {
-            Command.sendMessage((Object)ChatFormatting.RED + "вам нужны элитры в инвентаре");
+            Command.sendMessage(ChatFormatting.RED + "вам нужны элитры в инвентаре");
             return;
         }
         if (elytra != -2) {
-            this.mc.playerController.windowClick(0, elytra, 1, ClickType.PICKUP, (EntityPlayer)this.mc.player);
-            this.mc.playerController.windowClick(0, 6, 1, ClickType.PICKUP, (EntityPlayer)this.mc.player);
+            this.mc.playerController.windowClick(0, elytra, 1, ClickType.PICKUP, this.mc.player);
+            this.mc.playerController.windowClick(0, 6, 1, ClickType.PICKUP, this.mc.player);
         }
-        this.mc.getConnection().sendPacket((Packet)new CPacketPlayer.Position(this.mc.player.posX, this.mc.player.posY, this.mc.player.posZ, false));
-        this.mc.getConnection().sendPacket((Packet)new CPacketPlayer.Position(this.mc.player.posX, this.mc.player.posY, this.mc.player.posZ, false));
-        this.mc.getConnection().sendPacket((Packet)new CPacketEntityAction((Entity)this.mc.player, CPacketEntityAction.Action.START_FALL_FLYING));
-        this.mc.getConnection().sendPacket((Packet)new CPacketPlayer.Position(this.mc.player.posX, this.mc.player.posY + (double)y, this.mc.player.posZ, false));
-        this.mc.getConnection().sendPacket((Packet)new CPacketEntityAction((Entity)this.mc.player, CPacketEntityAction.Action.START_FALL_FLYING));
+        this.mc.getConnection().sendPacket(new CPacketPlayer.Position(this.mc.player.posX, this.mc.player.posY, this.mc.player.posZ, false));
+        this.mc.getConnection().sendPacket(new CPacketPlayer.Position(this.mc.player.posX, this.mc.player.posY, this.mc.player.posZ, false));
+        this.mc.getConnection().sendPacket(new CPacketEntityAction(this.mc.player, CPacketEntityAction.Action.START_FALL_FLYING));
+        this.mc.getConnection().sendPacket(new CPacketPlayer.Position(this.mc.player.posX, this.mc.player.posY + (double) y, this.mc.player.posZ, false));
+        this.mc.getConnection().sendPacket(new CPacketEntityAction(this.mc.player, CPacketEntityAction.Action.START_FALL_FLYING));
         if (elytra != -2) {
-            this.mc.playerController.windowClick(0, 6, 1, ClickType.PICKUP, (EntityPlayer)this.mc.player);
-            this.mc.playerController.windowClick(0, elytra, 1, ClickType.PICKUP, (EntityPlayer)this.mc.player);
+            this.mc.playerController.windowClick(0, 6, 1, ClickType.PICKUP, this.mc.player);
+            this.mc.playerController.windowClick(0, elytra, 1, ClickType.PICKUP, this.mc.player);
         }
-        this.mc.player.setPosition(this.mc.player.posX, this.mc.player.posY + (double)y, this.mc.player.posZ);
+        this.mc.player.setPosition(this.mc.player.posX, this.mc.player.posY + (double) y, this.mc.player.posZ);
     }
 }

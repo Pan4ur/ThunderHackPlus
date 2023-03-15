@@ -17,19 +17,18 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import javax.annotation.Nullable;
 import java.awt.image.BufferedImage;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Objects;
 
-@Mixin(value={AbstractClientPlayer.class})
+@Mixin(value = {AbstractClientPlayer.class})
 public abstract class MixinAbstractClientPlayer {
+
+    public ResourceLocation caperes;
+    HashMap<String, ResourceLocation> users = new HashMap<>();
 
     @Shadow
     @Nullable
     protected abstract NetworkPlayerInfo getPlayerInfo();
-
-    public ResourceLocation caperes;
-
-
-    HashMap<String, ResourceLocation> users = new HashMap<>();
 
     @Inject(method = "getLocationCape", at = @At("HEAD"), cancellable = true)
     public void getLocationCape(CallbackInfoReturnable<ResourceLocation> callbackInfoReturnable) {
@@ -38,14 +37,14 @@ public abstract class MixinAbstractClientPlayer {
 
         String name = Objects.requireNonNull(getPlayerInfo()).getGameProfile().getName();
         if (ThunderUtils.isTHUser(name) && Thunderhack.moduleManager.getModuleByClass(MainSettings.class).showcapes.getValue()) {
-            if(!users.containsKey(name)) {
+            if (!users.containsKey(name)) {
                 try {
                     BufferedImage image = ThunderUtils.getCustomCape(name);
                     DynamicTexture texture = new DynamicTexture(image);
                     PNGtoResourceLocation.WrappedResource wr = new PNGtoResourceLocation.WrappedResource(FMLClientHandler.instance().getClient().getTextureManager().getDynamicTextureLocation(name, texture));
                     caperes = wr.location;
                     callbackInfoReturnable.setReturnValue(caperes);
-                    users.put(name,caperes);
+                    users.put(name, caperes);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

@@ -22,7 +22,8 @@ public class SaveHandlerSchematic implements ISaveHandler {
     }
 
     @Override
-    public void checkSessionLock() throws MinecraftException {}
+    public void checkSessionLock() throws MinecraftException {
+    }
 
     @Override
     public IChunkLoader getChunkLoader(final WorldProvider provider) {
@@ -30,10 +31,12 @@ public class SaveHandlerSchematic implements ISaveHandler {
     }
 
     @Override
-    public void saveWorldInfoWithPlayer(final WorldInfo info, final NBTTagCompound compound) {}
+    public void saveWorldInfoWithPlayer(final WorldInfo info, final NBTTagCompound compound) {
+    }
 
     @Override
-    public void saveWorldInfo(final WorldInfo info) {}
+    public void saveWorldInfo(final WorldInfo info) {
+    }
 
     @Override
     public IPlayerFileData getPlayerNBTManager() {
@@ -41,7 +44,8 @@ public class SaveHandlerSchematic implements ISaveHandler {
     }
 
     @Override
-    public void flush() {}
+    public void flush() {
+    }
 
     @Override
     public File getWorldDirectory() {

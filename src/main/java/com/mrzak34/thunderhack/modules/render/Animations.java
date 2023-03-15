@@ -10,29 +10,9 @@ public
 class Animations extends Module {
 
 
-    public Animations ( ) {
-        super ( "Animations" , "анимации удара" , Module.Category.RENDER );
-        this.setInstance();
-    }
-
-    public static Animations getInstance() {
-        if (INSTANCE == null) {
-            INSTANCE = new Animations();
-        }
-        return INSTANCE;
-    }
-
-    private void setInstance() {
-        INSTANCE = this;
-    }
-
     private static Animations INSTANCE = new Animations();
-
-
-
-
-   // public static BooleanSetting itemAnimation = new BooleanSetting("Item Animation", false, () -> true);
-   // smallItem = new BooleanSetting("Mini Item", false, () -> true);
+    // public static BooleanSetting itemAnimation = new BooleanSetting("Item Animation", false, () -> true);
+    // smallItem = new BooleanSetting("Mini Item", false, () -> true);
 /*
 
     public  Setting<Float> x = this.register(new Setting<Float>("X", 0f, -1f, 1f));
@@ -59,32 +39,40 @@ class Animations extends Module {
 */
     public Setting<Boolean> ed = register(new Setting("EquipDisable", Boolean.valueOf(true)));
     public Setting<Boolean> auraOnly = register(new Setting("auraOnly", Boolean.valueOf(false)));
-    public  Setting<Float> fapSmooth = this.register(new Setting<Float>("fapSmooth", 4f, 0.5f, 15f));
-    public  Setting<Integer> slowValue = this.register(new Setting<>("SlowValue", 6, 1, 50));
-
-
-
+    public Setting<Float> fapSmooth = this.register(new Setting<Float>("fapSmooth", 4f, 0.5f, 15f));
+    public Setting<Integer> slowValue = this.register(new Setting<>("SlowValue", 6, 1, 50));
     public Setting<rmode> rMode = register(new Setting("SwordMode", rmode.Swipe));
-    public enum rmode {
-         Swipe, Rich, Glide,Default,New,Oblique, Fap, Slow
+    public float shitfix = 1;
+    public boolean abobka228 = false;
+
+
+    public Animations() {
+        super("Animations", "анимации удара", Module.Category.RENDER);
+        this.setInstance();
     }
 
-  //  public Setting<rmode2> rMode2 = register(new Setting("ItemMode", rmode2.ALL));
-   // public enum rmode2 {
-  //      Spin, ALL;
-  //  }
+    public static Animations getInstance() {
+        if (INSTANCE == null) {
+            INSTANCE = new Animations();
+        }
+        return INSTANCE;
+    }
 
+    //  public Setting<rmode2> rMode2 = register(new Setting("ItemMode", rmode2.ALL));
+    // public enum rmode2 {
+    //      Spin, ALL;
+    //  }
 
-    public float shitfix = 1;
+    private void setInstance() {
+        INSTANCE = this;
+    }
 
     @SubscribeEvent
-    public void onRender2D(Render2DEvent e){
-        if(mc.world!= null && mc.player != null) {
+    public void onRender2D(Render2DEvent e) {
+        if (mc.world != null && mc.player != null) {
             shitfix = mc.player.getSwingProgress(mc.getRenderPartialTicks());
         }
     }
-
-    public boolean abobka228 = false;
 
     public void onUpdate() {
         if (nullCheck()) {
@@ -96,6 +84,10 @@ class Animations extends Module {
             Animations.mc.entityRenderer.itemRenderer.equippedProgressMainHand = 1.0f;
             Animations.mc.entityRenderer.itemRenderer.itemStackMainHand = Animations.mc.player.getHeldItemMainhand();
         }
+    }
+
+    public enum rmode {
+        Swipe, Rich, Glide, Default, New, Oblique, Fap, Slow
     }
 
 }

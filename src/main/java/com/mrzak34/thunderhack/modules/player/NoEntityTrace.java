@@ -8,19 +8,23 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemPickaxe;
 
-public class NoEntityTrace extends Module
-{
+public class NoEntityTrace extends Module {
     private static NoEntityTrace INSTANCE;
+
+    static {
+        NoEntityTrace.INSTANCE = new NoEntityTrace();
+    }
+
     public Setting<Boolean> pick;
     public Setting<Boolean> gap;
     public Setting<Boolean> obby;
     public boolean noTrace;
 
     public NoEntityTrace() {
-        super("NoEntityTrace",  "копать сквозь игроков",  Module.Category.PLAYER);
-        this.pick = (Setting<Boolean>)this.register(new Setting("Pick", true));
-        this.gap = (Setting<Boolean>)this.register(new Setting("Gap", false));
-        this.obby = (Setting<Boolean>)this.register(new Setting("Obby", false));
+        super("NoEntityTrace", "копать сквозь игроков", Module.Category.PLAYER);
+        this.pick = (Setting<Boolean>) this.register(new Setting("Pick", true));
+        this.gap = (Setting<Boolean>) this.register(new Setting("Gap", false));
+        this.obby = (Setting<Boolean>) this.register(new Setting("Obby", false));
         this.setInstance();
     }
 
@@ -46,13 +50,9 @@ public class NoEntityTrace extends Module
             return;
         }
         if (item instanceof ItemBlock) {
-            this.noTrace = (((ItemBlock)item).getBlock() == Blocks.OBSIDIAN && this.obby.getValue());
+            this.noTrace = (((ItemBlock) item).getBlock() == Blocks.OBSIDIAN && this.obby.getValue());
             return;
         }
         this.noTrace = false;
-    }
-
-    static {
-        NoEntityTrace.INSTANCE = new NoEntityTrace();
     }
 }

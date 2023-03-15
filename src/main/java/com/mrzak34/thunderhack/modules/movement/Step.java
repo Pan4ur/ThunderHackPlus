@@ -17,6 +17,15 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class Step extends Module {
 
+    private final Timer stepTimer = new Timer();
+    public Setting<Float> height = register(new Setting("Height", 2.0F, 1F, 2.5F));
+    public Setting<Boolean> entityStep = this.register(new Setting<>("EntityStep", false));
+    public Setting<Boolean> useTimer = this.register(new Setting<>("Timer", true));
+    public Setting<Boolean> strict = this.register(new Setting<>("Strict", false));
+    public Setting<Integer> stepDelay = register(new Setting("StepDelay", 200, 0, 1000));
+    private final Setting<Mode> mode = this.register(new Setting<>("Mode", Mode.NORMAL));
+    private boolean timer;
+    private Entity entityRiding;
     /**
      * @author Doogie13, linustouchtips, aesthetical
      * @since 12/27/2021
@@ -24,23 +33,6 @@ public class Step extends Module {
 
     public Step() {
         super("Step", "Step", Category.MOVEMENT);
-    }
-    private Setting<Mode> mode = this.register (new Setting<>("Mode",Mode.NORMAL));
-    public Setting<Float> height = register(new Setting("Height", 2.0F, 1F, 2.5F));
-    public Setting<Boolean> entityStep = this.register(new Setting<>("EntityStep", false));
-    public Setting<Boolean> useTimer = this.register(new Setting<>("Timer", true));
-    public Setting<Boolean> strict = this.register(new Setting<>("Strict", false));
-    public Setting<Integer> stepDelay = register(new Setting("StepDelay", 200, 0, 1000));
-
-    private boolean timer;
-    private Entity entityRiding;
-    private final Timer stepTimer = new Timer();
-
-
-
-    public enum Mode {
-        NORMAL,
-        VANILLA
     }
 
     @Override
@@ -120,37 +112,42 @@ public class Step extends Module {
     public double[] getOffset(double height) {
         if (height == 0.75) {
             if (strict.getValue()) {
-                return new double[] {0.42, 0.753, 0.75};}
-            else {return new double[] {0.42, 0.753};}
-        }
-
-        else if (height == 0.8125) {
-            if (strict.getValue()) {
-                return new double[] {0.39, 0.7, 0.8125};}
-            else {return new double[] {0.39, 0.7};}
-        }
-        else if (height == 0.875) {
-            if (strict.getValue()) {
-                return new double[] {0.39, 0.7, 0.875};
+                return new double[]{0.42, 0.753, 0.75};
+            } else {
+                return new double[]{0.42, 0.753};
             }
-
-            else {return new double[] {0.39, 0.7};}
-        }
-        else if (height == 1) {
-            if (strict.getValue()) {return new double[] {0.42, 0.753, 1};}
-            else {return new double[] {0.42, 0.753};}
-        }
-        else if (height == 1.5) {
-            return new double[] {0.42, 0.75, 1.0, 1.16, 1.23, 1.2};
-        }
-        else if (height == 2) {
-            return new double[] {0.42, 0.78, 0.63, 0.51, 0.9, 1.21, 1.45, 1.43};
-        }
-        else if (height == 2.5) {
-            return new double[] {0.425, 0.821, 0.699, 0.599, 1.022, 1.372, 1.652, 1.869, 2.019, 1.907};
+        } else if (height == 0.8125) {
+            if (strict.getValue()) {
+                return new double[]{0.39, 0.7, 0.8125};
+            } else {
+                return new double[]{0.39, 0.7};
+            }
+        } else if (height == 0.875) {
+            if (strict.getValue()) {
+                return new double[]{0.39, 0.7, 0.875};
+            } else {
+                return new double[]{0.39, 0.7};
+            }
+        } else if (height == 1) {
+            if (strict.getValue()) {
+                return new double[]{0.42, 0.753, 1};
+            } else {
+                return new double[]{0.42, 0.753};
+            }
+        } else if (height == 1.5) {
+            return new double[]{0.42, 0.75, 1.0, 1.16, 1.23, 1.2};
+        } else if (height == 2) {
+            return new double[]{0.42, 0.78, 0.63, 0.51, 0.9, 1.21, 1.45, 1.43};
+        } else if (height == 2.5) {
+            return new double[]{0.425, 0.821, 0.699, 0.599, 1.022, 1.372, 1.652, 1.869, 2.019, 1.907};
         }
 
         return null;
+    }
+
+    public enum Mode {
+        NORMAL,
+        VANILLA
     }
 }
 

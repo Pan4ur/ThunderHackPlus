@@ -14,7 +14,6 @@ public class NoInteract extends Module {
     }
 
 
-
     @SubscribeEvent
     public void onInteract(PlayerInteractEvent.RightClickBlock event) {
         if (fullNullCheck()) return;
@@ -34,8 +33,8 @@ public class NoInteract extends Module {
     }
 
     @SubscribeEvent
-    public void onPacketReceive(PacketEvent.Receive e){
-        if(e.getPacket() instanceof SPacketOpenWindow && !fullNullCheck() && (!mc.player.getHeldItemMainhand().isEmpty() || !mc.player.getHeldItemOffhand().isEmpty())){
+    public void onPacketReceive(PacketEvent.Receive e) {
+        if (e.getPacket() instanceof SPacketOpenWindow && !fullNullCheck() && (!mc.player.getHeldItemMainhand().isEmpty() || !mc.player.getHeldItemOffhand().isEmpty())) {
             e.setCanceled(true);
         }
     }

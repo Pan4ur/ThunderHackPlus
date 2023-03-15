@@ -1,27 +1,22 @@
 package com.mrzak34.thunderhack.util.phobos;
 
-public class TimeStamp
-{
+public class TimeStamp {
     private final long timeStamp;
     private boolean valid = true;
 
-    public TimeStamp()
-    {
+    public TimeStamp() {
         this.timeStamp = System.currentTimeMillis();
     }
 
-    public long getTimeStamp()
-    {
+    public long getTimeStamp() {
         return timeStamp;
     }
 
-    public boolean isValid()
-    {
+    public boolean isValid() {
         return valid;
     }
 
-    public void setValid(boolean valid)
-    {
+    public void setValid(boolean valid) {
         this.valid = valid;
     }
 

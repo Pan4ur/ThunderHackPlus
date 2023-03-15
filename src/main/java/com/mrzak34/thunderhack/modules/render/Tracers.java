@@ -7,10 +7,7 @@ import com.mrzak34.thunderhack.mixin.mixins.IRenderManager;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.setting.Setting;
-import com.mrzak34.thunderhack.util.EntityUtil;
-import com.mrzak34.thunderhack.util.render.RenderUtil;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.Vec3d;
@@ -20,18 +17,48 @@ import org.lwjgl.opengl.GL11;
 import java.awt.*;
 
 import static com.mrzak34.thunderhack.util.EntityUtil.interpolateEntity;
-import static com.mrzak34.thunderhack.util.TessellatorUtil.drawLine;
 
 public class Tracers extends Module {
-    public Tracers() {
-        super("Tracers","ебучая паутина-на экране", "tracers", Category.RENDER);
-    }
-
     private final Setting<Boolean> showFriends = this.register(new Setting<>("ShowFriends", true));
     private final Setting<ColorSetting> colorSetting = this.register(new Setting<>("Color", new ColorSetting(0xFFFFFFFF)));
     private final Setting<ColorSetting> fcolorSetting = this.register(new Setting<>("FriendColor", new ColorSetting(0xFFFFFFFF)));
-    private final Setting<Float> width = this.register(new Setting<>("Width", 2f,0.1f,5f));
-    private final Setting<Float> tracerRange = this.register(new Setting<>("Range", 128f,32f, 256f));
+    private final Setting<Float> width = this.register(new Setting<>("Width", 2f, 0.1f, 5f));
+    private final Setting<Float> tracerRange = this.register(new Setting<>("Range", 128f, 32f, 256f));
+    public Tracers() {
+        super("Tracers", "ебучая паутина-на экране", "tracers", Category.RENDER);
+    }
+
+    public static void renderTracer(double x, double y, double z, double x2, double y2, double z2, int color) {
+        GL11.glBlendFunc(770, 771);
+        GL11.glEnable(GL11.GL_BLEND);
+        GL11.glLineWidth(1.5f);
+        GL11.glDisable(GL11.GL_TEXTURE_2D);
+        GL11.glDisable(GL11.GL_DEPTH_TEST);
+        GL11.glDepthMask(false);
+
+        GL11.glColor4f(((color >> 16) & 0xFF) / 255F, ((color >> 8) & 0xFF) / 255F, ((color) & 0xFF) / 255F, ((color >> 24) & 0xFF) / 255F);
+        GlStateManager.disableLighting();
+        GL11.glLoadIdentity();
+
+        ((IEntityRenderer) mc.entityRenderer).orientCam(mc.getRenderPartialTicks());
+
+        GL11.glEnable(GL11.GL_LINE_SMOOTH);
+
+        GL11.glBegin(GL11.GL_LINES);
+        GL11.glVertex3d(x, y, z);
+        GL11.glVertex3d(x2, y2, z2);
+        GL11.glVertex3d(x2, y2, z2);
+        GL11.glEnd();
+
+        GL11.glDisable(GL11.GL_LINE_SMOOTH);
+
+        GL11.glEnable(GL11.GL_TEXTURE_2D);
+        GL11.glEnable(GL11.GL_DEPTH_TEST);
+        GL11.glDepthMask(true);
+        GL11.glDisable(GL11.GL_BLEND);
+        GL11.glColor3d(1d, 1d, 1d);
+        GlStateManager.enableLighting();
+    }
 
     @SubscribeEvent
     public void onRender3D(Render3DEvent event) {
@@ -77,37 +104,5 @@ public class Tracers extends Module {
                 }
             }
         }
-    }
-
-    public static void renderTracer(double x, double y, double z, double x2, double y2, double z2, int color){
-        GL11.glBlendFunc(770, 771);
-        GL11.glEnable(GL11.GL_BLEND);
-        GL11.glLineWidth(1.5f);
-        GL11.glDisable(GL11.GL_TEXTURE_2D);
-        GL11.glDisable(GL11.GL_DEPTH_TEST);
-        GL11.glDepthMask(false);
-
-        GL11.glColor4f(((color >> 16) & 0xFF) / 255F, ((color >> 8) & 0xFF) / 255F, ((color) & 0xFF) / 255F, ((color >> 24) & 0xFF) / 255F);
-        GlStateManager.disableLighting();
-        GL11.glLoadIdentity();
-
-        ((IEntityRenderer) mc.entityRenderer).orientCam(mc.getRenderPartialTicks());
-
-        GL11.glEnable(GL11.GL_LINE_SMOOTH);
-
-        GL11.glBegin(GL11.GL_LINES);
-        GL11.glVertex3d(x, y, z);
-        GL11.glVertex3d(x2, y2, z2);
-        GL11.glVertex3d(x2, y2, z2);
-        GL11.glEnd();
-
-        GL11.glDisable(GL11.GL_LINE_SMOOTH);
-
-        GL11.glEnable(GL11.GL_TEXTURE_2D);
-        GL11.glEnable(GL11.GL_DEPTH_TEST);
-        GL11.glDepthMask(true);
-        GL11.glDisable(GL11.GL_BLEND);
-        GL11.glColor3d(1d,1d,1d);
-        GlStateManager.enableLighting();
     }
 }

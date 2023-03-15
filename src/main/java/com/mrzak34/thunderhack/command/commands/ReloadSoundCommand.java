@@ -6,9 +6,6 @@ package com.mrzak34.thunderhack.command.commands;
 
 import com.mojang.realmsclient.gui.ChatFormatting;
 import com.mrzak34.thunderhack.command.Command;
-import net.minecraft.client.audio.SoundHandler;
-import net.minecraft.client.audio.SoundManager;
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 
 public class ReloadSoundCommand extends Command {
     public ReloadSoundCommand() {

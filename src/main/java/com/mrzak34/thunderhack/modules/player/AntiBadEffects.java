@@ -10,7 +10,7 @@ public class AntiBadEffects extends Module {
     }
 
     @Override
-    public void onUpdate(){
+    public void onUpdate() {
         if (mc.player.isPotionActive(MobEffects.BLINDNESS)) {
             mc.player.removeActivePotionEffect(MobEffects.BLINDNESS);
         }

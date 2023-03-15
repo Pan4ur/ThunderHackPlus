@@ -10,13 +10,11 @@ import java.util.List;
 /**
  * Represents the Calculation of the {@link AutoCrystal}.
  */
-public class Calculation extends AbstractCalculation<CrystalData>
-{
+public class Calculation extends AbstractCalculation<CrystalData> {
     public Calculation(AutoCrystal module,
                        List<Entity> entities,
                        List<EntityPlayer> players,
-                       BlockPos...blackList)
-    {
+                       BlockPos... blackList) {
         super(module, entities, players, blackList);
     }
 
@@ -25,14 +23,12 @@ public class Calculation extends AbstractCalculation<CrystalData>
                        List<EntityPlayer> players,
                        boolean breakOnly,
                        boolean noBreak,
-                       BlockPos...blackList)
-    {
+                       BlockPos... blackList) {
         super(module, entities, players, breakOnly, noBreak, blackList);
     }
 
     @Override
-    protected IBreakHelper<CrystalData> getBreakHelper()
-    {
+    protected IBreakHelper<CrystalData> getBreakHelper() {
         return module.breakHelper;
     }
 

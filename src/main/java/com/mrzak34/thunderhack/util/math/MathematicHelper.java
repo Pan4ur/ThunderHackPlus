@@ -1,8 +1,5 @@
 package com.mrzak34.thunderhack.util.math;
 
-import net.minecraft.util.math.MathHelper;
-
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
@@ -20,7 +17,7 @@ public class MathematicHelper {
     }
 
     public static double round(double num, double increment) {
-        double v = (double)Math.round(num / increment) * increment;
+        double v = (double) Math.round(num / increment) * increment;
         BigDecimal bd = new BigDecimal(v);
         bd = bd.setScale(3, RoundingMode.HALF_UP);
         return bd.doubleValue();
@@ -41,6 +38,6 @@ public class MathematicHelper {
         if (startInclusive == endInclusive || endInclusive - startInclusive <= 0.0f) {
             return startInclusive;
         }
-        return (float)((double)startInclusive + (double)(endInclusive - startInclusive) * Math.random());
+        return (float) ((double) startInclusive + (double) (endInclusive - startInclusive) * Math.random());
     }
 }

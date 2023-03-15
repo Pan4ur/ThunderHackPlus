@@ -1,11 +1,6 @@
 package com.github.lunatrius.schematica.network;
 
-import com.github.lunatrius.schematica.network.message.MessageCapabilities;
-import com.github.lunatrius.schematica.network.message.MessageDownloadBegin;
-import com.github.lunatrius.schematica.network.message.MessageDownloadBeginAck;
-import com.github.lunatrius.schematica.network.message.MessageDownloadChunk;
-import com.github.lunatrius.schematica.network.message.MessageDownloadChunkAck;
-import com.github.lunatrius.schematica.network.message.MessageDownloadEnd;
+import com.github.lunatrius.schematica.network.message.*;
 import com.github.lunatrius.schematica.reference.Reference;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;

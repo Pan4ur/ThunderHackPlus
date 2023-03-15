@@ -6,17 +6,17 @@ import net.minecraft.util.math.MathHelper;
 
 public class TimeAnimation {
     private final long length;
-    private double start;
-    private double end;
+    private final double start;
+    private final double end;
     private double current;
     private double progress;
     private boolean playing;
     private boolean backwards;
     private boolean reverseOnEnd;
-    private long startTime;
+    private final long startTime;
     private long lastTime;
     private double per;
-    private long dif;
+    private final long dif;
     private boolean flag;
 
     private AnimationMode mode;

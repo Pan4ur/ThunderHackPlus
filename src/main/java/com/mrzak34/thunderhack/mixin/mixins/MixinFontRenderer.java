@@ -12,36 +12,35 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 
 import static com.mrzak34.thunderhack.util.Util.mc;
 
-@Mixin(value={FontRenderer.class})
+@Mixin(value = {FontRenderer.class})
 public abstract class MixinFontRenderer {
     @Shadow
     protected abstract void renderStringAtPos(String var1, boolean var2);
 
 
-
     @Redirect(method = {"renderString(Ljava/lang/String;FFIZ)I"}, at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/FontRenderer;renderStringAtPos(Ljava/lang/String;Z)V"))
     public void renderStringAtPosHook(FontRenderer fontRenderer, String string, boolean bl) {
-        if(Thunderhack.moduleManager == null){
+        if (Thunderhack.moduleManager == null) {
             renderStringAtPos(string, bl);
             return;
         }
-        if(Thunderhack.moduleManager.getModuleByClass(PasswordHider.class).isEnabled()) {
-            if(string.contains("/l ") || string.contains("/login ") || string.contains("/reg ") || string.contains("/register ") && mc.currentScreen instanceof GuiChat) {
-                StringBuilder final_string = new StringBuilder("");
-                for(char cha: string.replace("/login ","").replace("/register ","").replace("/l ","").replace("/reg ","").toCharArray()){
+        if (Thunderhack.moduleManager.getModuleByClass(PasswordHider.class).isEnabled()) {
+            if (string.contains("/l ") || string.contains("/login ") || string.contains("/reg ") || string.contains("/register ") && mc.currentScreen instanceof GuiChat) {
+                StringBuilder final_string = new StringBuilder();
+                for (char cha : string.replace("/login ", "").replace("/register ", "").replace("/l ", "").replace("/reg ", "").toCharArray()) {
                     final_string.append("*");
                 }
 
-                if(string.contains("/register")){
+                if (string.contains("/register")) {
                     renderStringAtPos("/register " + final_string, bl);
                     return;
-                }else if(string.contains("/login")){
+                } else if (string.contains("/login")) {
                     renderStringAtPos("/login " + final_string, bl);
                     return;
-                } else if(string.contains("/l ")) {
+                } else if (string.contains("/l ")) {
                     renderStringAtPos("/l " + final_string, bl);
                     return;
-                } else if(string.contains("/reg ")){
+                } else if (string.contains("/reg ")) {
                     renderStringAtPos("/reg " + final_string, bl);
                     return;
                 }
@@ -49,11 +48,11 @@ public abstract class MixinFontRenderer {
         }
 
         if (Thunderhack.moduleManager.getModuleByClass(NameProtect.class).isEnabled()) {
-            if(mc == null || mc.getSession() == null){
+            if (mc == null || mc.getSession() == null) {
                 return;
             }
             renderStringAtPos(string.replace(mc.getSession().getUsername(), "Protected"), bl);
-        } else{
+        } else {
             renderStringAtPos(string, bl);
         }
     }

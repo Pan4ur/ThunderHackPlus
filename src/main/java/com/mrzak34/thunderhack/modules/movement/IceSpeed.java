@@ -1,15 +1,14 @@
 package com.mrzak34.thunderhack.modules.movement;
 
-import com.mrzak34.thunderhack.modules.*;
-import com.mrzak34.thunderhack.setting.*;
-import net.minecraft.init.*;
+import com.mrzak34.thunderhack.modules.Module;
+import com.mrzak34.thunderhack.setting.Setting;
+import net.minecraft.init.Blocks;
 
-public class IceSpeed extends Module
-{
+public class IceSpeed extends Module {
     private final Setting<Float> speed = this.register(new Setting<>("Speed", 0.4f, 0.1f, 1.5f));
 
     public IceSpeed() {
-        super("IceSpeed",  "+скорость если на льду",  Module.Category.MOVEMENT);
+        super("IceSpeed", "+скорость если на льду", Module.Category.MOVEMENT);
     }
 
 

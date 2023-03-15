@@ -29,9 +29,12 @@ import java.util.concurrent.TimeUnit;
 import static com.mrzak34.thunderhack.util.phobos.CalculationMotion.rayTraceTo;
 import static net.minecraft.util.EnumFacing.HORIZONTALS;
 
-public class ServerTimeHelper extends Feature
-{
+public class ServerTimeHelper extends Feature {
     private static final ScheduledExecutorService THREAD;
+
+    static {
+        THREAD = ThreadUtil.newDaemonScheduledExecutor("Server-Helper");
+    }
 
     private final AutoCrystal module;
     private final Setting<AutoCrystal.ACRotate> rotate;
@@ -40,18 +43,12 @@ public class ServerTimeHelper extends Feature
     private final Setting<Boolean> newVersion;
     private final Setting<Integer> buffer;
 
-    static
-    {
-        THREAD = ThreadUtil.newDaemonScheduledExecutor("Server-Helper");
-    }
-
     public ServerTimeHelper(AutoCrystal module,
                             Setting<AutoCrystal.ACRotate> rotate,
                             Setting<AutoCrystal.SwingTime> placeSwing,
                             Setting<Boolean> antiFeetPlace,
                             Setting<Boolean> newVersion,
-                            Setting<Integer> buffer)
-    {
+                            Setting<Integer> buffer) {
         this.module = module;
         this.rotate = rotate;
         this.placeSwing = placeSwing;
@@ -60,31 +57,11 @@ public class ServerTimeHelper extends Feature
         this.buffer = buffer;
     }
 
-    public void onUseEntity(CPacketUseEntity packet, Entity crystal)
-    {
-        // You can also check out ICPacketUseEntity to access the entity better
-        EntityPlayer closest;
-        if (packet.getAction() == CPacketUseEntity.Action.ATTACK
-                && antiFeetPlace.getValue()
-                && (rotate.getValue() == AutoCrystal.ACRotate.None || rotate.getValue() == AutoCrystal.ACRotate.Break)
-                && crystal instanceof EntityEnderCrystal
-                && (closest = getClosestEnemy()) != null
-                && isSemiSafe(closest, true, newVersion.getValue())
-                && isAtFeet(mc.world.playerEntities, crystal.getPosition().down(), true, newVersion.getValue()))
-        {
-            int intoTick = Thunderhack.servtickManager.getTickTimeAdjusted();
-            int sleep = Thunderhack.servtickManager.getServerTickLengthMS() + Thunderhack.servtickManager.getSpawnTime() + buffer.getValue() - intoTick;
-            place(crystal.getPosition().down(), sleep);
-        }
-    }
-
     public static boolean isAtFeet(List<EntityPlayer> players,
                                    BlockPos pos,
                                    boolean ignoreCrystals,
-                                   boolean noBoost2)
-    {
-        for (EntityPlayer player : players)
-        {
+                                   boolean noBoost2) {
+        for (EntityPlayer player : players) {
             if (Thunderhack.friendManager.isFriend(player)
                     || player == mc.player) continue;
             if (isAtFeet(player, pos, ignoreCrystals, noBoost2)) return true;
@@ -92,22 +69,18 @@ public class ServerTimeHelper extends Feature
         return false;
     }
 
-
     public static boolean isAtFeet(EntityPlayer player,
                                    BlockPos pos,
                                    boolean ignoreCrystals,
-                                   boolean noBoost2)
-    {
+                                   boolean noBoost2) {
         BlockPos up = pos.up();
         if (!canPlaceCrystal(pos, ignoreCrystals, noBoost2)) return false;
-        for (EnumFacing face : HORIZONTALS)
-        {
+        for (EnumFacing face : HORIZONTALS) {
             BlockPos off = up.offset(face);
             //IBlockState state = mc.world.getBlockState(off);
             if (mc.world.getEntitiesWithinAABB(EntityPlayer.class,
                             new AxisAlignedBB(off))
-                    .contains(player))
-            {
+                    .contains(player)) {
                 return true;
             }
 
@@ -115,8 +88,7 @@ public class ServerTimeHelper extends Feature
             //IBlockState offState = mc.world.getBlockState(off2);
             if (mc.world.getEntitiesWithinAABB(EntityPlayer.class,
                             new AxisAlignedBB(off2))
-                    .contains(player))
-            {
+                    .contains(player)) {
                 return true;
             }
         }
@@ -125,15 +97,14 @@ public class ServerTimeHelper extends Feature
 
     public static boolean canPlaceCrystal(BlockPos pos,
                                           boolean ignoreCrystals,
-                                          boolean noBoost2)
-    {
+                                          boolean noBoost2) {
         return canPlaceCrystal(pos, ignoreCrystals, noBoost2, null);
     }
+
     public static boolean canPlaceCrystal(BlockPos pos,
                                           boolean ignoreCrystals,
                                           boolean noBoost2,
-                                          List<Entity> entities)
-    {
+                                          List<Entity> entities) {
         return canPlaceCrystal(pos, ignoreCrystals, noBoost2, entities, noBoost2, 0);
     }
 
@@ -142,12 +113,10 @@ public class ServerTimeHelper extends Feature
                                           boolean noBoost2,
                                           List<Entity> entities,
                                           boolean ignoreBoost2Entities,
-                                          long deathTime)
-    {
+                                          long deathTime) {
         IBlockState state = mc.world.getBlockState(pos);
         if (state.getBlock() != Blocks.OBSIDIAN
-                && state.getBlock() != Blocks.BEDROCK)
-        {
+                && state.getBlock() != Blocks.BEDROCK) {
             return false;
         }
 
@@ -160,13 +129,11 @@ public class ServerTimeHelper extends Feature
                                                      boolean noBoost2,
                                                      List<Entity> entities,
                                                      boolean ignoreBoost2Entities,
-                                                     long deathTime)
-    {
+                                                     long deathTime) {
         IBlockState state = mc.world.getBlockState(pos);
         if (state.getBlock() != Blocks.OBSIDIAN
                 && state.getBlock() != Blocks.BEDROCK
-                && !state.getMaterial().isReplaceable())
-        {
+                && !state.getMaterial().isReplaceable()) {
             return false;
         }
 
@@ -179,21 +146,17 @@ public class ServerTimeHelper extends Feature
                                      boolean noBoost2,
                                      List<Entity> entities,
                                      boolean ignoreBoost2Entities,
-                                     long deathTime)
-    {
-        BlockPos boost  = pos.up();
+                                     long deathTime) {
+        BlockPos boost = pos.up();
         if (mc.world.getBlockState(boost).getBlock() != Blocks.AIR
-                || !checkEntityList(boost, ignoreCrystals, entities, deathTime))
-        {
+                || !checkEntityList(boost, ignoreCrystals, entities, deathTime)) {
             return false;
         }
 
-        if (!noBoost2)
-        {
+        if (!noBoost2) {
             BlockPos boost2 = boost.up();
 
-            if (mc.world.getBlockState(boost2).getBlock() != Blocks.AIR)
-            {
+            if (mc.world.getBlockState(boost2).getBlock() != Blocks.AIR) {
                 return false;
             }
 
@@ -203,29 +166,25 @@ public class ServerTimeHelper extends Feature
 
         return true;
     }
+
     public static boolean checkEntityList(BlockPos pos,
                                           boolean ignoreCrystals,
-                                          List<Entity> entities)
-    {
+                                          List<Entity> entities) {
         return checkEntityList(pos, ignoreCrystals, entities, 0);
     }
 
     public static boolean checkEntityList(BlockPos pos,
                                           boolean ignoreCrystals,
                                           List<Entity> entities,
-                                          long deathTime)
-    {
-        if (entities == null)
-        {
+                                          long deathTime) {
+        if (entities == null) {
             return checkEntities(pos, ignoreCrystals, deathTime);
         }
 
         AxisAlignedBB bb = new AxisAlignedBB(pos);
-        for (Entity entity : entities)
-        {
+        for (Entity entity : entities) {
             if (checkEntity(entity, ignoreCrystals, deathTime)
-                    && entity.getEntityBoundingBox().intersects(bb))
-            {
+                    && entity.getEntityBoundingBox().intersects(bb)) {
                 return false;
             }
         }
@@ -235,13 +194,10 @@ public class ServerTimeHelper extends Feature
 
     public static boolean checkEntities(BlockPos pos,
                                         boolean ignoreCrystals,
-                                        long deathTime)
-    {
+                                        long deathTime) {
         for (Entity entity : mc.world
-                .getEntitiesWithinAABB(Entity.class, new AxisAlignedBB(pos)))
-        {
-            if (checkEntity(entity, ignoreCrystals, deathTime))
-            {
+                .getEntitiesWithinAABB(Entity.class, new AxisAlignedBB(pos))) {
+            if (checkEntity(entity, ignoreCrystals, deathTime)) {
                 return false;
             }
         }
@@ -251,17 +207,13 @@ public class ServerTimeHelper extends Feature
 
     private static boolean checkEntity(Entity entity,
                                        boolean ignoreCrystals,
-                                       long deathTime)
-    {
-        if (entity == null)
-        {
+                                       long deathTime) {
+        if (entity == null) {
             return false;
         }
 
-        if (entity instanceof EntityEnderCrystal)
-        {
-            if (ignoreCrystals)
-            {
+        if (entity instanceof EntityEnderCrystal) {
+            if (ignoreCrystals) {
                 return false;
             }
 
@@ -274,83 +226,44 @@ public class ServerTimeHelper extends Feature
 
     public static boolean isSemiSafe(EntityPlayer player,
                                      boolean ignoreCrystals,
-                                     boolean noBoost2)
-    {
+                                     boolean noBoost2) {
         BlockPos origin = (player.getPosition());
         int i = 0;
-        for (EnumFacing face : HORIZONTALS)
-        {
+        for (EnumFacing face : HORIZONTALS) {
             BlockPos off = origin.offset(face);
             if (mc.world.getBlockState(off).getBlock() != Blocks.AIR) i++;
         }
         return i >= 3;
     }
 
-    private void place(BlockPos pos, int sleep)
-    {
-        AutoCrystal.SwingTime time = placeSwing.getValue();
-        THREAD.schedule(() -> {
-            if (InventoryUtil.isHolding(Items.END_CRYSTAL))
-            {
-                EnumHand hand = InventoryUtil.getHand(Items.END_CRYSTAL);
-                RayTraceResult ray = rayTraceTo(pos, mc.world);
-                float[] f = RayTraceUtil.hitVecToPlaceVec(pos, ray.hitVec);
-                if (time == AutoCrystal.SwingTime.Pre)
-                {
-                    Swing.Packet.swing(hand);
-                    Swing.Client.swing(hand);
-                }
-                mc.player.connection.sendPacket(
-                        new CPacketPlayerTryUseItemOnBlock(
-                                pos, ray.sideHit, hand, f[0], f[1], f[2]));
-                module.sequentialHelper.setExpecting(pos);
-
-                if (time == AutoCrystal.SwingTime.Post)
-                {
-                    Swing.Packet.swing(hand);
-                    Swing.Client.swing(hand);
-                }
-            }
-        }, sleep, TimeUnit.MILLISECONDS);
-    }
-
-
-    public static EntityPlayer getClosestEnemy()
-    {
+    public static EntityPlayer getClosestEnemy() {
         return getClosestEnemy(mc.world.playerEntities);
     }
 
-
-    public static EntityPlayer getClosestEnemy(List<EntityPlayer> list)
-    {
+    public static EntityPlayer getClosestEnemy(List<EntityPlayer> list) {
         return getClosestEnemy(mc.player.getPositionVector(), list);
     }
 
-
     public static EntityPlayer getClosestEnemy(BlockPos pos,
-                                               List<EntityPlayer> list)
-    {
+                                               List<EntityPlayer> list) {
         return getClosestEnemy(pos.getX(), pos.getY(), pos.getZ(), list);
     }
 
-
     public static EntityPlayer getClosestEnemy(Vec3d vec3d,
-                                               List<EntityPlayer> list)
-    {
+                                               List<EntityPlayer> list) {
         return getClosestEnemy(vec3d.x, vec3d.y, vec3d.z, list);
     }
+
     public static EntityPlayer getClosestEnemy(double x,
                                                double y,
                                                double z,
                                                double maxRange,
                                                List<EntityPlayer> enemies,
-                                               List<EntityPlayer> players)
-    {
+                                               List<EntityPlayer> players) {
         EntityPlayer closestEnemied = getClosestEnemy(x, y, z, enemies);
         if (closestEnemied != null
                 && closestEnemied.getDistanceSq(x, y, z)
-                < MathUtil.square(maxRange))
-        {
+                < MathUtil.square(maxRange)) {
             return closestEnemied;
         }
 
@@ -360,21 +273,17 @@ public class ServerTimeHelper extends Feature
     public static EntityPlayer getClosestEnemy(double x,
                                                double y,
                                                double z,
-                                               List<EntityPlayer> players)
-    {
+                                               List<EntityPlayer> players) {
         EntityPlayer closest = null;
         double distance = Float.MAX_VALUE;
 
-        for (EntityPlayer player : players)
-        {
+        for (EntityPlayer player : players) {
             if (player != null
                     && !(player.isDead)
                     && !player.equals(mc.player)
-                    && !Thunderhack.friendManager.isFriend(player))
-            {
+                    && !Thunderhack.friendManager.isFriend(player)) {
                 double dist = player.getDistanceSq(x, y, z);
-                if (dist < distance)
-                {
+                if (dist < distance) {
                     closest = player;
                     distance = dist;
                 }
@@ -384,13 +293,51 @@ public class ServerTimeHelper extends Feature
         return closest;
     }
 
-
-    public static boolean isValid(Entity player, double range)
-    {
+    public static boolean isValid(Entity player, double range) {
         return player != null
                 && !(player.isDead)
                 && mc.player.getDistanceSq(player) <= MathUtil.square(range)
                 && !Thunderhack.friendManager.isFriend((EntityPlayer) player);
+    }
+
+    public void onUseEntity(CPacketUseEntity packet, Entity crystal) {
+        // You can also check out ICPacketUseEntity to access the entity better
+        EntityPlayer closest;
+        if (packet.getAction() == CPacketUseEntity.Action.ATTACK
+                && antiFeetPlace.getValue()
+                && (rotate.getValue() == AutoCrystal.ACRotate.None || rotate.getValue() == AutoCrystal.ACRotate.Break)
+                && crystal instanceof EntityEnderCrystal
+                && (closest = getClosestEnemy()) != null
+                && isSemiSafe(closest, true, newVersion.getValue())
+                && isAtFeet(mc.world.playerEntities, crystal.getPosition().down(), true, newVersion.getValue())) {
+            int intoTick = Thunderhack.servtickManager.getTickTimeAdjusted();
+            int sleep = Thunderhack.servtickManager.getServerTickLengthMS() + Thunderhack.servtickManager.getSpawnTime() + buffer.getValue() - intoTick;
+            place(crystal.getPosition().down(), sleep);
+        }
+    }
+
+    private void place(BlockPos pos, int sleep) {
+        AutoCrystal.SwingTime time = placeSwing.getValue();
+        THREAD.schedule(() -> {
+            if (InventoryUtil.isHolding(Items.END_CRYSTAL)) {
+                EnumHand hand = InventoryUtil.getHand(Items.END_CRYSTAL);
+                RayTraceResult ray = rayTraceTo(pos, mc.world);
+                float[] f = RayTraceUtil.hitVecToPlaceVec(pos, ray.hitVec);
+                if (time == AutoCrystal.SwingTime.Pre) {
+                    Swing.Packet.swing(hand);
+                    Swing.Client.swing(hand);
+                }
+                mc.player.connection.sendPacket(
+                        new CPacketPlayerTryUseItemOnBlock(
+                                pos, ray.sideHit, hand, f[0], f[1], f[2]));
+                module.sequentialHelper.setExpecting(pos);
+
+                if (time == AutoCrystal.SwingTime.Post) {
+                    Swing.Packet.swing(hand);
+                    Swing.Client.swing(hand);
+                }
+            }
+        }, sleep, TimeUnit.MILLISECONDS);
     }
 
 

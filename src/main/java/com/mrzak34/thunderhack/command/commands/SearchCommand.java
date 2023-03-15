@@ -6,10 +6,14 @@ import com.mrzak34.thunderhack.modules.render.Search;
 import net.minecraft.block.Block;
 import net.minecraft.util.ResourceLocation;
 
-public class SearchCommand  extends Command {
+public class SearchCommand extends Command {
 
     public SearchCommand() {
         super("search");
+    }
+
+    private static Block getRegisteredBlock(String blockName) {
+        return Block.REGISTRY.getObject(new ResourceLocation(blockName));
     }
 
     @Override
@@ -19,7 +23,7 @@ public class SearchCommand  extends Command {
                 sendMessage("Search list empty");
             } else {
                 String f = "Search list: ";
-                for (Block name :  Search.defaultBlocks) {
+                for (Block name : Search.defaultBlocks) {
                     try {
                         f = f + name.getRegistryName() + ", ";
                     } catch (Exception exception) {
@@ -57,9 +61,5 @@ public class SearchCommand  extends Command {
             sendMessage("Unknown Command, try search add/del <block name>");
         }
 
-    }
-
-    private static Block getRegisteredBlock(String blockName) {
-        return (Block)Block.REGISTRY.getObject(new ResourceLocation(blockName));
     }
 }

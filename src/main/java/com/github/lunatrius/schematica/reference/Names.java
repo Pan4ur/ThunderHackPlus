@@ -3,19 +3,10 @@ package com.github.lunatrius.schematica.reference;
 @SuppressWarnings("HardCodedStringLiteral")
 public final class Names {
     public static final class Config {
-        public static final class Category {
-            public static final String DEBUG = "debug";
-            public static final String RENDER = "render";
-            public static final String PRINTER = "printer";
-            public static final String PRINTER_SWAPSLOTS = "printer.swapslots";
-            public static final String GENERAL = "general";
-            public static final String SERVER = "server";
-        }
         public static final String DUMP_BLOCK_LIST = "dumpBlockList";
         public static final String DUMP_BLOCK_LIST_DESC = "Dump all block states on startup.";
         public static final String SHOW_DEBUG_INFO = "showDebugInfo";
         public static final String SHOW_DEBUG_INFO_DESC = "Display extra information on the debug screen (F3).";
-
         public static final String ALPHA_ENABLED = "alphaEnabled";
         public static final String ALPHA_ENABLED_DESC = "Enable transparent textures.";
         public static final String ALPHA = "alpha";
@@ -28,7 +19,6 @@ public final class Names {
         public static final String BLOCK_DELTA_DESC = "Delta value used for highlighting (if you experience z-fighting increase this).";
         public static final String RENDER_DISTANCE = "renderDistance";
         public static final String RENDER_DISTANCE_DESC = "Schematic render distance.";
-
         public static final String PLACE_DELAY = "placeDelay";
         public static final String PLACE_DELAY_DESC = "Delay between placement attempts (in ticks).";
         public static final String TIMEOUT = "timeout";
@@ -45,40 +35,47 @@ public final class Names {
         public static final String PLACE_ADJACENT_DESC = "Place blocks only if there is an adjacent block next to them.";
         public static final String SWAP_SLOT = "swapSlot";
         public static final String SWAP_SLOT_DESC = "Allow the printer to use this hotbar slot.";
-
         public static final String SCHEMATIC_DIRECTORY = "schematicDirectory";
         public static final String SCHEMATIC_DIRECTORY_DESC = "Schematic directory.";
         public static final String EXTRA_AIR_BLOCKS = "extraAirBlocks";
         public static final String EXTRA_AIR_BLOCKS_DESC = "Extra blocks to consider as air for the schematic renderer.";
         public static final String SORT_TYPE = "sortType";
         public static final String SORT_TYPE_DESC = "Default sort type for the material list.";
-
         public static final String PRINTER_ENABLED = "printerEnabled";
         public static final String PRINTER_ENABLED_DESC = "Allow players to use the printer.";
         public static final String SAVE_ENABLED = "saveEnabled";
         public static final String SAVE_ENABLED_DESC = "Allow players to save schematics.";
         public static final String LOAD_ENABLED = "loadEnabled";
         public static final String LOAD_ENABLED_DESC = "Allow players to load schematics.";
-
         public static final String PLAYER_QUOTA_KILOBYTES = "playerQuotaKilobytes";
         public static final String PLAYER_QUOTA_KILOBYTES_DESC = "Amount of storage provided per-player for schematics on the server.";
-
         public static final String LANG_PREFIX = Reference.MODID + ".config";
+
+        public static final class Category {
+            public static final String DEBUG = "debug";
+            public static final String RENDER = "render";
+            public static final String PRINTER = "printer";
+            public static final String PRINTER_SWAPSLOTS = "printer.swapslots";
+            public static final String GENERAL = "general";
+            public static final String SERVER = "server";
+        }
     }
 
     public static final class Command {
         public static final class Save {
+            public static final String NAME = "schematicaSave";
+
             public static final class Message {
                 public static final String USAGE = "/schematicaSave <началоX> <началоY> <началоZ> <конецX> <конецY> <конецZ> <название> [формат]";
                 public static final String PLAYERS_ONLY = "Только игроки могут использовать данную команду.";
                 public static final String QUOTA_EXCEEDED = "Превышена квота сервера. Используйте /schematicaList и /schematicaRemove, чтобы удалить старые схемы.";
                 public static final String PLAYER_SCHEMATIC_DIR_UNAVAILABLE = "Произошла ошибка на сервере, из-за которой неудалось сохранить схему. Свяжитесь с администратором сервера.";
             }
-
-            public static final String NAME = "schematicaSave";
         }
 
         public static final class List {
+            public static final String NAME = "schematicaList";
+
             public static final class Message {
                 public static final String USAGE = "/schematicaList [страница]";
                 public static final String REMOVE = "Удалить";
@@ -87,11 +84,11 @@ public final class Names {
                 public static final String NO_SUCH_PAGE = "Данной страницы не существует.";
                 public static final String NO_SCHEMATICS = "Нет доступных схем.";
             }
-
-            public static final String NAME = "schematicaList";
         }
 
         public static final class Remove {
+            public static final String NAME = "schematicaRemove";
+
             public static final class Message {
                 public static final String USAGE = "/schematicaRemove <название>";
                 public static final String PLAYERS_ONLY = "schematica.command.save.playersOnly";
@@ -100,11 +97,11 @@ public final class Names {
                 public static final String ARE_YOU_SURE_START = "Уверены?";
                 public static final String YES = "gui.yes";
             }
-
-            public static final String NAME = "schematicaRemove";
         }
 
         public static final class Download {
+            public static final String NAME = "schematicaDownload";
+
             public static final class Message {
                 public static final String USAGE = "/schematicaDownload <название>";
                 public static final String PLAYERS_ONLY = "schematica.command.save.playersOnly";
@@ -112,18 +109,16 @@ public final class Names {
                 public static final String DOWNLOAD_SUCCEEDED = "Scheme «%s» succesfully downloaded";
                 public static final String DOWNLOAD_FAILED = "Произошла ошибка во время загрузки.";
             }
-
-            public static final String NAME = "schematicaDownload";
         }
 
         public static final class Replace {
+            public static final String NAME = "schematicaReplace";
+
             public static final class Message {
                 public static final String USAGE = "/schematicaReplace <оригинал> <замена>";
                 public static final String NO_SCHEMATIC = "Нет загруженных схем.";
                 public static final String SUCCESS = "%s blocks changed.";
             }
-
-            public static final String NAME = "schematicaReplace";
         }
     }
 
@@ -134,6 +129,13 @@ public final class Names {
     }
 
     public static final class Gui {
+        public static final String X = "X";
+        public static final String Y = "Y";
+        public static final String Z = "Z";
+        public static final String ON = "Вкл";
+        public static final String OFF = "Выкл";
+        public static final String DONE = "Готово";
+
         public static final class Load {
             public static final String TITLE = "Выбор схемы";
             public static final String FOLDER_INFO = "(Поместите сюда схемы)";
@@ -173,13 +175,6 @@ public final class Names {
             public static final String SORT_PREFIX = "хз что это";
             public static final String DUMP = "Сохранить в файл";
         }
-
-        public static final String X = "X";
-        public static final String Y = "Y";
-        public static final String Z = "Z";
-        public static final String ON = "Вкл";
-        public static final String OFF = "Выкл";
-        public static final String DONE = "Готово";
     }
 
     public static final class Keys {

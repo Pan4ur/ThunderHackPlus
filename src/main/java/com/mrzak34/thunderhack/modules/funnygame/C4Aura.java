@@ -53,35 +53,43 @@ public class C4Aura extends Module {
     Timer getpostim = new Timer();
     List<BlockPos> positions = null;
     BlockPos renderblockpos;
+    boolean sneak_fix;
 
     public C4Aura() {
         super("C4Aura", "Ставит с4", Category.FUNNYGAME);
     }
 
+    public static boolean stopSneaking(boolean isSneaking) {
+        if (isSneaking && EntityUtil.mc.player != null) {
+            EntityUtil.mc.player.connection.sendPacket(new CPacketEntityAction(EntityUtil.mc.player, CPacketEntityAction.Action.STOP_SNEAKING));
+        }
+        return false;
+    }
+
     @SubscribeEvent
     public void onUpdateWalkingPlayerPre(EventPreMotion e) {
         if (fullNullCheck()) return;
-
-        if(autoBurrow.getValue() && mc.player.isSneaking()){
-            if(findC4() != -1){
-                    if(!canPlaceC4(new BlockPos(mc.player))) return;
-                    mc.player.inventory.currentItem = 0;
-                    mc.player.connection.sendPacket(new CPacketHeldItemChange(findC4()));
-                    mc.player.rotationPitch = 90;
-                    PlayerUtils.centerPlayer(mc.player.getPositionVector());
-                    BlockUtils.placeBlockSmartRotate(new BlockPos(mc.player),EnumHand.MAIN_HAND,false,true,false,null);
-                    mc.player.connection.sendPacket(new CPacketHeldItemChange(0));
-                    return;
+        if (autoBurrow.getValue() && mc.player.isSneaking()) {
+            if (findC4() != -1) {
+                if (!canPlaceC4(new BlockPos(mc.player))) return;
+                mc.player.inventory.currentItem = 0;
+                mc.player.connection.sendPacket(new CPacketHeldItemChange(findC4()));
+                mc.player.rotationPitch = 90;
+                PlayerUtils.centerPlayer(mc.player.getPositionVector());
+                BlockUtils.placeBlockSmartRotate(new BlockPos(mc.player), EnumHand.MAIN_HAND, false, true, false, null);
+                mc.player.connection.sendPacket(new CPacketHeldItemChange(0));
+                return;
             }
         }
-
         if (stophp.getValue() >= mc.player.getHealth()) {
             return;
         }
         if (findC4() == -1) {
             return;
         }
+
         target = findTarget();
+
         if (getpostim.passedMs(300)) {
             positions = getPositions(mc.player, rang.getValue());
             getpostim.reset();
@@ -98,34 +106,13 @@ public class C4Aura extends Module {
         sneak_fix = stopSneaking(sneak_fix);
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-    public static boolean stopSneaking(boolean isSneaking) {
-        if (isSneaking && EntityUtil.mc.player != null) {
-            EntityUtil.mc.player.connection.sendPacket(new CPacketEntityAction(EntityUtil.mc.player, CPacketEntityAction.Action.STOP_SNEAKING));
-        }
-        return false;
-    }
-
-    boolean sneak_fix;
-
     public void placeC4(BlockPos bp, EventPreMotion ed) {
         mc.player.inventory.currentItem = findC4();
         mc.playerController.syncCurrentPlayItem();
 
         renderblockpos = bp;
         if (placeTimer.passedMs(placedelay.getValue())) {
-            sneak_fix =  BlockUtils.placeBlockSmartRotate(bp, EnumHand.MAIN_HAND, true, false, sneak_fix, ed);
+            sneak_fix = BlockUtils.placeBlockSmartRotate(bp, EnumHand.MAIN_HAND, true, false, sneak_fix, ed);
             placeTimer.reset();
         }
         mc.player.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.START_DESTROY_BLOCK, new BlockPos(mc.player.posX, mc.player.posY, mc.player.posZ), EnumFacing.UP));
@@ -322,7 +309,7 @@ public class C4Aura extends Module {
     public void renderdmg(BlockPos aboba, EntityPlayer target) {
         try {
             DecimalFormat df = new DecimalFormat("0.0");
-            RenderUtil.drawBlockOutline(aboba, new Color(0x05FDCE), 3f, true,0);
+            RenderUtil.drawBlockOutline(aboba, new Color(0x05FDCE), 3f, true, 0);
 
 
             GlStateManager.pushMatrix();

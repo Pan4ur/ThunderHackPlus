@@ -1,9 +1,8 @@
 package com.mrzak34.thunderhack.mixin.mixins;
 
-public interface ICPacketPlayerDigging
-{
-    void setClientSideBreaking(boolean breaking);
-
+public interface ICPacketPlayerDigging {
     boolean isClientSideBreaking();
+
+    void setClientSideBreaking(boolean breaking);
 
 }

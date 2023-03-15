@@ -10,9 +10,9 @@ import java.awt.*;
 
 public class RoundedShader {
 
+    private static final ShaderUtil roundedGradientShader = new ShaderUtil("roundedRectGradient");
     public static ShaderUtil roundedShader = new ShaderUtil("roundedRect");
     public static ShaderUtil roundedOutlineShader = new ShaderUtil("textures/roundrectoutline.frag");
-    private static final ShaderUtil roundedGradientShader = new ShaderUtil("roundedRectGradient");
 
     public static void drawRound(float x, float y, float width, float height, float radius, Color color) {
         drawRound(x, y, width, height, radius, false, color);
@@ -30,6 +30,7 @@ public class RoundedShader {
         roundedGradientShader.setUniformf("color4", topRight.getRed() / 255f, topRight.getGreen() / 255f, topRight.getBlue() / 255f, topRight.getAlpha() / 255f);
         ShaderUtil.drawQuads(x - 1, y - 1, width + 2, height + 2);
         roundedGradientShader.unload();
+        GlStateManager.resetColor();
         GlStateManager.disableBlend();
     }
 

@@ -14,9 +14,10 @@ import org.lwjgl.opengl.GL11;
 import java.awt.*;
 import java.text.NumberFormat;
 
-public class DrawHelper{
+public class DrawHelper {
 
-    private static Minecraft mc = Minecraft.getMinecraft();
+    public static Frustum frustum = new Frustum();
+    private static final Minecraft mc = Minecraft.getMinecraft();
 
     public static void drawEntityBox(Entity entity, Color color, boolean fullBox, float alpha) {
         GlStateManager.pushMatrix();
@@ -46,14 +47,16 @@ public class DrawHelper{
         GlStateManager.disableBlend();
         GlStateManager.popMatrix();
     }
+
     public static Color injectAlpha(final Color color, final int alpha) {
-        int alph = (int) MathHelper.clamp(alpha, 0, 255);
+        int alph = MathHelper.clamp(alpha, 0, 255);
         return new Color(color.getRed(), color.getGreen(), color.getBlue(), alph);
     }
+
     public static boolean isInViewFrustum(Entity entity) {
         return (isInViewFrustum(entity.getEntityBoundingBox()) || entity.ignoreFrustumCheck);
     }
-    public static Frustum frustum = new Frustum();
+
     private static boolean isInViewFrustum(AxisAlignedBB bb) {
         Entity current = mc.getRenderViewEntity();
         if (current != null) {
@@ -63,7 +66,7 @@ public class DrawHelper{
     }
 
     public static Color astolfo(boolean clickgui, int yOffset) {
-        float speed = clickgui ?100 : 10 * 100;
+        float speed = clickgui ? 100 : 10 * 100;
         float hue = (System.currentTimeMillis() % (int) speed) + yOffset;
         if (hue > speed) {
             hue -= speed;
@@ -75,7 +78,7 @@ public class DrawHelper{
         hue += 0.5F;
         return Color.getHSBColor(hue, 0.4F, 1F);
     }
-    
+
     public static void drawSelectionBoundingBox(AxisAlignedBB boundingBox) {
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder vertexbuffer = tessellator.getBuffer();
@@ -182,15 +185,17 @@ public class DrawHelper{
     public static void setColor(int color) {
         GL11.glColor4ub((byte) (color >> 16 & 0xFF), (byte) (color >> 8 & 0xFF), (byte) (color & 0xFF), (byte) (color >> 24 & 0xFF));
     }
+
     public static void drawRectWithGlow(double X, double Y, double Width, double Height, double GlowRange, double GlowMultiplier, Color color) {
         for (float i = 1; i < GlowRange; i += 0.5f) {
             drawRoundedRect99(X - (GlowRange - i), Y - (GlowRange - i), Width + (GlowRange - i), Height + (GlowRange - i), DrawHelper.injectAlpha(color, (int) (Math.round(i * GlowMultiplier))).getRGB());
         }
     }
+
     public static void drawRoundedRect99(double x, double y, double x1, double y1, int insideC) {
-        RenderUtil.drawRect((float) (x + 0.5),(float)  y, (float) x1 - 0.5f, (float) y + 0.5f, insideC);
+        RenderUtil.drawRect((float) (x + 0.5), (float) y, (float) x1 - 0.5f, (float) y + 0.5f, insideC);
         RenderUtil.drawRect((float) (x + 0.5f), (float) y1 - 0.5f, (float) x1 - 0.5f, (float) y1, insideC);
-        RenderUtil.drawRect((float) x, (float) y + 0.5f,(float)  x1, (float) y1 - 0.5f, insideC);
+        RenderUtil.drawRect((float) x, (float) y + 0.5f, (float) x1, (float) y1 - 0.5f, insideC);
     }
 
 
@@ -224,10 +229,10 @@ public class DrawHelper{
             top = bottom;
             bottom = j;
         }
-        float f3 = (float)(color >> 24 & 0xFF) / 255.0f;
-        float f = (float)(color >> 16 & 0xFF) / 255.0f;
-        float f1 = (float)(color >> 8 & 0xFF) / 255.0f;
-        float f2 = (float)(color & 0xFF) / 255.0f;
+        float f3 = (float) (color >> 24 & 0xFF) / 255.0f;
+        float f = (float) (color >> 16 & 0xFF) / 255.0f;
+        float f1 = (float) (color >> 8 & 0xFF) / 255.0f;
+        float f2 = (float) (color & 0xFF) / 255.0f;
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder vertexbuffer = tessellator.getBuffer();
         GlStateManager.enableBlend();
@@ -245,24 +250,22 @@ public class DrawHelper{
     }
 
     public static void drawRect(double left, double top, double right, double bottom, int color) {
-        if (left < right)
-        {
+        if (left < right) {
             double i = left;
             left = right;
             right = i;
         }
 
-        if (top < bottom)
-        {
+        if (top < bottom) {
             double j = top;
             top = bottom;
             bottom = j;
         }
 
-        float f3 = (float)(color >> 24 & 255) / 255.0F;
-        float f = (float)(color >> 16 & 255) / 255.0F;
-        float f1 = (float)(color >> 8 & 255) / 255.0F;
-        float f2 = (float)(color & 255) / 255.0F;
+        float f3 = (float) (color >> 24 & 255) / 255.0F;
+        float f = (float) (color >> 16 & 255) / 255.0F;
+        float f1 = (float) (color >> 8 & 255) / 255.0F;
+        float f2 = (float) (color & 255) / 255.0F;
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder bufferbuilder = tessellator.getBuffer();
         GlStateManager.enableBlend();
@@ -270,10 +273,10 @@ public class DrawHelper{
         GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
         GlStateManager.color(f, f1, f2, f3);
         bufferbuilder.begin(7, DefaultVertexFormats.POSITION);
-        bufferbuilder.pos((double)left, (double)bottom, 0.0D).endVertex();
-        bufferbuilder.pos((double)right, (double)bottom, 0.0D).endVertex();
-        bufferbuilder.pos((double)right, (double)top, 0.0D).endVertex();
-        bufferbuilder.pos((double)left, (double)top, 0.0D).endVertex();
+        bufferbuilder.pos(left, bottom, 0.0D).endVertex();
+        bufferbuilder.pos(right, bottom, 0.0D).endVertex();
+        bufferbuilder.pos(right, top, 0.0D).endVertex();
+        bufferbuilder.pos(left, top, 0.0D).endVertex();
         tessellator.draw();
         GlStateManager.enableTexture2D();
         GlStateManager.disableBlend();
@@ -310,9 +313,11 @@ public class DrawHelper{
     public static int getColor(Color color) {
         return getColor(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha());
     }
+
     public static int getColor(int bright) {
         return getColor(bright, bright, bright, 255);
     }
+
     public static int getColor(int brightness, int alpha) {
         return DrawHelper.getColor(brightness, brightness, brightness, alpha);
     }
@@ -327,6 +332,7 @@ public class DrawHelper{
         hsb[2] = brightness % 2.0f;
         return new Color(Color.HSBtoRGB(hsb[0], hsb[1], hsb[2]));
     }
+
     public static int fade(int startColor, int endColor, float progress) {
         float invert = 1.0f - progress;
         int r = (int) ((startColor >> 16 & 0xFF) * invert + (endColor >> 16 & 0xFF) * progress);

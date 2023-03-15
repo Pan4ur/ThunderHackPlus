@@ -21,27 +21,17 @@ import java.util.Map;
  * fixed bugs with old version, now accurate within ~5 ms if start of tick is counted as when the time update packet is sent
  * TODO: use average time between packets being sent to more accurately approximate TPS, this will increase accuracy
  */
-public class ServerTickManager extends Feature
-{
+public class ServerTickManager extends Feature {
 
-    public void init() {
-        MinecraftForge.EVENT_BUS.register(this);
-    }
-    public void unload() {
-        MinecraftForge.EVENT_BUS.unregister(this);
-    }
-
-    private int serverTicks;
-    private Map<BlockPos, Long> timeMap = new HashMap<>();
     private final Timer serverTickTimer = new Timer();
-    private boolean flag = true;
-    private boolean initialized = false; // will be used for checks in the future
-
     private final ArrayDeque<Integer> spawnObjectTimes = new ArrayDeque<>();
+    private final Map<BlockPos, Long> timeMap = new HashMap<>();
+    private final boolean flag = true;
+    private int serverTicks;
+    private boolean initialized = false; // will be used for checks in the future
     private int averageSpawnObjectTime; // around 8-9 in vanilla
 
-    public ServerTickManager()
-    {
+    public ServerTickManager() {
 
 
 
@@ -57,24 +47,30 @@ public class ServerTickManager extends Feature
  */
     }
 
+    public void init() {
+        MinecraftForge.EVENT_BUS.register(this);
+    }
+
+    public void unload() {
+        MinecraftForge.EVENT_BUS.unregister(this);
+    }
 
     @SubscribeEvent
-    public void onConnect(ConnectToServerEvent e){
+    public void onConnect(ConnectToServerEvent e) {
         initialized = false;
         resetTickManager();
     }
 
     @SubscribeEvent
-    public void onPacketReceive(PacketEvent.Receive e){
-        if(fullNullCheck()) return;
-        if(e.getPacket() instanceof SPacketTimeUpdate){
+    public void onPacketReceive(PacketEvent.Receive e) {
+        if (fullNullCheck()) return;
+        if (e.getPacket() instanceof SPacketTimeUpdate) {
             if (mc.world != null
-                    && mc.world.isRemote)
-            {
+                    && mc.world.isRemote) {
                 resetTickManager();
             }
         }
-        if(e.getPacket() instanceof SPacketSpawnObject) {
+        if (e.getPacket() instanceof SPacketSpawnObject) {
             if (mc.world != null
                     && mc.world.isRemote) {
                 onSpawnObject();
@@ -84,6 +80,7 @@ public class ServerTickManager extends Feature
 
     /**
      * Retrieves the time into the current server tick
+     *
      * @return time into the current server tick
      */
     public int getTickTime() {
@@ -93,6 +90,7 @@ public class ServerTickManager extends Feature
 
     /**
      * Retrieves the time into a tick that the server will receive a sent packet (experimental)
+     *
      * @return time that sent packets will be received by the client
      */
     public int getTickTimeAdjusted() {
@@ -103,6 +101,7 @@ public class ServerTickManager extends Feature
 
     /**
      * Get the time into a tick that a packet was sent by the server
+     *
      * @return tick time adjusted for server packets
      */
     public int getTickTimeAdjustedForServerPackets() {

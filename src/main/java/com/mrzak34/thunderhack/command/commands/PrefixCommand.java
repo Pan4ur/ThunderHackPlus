@@ -14,7 +14,7 @@ public class PrefixCommand
     @Override
     public void execute(String[] commands) {
         if (commands.length == 1) {
-            if(Thunderhack.moduleManager.getModuleByClass(MainSettings.class).language.getValue() == MainSettings.Language.RU) {
+            if (Thunderhack.moduleManager.getModuleByClass(MainSettings.class).language.getValue() == MainSettings.Language.RU) {
                 Command.sendMessage(ChatFormatting.GREEN + "Текущий префикс:" + Thunderhack.commandManager.getPrefix());
             } else {
                 Command.sendMessage(ChatFormatting.GREEN + "current prefix:" + Thunderhack.commandManager.getPrefix());
@@ -22,7 +22,7 @@ public class PrefixCommand
             return;
         }
         Thunderhack.commandManager.setPrefix(commands[0]);
-        if(Thunderhack.moduleManager.getModuleByClass(MainSettings.class).language.getValue() == MainSettings.Language.RU) {
+        if (Thunderhack.moduleManager.getModuleByClass(MainSettings.class).language.getValue() == MainSettings.Language.RU) {
             Command.sendMessage("Префикс изменен на  " + ChatFormatting.GRAY + commands[0]);
         } else {
             Command.sendMessage("Prefix changed to  " + ChatFormatting.GRAY + commands[0]);

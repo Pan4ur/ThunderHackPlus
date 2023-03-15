@@ -28,166 +28,16 @@ import java.util.stream.Collectors;
 
 public class AutoMine extends Module {
 
-    public AutoMine() {
-        super("AutoMine", "AutoMine", Category.PLAYER);
-    }
-
-
-    private Setting<Mode> mode = register(new Setting("Mode", Mode.FEET));
-    public Setting<Boolean> autodisable =  this.register(new Setting<Boolean>("AutoDisable", true));
+    public Setting<Boolean> autodisable = this.register(new Setting<Boolean>("AutoDisable", true));
     public Setting<Boolean> switchbool = this.register(new Setting<Boolean>("Switch", true));
     public Setting<Boolean> requirepickaxe = this.register(new Setting<Boolean>("RequirePick", true));
     public Setting<Boolean> focused = this.register(new Setting<Boolean>("Focused", true));
-
-
-    public enum Mode
-    {
-        FEET, CONTINIOUS
-    }
-
+    private final Setting<Mode> mode = register(new Setting("Mode", Mode.FEET));
     private BlockPos blockpos = null;
 
-    @Override
-    public void onEnable( )
-    {
-        blockpos = null;
-    }
 
-    @Override
-    public void onDisable( )
-    {
-        blockpos = null;
-        KeyBinding.setKeyBindState( mc.gameSettings.keyBindAttack.getKeyCode( ), false );
-    }
-
-
-    @Override
-    public void onUpdate(){
-        if( mode.getValue() == Mode.CONTINIOUS )
-        {
-            if( !focused.getValue() )
-                ( (AccessorMinecraft)mc ).setLeftClickCounter( 0 );
-
-            ( (AccessorMinecraft)mc ).invokeSendClickBlockToController( true );
-        }
-    }
-
-    @SubscribeEvent
-    public void onPreMotion(EventPreMotion event){
-
-        if( mode.getValue() == Mode.CONTINIOUS ) return;
-
-        if( !switchbool.getValue() || checkPickaxe( ) )
-        {
-            if( blockpos != null )
-            {
-                if( mc.world.getBlockState( blockpos ).getBlock( ).equals( Blocks.AIR ) )
-                {
-                    if( autodisable.getValue() )
-                    {
-                        disable( );
-                        return;
-                    }
-
-                    blockpos = null;
-                }
-            }
-
-            BlockPos blockpos2 = null;
-            for( Entity obj : mc.world.playerEntities.stream( ).filter( player ->
-            {
-                return player != mc.player && !Thunderhack.friendManager.isFriend( player.getName( ) ) && Float.compare( mc.player.getDistance( player ), 7.0f ) < 0;
-            } ).collect( Collectors.toList( ) ) )
-            {
-                BlockPos pos = new BlockPos( obj.getPositionVector( ) );
-                if( !checkBlockPos( pos ) ) continue;
-
-                for( BlockPos pos2 : blockPosList( pos ) )
-                {
-                    if( !( mc.world.getBlockState( pos2 ).getBlock( ) instanceof BlockObsidian ) ) continue;
-                    if( !mc.world.getBlockState( pos2.add( 0, 1, 0 ) ).getMaterial( ).equals( Material.AIR ) ) continue;
-
-                    double dist = mc.player.getDistance( pos2.getX( ), pos2.getY( ), pos2.getZ( ) );
-                    if( dist < 5.0 )
-                    {
-                        blockpos2 = pos2;
-                        break;
-                    }
-                }
-            }
-
-            if( blockpos2 != null )
-            {
-                if( switchbool.getValue() && (InventoryUtil.getPicatHotbar() != -1)) {
-                    mc.player.inventory.currentItem = InventoryUtil.getPicatHotbar();
-                }
-
-                float[ ] rotation = shitMethod2( blockpos2 );
-                mc.player.rotationYaw = rotation[ 0 ];
-                mc.player.rotationPitch = rotation[ 1 ];
-
-                if( !requirepickaxe.getValue() || mc.player.getHeldItemMainhand( ).getItem( ).equals( Items.DIAMOND_PICKAXE ) )
-                {
-                    if( blockpos != null )
-                    {
-                        if( blockpos.equals( blockpos2 ) )
-                        {
-                            if( Thunderhack.moduleManager.getModuleByClass(Speedmine.class).isEnabled() )
-                                return;
-                        }
-                    }
-
-                    mc.playerController.onPlayerDamageBlock( blockpos2, getFacing( blockpos2 ) );
-                    mc.player.swingArm( EnumHand.MAIN_HAND );
-                    this.blockpos = blockpos2;
-                }
-            }
-        }
-    }
-
-
-
-    public boolean checkPickaxe( )
-    {
-        Item item = mc.player.getHeldItemMainhand( ).getItem( );
-
-        return item.equals( Items.DIAMOND_PICKAXE ) || item.equals( Items.IRON_PICKAXE ) ||
-                item.equals( Items.GOLDEN_PICKAXE ) || item.equals( Items.STONE_PICKAXE ) ||
-                item.equals( Items.WOODEN_PICKAXE );
-    }
-
-    // AUTISM BELOW
-    //rhd
-    public boolean checkValidBlock( Block block )
-    {
-        return block.equals( Blocks.OBSIDIAN ) || block.equals( Blocks.BEDROCK );
-    }
-
-    //rhn
-    public boolean checkBlockPos( BlockPos blockPos ) {
-        Block block = mc.world.getBlockState(blockPos.add(0, -1, 0)).getBlock();
-        Block block2 = mc.world.getBlockState(blockPos.add(0, 0, -1)).getBlock();
-        Block block3 = mc.world.getBlockState(blockPos.add(1, 0, 0)).getBlock();
-        Block block4 = mc.world.getBlockState(blockPos.add(0, 0, 1)).getBlock();
-        Block block5 = mc.world.getBlockState(blockPos.add(-1, 0, 0)).getBlock();
-        if (mc.world.isAirBlock(blockPos)) {
-            if (mc.world.isAirBlock(blockPos.add(0, 1, 0))) {
-                if (mc.world.isAirBlock(blockPos.add(0, 2, 0))) {
-                    if (checkValidBlock(block)) {
-                        if (checkValidBlock(block2)) {
-                            if (checkValidBlock(block3)) {
-                                if (checkValidBlock(block4)) {
-                                    if (checkValidBlock(block5)) {
-                                        return true;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return false;
+    public AutoMine() {
+        super("AutoMine", "AutoMine", Category.PLAYER);
     }
 
     //rhf
@@ -202,7 +52,7 @@ public class AutoMine extends Module {
 
     //rhC
     public static Vec3d vec3dPosition() {
-        return new Vec3d(mc.player.posX, mc.player.posY + (double)mc.player.getEyeHeight(), mc.player.posZ);
+        return new Vec3d(mc.player.posX, mc.player.posY + (double) mc.player.getEyeHeight(), mc.player.posZ);
     }
 
     //rhX
@@ -215,19 +65,18 @@ public class AutoMine extends Module {
         double d4 = d;
         double d5 = d3;
         double d6 = Math.sqrt(d4 * d4 + d5 * d5);
-        float f = (float)Math.toDegrees(Math.atan2(d3, d)) - 90.0f;
-        float f2 = (float)(-Math.toDegrees(Math.atan2(d2, d6)));
+        float f = (float) Math.toDegrees(Math.atan2(d3, d)) - 90.0f;
+        float f2 = (float) (-Math.toDegrees(Math.atan2(d2, d6)));
         float[] fArray = new float[2];
-        fArray[0] = mc.player.rotationYaw + MathHelper.wrapDegrees((float)(f - mc.player.rotationYaw));
-        fArray[1] = mc.player.rotationPitch + MathHelper.wrapDegrees((float)(f2 - mc.player.rotationPitch));
+        fArray[0] = mc.player.rotationYaw + MathHelper.wrapDegrees(f - mc.player.rotationYaw);
+        fArray[1] = mc.player.rotationPitch + MathHelper.wrapDegrees(f2 - mc.player.rotationPitch);
         return fArray;
     }
-
 
     //rhm
     public static float[] shitMethod2(BlockPos blockPos) {
         Vec3d vec3d = vec3dPosition();
-        Vec3d vec3d2 = new Vec3d((Vec3i)blockPos).add(0.5, 0.5, 0.5);
+        Vec3d vec3d2 = new Vec3d(blockPos).add(0.5, 0.5, 0.5);
         double d = vec3d.squareDistanceTo(vec3d2);
         EnumFacing[] enumFacingArray = EnumFacing.values();
         int n = enumFacingArray.length;
@@ -243,7 +92,7 @@ public class AutoMine extends Module {
     //rhb
     public static EnumFacing getFacing(BlockPos blockPos) {
         Vec3d vec3d = vec3dPosition();
-        Vec3d vec3d2 = new Vec3d((Vec3i)blockPos).add(0.5, 0.5, 0.5);
+        Vec3d vec3d2 = new Vec3d(blockPos).add(0.5, 0.5, 0.5);
         double d = vec3d.squareDistanceTo(vec3d2);
         EnumFacing[] enumFacingArray = EnumFacing.values();
         int n = enumFacingArray.length;
@@ -255,5 +104,131 @@ public class AutoMine extends Module {
             return enumFacing;
         }
         return EnumFacing.UP;
+    }
+
+    @Override
+    public void onEnable() {
+        blockpos = null;
+    }
+
+    @Override
+    public void onDisable() {
+        blockpos = null;
+        KeyBinding.setKeyBindState(mc.gameSettings.keyBindAttack.getKeyCode(), false);
+    }
+
+    @Override
+    public void onUpdate() {
+        if (mode.getValue() == Mode.CONTINIOUS) {
+            if (!focused.getValue())
+                ((AccessorMinecraft) mc).setLeftClickCounter(0);
+
+            ((AccessorMinecraft) mc).invokeSendClickBlockToController(true);
+        }
+    }
+
+    @SubscribeEvent
+    public void onPreMotion(EventPreMotion event) {
+
+        if (mode.getValue() == Mode.CONTINIOUS) return;
+
+        if (!switchbool.getValue() || checkPickaxe()) {
+            if (blockpos != null) {
+                if (mc.world.getBlockState(blockpos).getBlock().equals(Blocks.AIR)) {
+                    if (autodisable.getValue()) {
+                        disable();
+                        return;
+                    }
+
+                    blockpos = null;
+                }
+            }
+
+            BlockPos blockpos2 = null;
+            for (Entity obj : mc.world.playerEntities.stream().filter(player ->
+            {
+                return player != mc.player && !Thunderhack.friendManager.isFriend(player.getName()) && Float.compare(mc.player.getDistance(player), 7.0f) < 0;
+            }).collect(Collectors.toList())) {
+                BlockPos pos = new BlockPos(obj.getPositionVector());
+                if (!checkBlockPos(pos)) continue;
+
+                for (BlockPos pos2 : blockPosList(pos)) {
+                    if (!(mc.world.getBlockState(pos2).getBlock() instanceof BlockObsidian)) continue;
+                    if (!mc.world.getBlockState(pos2.add(0, 1, 0)).getMaterial().equals(Material.AIR)) continue;
+
+                    double dist = mc.player.getDistance(pos2.getX(), pos2.getY(), pos2.getZ());
+                    if (dist < 5.0) {
+                        blockpos2 = pos2;
+                        break;
+                    }
+                }
+            }
+
+            if (blockpos2 != null) {
+                if (switchbool.getValue() && (InventoryUtil.getPicatHotbar() != -1)) {
+                    mc.player.inventory.currentItem = InventoryUtil.getPicatHotbar();
+                }
+
+                float[] rotation = shitMethod2(blockpos2);
+                mc.player.rotationYaw = rotation[0];
+                mc.player.rotationPitch = rotation[1];
+
+                if (!requirepickaxe.getValue() || mc.player.getHeldItemMainhand().getItem().equals(Items.DIAMOND_PICKAXE)) {
+                    if (blockpos != null) {
+                        if (blockpos.equals(blockpos2)) {
+                            if (Thunderhack.moduleManager.getModuleByClass(Speedmine.class).isEnabled())
+                                return;
+                        }
+                    }
+
+                    mc.playerController.onPlayerDamageBlock(blockpos2, getFacing(blockpos2));
+                    mc.player.swingArm(EnumHand.MAIN_HAND);
+                    this.blockpos = blockpos2;
+                }
+            }
+        }
+    }
+
+    public boolean checkPickaxe() {
+        Item item = mc.player.getHeldItemMainhand().getItem();
+
+        return item.equals(Items.DIAMOND_PICKAXE) || item.equals(Items.IRON_PICKAXE) ||
+                item.equals(Items.GOLDEN_PICKAXE) || item.equals(Items.STONE_PICKAXE) ||
+                item.equals(Items.WOODEN_PICKAXE);
+    }
+
+    // AUTISM BELOW
+    //rhd
+    public boolean checkValidBlock(Block block) {
+        return block.equals(Blocks.OBSIDIAN) || block.equals(Blocks.BEDROCK);
+    }
+
+    //rhn
+    public boolean checkBlockPos(BlockPos blockPos) {
+        Block block = mc.world.getBlockState(blockPos.add(0, -1, 0)).getBlock();
+        Block block2 = mc.world.getBlockState(blockPos.add(0, 0, -1)).getBlock();
+        Block block3 = mc.world.getBlockState(blockPos.add(1, 0, 0)).getBlock();
+        Block block4 = mc.world.getBlockState(blockPos.add(0, 0, 1)).getBlock();
+        Block block5 = mc.world.getBlockState(blockPos.add(-1, 0, 0)).getBlock();
+        if (mc.world.isAirBlock(blockPos)) {
+            if (mc.world.isAirBlock(blockPos.add(0, 1, 0))) {
+                if (mc.world.isAirBlock(blockPos.add(0, 2, 0))) {
+                    if (checkValidBlock(block)) {
+                        if (checkValidBlock(block2)) {
+                            if (checkValidBlock(block3)) {
+                                if (checkValidBlock(block4)) {
+                                    return checkValidBlock(block5);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    public enum Mode {
+        FEET, CONTINIOUS
     }
 }

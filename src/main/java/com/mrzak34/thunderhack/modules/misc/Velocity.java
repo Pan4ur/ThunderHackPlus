@@ -5,7 +5,6 @@ import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.events.EventPreMotion;
 import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.events.PushEvent;
-import com.mrzak34.thunderhack.mixin.mixins.IEntityPlayerSP;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.modules.combat.Aura;
 import com.mrzak34.thunderhack.setting.Setting;
@@ -21,19 +20,13 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 public class Velocity
         extends Module {
 
-    private Setting<modeEn> mode = register(new Setting("Mode", modeEn.Matrix));
-
-    public enum modeEn {
-        Matrix, Cancel, Custom
-    }
-
     public Setting<Boolean> onlyAura = register(new Setting<>("OnlyAura", false));
-    public Setting<Float> horizontal = this.register(new Setting<>("Horizontal", 0.0f, 0.0f, 100.0f, v -> mode.getValue() == modeEn.Custom));
-    public Setting<Float> vertical = this.register(new Setting<>("Vertical", 0.0f, 0.0f, 100.0f, v -> mode.getValue() == modeEn.Custom));
     public Setting<Boolean> ice = this.register(new Setting<>("Ice", false));
     public Setting<Boolean> autoDisable = this.register(new Setting<>("DisableOnVerify", false));
-
-
+    private final Setting<modeEn> mode = register(new Setting("Mode", modeEn.Matrix));
+    public Setting<Float> horizontal = this.register(new Setting<>("Horizontal", 0.0f, 0.0f, 100.0f, v -> mode.getValue() == modeEn.Custom));
+    public Setting<Float> vertical = this.register(new Setting<>("Vertical", 0.0f, 0.0f, 100.0f, v -> mode.getValue() == modeEn.Custom));
+    private boolean flag;
 
 
     public Velocity() {
@@ -52,28 +45,26 @@ public class Velocity
 
     @Override
     public void onDisable() {
-            Blocks.ICE.slipperiness = 0.98f;
-            Blocks.PACKED_ICE.slipperiness = 0.98f;
-            Blocks.FROSTED_ICE.slipperiness = 0.98f;
+        Blocks.ICE.slipperiness = 0.98f;
+        Blocks.PACKED_ICE.slipperiness = 0.98f;
+        Blocks.FROSTED_ICE.slipperiness = 0.98f;
     }
-
-    private boolean flag;
 
     @SubscribeEvent
     public void onPacketReceived(PacketEvent.Receive event) {
 
-        if(fullNullCheck()) return;
+        if (fullNullCheck()) return;
         Entity entity;
         SPacketEntityStatus packet;
 
         if (event.getPacket() instanceof SPacketChat && autoDisable.getValue()) {
-            String text = ((SPacketChat)event.getPacket()).getChatComponent().getFormattedText();
+            String text = ((SPacketChat) event.getPacket()).getChatComponent().getFormattedText();
             if (text.contains("Тебя проверяют на чит АКБ, ник хелпера - ")) {
                 toggle();
             }
         }
 
-        if (event.getPacket() instanceof SPacketEntityStatus &&  (packet = event.getPacket()).getOpCode() == 31 && (entity = packet.getEntity(Velocity.mc.world)) instanceof EntityFishHook) {
+        if (event.getPacket() instanceof SPacketEntityStatus && (packet = event.getPacket()).getOpCode() == 31 && (entity = packet.getEntity(Velocity.mc.world)) instanceof EntityFishHook) {
             EntityFishHook fishHook = (EntityFishHook) entity;
             if (fishHook.caughtEntity == Velocity.mc.player) {
                 event.setCanceled(true);
@@ -82,7 +73,7 @@ public class Velocity
 
         if (event.getPacket() instanceof SPacketExplosion) {
             SPacketExplosion velocity_ = event.getPacket();
-            if(mode.getValue() == modeEn.Custom) {
+            if (mode.getValue() == modeEn.Custom) {
                 velocity_.motionX *= this.horizontal.getValue() / 100f;
                 velocity_.motionY *= this.vertical.getValue() / 100f;
                 velocity_.motionZ *= this.horizontal.getValue() / 100f;
@@ -94,27 +85,26 @@ public class Velocity
         }
 
 
-        
-        if(onlyAura.getValue() && Thunderhack.moduleManager.getModuleByClass(Aura.class).isDisabled()){
+        if (onlyAura.getValue() && Thunderhack.moduleManager.getModuleByClass(Aura.class).isDisabled()) {
             return;
         }
 
-        if(mode.getValue() == modeEn.Cancel && event.getPacket() instanceof SPacketEntityVelocity){
+        if (mode.getValue() == modeEn.Cancel && event.getPacket() instanceof SPacketEntityVelocity) {
             SPacketEntityVelocity pac = event.getPacket();
-            if(pac.getEntityID() == mc.player.entityId){
+            if (pac.getEntityID() == mc.player.entityId) {
                 event.setCanceled(true);
                 return;
             }
         }
-        if(mode.getValue() == modeEn.Custom){
+        if (mode.getValue() == modeEn.Custom) {
             SPacketEntityVelocity velocity;
-            if(event.getPacket() instanceof SPacketEntityVelocity && (velocity = event.getPacket()).getEntityID() == Velocity.mc.player.entityId){
+            if (event.getPacket() instanceof SPacketEntityVelocity && (velocity = event.getPacket()).getEntityID() == Velocity.mc.player.entityId) {
                 velocity.motionX = (int) ((float) velocity.motionX * this.horizontal.getValue() / 100f);
                 velocity.motionY = (int) ((float) velocity.motionY * this.vertical.getValue() / 100f);
                 velocity.motionZ = (int) ((float) velocity.motionZ * this.horizontal.getValue() / 100f);
             }
         }
-        if(mode.getValue() == modeEn.Matrix ){
+        if (mode.getValue() == modeEn.Matrix) {
             if (event.getPacket() instanceof SPacketEntityStatus) {
                 SPacketEntityStatus var9 = event.getPacket();
                 if (var9.getOpCode() == 2 && var9.getEntity(mc.world) == mc.player) {
@@ -129,14 +119,13 @@ public class Velocity
                         event.setCanceled(true);
                     } else {
                         flag = false;
-                        var4.motionX = ((int)((double)var4.motionX * -0.1));
-                        var4.motionZ = ((int)((double)var4.motionZ * -0.1));
+                        var4.motionX = ((int) ((double) var4.motionX * -0.1));
+                        var4.motionZ = ((int) ((double) var4.motionZ * -0.1));
                     }
                 }
             }
         }
     }
-
 
     @SubscribeEvent
     public void onPreMotion(EventPreMotion var1) {
@@ -151,12 +140,14 @@ public class Velocity
         }
     }
 
-
-
-
     @SubscribeEvent
     public void onPush(PushEvent event) {
         event.setCanceled(true);
+    }
+
+
+    public enum modeEn {
+        Matrix, Cancel, Custom
     }
 }
 

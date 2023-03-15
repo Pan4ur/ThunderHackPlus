@@ -10,48 +10,41 @@ import java.util.concurrent.atomic.AtomicLong;
  * So we are independent. Afaik the lib is licensed with Apache-2.0.
  */
 @SuppressWarnings("UnusedReturnValue")
-public class ThreadFactoryBuilder
-{
+public class ThreadFactoryBuilder {
     private Boolean daemon;
     private String nameFormat;
 
-    public ThreadFactoryBuilder setDaemon(boolean daemon)
-    {
+    private static String format(String format, Object... args) {
+        return String.format(Locale.ROOT, format, args);
+    }
+
+    public ThreadFactoryBuilder setDaemon(boolean daemon) {
         this.daemon = daemon;
         return this;
     }
 
-    public ThreadFactoryBuilder setNameFormat(String nameFormat)
-    {
+    public ThreadFactoryBuilder setNameFormat(String nameFormat) {
         this.nameFormat = nameFormat;
         return this;
     }
 
-    public ThreadFactory build()
-    {
+    public ThreadFactory build() {
         Boolean daemon = this.daemon;
         String nameFormat = this.nameFormat;
         AtomicLong id = (nameFormat != null) ? new AtomicLong(0) : null;
         return r ->
         {
             Thread thread = Executors.defaultThreadFactory().newThread(r);
-            if (daemon != null)
-            {
+            if (daemon != null) {
                 thread.setDaemon(daemon);
             }
 
-            if (nameFormat != null)
-            {
+            if (nameFormat != null) {
                 thread.setName(format(nameFormat, id.getAndIncrement()));
             }
 
             return thread;
         };
-    }
-
-    private static String format(String format, Object... args)
-    {
-        return String.format(Locale.ROOT, format, args);
     }
 
 }

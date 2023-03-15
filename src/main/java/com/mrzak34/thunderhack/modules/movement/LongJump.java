@@ -6,8 +6,8 @@ import com.mrzak34.thunderhack.events.EventMove;
 import com.mrzak34.thunderhack.events.EventPostMotion;
 import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.modules.Module;
-import com.mrzak34.thunderhack.notification.NotificationManager;
 import com.mrzak34.thunderhack.notification.Notification;
+import com.mrzak34.thunderhack.notification.NotificationManager;
 import com.mrzak34.thunderhack.setting.Setting;
 import net.minecraft.init.MobEffects;
 import net.minecraft.network.play.client.CPacketPlayer;
@@ -19,59 +19,61 @@ import java.util.List;
 
 import static com.mrzak34.thunderhack.util.MovementUtil.isMoving;
 
-public class LongJump extends Module{
-    public LongJump() {
-        super("LongJump", "Догонять попусков-на ez", Category.MOVEMENT);
-    }
-
-    private Setting<ModeEn> Mode = register(new Setting("Mode", ModeEn.FunnyGame));
-
-    public enum ModeEn {
-        FunnyGame,
-        Default,
-        NexusGrief,
-        MatrixCustom
-    }
-
-    private Setting<Float> timr = this.register(new Setting("TimerSpeed", 1.0F, 0.5F, 3.0F,v-> Mode.getValue() == ModeEn.Default || Mode.getValue() == ModeEn.FunnyGame));
-    private Setting<Float> speed = this.register(new Setting("Speed", 16.7F, 5.0F, 30.0F,v-> Mode.getValue() == ModeEn.Default || Mode.getValue() == ModeEn.FunnyGame));
-    public Setting<Boolean> usetimer = this.register(new Setting("Timer", true,v-> Mode.getValue() == ModeEn.Default || Mode.getValue() == ModeEn.FunnyGame));
-    public Setting<Boolean> usver = this.register ( new Setting <> ( "JumpBoost", false,v-> Mode.getValue() == ModeEn.Default || Mode.getValue() == ModeEn.FunnyGame));
-    public Setting<Boolean> ongr = this.register ( new Setting <> ( "groundSpoof", false,v-> Mode.getValue() == ModeEn.Default || Mode.getValue() == ModeEn.FunnyGame));
-    public Setting<Boolean> ongr2 = this.register ( new Setting <> ( "groundSpoofVal", false,v-> Mode.getValue() == ModeEn.Default || Mode.getValue() == ModeEn.FunnyGame));
-
-    public Setting<Float> speed2 = register(new Setting("Speed", 1.44f, 0.0f, 3.0f,v-> Mode.getValue() == ModeEn.MatrixCustom));
-    public Setting<Float> jumpTimer = register(new Setting("JumpTimer", 0.60f, 0.1f, 2f,v-> Mode.getValue() == ModeEn.MatrixCustom));
-    public Setting<Float> spd = register(new Setting("Speed2", 1.49f, 0.1f, 2f,v-> Mode.getValue() == ModeEn.MatrixCustom));
-    public  Setting<Boolean> dmgkick = this.register(new Setting<>("DmgKickProtection", true,v-> Mode.getValue() == ModeEn.MatrixCustom));
-    public  Setting<Boolean> noGround = this.register(new Setting<>("Ground", true,v-> Mode.getValue() == ModeEn.MatrixCustom));
-    public  Setting<Boolean> YSpoof = this.register(new Setting<>("YSpoof", true,v-> Mode.getValue() == ModeEn.MatrixCustom));
-
-
-
-
+public class LongJump extends Module {
     public double Field1990;
     public double Field1991;
     public int Field1992 = 0;
     public int Field1993 = 0;
     public boolean jumped = false;
-
-    private int boostMotion = 0;
-    boolean flag = false;
-    private float startY = 0;
     public double speedXZ;
     public double distance;
     public int stage = 0;
     public int ticks = 2;
+    boolean flag = false;
+    private final Setting<ModeEn> Mode = register(new Setting("Mode", ModeEn.FunnyGame));
+    public Setting<Boolean> usetimer = this.register(new Setting("Timer", true, v -> Mode.getValue() == ModeEn.Default || Mode.getValue() == ModeEn.FunnyGame));
+    public Setting<Boolean> usver = this.register(new Setting<>("JumpBoost", false, v -> Mode.getValue() == ModeEn.Default || Mode.getValue() == ModeEn.FunnyGame));
+    public Setting<Boolean> ongr = this.register(new Setting<>("groundSpoof", false, v -> Mode.getValue() == ModeEn.Default || Mode.getValue() == ModeEn.FunnyGame));
+    public Setting<Boolean> ongr2 = this.register(new Setting<>("groundSpoofVal", false, v -> Mode.getValue() == ModeEn.Default || Mode.getValue() == ModeEn.FunnyGame));
+    public Setting<Float> speed2 = register(new Setting("Speed", 1.44f, 0.0f, 3.0f, v -> Mode.getValue() == ModeEn.MatrixCustom));
+    public Setting<Float> jumpTimer = register(new Setting("JumpTimer", 0.60f, 0.1f, 2f, v -> Mode.getValue() == ModeEn.MatrixCustom));
+    public Setting<Float> spd = register(new Setting("Speed2", 1.49f, 0.1f, 2f, v -> Mode.getValue() == ModeEn.MatrixCustom));
+    public Setting<Boolean> dmgkick = this.register(new Setting<>("DmgKickProtection", true, v -> Mode.getValue() == ModeEn.MatrixCustom));
+    public Setting<Boolean> noGround = this.register(new Setting<>("Ground", true, v -> Mode.getValue() == ModeEn.MatrixCustom));
+    public Setting<Boolean> YSpoof = this.register(new Setting<>("YSpoof", true, v -> Mode.getValue() == ModeEn.MatrixCustom));
+    private final Setting<Float> timr = this.register(new Setting("TimerSpeed", 1.0F, 0.5F, 3.0F, v -> Mode.getValue() == ModeEn.Default || Mode.getValue() == ModeEn.FunnyGame));
+    private final Setting<Float> speed = this.register(new Setting("Speed", 16.7F, 5.0F, 30.0F, v -> Mode.getValue() == ModeEn.Default || Mode.getValue() == ModeEn.FunnyGame));
+    private int boostMotion = 0;
+    private float startY = 0;
+    public LongJump() {
+        super("LongJump", "Догонять попусков-на ez", Category.MOVEMENT);
+    }
 
+    public static void strafe(float speed) {
+        if (!isMoving()) return;
+        double yaw = direction();
+        mc.player.motionX = -Math.sin(yaw) * speed;
+        mc.player.motionZ = Math.cos(yaw) * speed;
+    }
 
+    static double direction() {
+        double rotationYaw = mc.player.rotationYaw;
+        if (mc.player.moveForward < 0f) rotationYaw += 180f;
+        double forward = 1f;
+        if (mc.player.moveForward < 0f) {
+            forward = -0.5f;
+        } else if (mc.player.moveForward > 0f) forward = 0.5f;
 
+        if (mc.player.moveStrafing > 0f) rotationYaw -= 90f * forward;
+        if (mc.player.moveStrafing < 0f) rotationYaw += 90f * forward;
+        return Math.toRadians(rotationYaw);
+    }
 
     @SubscribeEvent
     public void onMove(EventMove f4p2) {
-        if(Mode.getValue() == ModeEn.Default){
+        if (Mode.getValue() == ModeEn.Default) {
             DefaultOnMove(f4p2);
-        } else if (Mode.getValue() == ModeEn.FunnyGame){
+        } else if (Mode.getValue() == ModeEn.FunnyGame) {
             FunnyGameOnMove(f4p2);
         }
     }
@@ -82,8 +84,8 @@ public class LongJump extends Module{
             if (e.getPacket() instanceof SPacketPlayerPosLook) {
                 this.toggle();
             }
-        } else if(Mode.getValue() == ModeEn.NexusGrief || Mode.getValue() == ModeEn.MatrixCustom){
-            if(mc.currentScreen == null && e.getPacket() instanceof SPacketPlayerPosLook){
+        } else if (Mode.getValue() == ModeEn.NexusGrief || Mode.getValue() == ModeEn.MatrixCustom) {
+            if (mc.currentScreen == null && e.getPacket() instanceof SPacketPlayerPosLook) {
                 final SPacketPlayerPosLook packet = e.getPacket();
                 packet.yaw = mc.player.rotationYaw;
                 packet.pitch = mc.player.rotationPitch;
@@ -91,20 +93,19 @@ public class LongJump extends Module{
         }
     }
 
-
     @Override
     public void onUpdate() {
         if (mc.world != null && mc.player != null && Mode.getValue() == ModeEn.Default) {
             if (mc.player.onGround && this.jumped) {
                 this.toggle();
             }
-        } else if (Mode.getValue() == ModeEn.MatrixCustom){
-            if(mc.player.hurtTime > 0 && dmgkick.getValue()){
+        } else if (Mode.getValue() == ModeEn.MatrixCustom) {
+            if (mc.player.hurtTime > 0 && dmgkick.getValue()) {
                 NotificationManager.publicity("Kick Protection", 2, Notification.Type.ERROR);
                 toggle();
             }
 
-            if(mc.player.onGround){
+            if (mc.player.onGround) {
                 flag = true;
                 return;
             }
@@ -112,9 +113,9 @@ public class LongJump extends Module{
             if (boostMotion == 0) {
                 double yaw = Math.toRadians(mc.player.rotationYaw);
 
-                if(!noGround.getValue())
+                if (!noGround.getValue())
                     mc.player.connection.sendPacket(new CPacketPlayer.Position(mc.player.posX, mc.player.posY, mc.player.posZ, true));
-                if(YSpoof.getValue()) {
+                if (YSpoof.getValue()) {
                     mc.player.connection.sendPacket(new CPacketPlayer.Position(mc.player.posX + -Math.sin(yaw) * spd.getValue(), mc.player.posY + 0.42f, mc.player.posZ + Math.cos(yaw) * spd.getValue(), false));
                 } else {
                     mc.player.connection.sendPacket(new CPacketPlayer.Position(mc.player.posX + -Math.sin(yaw) * spd.getValue(), mc.player.posY, mc.player.posZ + Math.cos(yaw) * spd.getValue(), false));
@@ -130,15 +131,15 @@ public class LongJump extends Module{
                 boostMotion++;
             } else {
                 Thunderhack.TICK_TIMER = 1f;
-                if(flag)
+                if (flag)
                     boostMotion = 0;
             }
-        } else if (Mode.getValue() == ModeEn.NexusGrief){
-            if(mc.player.hurtTime > 0){
+        } else if (Mode.getValue() == ModeEn.NexusGrief) {
+            if (mc.player.hurtTime > 0) {
                 NotificationManager.publicity("Kick Protection", 2, Notification.Type.ERROR);
                 toggle();
             }
-            if(mc.player.onGround ){
+            if (mc.player.onGround) {
                 flag = true;
                 return;
             }
@@ -157,15 +158,15 @@ public class LongJump extends Module{
                 boostMotion++;
             } else {
                 Thunderhack.TICK_TIMER = 1f;
-                if(flag)
+                if (flag)
                     boostMotion = 0;
             }
 
-        } else if(Mode.getValue() == ModeEn.FunnyGame){
-            if(mc.player == null || mc.world == null){
+        } else if (Mode.getValue() == ModeEn.FunnyGame) {
+            if (mc.player == null || mc.world == null) {
                 return;
             }
-            if(mc.player.onGround && jumped){
+            if (mc.player.onGround && jumped) {
                 Thunderhack.TICK_TIMER = 1f;
                 toggle();
             }
@@ -173,7 +174,7 @@ public class LongJump extends Module{
     }
 
     @Override
-    public void onEnable(){
+    public void onEnable() {
         boostMotion = 0;
         startY = (float) mc.player.posY;
 
@@ -195,73 +196,65 @@ public class LongJump extends Module{
 
     @SubscribeEvent
     public void onUpdateWalkingPlayerPost(EventPostMotion f4u2) {
-        if(Mode.getValue() == ModeEn.Default){
+        if (Mode.getValue() == ModeEn.Default) {
             DefaultOnPreMotion(f4u2);
-        } else if(Mode.getValue() == ModeEn.FunnyGame){
+        } else if (Mode.getValue() == ModeEn.FunnyGame) {
             FGPostMotion(f4u2);
         }
     }
 
-
-
-
-
-
-
-    public void DefaultOnPreMotion(EventPostMotion f4u2){
+    public void DefaultOnPreMotion(EventPostMotion f4u2) {
         double d = mc.player.posX - mc.player.prevPosX;
         double d2 = mc.player.posZ - mc.player.prevPosZ;
         this.Field1991 = Math.sqrt(d * d + d2 * d2);
-        if(ongr2.getValue())
+        if (ongr2.getValue())
             mc.player.onGround = ongr.getValue();
     }
 
-    public void DefaultOnMove(EventMove f4p2){
-            if (!mc.player.collidedHorizontally  && this.Field1993 <= 0 && (mc.player.moveForward != 0.0f || mc.player.moveStrafing != 0.0f)) {
-                if (this.usetimer.getValue()) {
-                    Thunderhack.TICK_TIMER = this.timr.getValue();
-                } else {
-                    Thunderhack.TICK_TIMER = 1.0F;
-                }
-
-                if (this.Field1992 == 1 && mc.player.collidedVertically) {
-                    this.Field1990 = 1.0 + getBaseMoveSpeed() - 0.05;
-                } else if (this.Field1992 == 2 && mc.player.collidedVertically) {
-                    mc.player.motionY = 0.415;
-                    f4p2.set_y(0.415);
-                    this.jumped = true;
-                    this.Field1990 *= this.speed.getValue() / 10.0F;
-                } else if (this.Field1992 == 3) {
-                    double d = 0.66 * (this.Field1991 - getBaseMoveSpeed());
-                    this.Field1990 = this.Field1991 - d;
-                } else {
-                    this.Field1990 = this.Field1991 - this.Field1991 / 159.0;
-                    if (mc.player.collidedVertically && this.Field1992 > 3) {
-                        this.Field1993 = 10;
-                        this.Field1992 = 1;
-                    }
-                }
-
-                this.Field1990 = Math.max(this.Field1990, getBaseMoveSpeed());
-                this.Method744(f4p2, this.Field1990);
-                f4p2.setCanceled(true);
-                ++this.Field1992;
+    public void DefaultOnMove(EventMove f4p2) {
+        if (!mc.player.collidedHorizontally && this.Field1993 <= 0 && (mc.player.moveForward != 0.0f || mc.player.moveStrafing != 0.0f)) {
+            if (this.usetimer.getValue()) {
+                Thunderhack.TICK_TIMER = this.timr.getValue();
             } else {
-                if (this.Field1993 > 0) {
-                    --this.Field1993;
-                }
-
-                this.Field1992 = 0;
-                this.Field1990 = 0.0;
-                this.Field1991 = 0.0;
-                f4p2.set_z(0.0);
-                f4p2.set_x(0.0);
-                f4p2.setCanceled(true);
+                Thunderhack.TICK_TIMER = 1.0F;
             }
 
+            if (this.Field1992 == 1 && mc.player.collidedVertically) {
+                this.Field1990 = 1.0 + getBaseMoveSpeed() - 0.05;
+            } else if (this.Field1992 == 2 && mc.player.collidedVertically) {
+                mc.player.motionY = 0.415;
+                f4p2.set_y(0.415);
+                this.jumped = true;
+                this.Field1990 *= this.speed.getValue() / 10.0F;
+            } else if (this.Field1992 == 3) {
+                double d = 0.66 * (this.Field1991 - getBaseMoveSpeed());
+                this.Field1990 = this.Field1991 - d;
+            } else {
+                this.Field1990 = this.Field1991 - this.Field1991 / 159.0;
+                if (mc.player.collidedVertically && this.Field1992 > 3) {
+                    this.Field1993 = 10;
+                    this.Field1992 = 1;
+                }
+            }
+
+            this.Field1990 = Math.max(this.Field1990, getBaseMoveSpeed());
+            this.Method744(f4p2, this.Field1990);
+            f4p2.setCanceled(true);
+            ++this.Field1992;
+        } else {
+            if (this.Field1993 > 0) {
+                --this.Field1993;
+            }
+
+            this.Field1992 = 0;
+            this.Field1990 = 0.0;
+            this.Field1991 = 0.0;
+            f4p2.set_z(0.0);
+            f4p2.set_x(0.0);
+            f4p2.setCanceled(true);
+        }
+
     }
-
-
 
     public void Method744(EventMove event, double d) {
         MovementInput movementInput = mc.player.movementInput;
@@ -274,9 +267,9 @@ public class LongJump extends Module{
         } else {
             if (d2 != 0.0) {
                 if (d3 > 0.0) {
-                    f += (float)(d2 > 0.0 ? -45 : 45);
+                    f += (float) (d2 > 0.0 ? -45 : 45);
                 } else if (d3 < 0.0) {
-                    f += (float)(d2 > 0.0 ? 45 : -45);
+                    f += (float) (d2 > 0.0 ? 45 : -45);
                 }
 
                 d3 = 0.0;
@@ -292,7 +285,7 @@ public class LongJump extends Module{
     }
 
     public double getBaseMoveSpeed() {
-        if(mc.player == null || mc.world == null){
+        if (mc.player == null || mc.world == null) {
             return 0.2873;
         }
 
@@ -300,40 +293,20 @@ public class LongJump extends Module{
         double d = 0.2873;
         if (mc.player.isPotionActive(MobEffects.SPEED)) {
             n = mc.player.getActivePotionEffect(MobEffects.SPEED).getAmplifier();
-            d *= 1.0 + 0.2 * (double)(n + 1);
+            d *= 1.0 + 0.2 * (double) (n + 1);
         }
         if (mc.player.isPotionActive(MobEffects.JUMP_BOOST) && usver.getValue()) {
             n = mc.player.getActivePotionEffect(MobEffects.JUMP_BOOST).getAmplifier();
-            d /= 1.0 + 0.2 * (double)(n + 1);
+            d /= 1.0 + 0.2 * (double) (n + 1);
         }
         return d;
     }
 
-
-    public static void strafe(float speed) {
-        if (!isMoving()) return;
-        double yaw = direction();
-        mc.player.motionX = -Math.sin(yaw) * speed;
-        mc.player.motionZ = Math.cos(yaw) * speed;
-    }
-
-
-    static double direction(){
-        double rotationYaw = mc.player.rotationYaw;
-        if (mc.player.moveForward < 0f) rotationYaw += 180f;
-        double forward = 1f;
-        if (mc.player.moveForward < 0f){
-            forward = -0.5f;
-        } else if (mc.player.moveForward > 0f) forward = 0.5f;
-
-        if (mc.player.moveStrafing > 0f) rotationYaw -= 90f * forward;
-        if (mc.player.moveStrafing < 0f) rotationYaw += 90f * forward;
-        return Math.toRadians(rotationYaw);
-    }
-
     public void FunnyGameOnMove(EventMove f4p2) {
-        block22: {
-            block23: {
+        block22:
+        {
+            block23:
+            {
                 if (mc.player.collidedHorizontally || !isMovingClient()) {
                     stage = 0;
                     ticks = 2;
@@ -351,9 +324,9 @@ public class LongJump extends Module{
                 } else if (stage == 1 && mc.player.collidedVertically && isMovingClient()) {
                     speedXZ = 1.0 + getBaseMoveSpeed() - 0.05;
                 } else if (stage == 2 && mc.player.collidedVertically && isMovingClient()) {
-                    mc.player.motionY = 0.415 + isJumpBoost() ;
+                    mc.player.motionY = 0.415 + isJumpBoost();
                     f4p2.set_y(0.415 + isJumpBoost());
-                    speedXZ *=(speed.getValue()/10f);
+                    speedXZ *= (speed.getValue() / 10f);
                     jumped = true;
                 } else if (stage == 3) {
                     double d = 0.66 * (distance - getBaseMoveSpeed());
@@ -390,11 +363,11 @@ public class LongJump extends Module{
         }
     }
 
-    private boolean isMovingClient(){
+    private boolean isMovingClient() {
         return (mc.player.moveForward != 0.0f || mc.player.moveStrafing != 0.0f);
     }
 
-    public double isJumpBoost(){
+    public double isJumpBoost() {
         if (mc.player.isPotionActive(MobEffects.JUMP_BOOST)) {
             return 0.2;
         } else {
@@ -402,15 +375,22 @@ public class LongJump extends Module{
         }
     }
 
-
     public void FGPostMotion(EventPostMotion f4u2) {
-        if(startY > mc.player.posY){
+        if (startY > mc.player.posY) {
             Thunderhack.TICK_TIMER = 1f;
             toggle();
         }
         double d = mc.player.posX - mc.player.prevPosX;
         double d2 = mc.player.posZ - mc.player.prevPosZ;
         distance = Math.sqrt(d * d + d2 * d2);
+    }
+
+
+    public enum ModeEn {
+        FunnyGame,
+        Default,
+        NexusGrief,
+        MatrixCustom
     }
 
 }

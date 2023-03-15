@@ -1,8 +1,6 @@
 package com.mrzak34.thunderhack.modules.combat;
 
 
-
-
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.events.EventPostMotion;
 import com.mrzak34.thunderhack.events.Render3DEvent;
@@ -24,48 +22,44 @@ import java.awt.*;
 public class BowAim extends Module {
 
 
-    private Setting<Boolean> ignoreWalls = register(new Setting<>("IgnoreWalls", false));
-    private Setting<Boolean> noVertical = register(new Setting<>("NoVertical", false));
-
-    private  final Setting<Float> range = this.register( new Setting<>("Range", 60.0f, 0.0f, 200f));
-    private  final Setting<Float> fov = this.register( new Setting<>("fov", 60.0f, 0.0f, 180f));
-
-    public BowAim() {
-        super("AimBot", "AimBot",Category.COMBAT);
-    }
-
-
+    private final Setting<Float> range = this.register(new Setting<>("Range", 60.0f, 0.0f, 200f));
+    private final Setting<Float> fov = this.register(new Setting<>("fov", 60.0f, 0.0f, 180f));
     Entity target;
+    private final Setting<Boolean> ignoreWalls = register(new Setting<>("IgnoreWalls", false));
+    private final Setting<Boolean> noVertical = register(new Setting<>("NoVertical", false));
     private double sideMultiplier;
     private double upMultiplier;
     private Vec3d predict;
+    public BowAim() {
+        super("AimBot", "AimBot", Category.COMBAT);
+    }
 
     @SubscribeEvent
     public void onMotionUpdate(EventPostMotion event) {
-            if (mc.player.getHeldItemMainhand().getItem() instanceof ItemBow && mc.player.isHandActive()
-                    && mc.player.getItemInUseMaxCount() > 0) {
-                target = findTarget();
+        if (mc.player.getHeldItemMainhand().getItem() instanceof ItemBow && mc.player.isHandActive()
+                && mc.player.getItemInUseMaxCount() > 0) {
+            target = findTarget();
 
-                if (target == null)
-                    return;
+            if (target == null)
+                return;
 
-                double xPos = target.posX;
-                double yPos = target.posY;
-                double zPos = target.posZ;
-                sideMultiplier = mc.player.getDistance(target) / ((mc.player.getDistance(target) / 2f)) * 5f;
-                upMultiplier = (mc.player.getDistance(target) / 320) * 1.1;
-               // predict = new Vec3d((xPos - 0.5) + (xPos - target.lastTickPosX) * sideMultiplier, yPos + upMultiplier, (zPos - 0.5) + (zPos - target.lastTickPosZ) * sideMultiplier);
+            double xPos = target.posX;
+            double yPos = target.posY;
+            double zPos = target.posZ;
+            sideMultiplier = mc.player.getDistance(target) / ((mc.player.getDistance(target) / 2f)) * 5f;
+            upMultiplier = (mc.player.getDistance(target) / 320) * 1.1;
+            // predict = new Vec3d((xPos - 0.5) + (xPos - target.lastTickPosX) * sideMultiplier, yPos + upMultiplier, (zPos - 0.5) + (zPos - target.lastTickPosZ) * sideMultiplier);
 
-                predict = new Vec3d(xPos , yPos + upMultiplier, zPos);
+            predict = new Vec3d(xPos, yPos + upMultiplier, zPos);
 
 
-                float[] rotation = lookAtPredict(predict);
+            float[] rotation = lookAtPredict(predict);
 
-                mc.player.rotationYaw = rotation[0];
-                if(noVertical.getValue())
-                    mc.player.rotationPitch = rotation[1];
-                target = null;
-            }
+            mc.player.rotationYaw = rotation[0];
+            if (noVertical.getValue())
+                mc.player.rotationPitch = rotation[1];
+            target = null;
+        }
 
     }
 
@@ -76,7 +70,7 @@ public class BowAim extends Module {
         double dist = Math.sqrt(diffX * diffX + diffZ * diffZ);
         float yaw = (float) (Math.atan2(diffZ, diffX) * 180.0D / Math.PI) - 90.0F;
         float pitch = (float) -(Math.atan2(diffY, dist) * 180.0D / Math.PI);
-        return new float[] {mc.player.rotationYaw + MathHelper.wrapDegrees(yaw - mc.player.rotationYaw), mc.player.rotationPitch + MathHelper.wrapDegrees(pitch - mc.player.rotationPitch) };
+        return new float[]{mc.player.rotationYaw + MathHelper.wrapDegrees(yaw - mc.player.rotationYaw), mc.player.rotationPitch + MathHelper.wrapDegrees(pitch - mc.player.rotationPitch)};
     }
 
     public EntityPlayer findTarget() {
@@ -89,11 +83,11 @@ public class BowAim extends Module {
             if (Thunderhack.friendManager.isFriend(entity)) {
                 continue;
             }
-            if(EntityUtil.canEntityBeSeen(entity) && !ignoreWalls.getValue()){
+            if (EntityUtil.canEntityBeSeen(entity) && !ignoreWalls.getValue()) {
                 continue;
             }
 
-            if(!EntityUtil.canSeeEntityAtFov(entity,fov.getValue())){
+            if (!EntityUtil.canSeeEntityAtFov(entity, fov.getValue())) {
                 continue;
             }
             if (mc.player.getDistanceSq(entity) <= distance) {
@@ -105,11 +99,10 @@ public class BowAim extends Module {
     }
 
 
-
     @SubscribeEvent
-    public void onRender3D( Render3DEvent event) {
+    public void onRender3D(Render3DEvent event) {
         if (BowAim.mc.player.getHeldItemMainhand().getItem() instanceof ItemBow && target != null) {
-            RenderHelper.drawEntityBox((Entity)target, new Color(PaletteHelper.astolfo(false, 12).getRGB()),new Color(PaletteHelper.astolfo(false, 12).getRGB()), false, 255.0f);
+            RenderHelper.drawEntityBox(target, new Color(PaletteHelper.astolfo(false, 12).getRGB()), new Color(PaletteHelper.astolfo(false, 12).getRGB()), false, 255.0f);
         }
     }
 }

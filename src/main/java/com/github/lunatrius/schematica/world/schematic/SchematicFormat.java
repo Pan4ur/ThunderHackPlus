@@ -6,36 +6,30 @@ import com.github.lunatrius.schematica.reference.Names;
 import com.github.lunatrius.schematica.reference.Reference;
 import com.mrzak34.thunderhack.command.Command;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.common.MinecraftForge;
 
-import java.io.*;
+import javax.annotation.Nullable;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.zip.GZIPOutputStream;
-
-import javax.annotation.Nullable;
 
 public abstract class SchematicFormat {
     // LinkedHashMap to ensure defined iteration order
     public static final Map<String, SchematicFormat> FORMATS = new LinkedHashMap<String, SchematicFormat>();
     public static String FORMAT_DEFAULT;
 
-    public abstract ISchematic readFromNBT(NBTTagCompound tagCompound);
+    static {
+        // TODO?
+        // FORMATS.put(Names.NBT.FORMAT_CLASSIC, new SchematicClassic());
+        FORMATS.put(Names.NBT.FORMAT_ALPHA, new SchematicAlpha());
+        FORMATS.put(Names.NBT.FORMAT_STRUCTURE, new SchematicStructure());
 
-    public abstract boolean writeToNBT(NBTTagCompound tagCompound, ISchematic schematic);
-
-    /**
-     * Gets the translation key used for this format.
-     */
-    public abstract String getName();
-
-    /**
-     * Gets the file extension used for this format, including the leading dot.
-     */
-    public abstract String getExtension();
+        FORMAT_DEFAULT = Names.NBT.FORMAT_ALPHA;
+    }
 
     public static ISchematic readFromFile(final File file) {
         try {
@@ -67,8 +61,8 @@ public abstract class SchematicFormat {
     /**
      * Writes the given schematic.
      *
-     * @param file The file to write to
-     * @param format The format to use, or null for {@linkplain #FORMAT_DEFAULT the default}
+     * @param file      The file to write to
+     * @param format    The format to use, or null for {@linkplain #FORMAT_DEFAULT the default}
      * @param schematic The schematic to write
      * @return True if successful
      */
@@ -91,11 +85,11 @@ public abstract class SchematicFormat {
 
             final DataOutputStream dataOutputStream = new DataOutputStream(new GZIPOutputStream(new FileOutputStream(file)));
 
-           // try {
-               // NBTTagCompound.writeEntry(Names.NBT.ROOT, tagCompound, dataOutputStream);
-           // } finally {
-                dataOutputStream.close();
-           // }
+            // try {
+            // NBTTagCompound.writeEntry(Names.NBT.ROOT, tagCompound, dataOutputStream);
+            // } finally {
+            dataOutputStream.close();
+            // }
 
             return true;
         } catch (final Exception ex) {
@@ -105,14 +99,12 @@ public abstract class SchematicFormat {
         return false;
     }
 
-
-
     /**
      * Writes the given schematic.
      *
      * @param directory The directory to write in
-     * @param filename The filename (including the extension) to write to
-     * @param format The format to use, or null for {@linkplain #FORMAT_DEFAULT the default}
+     * @param filename  The filename (including the extension) to write to
+     * @param format    The format to use, or null for {@linkplain #FORMAT_DEFAULT the default}
      * @param schematic The schematic to write
      * @return True if successful
      */
@@ -123,19 +115,19 @@ public abstract class SchematicFormat {
     /**
      * Writes the given schematic, notifying the player when finished.
      *
-     * @param file The file to write to
-     * @param format The format to use, or null for {@linkplain #FORMAT_DEFAULT the default}
+     * @param file      The file to write to
+     * @param format    The format to use, or null for {@linkplain #FORMAT_DEFAULT the default}
      * @param schematic The schematic to write
-     * @param player The player to notify
+     * @param player    The player to notify
      */
     public static void writeToFileAndNotify(final File file, @Nullable final String format, final ISchematic schematic, final EntityPlayer player) {
         final boolean success = writeToFile(file, format, schematic);
-        Command.sendMessage(success ? "Схема успешно сохранена в " + file.getName() : "Ошибка сохранения схемы!" );
+        Command.sendMessage(success ? "Схема успешно сохранена в " + file.getName() : "Ошибка сохранения схемы!");
     }
 
     /**
      * Gets a schematic format name translation key for the given format ID.
-     *
+     * <p>
      * If an invalid format is chosen, logs a warning and returns a key stating
      * that it's invalid.
      *
@@ -151,7 +143,7 @@ public abstract class SchematicFormat {
 
     /**
      * Gets the extension used by the given format.
-     *
+     * <p>
      * If the format is invalid, returns the default format's extension.
      *
      * @param format The format (or null to use {@link #FORMAT_DEFAULT the default}).
@@ -167,12 +159,17 @@ public abstract class SchematicFormat {
         return FORMATS.get(format).getExtension();
     }
 
-    static {
-        // TODO?
-        // FORMATS.put(Names.NBT.FORMAT_CLASSIC, new SchematicClassic());
-        FORMATS.put(Names.NBT.FORMAT_ALPHA, new SchematicAlpha());
-        FORMATS.put(Names.NBT.FORMAT_STRUCTURE, new SchematicStructure());
+    public abstract ISchematic readFromNBT(NBTTagCompound tagCompound);
 
-        FORMAT_DEFAULT = Names.NBT.FORMAT_ALPHA;
-    }
+    public abstract boolean writeToNBT(NBTTagCompound tagCompound, ISchematic schematic);
+
+    /**
+     * Gets the translation key used for this format.
+     */
+    public abstract String getName();
+
+    /**
+     * Gets the file extension used for this format, including the leading dot.
+     */
+    public abstract String getExtension();
 }

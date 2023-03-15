@@ -6,7 +6,7 @@ import net.minecraft.util.math.MathHelper;
 import static com.mrzak34.thunderhack.util.math.DynamicAnimation.createAnimation;
 
 public class BetterDynamicAnimation {
-    private int maxTicks;
+    private final int maxTicks;
     private double value, dstValue;
     private int prevStep, step;
 

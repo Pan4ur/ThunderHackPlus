@@ -8,8 +8,8 @@ import com.mrzak34.thunderhack.events.Render3DEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.setting.Setting;
-import com.mrzak34.thunderhack.util.render.RenderUtil;
 import com.mrzak34.thunderhack.util.Timer;
+import com.mrzak34.thunderhack.util.render.RenderUtil;
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.player.EntityPlayer;
@@ -28,23 +28,14 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-
 import java.awt.*;
-
-import static net.minecraft.util.math.MathHelper.clamp;
-import static net.minecraft.util.math.MathHelper.wrapDegrees;
 
 
 public class RusherScaffold extends Module {
 
-    public RusherScaffold() {
-        super("Scaffold", "лучший скафф", Module.Category.PLAYER);
-        timer = new Timer();
-    }
-
-
+    public final Setting<ColorSetting> Color2 = this.register(new Setting<>("Color", new ColorSetting(0x8800FF00)));
+    private final Setting<Float> lineWidth = this.register(new Setting<Float>("LineWidth", 1.0f, 0.1f, 5.0f));
     public Color color = new Color(Color.CYAN.getRed(), Color.CYAN.getGreen(), Color.CYAN.getBlue(), 50);
-
     public Setting<Boolean> rotate = this.register(new Setting<Boolean>("Rotate", true));
     public Setting<Boolean> autoswap = this.register(new Setting<Boolean>("AutoSwap", true));
     public Setting<Boolean> tower = this.register(new Setting<Boolean>("Tower", true));
@@ -52,14 +43,15 @@ public class RusherScaffold extends Module {
     public Setting<Boolean> echestholding = this.register(new Setting<Boolean>("EchestHolding", false));
     public Setting<Boolean> render = this.register(new Setting<Boolean>("Render", true));
     public Setting<Boolean> nexusGrief = this.register(new Setting<Boolean>("NexusGrief", false));
-
-    private final Setting<Float> lineWidth = this.register(new Setting<Float>("LineWidth", 1.0f, 0.1f, 5.0f));
-    public final Setting<ColorSetting> Color2 = this.register(new Setting<>("Color", new ColorSetting(0x8800FF00)));
-
-
-    private Timer timer;
+    int n;
+    BlockPos blockPos;
+    private final Timer timer;
     private BlockPosWithFacing currentblock;
 
+    public RusherScaffold() {
+        super("Scaffold", "лучший скафф", Module.Category.PLAYER);
+        timer = new Timer();
+    }
 
     private boolean isBlockValid(Block block) {
         return block.getDefaultState().getMaterial().isSolid();
@@ -171,7 +163,6 @@ public class RusherScaffold extends Module {
         return n2;
     }
 
-
     private Vec3d getEyePosition() {
         return new Vec3d(mc.player.posX, mc.player.posY + mc.player.getEyeHeight(), mc.player.posZ);
     }
@@ -191,21 +182,10 @@ public class RusherScaffold extends Module {
         float f2 = (float) (-Math.toDegrees(Math.atan2(d2, d6)));
 
         float[] ret = new float[2];
-        ret[0] = mc.player.rotationYaw + MathHelper.wrapDegrees((float) (f - mc.player.rotationYaw));
-        ret[1] = mc.player.rotationPitch + MathHelper.wrapDegrees((float) (f2 - mc.player.rotationPitch));
+        ret[0] = mc.player.rotationYaw + MathHelper.wrapDegrees(f - mc.player.rotationYaw);
+        ret[1] = mc.player.rotationPitch + MathHelper.wrapDegrees(f2 - mc.player.rotationPitch);
 
         return ret;
-    }
-
-
-    public static class BlockPosWithFacing {
-        public BlockPos blockPos;
-        public EnumFacing enumFacing;
-
-        public BlockPosWithFacing(BlockPos blockPos, EnumFacing enumFacing) {
-            this.blockPos = blockPos;
-            this.enumFacing = enumFacing;
-        }
     }
 
     private void doSafeWalk(EventMove event) {
@@ -264,13 +244,12 @@ public class RusherScaffold extends Module {
             doSafeWalk(event);
     }
 
-
     @SubscribeEvent
     public void onRender3D(Render3DEvent event) {
 
         if (render.getValue() && currentblock != null) {
             GlStateManager.pushMatrix();
-            RenderUtil.drawBlockOutline(currentblock.blockPos, Color2.getValue().getColorObject(), lineWidth.getValue(), false,0);
+            RenderUtil.drawBlockOutline(currentblock.blockPos, Color2.getValue().getColorObject(), lineWidth.getValue(), false, 0);
             GlStateManager.popMatrix();
         }
 
@@ -279,10 +258,6 @@ public class RusherScaffold extends Module {
     private boolean isOffsetBBEmpty(double x, double z) {
         return mc.world.getCollisionBoxes(mc.player, mc.player.getEntityBoundingBox().offset(x, -2, z)).isEmpty();
     }
-
-    int n;
-    BlockPos blockPos;
-
 
     @SubscribeEvent
     public void onPre(EventPreMotion event) {
@@ -296,38 +271,38 @@ public class RusherScaffold extends Module {
                 currentblock = null;
                 if (mc.player.isSneaking()) return;
                 int n2 = findBlockToPlace();
-                if (n2 == -1)  return;
+                if (n2 == -1) return;
                 Item item = mc.player.inventory.getStackInSlot(n2).getItem();
                 if (!(item instanceof ItemBlock)) return;
-                Block block = ((ItemBlock)item).getBlock();
+                Block block = ((ItemBlock) item).getBlock();
                 boolean bl = block.getDefaultState().isFullBlock();
                 double d = bl ? 1.0 : 0.01;
                 blockPos2 = new BlockPos(mc.player.posX, mc.player.posY - d, mc.player.posZ);
                 if (!mc.world.getBlockState(blockPos2).getMaterial().isReplaceable()) return;
-                if (bl){
+                if (bl) {
                     currentblock = this.checkNearBlocksExtended(blockPos2);
                     if (currentblock != null) {
                         if (this.rotate.getValue()) {
-                                float[] rotations = getRotations(currentblock.blockPos, currentblock.enumFacing);
-                                mc.player.rotationYaw = rotations[0];
-                                mc.player.renderYawOffset = rotations[0];
-                                mc.player.rotationPitch = rotations[1];
+                            float[] rotations = getRotations(currentblock.blockPos, currentblock.enumFacing);
+                            mc.player.rotationYaw = rotations[0];
+                            mc.player.renderYawOffset = rotations[0];
+                            mc.player.rotationPitch = rotations[1];
                         }
                     }
                 }
             }
         }
-        if(nexusGrief.getValue()){
+        if (nexusGrief.getValue()) {
             mc.player.motionX /= 1.7f;
             mc.player.motionZ /= 1.7f;
         }
     }
 
     @SubscribeEvent
-    public void onPost(EventPostMotion e){
+    public void onPost(EventPostMotion e) {
         if (this.currentblock == null) return;
         n = mc.player.inventory.currentItem;
-        if (!(mc.player.getHeldItemMainhand().getItem() instanceof ItemBlock)){
+        if (!(mc.player.getHeldItemMainhand().getItem() instanceof ItemBlock)) {
             if (autoswap.getValue()) {
                 int n3 = this.findBlockToPlace();
                 if (n3 != -1) {
@@ -336,8 +311,8 @@ public class RusherScaffold extends Module {
                 }
             }
         }
-        if (isBlockValid(((ItemBlock)mc.player.getHeldItemMainhand().getItem()).getBlock())){
-            if (!mc.player.movementInput.jump || mc.player.moveForward != 0.0f || mc.player.moveStrafing != 0.0f || !tower.getValue()){
+        if (isBlockValid(((ItemBlock) mc.player.getHeldItemMainhand().getItem()).getBlock())) {
+            if (!mc.player.movementInput.jump || mc.player.moveForward != 0.0f || mc.player.moveStrafing != 0.0f || !tower.getValue()) {
                 timer.reset();
             } else {
                 mc.player.setVelocity(0.0, 0.42, 0.0);
@@ -347,15 +322,14 @@ public class RusherScaffold extends Module {
                 }
             }
             BlockPos blockPos3 = blockPos = currentblock.blockPos;
-            boolean bl = mc.world.getBlockState(blockPos).getBlock().onBlockActivated(mc.world, blockPos3, mc.world.getBlockState(blockPos3), (EntityPlayer)mc.player, EnumHand.MAIN_HAND, EnumFacing.DOWN, 0.0f, 0.0f, 0.0f);
+            boolean bl = mc.world.getBlockState(blockPos).getBlock().onBlockActivated(mc.world, blockPos3, mc.world.getBlockState(blockPos3), mc.player, EnumHand.MAIN_HAND, EnumFacing.DOWN, 0.0f, 0.0f, 0.0f);
             if (bl) {
                 mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.START_SNEAKING));
             }
 
 
-            mc.playerController.processRightClickBlock(mc.player, mc.world, blockPos, this.currentblock.enumFacing, new Vec3d((double) blockPos.getX() + Math.random(), mc.world.getBlockState((BlockPos) blockPos).getSelectedBoundingBox((World) mc.world, (BlockPos) blockPos).maxY - 0.01, (double) blockPos.getZ() + Math.random()), EnumHand.MAIN_HAND);
+            mc.playerController.processRightClickBlock(mc.player, mc.world, blockPos, this.currentblock.enumFacing, new Vec3d((double) blockPos.getX() + Math.random(), mc.world.getBlockState(blockPos).getSelectedBoundingBox(mc.world, blockPos).maxY - 0.01, (double) blockPos.getZ() + Math.random()), EnumHand.MAIN_HAND);
             mc.player.swingArm(EnumHand.MAIN_HAND);
-
 
 
             if (bl) {
@@ -363,6 +337,16 @@ public class RusherScaffold extends Module {
             }
             mc.player.inventory.currentItem = n;
             mc.player.connection.sendPacket(new CPacketHeldItemChange(mc.player.inventory.currentItem));
+        }
+    }
+
+    public static class BlockPosWithFacing {
+        public BlockPos blockPos;
+        public EnumFacing enumFacing;
+
+        public BlockPosWithFacing(BlockPos blockPos, EnumFacing enumFacing) {
+            this.blockPos = blockPos;
+            this.enumFacing = enumFacing;
         }
     }
 }

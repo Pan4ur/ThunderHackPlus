@@ -18,7 +18,7 @@ public class ConfigCommand extends Command {
 
     public void execute(String[] commands) {
         if (commands.length == 1) {
-            if(Thunderhack.moduleManager.getModuleByClass(MainSettings.class).language.getValue() == MainSettings.Language.RU) {
+            if (Thunderhack.moduleManager.getModuleByClass(MainSettings.class).language.getValue() == MainSettings.Language.RU) {
                 sendMessage("Конфиги сохраняются в  ThunderHack/configs/");
             } else {
                 sendMessage("Configurations are saved in ThunderHack/configs/");
@@ -28,18 +28,18 @@ public class ConfigCommand extends Command {
         if (commands.length == 2)
             if ("list".equals(commands[0])) {
                 StringBuilder configs = new StringBuilder("Configs: ");
-                for(String str : Objects.requireNonNull(ConfigManager.getConfigList())){
+                for (String str : Objects.requireNonNull(ConfigManager.getConfigList())) {
                     configs.append("\n- ").append(str);
                 }
                 sendMessage(configs.toString());
-            } else if( "dir".equals(commands[0]) ){
+            } else if ("dir".equals(commands[0])) {
                 try {
                     Desktop.getDesktop().browse(new File("ThunderHack/configs/").toURI());
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             } else {
-                if(Thunderhack.moduleManager.getModuleByClass(MainSettings.class).language.getValue() == MainSettings.Language.RU) {
+                if (Thunderhack.moduleManager.getModuleByClass(MainSettings.class).language.getValue() == MainSettings.Language.RU) {
                     sendMessage("Нет такой команды!... Может list ?");
                 } else {
                     sendMessage("Wrong command!... Maybe list?");
@@ -56,7 +56,7 @@ public class ConfigCommand extends Command {
                     ConfigManager.load(commands[1]);
                     return;
             }
-            if(Thunderhack.moduleManager.getModuleByClass(MainSettings.class).language.getValue() == MainSettings.Language.RU) {
+            if (Thunderhack.moduleManager.getModuleByClass(MainSettings.class).language.getValue() == MainSettings.Language.RU) {
                 sendMessage("Нет такой команды! Пример использования: <save/load>");
             } else {
                 sendMessage("Wrong command! try: <save/load>");

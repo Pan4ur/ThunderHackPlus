@@ -13,16 +13,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class VoidESP extends Module {
-    public VoidESP() {super("VoidESP", "VoidESP", Module.Category.PLAYER);}
-
-
     public Setting<Float> range = this.register(new Setting<Float>("Range", Float.valueOf(6.0f), Float.valueOf(3.0f), Float.valueOf(16.0f)));
     public Setting<Boolean> down = this.register(new Setting<Boolean>("Up", false));
-
-
     private List<BlockPos> holes = new ArrayList<BlockPos>();
 
 
+    public VoidESP() {
+        super("VoidESP", "VoidESP", Module.Category.PLAYER);
+    }
 
     public void onUpdate() {
         if (this.mc.player == null || this.mc.world == null) {
@@ -36,7 +34,7 @@ public class VoidESP extends Module {
         int size = this.holes.size();
         for (int i = 0; i < size; ++i) {
             BlockPos pos = this.holes.get(i);
-            RenderUtil.renderCrosses(this.down.getValue() != false ? pos.up() : pos, new Color(255, 255, 255), 2.0f);
+            RenderUtil.renderCrosses(this.down.getValue() ? pos.up() : pos, new Color(255, 255, 255), 2.0f);
         }
     }
 
@@ -51,7 +49,6 @@ public class VoidESP extends Module {
         }
         return voidHoles;
     }
-
 
 
 }

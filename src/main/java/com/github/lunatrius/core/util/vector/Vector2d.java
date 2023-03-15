@@ -26,12 +26,12 @@ public class Vector2d {
         return this.x;
     }
 
-    public final double getY() {
-        return this.y;
-    }
-
     public final void setX(final double x) {
         this.x = x;
+    }
+
+    public final double getY() {
+        return this.y;
     }
 
     public final void setY(final double y) {

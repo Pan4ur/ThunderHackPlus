@@ -3,13 +3,12 @@ package com.mrzak34.thunderhack.events;
 
 import net.minecraftforge.fml.common.eventhandler.Event;
 
-public class ChorusEvent extends Event
-{
+public class ChorusEvent extends Event {
     private final double chorusX;
     private final double chorusY;
     private final double chorusZ;
 
-    public ChorusEvent(final double x,  final double y,  final double z) {
+    public ChorusEvent(final double x, final double y, final double z) {
         this.chorusX = x;
         this.chorusY = y;
         this.chorusZ = z;

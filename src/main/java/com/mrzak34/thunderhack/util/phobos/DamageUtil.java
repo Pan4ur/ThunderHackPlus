@@ -1,6 +1,5 @@
 package com.mrzak34.thunderhack.util.phobos;
 
-import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.mixin.mixins.IItemTool;
 import net.minecraft.block.BlockAnvil;
 import net.minecraft.block.BlockBed;
@@ -24,23 +23,18 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.EnumDifficulty;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.IBlockAccess;
-import net.minecraft.world.World;
 
 import static com.mrzak34.thunderhack.util.Util.mc;
 
-public class DamageUtil
-{
-    public static boolean isSharper(ItemStack stack, int level)
-    {
+public class DamageUtil {
+    public static boolean isSharper(ItemStack stack, int level) {
         return EnchantmentHelper.getEnchantmentLevel(
                 Enchantments.SHARPNESS, stack) > level;
     }
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    public static boolean canBreakWeakness(boolean checkStack)
-    {
-        if (!mc.player.isPotionActive(MobEffects.WEAKNESS))
-        {
+    public static boolean canBreakWeakness(boolean checkStack) {
+        if (!mc.player.isPotionActive(MobEffects.WEAKNESS)) {
             return true;
         }
 
@@ -48,13 +42,11 @@ public class DamageUtil
         PotionEffect effect =
                 mc.player.getActivePotionEffect(MobEffects.STRENGTH);
 
-        if (effect != null)
-        {
+        if (effect != null) {
             strengthAmp = effect.getAmplifier();
         }
 
-        if (strengthAmp >= 1)
-        {
+        if (strengthAmp >= 1) {
             return true;
         }
 
@@ -66,14 +58,10 @@ public class DamageUtil
      *
      * @return not {@link DamageUtil#canBreakWeakness(boolean)}}, caught.
      */
-    public static boolean isWeaknessed()
-    {
-        try
-        {
+    public static boolean isWeaknessed() {
+        try {
             return !canBreakWeakness(true);
-        }
-        catch (Throwable t)
-        {
+        } catch (Throwable t) {
             return true;
         }
     }
@@ -85,47 +73,37 @@ public class DamageUtil
      * @param base the entity whose lowest Armor Percentage to cache.
      * @return <tt>true</tt> if the Entity wears no armor.
      */
-    public static boolean cacheLowestDura(EntityLivingBase base)
-    {
+    public static boolean cacheLowestDura(EntityLivingBase base) {
         IEntityLivingBase access = (IEntityLivingBase) base;
         float before = access.getLowestDurability();
         access.setLowestDura(Float.MAX_VALUE);
 
-        try
-        {
+        try {
             boolean isNaked = true;
-            for (ItemStack stack : base.getArmorInventoryList())
-            {
-                if (!stack.isEmpty())
-                {
+            for (ItemStack stack : base.getArmorInventoryList()) {
+                if (!stack.isEmpty()) {
                     isNaked = false;
                     float damage = getPercent(stack);
-                    if (damage < access.getLowestDurability())
-                    {
+                    if (damage < access.getLowestDurability()) {
                         access.setLowestDura(damage);
                     }
                 }
             }
 
             return isNaked;
-        }
-        catch (Throwable t)
-        {
+        } catch (Throwable t) {
             t.printStackTrace();
             access.setLowestDura(before);
             return false;
         }
     }
 
-    public static boolean canBreakWeakness(ItemStack stack)
-    {
-        if (stack.getItem() instanceof ItemSword)
-        {
+    public static boolean canBreakWeakness(ItemStack stack) {
+        if (stack.getItem() instanceof ItemSword) {
             return true;
         }
 
-        if (stack.getItem() instanceof ItemTool)
-        {
+        if (stack.getItem() instanceof ItemTool) {
             // get the attribute modifiers and stuff?
             IItemTool tool = (IItemTool) stack.getItem();
             return tool.getAttackDamage() > 4.0f;
@@ -134,17 +112,13 @@ public class DamageUtil
         return false;
     }
 
-    public static int findAntiWeakness()
-    {
+    public static int findAntiWeakness() {
         int slot = -1;
-        for (int i = 8; i > -1; i--)
-        {
+        for (int i = 8; i > -1; i--) {
             if (DamageUtil.canBreakWeakness(
-                    mc.player.inventory.getStackInSlot(i)))
-            {
+                    mc.player.inventory.getStackInSlot(i))) {
                 slot = i;
-                if (mc.player.inventory.currentItem == i)
-                {
+                if (mc.player.inventory.currentItem == i) {
                     break;
                 }
             }
@@ -159,8 +133,7 @@ public class DamageUtil
      * @param stack the stack.
      * @return durability of the stack.
      */
-    public static int getDamage(ItemStack stack)
-    {
+    public static int getDamage(ItemStack stack) {
         return stack.getMaxDamage() - stack.getItemDamage();
     }
 
@@ -171,72 +144,59 @@ public class DamageUtil
      * @param stack the stack.
      * @return durability% of the stack.
      */
-    public static float getPercent(ItemStack stack)
-    {
+    public static float getPercent(ItemStack stack) {
         return (getDamage(stack) / (float) stack.getMaxDamage()) * 100.0f;
     }
 
 
-    public static float calculate(Entity crystal)
-    {
+    public static float calculate(Entity crystal) {
         return calculate(crystal.posX, crystal.posY, crystal.posZ, mc.player);
     }
 
-    public static float calculate(Entity crystal, EntityLivingBase player, IBlockAccess world)
-    {
+    public static float calculate(Entity crystal, EntityLivingBase player, IBlockAccess world) {
         return calculate(crystal.posX, crystal.posY, crystal.posZ, player.getEntityBoundingBox(), player, world, false, false);
     }
 
-    public static float calculate(BlockPos pos)
-    {
+    public static float calculate(BlockPos pos) {
         return calculate(pos.getX() + 0.5f, pos.getY() + 1, pos.getZ() + 0.5f, mc.player);
     }
 
 
-    public static float calculate(BlockPos p, EntityLivingBase base)
-    {
+    public static float calculate(BlockPos p, EntityLivingBase base) {
         return calculate(p.getX() + 0.5f, p.getY() + 1, p.getZ() + 0.5f, base);
     }
 
 
-    public static float calculate(BlockPos p, EntityLivingBase base, IBlockAccess world)
-    {
+    public static float calculate(BlockPos p, EntityLivingBase base, IBlockAccess world) {
         return calculate(p.getX() + 0.5f, p.getY() + 1, p.getZ() + 0.5f, base.getEntityBoundingBox(), base, world, false);
     }
 
-    public static float calculate(Entity crystal, EntityLivingBase base)
-    {
+    public static float calculate(Entity crystal, EntityLivingBase base) {
         return calculate(crystal.posX, crystal.posY, crystal.posZ, base);
     }
 
-    public static float calculate(double x, double y, double z, EntityLivingBase base)
-    {
+    public static float calculate(double x, double y, double z, EntityLivingBase base) {
         return calculate(x, y, z, base.getEntityBoundingBox(), base);
     }
 
-    public static float calculate(double x, double y, double z, AxisAlignedBB bb, EntityLivingBase base)
-    {
+    public static float calculate(double x, double y, double z, AxisAlignedBB bb, EntityLivingBase base) {
         return calculate(x, y, z, bb, base, false);
     }
 
-    public static float calculate(double x, double y, double z, AxisAlignedBB bb, EntityLivingBase base, boolean terrainCalc)
-    {
+    public static float calculate(double x, double y, double z, AxisAlignedBB bb, EntityLivingBase base, boolean terrainCalc) {
         return calculate(x, y, z, bb, base, mc.world, terrainCalc);
     }
 
-    public static float calculate(double x, double y, double z, AxisAlignedBB bb, EntityLivingBase base, IBlockAccess world, boolean terrainCalc)
-    {
+    public static float calculate(double x, double y, double z, AxisAlignedBB bb, EntityLivingBase base, IBlockAccess world, boolean terrainCalc) {
         return calculate(x, y, z, bb, base, world, terrainCalc, false);
     }
 
-    public static float calculate(double x, double y, double z, AxisAlignedBB bb, EntityLivingBase base, IBlockAccess world, boolean terrainCalc, boolean anvils)
-    {
-       return calculate(x, y, z, bb, base, world, terrainCalc, anvils, 6.0f);
+    public static float calculate(double x, double y, double z, AxisAlignedBB bb, EntityLivingBase base, IBlockAccess world, boolean terrainCalc, boolean anvils) {
+        return calculate(x, y, z, bb, base, world, terrainCalc, anvils, 6.0f);
     }
 
 
-    public static float calculate(double x, double y, double z, AxisAlignedBB bb, EntityLivingBase base, IBlockAccess world, boolean terrainCalc, boolean anvils, float power)
-    {
+    public static float calculate(double x, double y, double z, AxisAlignedBB bb, EntityLivingBase base, IBlockAccess world, boolean terrainCalc, boolean anvils, float power) {
         /*
         double bX = bb.minX + (bb.maxX - bb.minX) * 0.5;
         double bZ = bb.minZ + (bb.maxZ - bb.minZ) * 0.5;
@@ -289,16 +249,16 @@ public class DamageUtil
         }
         double d6 = base.world.getBlockDensity(new Vec3d(x, y, z), base.getEntityBoundingBox());
         d5 = (1.0 - d5) * d6;
-        f = (int)((d5 * d5 + d5) / 2.0 * 7.0 * 12.0 + 1.0);
+        f = (int) ((d5 * d5 + d5) / 2.0 * 7.0 * 12.0 + 1.0);
         f = getDifDamage(f);
-        DamageSource dmsrc = DamageSource.causeExplosionDamage(new Explosion((World) mc.world, (Entity) mc.player, x, y, z, 6.0f, false, true));
-        f = CombatRules.getDamageAfterAbsorb((float)f, (float)base.getTotalArmorValue(), (float)((float)base.getEntityAttribute(SharedMonsterAttributes.ARMOR_TOUGHNESS).getAttributeValue()));
-        int n = EnchantmentHelper.getEnchantmentModifierDamage((Iterable)base.getArmorInventoryList(), (DamageSource)dmsrc);
+        DamageSource dmsrc = DamageSource.causeExplosionDamage(new Explosion(mc.world, mc.player, x, y, z, 6.0f, false, true));
+        f = CombatRules.getDamageAfterAbsorb(f, (float) base.getTotalArmorValue(), (float) base.getEntityAttribute(SharedMonsterAttributes.ARMOR_TOUGHNESS).getAttributeValue());
+        int n = EnchantmentHelper.getEnchantmentModifierDamage(base.getArmorInventoryList(), dmsrc);
         if (n > 0) {
-            f = CombatRules.getDamageAfterMagicAbsorb((float)f, (float)n);
+            f = CombatRules.getDamageAfterMagicAbsorb(f, (float) n);
         }
         if (base.getActivePotionEffect(MobEffects.RESISTANCE) != null) {
-            f = f * (float)(25 - (base.getActivePotionEffect(MobEffects.RESISTANCE).getAmplifier() + 1) * 5) / 25.0f;
+            f = f * (float) (25 - (base.getActivePotionEffect(MobEffects.RESISTANCE).getAmplifier() + 1) * 5) / 25.0f;
         }
         f = Math.max(f, 0.0f);
         return f;
@@ -342,25 +302,20 @@ public class DamageUtil
     */
 
 
-    public static float getBlockDensity(Vec3d vec, AxisAlignedBB bb, IBlockAccess world, boolean ignoreWebs, boolean ignoreBeds, boolean terrainCalc, boolean anvils)
-    {
+    public static float getBlockDensity(Vec3d vec, AxisAlignedBB bb, IBlockAccess world, boolean ignoreWebs, boolean ignoreBeds, boolean terrainCalc, boolean anvils) {
         double x = 1.0 / ((bb.maxX - bb.minX) * 2.0 + 1.0);
         double y = 1.0 / ((bb.maxY - bb.minY) * 2.0 + 1.0);
         double z = 1.0 / ((bb.maxZ - bb.minZ) * 2.0 + 1.0);
         double xFloor = (1.0 - Math.floor(1.0 / x) * x) / 2.0;
         double zFloor = (1.0 - Math.floor(1.0 / z) * z) / 2.0;
 
-        if (x >= 0.0D && y >= 0.0D && z >= 0.0D)
-        {
+        if (x >= 0.0D && y >= 0.0D && z >= 0.0D) {
             int air = 0;
             int traced = 0;
 
-            for (float a = 0.0F; a <= 1.0F; a = (float) (a + x))
-            {
-                for (float b = 0.0F; b <= 1.0F; b = (float) (b + y))
-                {
-                    for (float c = 0.0F; c <= 1.0F; c = (float) (c + z))
-                    {
+            for (float a = 0.0F; a <= 1.0F; a = (float) (a + x)) {
+                for (float b = 0.0F; b <= 1.0F; b = (float) (b + y)) {
+                    for (float c = 0.0F; c <= 1.0F; c = (float) (c + z)) {
                         double xOff = bb.minX + (bb.maxX - bb.minX) * a;
                         double yOff = bb.minY + (bb.maxY - bb.minY) * b;
                         double zOff = bb.minZ + (bb.maxZ - bb.minZ) * c;
@@ -377,8 +332,7 @@ public class DamageUtil
                                 terrainCalc,
                                 anvils);
 
-                        if (result == null)
-                        {
+                        if (result == null) {
                             air++;
                         }
 
@@ -388,9 +342,7 @@ public class DamageUtil
             }
 
             return (float) air / (float) traced;
-        }
-        else
-        {
+        } else {
             return 0.0F;
         }
     }
@@ -399,13 +351,13 @@ public class DamageUtil
      * Calls {@link RayTracer#
      * trace(World, IBlockAccess, Vec3d, Vec3d, boolean, boolean, boolean)}
      *
-     * @param start same as the original param.
-     * @param end same as the original param.
-     * @param stopOnLiquid same as the original param.
-     * @param ignoreNoBox same as the original param.
+     * @param start                 same as the original param.
+     * @param end                   same as the original param.
+     * @param stopOnLiquid          same as the original param.
+     * @param ignoreNoBox           same as the original param.
      * @param lastUncollidableBlock same as the original param.
-     * @param ignoreWebs handles webs like air.
-     * @param ignoreBeds handles beds like air.
+     * @param ignoreWebs            handles webs like air.
+     * @param ignoreBeds            handles beds like air.
      * @return a RayTraceResult...
      */
     @SuppressWarnings("deprecation")
@@ -418,8 +370,7 @@ public class DamageUtil
                                                 boolean ignoreWebs,
                                                 boolean ignoreBeds,
                                                 boolean terrainCalc,
-                                                boolean anvils)
-    {
+                                                boolean anvils) {
         return RayTracer.trace(mc.world,
                 world,
                 start,

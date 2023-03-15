@@ -30,6 +30,97 @@ public class RotationHelper {
     private static final BlockLog.EnumAxis[][] AXISES_LOG = new BlockLog.EnumAxis[EnumFacing.Axis.values().length][];
     private static final BlockQuartz.EnumType[][] AXISES_QUARTZ = new BlockQuartz.EnumType[EnumFacing.Axis.values().length][];
 
+    static {
+        FACINGS[EnumFacing.DOWN.ordinal()] = new EnumFacing[]{
+                EnumFacing.DOWN, EnumFacing.UP, EnumFacing.WEST, EnumFacing.EAST, EnumFacing.SOUTH, EnumFacing.NORTH
+        };
+        FACINGS[EnumFacing.UP.ordinal()] = new EnumFacing[]{
+                EnumFacing.DOWN, EnumFacing.UP, EnumFacing.EAST, EnumFacing.WEST, EnumFacing.NORTH, EnumFacing.SOUTH
+        };
+        FACINGS[EnumFacing.NORTH.ordinal()] = new EnumFacing[]{
+                EnumFacing.EAST, EnumFacing.WEST, EnumFacing.NORTH, EnumFacing.SOUTH, EnumFacing.DOWN, EnumFacing.UP
+        };
+        FACINGS[EnumFacing.SOUTH.ordinal()] = new EnumFacing[]{
+                EnumFacing.WEST, EnumFacing.EAST, EnumFacing.NORTH, EnumFacing.SOUTH, EnumFacing.UP, EnumFacing.DOWN
+        };
+        FACINGS[EnumFacing.WEST.ordinal()] = new EnumFacing[]{
+                EnumFacing.NORTH, EnumFacing.SOUTH, EnumFacing.UP, EnumFacing.DOWN, EnumFacing.WEST, EnumFacing.EAST
+        };
+        FACINGS[EnumFacing.EAST.ordinal()] = new EnumFacing[]{
+                EnumFacing.SOUTH, EnumFacing.NORTH, EnumFacing.DOWN, EnumFacing.UP, EnumFacing.WEST, EnumFacing.EAST
+        };
+
+        AXISES[EnumFacing.Axis.X.ordinal()] = new EnumFacing.Axis[]{
+                EnumFacing.Axis.X, EnumFacing.Axis.Z, EnumFacing.Axis.Y
+        };
+        AXISES[EnumFacing.Axis.Y.ordinal()] = new EnumFacing.Axis[]{
+                EnumFacing.Axis.Z, EnumFacing.Axis.Y, EnumFacing.Axis.X
+        };
+        AXISES[EnumFacing.Axis.Z.ordinal()] = new EnumFacing.Axis[]{
+                EnumFacing.Axis.Y, EnumFacing.Axis.X, EnumFacing.Axis.Z
+        };
+
+        AXISES_LOG[EnumFacing.Axis.X.ordinal()] = new BlockLog.EnumAxis[]{
+                BlockLog.EnumAxis.X, BlockLog.EnumAxis.Z, BlockLog.EnumAxis.Y, BlockLog.EnumAxis.NONE
+        };
+        AXISES_LOG[EnumFacing.Axis.Y.ordinal()] = new BlockLog.EnumAxis[]{
+                BlockLog.EnumAxis.Z, BlockLog.EnumAxis.Y, BlockLog.EnumAxis.X, BlockLog.EnumAxis.NONE
+        };
+        AXISES_LOG[EnumFacing.Axis.Z.ordinal()] = new BlockLog.EnumAxis[]{
+                BlockLog.EnumAxis.Y, BlockLog.EnumAxis.X, BlockLog.EnumAxis.Z, BlockLog.EnumAxis.NONE
+        };
+
+        AXISES_QUARTZ[EnumFacing.Axis.X.ordinal()] = new BlockQuartz.EnumType[]{
+                BlockQuartz.EnumType.DEFAULT,
+                BlockQuartz.EnumType.CHISELED,
+                BlockQuartz.EnumType.LINES_Z,
+                BlockQuartz.EnumType.LINES_X,
+                BlockQuartz.EnumType.LINES_Y
+        };
+        AXISES_QUARTZ[EnumFacing.Axis.Y.ordinal()] = new BlockQuartz.EnumType[]{
+                BlockQuartz.EnumType.DEFAULT,
+                BlockQuartz.EnumType.CHISELED,
+                BlockQuartz.EnumType.LINES_Y,
+                BlockQuartz.EnumType.LINES_Z,
+                BlockQuartz.EnumType.LINES_X
+        };
+        AXISES_QUARTZ[EnumFacing.Axis.Z.ordinal()] = new BlockQuartz.EnumType[]{
+                BlockQuartz.EnumType.DEFAULT,
+                BlockQuartz.EnumType.CHISELED,
+                BlockQuartz.EnumType.LINES_X,
+                BlockQuartz.EnumType.LINES_Y,
+                BlockQuartz.EnumType.LINES_Z
+        };
+    }
+
+    private static EnumFacing getRotatedFacing(final EnumFacing source, final EnumFacing side) {
+        return FACINGS[source.ordinal()][side.ordinal()];
+    }
+
+    private static EnumFacing.Axis getRotatedAxis(final EnumFacing source, final EnumFacing.Axis axis) {
+        return AXISES[source.getAxis().ordinal()][axis.ordinal()];
+    }
+
+    private static BlockLog.EnumAxis getRotatedLogAxis(final EnumFacing source, final BlockLog.EnumAxis axis) {
+        return AXISES_LOG[source.getAxis().ordinal()][axis.ordinal()];
+    }
+
+    private static BlockQuartz.EnumType getRotatedQuartzType(final EnumFacing source, final BlockQuartz.EnumType type) {
+        return AXISES_QUARTZ[source.getAxis().ordinal()][type.ordinal()];
+    }
+
+    private static BlockLever.EnumOrientation getRotatedLeverFacing(final EnumFacing source, final BlockLever.EnumOrientation side) {
+        final EnumFacing facing;
+        if (source.getAxis().isVertical() && side.getFacing().getAxis().isVertical()) {
+            facing = side == BlockLever.EnumOrientation.UP_X || side == BlockLever.EnumOrientation.DOWN_X ? EnumFacing.NORTH : EnumFacing.WEST;
+        } else {
+            facing = side.getFacing();
+        }
+
+        final EnumFacing facingRotated = getRotatedFacing(source, side.getFacing());
+        return BlockLever.EnumOrientation.forFacings(facingRotated, facing);
+    }
+
     public boolean rotate(final SchematicWorld world, final EnumFacing axis, final boolean forced) {
         if (world == null) {
             return false;
@@ -59,29 +150,29 @@ public class RotationHelper {
 
     private void updatePosition(final SchematicWorld world, final EnumFacing axis) {
         switch (axis) {
-        case DOWN:
-        case UP: {
-            final int offset = (world.getWidth() - world.getLength()) / 2;
-            world.position.x += offset;
-            world.position.z -= offset;
-            break;
-        }
+            case DOWN:
+            case UP: {
+                final int offset = (world.getWidth() - world.getLength()) / 2;
+                world.position.x += offset;
+                world.position.z -= offset;
+                break;
+            }
 
-        case NORTH:
-        case SOUTH: {
-            final int offset = (world.getWidth() - world.getHeight()) / 2;
-            world.position.x += offset;
-            world.position.y -= offset;
-            break;
-        }
+            case NORTH:
+            case SOUTH: {
+                final int offset = (world.getWidth() - world.getHeight()) / 2;
+                world.position.x += offset;
+                world.position.y -= offset;
+                break;
+            }
 
-        case WEST:
-        case EAST: {
-            final int offset = (world.getHeight() - world.getLength()) / 2;
-            world.position.y += offset;
-            world.position.z -= offset;
-            break;
-        }
+            case WEST:
+            case EAST: {
+                final int offset = (world.getHeight() - world.getLength()) / 2;
+                world.position.y += offset;
+                world.position.z -= offset;
+                break;
+            }
         }
     }
 
@@ -108,17 +199,17 @@ public class RotationHelper {
 
     private Vec3i rotateDimensions(final EnumFacing axis, final int width, final int height, final int length) throws RotationException {
         switch (axis) {
-        case DOWN:
-        case UP:
-            return new Vec3i(length, height, width);
+            case DOWN:
+            case UP:
+                return new Vec3i(length, height, width);
 
-        case NORTH:
-        case SOUTH:
-            return new Vec3i(height, width, length);
+            case NORTH:
+            case SOUTH:
+                return new Vec3i(height, width, length);
 
-        case WEST:
-        case EAST:
-            return new Vec3i(width, length, height);
+            case WEST:
+            case EAST:
+                return new Vec3i(width, length, height);
         }
 
         throw new RotationException("'%s' is not a valid axis!", axis.getName());
@@ -126,29 +217,29 @@ public class RotationHelper {
 
     private BlockPos rotatePos(final BlockPos pos, final EnumFacing axis, final Vec3i dimensions, final MBlockPos rotated) throws RotationException {
         switch (axis) {
-        case DOWN:
-            return rotated.set(pos.getZ(), pos.getY(), dimensions.getZ() - 1 - pos.getX());
+            case DOWN:
+                return rotated.set(pos.getZ(), pos.getY(), dimensions.getZ() - 1 - pos.getX());
 
-        case UP:
-            return rotated.set(dimensions.getX() - 1 - pos.getZ(), pos.getY(), pos.getX());
+            case UP:
+                return rotated.set(dimensions.getX() - 1 - pos.getZ(), pos.getY(), pos.getX());
 
-        case NORTH:
-            return rotated.set(dimensions.getX() - 1 - pos.getY(), pos.getX(), pos.getZ());
+            case NORTH:
+                return rotated.set(dimensions.getX() - 1 - pos.getY(), pos.getX(), pos.getZ());
 
-        case SOUTH:
-            return rotated.set(pos.getY(), dimensions.getY() - 1 - pos.getX(), pos.getZ());
+            case SOUTH:
+                return rotated.set(pos.getY(), dimensions.getY() - 1 - pos.getX(), pos.getZ());
 
-        case WEST:
-            return rotated.set(pos.getX(), dimensions.getY() - 1 - pos.getZ(), pos.getY());
+            case WEST:
+                return rotated.set(pos.getX(), dimensions.getY() - 1 - pos.getZ(), pos.getY());
 
-        case EAST:
-            return rotated.set(pos.getX(), pos.getZ(), dimensions.getZ() - 1 - pos.getY());
+            case EAST:
+                return rotated.set(pos.getX(), pos.getZ(), dimensions.getZ() - 1 - pos.getY());
         }
 
         throw new RotationException("'%s' is not a valid axis!", axis.getName());
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressWarnings({"rawtypes", "unchecked"})
     private IBlockState rotateBlock(final IBlockState blockState, final EnumFacing axisRotation, final boolean forced) throws RotationException {
         final IProperty propertyFacing = BlockStateHelper.getProperty(blockState, "facing");
         if (propertyFacing instanceof PropertyDirection) {
@@ -202,97 +293,6 @@ public class RotationHelper {
         }
 
         return blockState;
-    }
-
-    private static EnumFacing getRotatedFacing(final EnumFacing source, final EnumFacing side) {
-        return FACINGS[source.ordinal()][side.ordinal()];
-    }
-
-    private static EnumFacing.Axis getRotatedAxis(final EnumFacing source, final EnumFacing.Axis axis) {
-        return AXISES[source.getAxis().ordinal()][axis.ordinal()];
-    }
-
-    private static BlockLog.EnumAxis getRotatedLogAxis(final EnumFacing source, final BlockLog.EnumAxis axis) {
-        return AXISES_LOG[source.getAxis().ordinal()][axis.ordinal()];
-    }
-
-    private static BlockQuartz.EnumType getRotatedQuartzType(final EnumFacing source, final BlockQuartz.EnumType type) {
-        return AXISES_QUARTZ[source.getAxis().ordinal()][type.ordinal()];
-    }
-
-    private static BlockLever.EnumOrientation getRotatedLeverFacing(final EnumFacing source, final BlockLever.EnumOrientation side) {
-        final EnumFacing facing;
-        if (source.getAxis().isVertical() && side.getFacing().getAxis().isVertical()) {
-            facing = side == BlockLever.EnumOrientation.UP_X || side == BlockLever.EnumOrientation.DOWN_X ? EnumFacing.NORTH : EnumFacing.WEST;
-        } else {
-            facing = side.getFacing();
-        }
-
-        final EnumFacing facingRotated = getRotatedFacing(source, side.getFacing());
-        return BlockLever.EnumOrientation.forFacings(facingRotated, facing);
-    }
-
-    static {
-        FACINGS[EnumFacing.DOWN.ordinal()] = new EnumFacing[] {
-                EnumFacing.DOWN, EnumFacing.UP, EnumFacing.WEST, EnumFacing.EAST, EnumFacing.SOUTH, EnumFacing.NORTH
-        };
-        FACINGS[EnumFacing.UP.ordinal()] = new EnumFacing[] {
-                EnumFacing.DOWN, EnumFacing.UP, EnumFacing.EAST, EnumFacing.WEST, EnumFacing.NORTH, EnumFacing.SOUTH
-        };
-        FACINGS[EnumFacing.NORTH.ordinal()] = new EnumFacing[] {
-                EnumFacing.EAST, EnumFacing.WEST, EnumFacing.NORTH, EnumFacing.SOUTH, EnumFacing.DOWN, EnumFacing.UP
-        };
-        FACINGS[EnumFacing.SOUTH.ordinal()] = new EnumFacing[] {
-                EnumFacing.WEST, EnumFacing.EAST, EnumFacing.NORTH, EnumFacing.SOUTH, EnumFacing.UP, EnumFacing.DOWN
-        };
-        FACINGS[EnumFacing.WEST.ordinal()] = new EnumFacing[] {
-                EnumFacing.NORTH, EnumFacing.SOUTH, EnumFacing.UP, EnumFacing.DOWN, EnumFacing.WEST, EnumFacing.EAST
-        };
-        FACINGS[EnumFacing.EAST.ordinal()] = new EnumFacing[] {
-                EnumFacing.SOUTH, EnumFacing.NORTH, EnumFacing.DOWN, EnumFacing.UP, EnumFacing.WEST, EnumFacing.EAST
-        };
-
-        AXISES[EnumFacing.Axis.X.ordinal()] = new EnumFacing.Axis[] {
-                EnumFacing.Axis.X, EnumFacing.Axis.Z, EnumFacing.Axis.Y
-        };
-        AXISES[EnumFacing.Axis.Y.ordinal()] = new EnumFacing.Axis[] {
-                EnumFacing.Axis.Z, EnumFacing.Axis.Y, EnumFacing.Axis.X
-        };
-        AXISES[EnumFacing.Axis.Z.ordinal()] = new EnumFacing.Axis[] {
-                EnumFacing.Axis.Y, EnumFacing.Axis.X, EnumFacing.Axis.Z
-        };
-
-        AXISES_LOG[EnumFacing.Axis.X.ordinal()] = new BlockLog.EnumAxis[] {
-                BlockLog.EnumAxis.X, BlockLog.EnumAxis.Z, BlockLog.EnumAxis.Y, BlockLog.EnumAxis.NONE
-        };
-        AXISES_LOG[EnumFacing.Axis.Y.ordinal()] = new BlockLog.EnumAxis[] {
-                BlockLog.EnumAxis.Z, BlockLog.EnumAxis.Y, BlockLog.EnumAxis.X, BlockLog.EnumAxis.NONE
-        };
-        AXISES_LOG[EnumFacing.Axis.Z.ordinal()] = new BlockLog.EnumAxis[] {
-                BlockLog.EnumAxis.Y, BlockLog.EnumAxis.X, BlockLog.EnumAxis.Z, BlockLog.EnumAxis.NONE
-        };
-
-        AXISES_QUARTZ[EnumFacing.Axis.X.ordinal()] = new BlockQuartz.EnumType[] {
-                BlockQuartz.EnumType.DEFAULT,
-                BlockQuartz.EnumType.CHISELED,
-                BlockQuartz.EnumType.LINES_Z,
-                BlockQuartz.EnumType.LINES_X,
-                BlockQuartz.EnumType.LINES_Y
-        };
-        AXISES_QUARTZ[EnumFacing.Axis.Y.ordinal()] = new BlockQuartz.EnumType[] {
-                BlockQuartz.EnumType.DEFAULT,
-                BlockQuartz.EnumType.CHISELED,
-                BlockQuartz.EnumType.LINES_Y,
-                BlockQuartz.EnumType.LINES_Z,
-                BlockQuartz.EnumType.LINES_X
-        };
-        AXISES_QUARTZ[EnumFacing.Axis.Z.ordinal()] = new BlockQuartz.EnumType[] {
-                BlockQuartz.EnumType.DEFAULT,
-                BlockQuartz.EnumType.CHISELED,
-                BlockQuartz.EnumType.LINES_X,
-                BlockQuartz.EnumType.LINES_Y,
-                BlockQuartz.EnumType.LINES_Z
-        };
     }
 
     public static class RotationException extends Exception {

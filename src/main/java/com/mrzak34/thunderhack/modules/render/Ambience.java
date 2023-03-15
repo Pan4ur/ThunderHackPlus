@@ -5,10 +5,10 @@ import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.setting.Setting;
 
 public class Ambience extends Module {
+    public final Setting<ColorSetting> colorLight = this.register(new Setting<>("Color Light", new ColorSetting(0x8800FF00)));
+
     public Ambience() {
         super("Ambience", "изменяет цвет-окружения", Category.RENDER);
     }
-
-    public final Setting<ColorSetting> colorLight = this.register(new Setting<>("Color Light", new ColorSetting(0x8800FF00)));
 
 }

@@ -6,8 +6,8 @@ import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.events.Render3DEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
-import com.mrzak34.thunderhack.util.render.PaletteHelper;
 import com.mrzak34.thunderhack.util.EntityUtil;
+import com.mrzak34.thunderhack.util.render.PaletteHelper;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -23,42 +23,45 @@ import org.lwjgl.opengl.GL11;
 import java.util.Objects;
 
 public class TargetStrafe extends Module {
-    public TargetStrafe() { super("TargetStrafe", "Вращаться вокруг цели", Category.COMBAT); }
-
-
-    private float wrap = 0F;
-    private boolean switchDir = true;
     public Setting<Float> reversedDistance = this.register(new Setting<>("Reversed Distance", 3.0f, 1.0f, 6.0f));
     public Setting<Float> speedIfUsing = this.register(new Setting<>("Speed if using", 0.1f, 0.1f, 2.0f));
     public Setting<Float> range = this.register(new Setting<>("Strafe Distance", 2.4f, 0.1f, 6.0f));
     public Setting<Float> spd = this.register(new Setting<>("Strafe Speed", 0.23f, 0.1f, 2.0f));
-    public Setting <Boolean> reversed = this.register ( new Setting <> ( "Reversed", false));
-    public Setting <Boolean> autoJump  = this.register ( new Setting <> ( "AutoJump", true));
-    public Setting <Boolean> smartStrafe = this.register ( new Setting <> ( "Smart Strafe", true));
-    public Setting <Boolean> usingItemCheck = this.register ( new Setting <> ( "EatingSlowDown", false));
-    public Setting <Boolean> speedpot = this.register ( new Setting <> ( "Speed if Potion ", true));
-    public Setting<Float> spdd = this.register(new Setting<>("PotionSpeed", 0.45f, 0.1f, 2.0f,v -> speedpot.getValue()));
+    public Setting<Boolean> reversed = this.register(new Setting<>("Reversed", false));
+    public Setting<Boolean> autoJump = this.register(new Setting<>("AutoJump", true));
+    public Setting<Boolean> smartStrafe = this.register(new Setting<>("Smart Strafe", true));
+    public Setting<Boolean> usingItemCheck = this.register(new Setting<>("EatingSlowDown", false));
+    public Setting<Boolean> speedpot = this.register(new Setting<>("Speed if Potion ", true));
+    public Setting<Float> spdd = this.register(new Setting<>("PotionSpeed", 0.45f, 0.1f, 2.0f, v -> speedpot.getValue()));
     public Setting<Boolean> SwitchIfMiss = register(new Setting("SwitchIfMiss", true));
     public Setting<Boolean> autoThirdPerson = register(new Setting("AutoThirdPers", Boolean.TRUE));
     public Setting<Float> trgrange = register(new Setting("TrgtRange", 3.8F, 0.1F, 7.0F));
-    public Setting <Boolean> drawradius = this.register ( new Setting <> ( "drawradius", true));
-    public Setting <Boolean> strafeBoost = this.register ( new Setting <> ( "StrafeBoost", false));
-    public Setting <Boolean> addddd = this.register ( new Setting <> ( "add", false));
-    public Setting<Float> reduction  = this.register(new Setting<>("reduction ", 2f, 1f, 5f));
-    public Setting<Float> velocityUse  = this.register(new Setting<>("velocityUse ", 50000f, 0.1f, 100000f));
-    EntityPlayer strafeTarget = null;
+    public Setting<Boolean> drawradius = this.register(new Setting<>("drawradius", true));
+    public Setting<Boolean> strafeBoost = this.register(new Setting<>("StrafeBoost", false));
+    public Setting<Boolean> addddd = this.register(new Setting<>("add", false));
+    public Setting<Float> reduction = this.register(new Setting<>("reduction ", 2f, 1f, 5f));
+    public Setting<Float> velocityUse = this.register(new Setting<>("velocityUse ", 50000f, 0.1f, 100000f));
     public Setting<Integer> bticks = register(new Setting("BoostTicks", 5, 0, 60));
     public Setting<Integer> velocitydecrement = register(new Setting("BoostDecr", 5, 0, 5000));
-
+    EntityPlayer strafeTarget = null;
     int boostticks = 0;
+    float speedy = 1f;
+    int velocity = 0;
+    private float wrap = 0F;
+    private boolean switchDir = true;
+
+    public TargetStrafe() {
+        super("TargetStrafe", "Вращаться вокруг цели", Category.COMBAT);
+    }
 
     @Override
     public void onEnable() {
         this.wrap = 0F;
         this.switchDir = true;
     }
+
     @Override
-    public void onDisable(){
+    public void onDisable() {
         if (autoThirdPerson.getValue()) {
             mc.gameSettings.thirdPersonView = 0;
         }
@@ -92,8 +95,8 @@ public class TargetStrafe extends Module {
 
     @Override
     public void onUpdate() {
-        if(Aura.target != null){
-            if(!(Aura.target instanceof EntityPlayer)){
+        if (Aura.target != null) {
+            if (!(Aura.target instanceof EntityPlayer)) {
                 return;
             }
 
@@ -104,18 +107,16 @@ public class TargetStrafe extends Module {
         }
     }
 
-    public void onToggle ( ) {
+    public void onToggle() {
         Thunderhack.TICK_TIMER = 1.0f;
         velocity = 0;
     }
 
-
-    float speedy = 1f;
     @SubscribeEvent
     public void onUpdateWalkingPlayerPre(EventPreMotion event) {
         if (strafeTarget == null)
             return;
-        if(mc.player.getDistanceSq(strafeTarget) < 0.2){
+        if (mc.player.getDistanceSq(strafeTarget) < 0.2) {
             return;
         }
 
@@ -131,7 +132,7 @@ public class TargetStrafe extends Module {
 
         if (mc.player.getDistance(strafeTarget) <= trgrange.getValue()) {
             if (EntityUtil.getHealth(strafeTarget) > 0) {
-                if (autoJump.getValue() && ( Thunderhack.moduleManager.getModuleByClass(Aura.class).isEnabled())) {
+                if (autoJump.getValue() && (Thunderhack.moduleManager.getModuleByClass(Aura.class).isEnabled())) {
                     if (mc.player.onGround) {
                         mc.player.jump();
                     }
@@ -143,24 +144,23 @@ public class TargetStrafe extends Module {
                     return;
 
 
-
-                if(speedpot.getValue()){
+                if (speedpot.getValue()) {
                     if (TargetStrafe.mc.player.isPotionActive(Objects.requireNonNull(Potion.getPotionFromResourceLocation("speed")))) {
                         speedy = spdd.getValue();
-                    }else {
+                    } else {
                         speedy = spd.getValue();
                     }
-                }else {
+                } else {
                     speedy = spd.getValue();
                 }
 
                 float speed = (mc.gameSettings.keyBindUseItem.isKeyDown()) && usingItemCheck.getValue() ? speedIfUsing.getValue() : speedy;
 
                 if (velocity > velocityUse.getValue() && strafeBoost.getValue()) {
-                    if(velocity < 0){
+                    if (velocity < 0) {
                         velocity = 0;
                     }
-                    if(addddd.getValue()){
+                    if (addddd.getValue()) {
                         speed += (velocity / 8000f) / reduction.getValue();
                     } else {
                         speed = (velocity / 8000f) / reduction.getValue();
@@ -169,7 +169,7 @@ public class TargetStrafe extends Module {
                     velocity = velocity - velocitydecrement.getValue();
                 }
 
-                if(boostticks >= bticks.getValue()){
+                if (boostticks >= bticks.getValue()) {
                     boostticks = 0;
                     velocity = 0;
                 }
@@ -184,7 +184,7 @@ public class TargetStrafe extends Module {
                     x = target.posX + range.getValue() * Math.cos(this.wrap);
                     z = target.posZ + range.getValue() * Math.sin(this.wrap);
                 }
-                float searchValue =  reversed.getValue() && mc.player.getDistance(strafeTarget) < reversedDistance.getValue() ? -90 : 0;
+                float searchValue = reversed.getValue() && mc.player.getDistance(strafeTarget) < reversedDistance.getValue() ? -90 : 0;
                 float reversedValue = (!mc.gameSettings.keyBindLeft.isKeyDown() && !mc.gameSettings.keyBindRight.isKeyDown() ? searchValue : 0);
 
                 mc.player.motionX = speed * -Math.sin((float) Math.toRadians(toDegree(x + reversedValue, z + reversedValue)));
@@ -196,12 +196,8 @@ public class TargetStrafe extends Module {
 
     }
 
-
-
-
-
     @SubscribeEvent
-    public void onRender3D(Render3DEvent e){
+    public void onRender3D(Render3DEvent e) {
         if (Aura.target != null && drawradius.getValue()) {
             EntityLivingBase entity = Aura.target;
             double calcX = entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * mc.getRenderPartialTicks()
@@ -239,12 +235,12 @@ public class TargetStrafe extends Module {
     }
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
-    public void onPacketReceive(PacketEvent.Receive e){
-        if(fullNullCheck()){
+    public void onPacketReceive(PacketEvent.Receive e) {
+        if (fullNullCheck()) {
             return;
         }
         if (e.getPacket() instanceof SPacketEntityVelocity) {
-            if(((SPacketEntityVelocity) e.getPacket()).getEntityID() == mc.player.getEntityId()) {
+            if (((SPacketEntityVelocity) e.getPacket()).getEntityID() == mc.player.getEntityId()) {
                 SPacketEntityVelocity pack = e.getPacket();
                 int vX = pack.getMotionX();
                 int vZ = pack.getMotionZ();
@@ -253,23 +249,21 @@ public class TargetStrafe extends Module {
                 velocity = vX + vZ;
             }
         }
-        if(!SwitchIfMiss.getValue()){
+        if (!SwitchIfMiss.getValue()) {
             return;
         }
-        if(e.getPacket() instanceof SPacketSoundEffect){
+        if (e.getPacket() instanceof SPacketSoundEffect) {
             SPacketSoundEffect pac = e.getPacket();
-            if(pac.posX < mc.player.posX + 1 && pac.posX > mc.player.posX - 1){
-                if(pac.posY < mc.player.posY + 4 && pac.posY > mc.player.posY - 4){
-                    if(pac.posZ < mc.player.posZ + 1 && pac.posZ > mc.player.posZ - 1){
-                        if(pac.sound.getSoundName().toString().contains("nodamage"))
+            if (pac.posX < mc.player.posX + 1 && pac.posX > mc.player.posX - 1) {
+                if (pac.posY < mc.player.posY + 4 && pac.posY > mc.player.posY - 4) {
+                    if (pac.posZ < mc.player.posZ + 1 && pac.posZ > mc.player.posZ - 1) {
+                        if (pac.sound.getSoundName().toString().contains("nodamage"))
                             this.switchDir = !this.switchDir;
                     }
                 }
             }
         }
     }
-
-    int velocity = 0;
 
 
 }

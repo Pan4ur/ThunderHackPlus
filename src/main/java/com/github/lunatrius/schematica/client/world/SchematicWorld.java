@@ -19,11 +19,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.EnumDifficulty;
-import net.minecraft.world.EnumSkyBlock;
-import net.minecraft.world.GameType;
-import net.minecraft.world.WorldSettings;
-import net.minecraft.world.WorldType;
+import net.minecraft.world.*;
 import net.minecraft.world.biome.Biome;
 import net.minecraft.world.chunk.IChunkProvider;
 import net.minecraftforge.fml.relauncher.Side;
@@ -34,47 +30,11 @@ import java.util.Map;
 
 public class SchematicWorld extends WorldClient {
     private static final WorldSettings WORLD_SETTINGS = new WorldSettings(0, GameType.CREATIVE, false, false, WorldType.FLAT);
-
-    public static enum LayerMode {
-        ALL(Names.Gui.Control.MODE_ALL) {
-            @Override
-            public boolean shouldUseLayer(final SchematicWorld world, final int layer) {
-                return true;
-            }
-        },
-        SINGLE_LAYER(Names.Gui.Control.MODE_LAYERS) {
-            @Override
-            public boolean shouldUseLayer(final SchematicWorld world, final int layer) {
-                return layer == world.renderingLayer;
-            }
-        },
-        ALL_BELOW(Names.Gui.Control.MODE_BELOW) {
-            @Override
-            public boolean shouldUseLayer(final SchematicWorld world, final int layer) {
-                return layer <= world.renderingLayer;
-            }
-        };
-        public abstract boolean shouldUseLayer(SchematicWorld world, int layer);
-
-        private LayerMode(String name) {
-            this.name = name;
-        }
-
-        public final String name;
-
-        public static LayerMode next(final LayerMode mode) {
-            LayerMode[] values = values();
-            return values[(mode.ordinal() + 1) % values.length];
-        }
-    }
-
-    private ISchematic schematic;
-
     public final MBlockPos position = new MBlockPos();
     public boolean isRendering = false;
     public LayerMode layerMode = LayerMode.ALL;
     public int renderingLayer = 0;
-
+    private ISchematic schematic;
     public SchematicWorld(final ISchematic schematic) {
         super(null, WORLD_SETTINGS, 0, EnumDifficulty.PEACEFUL, Minecraft.getMinecraft().profiler);
         this.schematic = schematic;
@@ -135,13 +95,16 @@ public class SchematicWorld extends WorldClient {
     }
 
     @Override
-    public void calculateInitialSkylight() {}
+    public void calculateInitialSkylight() {
+    }
 
     @Override
-    protected void calculateInitialWeather() {}
+    protected void calculateInitialWeather() {
+    }
 
     @Override
-    public void setSpawnPoint(final BlockPos pos) {}
+    public void setSpawnPoint(final BlockPos pos) {
+    }
 
     @Override
     public boolean isAirBlock(final BlockPos pos) {
@@ -188,12 +151,12 @@ public class SchematicWorld extends WorldClient {
         return getBlockState(pos).isSideSolid(this, pos, side);
     }
 
-    public void setSchematic(final ISchematic schematic) {
-        this.schematic = schematic;
-    }
-
     public ISchematic getSchematic() {
         return this.schematic;
+    }
+
+    public void setSchematic(final ISchematic schematic) {
+        this.schematic = schematic;
     }
 
     public void initializeTileEntity(final TileEntity tileEntity) {
@@ -207,12 +170,12 @@ public class SchematicWorld extends WorldClient {
         }
     }
 
-    public void setIcon(final ItemStack icon) {
-        this.schematic.setIcon(icon);
-    }
-
     public ItemStack getIcon() {
         return this.schematic.getIcon();
+    }
+
+    public void setIcon(final ItemStack icon) {
+        this.schematic.setIcon(icon);
     }
 
     public List<TileEntity> getTileEntities() {
@@ -228,7 +191,7 @@ public class SchematicWorld extends WorldClient {
         return "WHL: " + getWidth() + " / " + getHeight() + " / " + getLength();
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressWarnings({"rawtypes", "unchecked"})
     public int replaceBlock(final BlockStateMatcher matcher, final BlockStateReplacer replacer, final Map<IProperty, Comparable> properties) {
         int count = 0;
 
@@ -264,5 +227,39 @@ public class SchematicWorld extends WorldClient {
         final int z = pos.getZ();
 
         return !(x < 0 || y < 0 || z < 0 || x >= getWidth() || y >= getHeight() || z >= getLength());
+    }
+
+    public enum LayerMode {
+        ALL(Names.Gui.Control.MODE_ALL) {
+            @Override
+            public boolean shouldUseLayer(final SchematicWorld world, final int layer) {
+                return true;
+            }
+        },
+        SINGLE_LAYER(Names.Gui.Control.MODE_LAYERS) {
+            @Override
+            public boolean shouldUseLayer(final SchematicWorld world, final int layer) {
+                return layer == world.renderingLayer;
+            }
+        },
+        ALL_BELOW(Names.Gui.Control.MODE_BELOW) {
+            @Override
+            public boolean shouldUseLayer(final SchematicWorld world, final int layer) {
+                return layer <= world.renderingLayer;
+            }
+        };
+
+        public final String name;
+
+        LayerMode(String name) {
+            this.name = name;
+        }
+
+        public static LayerMode next(final LayerMode mode) {
+            LayerMode[] values = values();
+            return values[(mode.ordinal() + 1) % values.length];
+        }
+
+        public abstract boolean shouldUseLayer(SchematicWorld world, int layer);
     }
 }

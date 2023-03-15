@@ -1,36 +1,36 @@
 package com.mrzak34.thunderhack.mixin.mixins;
 
+import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.events.RenderAttackIndicatorEvent;
 import com.mrzak34.thunderhack.gui.hud.Potions;
 import com.mrzak34.thunderhack.modules.funnygame.AntiTittle;
+import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiIngame;
+import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.scoreboard.ScoreObjective;
 import net.minecraftforge.common.MinecraftForge;
-import org.spongepowered.asm.mixin.*;
-import org.spongepowered.asm.mixin.injection.callback.*;
-import org.spongepowered.asm.mixin.injection.*;
-import net.minecraft.client.gui.*;
-import com.mrzak34.thunderhack.*;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-@Mixin({ GuiIngame.class })
-public class MixinGuiIngame extends Gui
-{
+@Mixin({GuiIngame.class})
+public class MixinGuiIngame extends Gui {
 
-    @Inject(method = { "renderPotionEffects" },  at = { @At("HEAD") },  cancellable = true)
-    protected void renderPotionEffectsHook(final ScaledResolution scaledRes,  final CallbackInfo info) {
+    @Inject(method = {"renderPotionEffects"}, at = {@At("HEAD")}, cancellable = true)
+    protected void renderPotionEffectsHook(final ScaledResolution scaledRes, final CallbackInfo info) {
         if (Thunderhack.moduleManager.getModuleByClass(Potions.class).isOn()) {
             info.cancel();
         }
     }
 
 
-    @Inject(method = { "renderScoreboard" },  at = { @At("HEAD") },  cancellable = true)
+    @Inject(method = {"renderScoreboard"}, at = {@At("HEAD")}, cancellable = true)
     protected void renderScoreboardHook(ScoreObjective objective, ScaledResolution scaledRes, CallbackInfo ci) {
         if (Thunderhack.moduleManager.getModuleByClass(AntiTittle.class).scoreBoard.getValue()) {
             ci.cancel();
         }
     }
-
-
 
 
     @Inject(method = "renderAttackIndicator", at = @At("HEAD"), cancellable = true)

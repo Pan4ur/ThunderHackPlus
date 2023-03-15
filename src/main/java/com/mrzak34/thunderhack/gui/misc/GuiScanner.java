@@ -14,24 +14,36 @@ import java.util.ArrayList;
 
 public class GuiScanner extends GuiScreen {
 
+    public static boolean neartrack = false;
+    public static boolean track = false;
+    public static boolean busy = false;
     private static GuiScanner INSTANCE;
-
-    public ArrayList<NoCom.cout> consoleout = new ArrayList<NoCom.cout>();
-
-
 
     static {
         INSTANCE = new GuiScanner();
     }
 
+    public ArrayList<NoCom.cout> consoleout = new ArrayList<NoCom.cout>();
+    int radarx = 0;
+    int radary = 0;
+    int radarx1 = 0;
+    int radary1 = 0;
+    int centerx = 0;
+    int centery = 0;
+    int consolex = 0;
+    int consoley = 0;
+    int consolex1 = 0;
+    int consoley1 = 0;
+    int hovery = 0;
+    int hoverx = 0;
+    int searchx = 0;
+    int searchy = 0;
+    int wheely = 0;
+
     public GuiScanner() {
         this.setInstance();
         this.load();
 
-    }
-
-    public boolean doesGuiPauseGame() {
-        return false;
     }
 
     public static GuiScanner getInstance() {
@@ -45,50 +57,31 @@ public class GuiScanner extends GuiScreen {
         return GuiScanner.getInstance();
     }
 
+    public boolean doesGuiPauseGame() {
+        return false;
+    }
+
     private void load() {
 
     }
+
+    //(16000 / 16)/8 = 125 250
 
     private void setInstance() {
         INSTANCE = this;
     }
 
-    int radarx = 0;
-    int radary = 0;
-    int radarx1 = 0;
-    int radary1 = 0;
-
-    int centerx = 0;
-    int centery = 0;
-
-    int consolex= 0;
-    int consoley = 0;
-    int consolex1= 0;
-    int consoley1 = 0;
-
-    int hovery= 0;
-    int hoverx = 0;
-
-    int searchx = 0;
-    int searchy = 0;
-
-    public static boolean neartrack = false;
-    public static boolean track = false;
-    public static boolean busy = false;
-
-    //(16000 / 16)/8 = 125 250
-
-    public float getscale(){
-        if(NoCom.getInstance().scale.getValue() == 1){
+    public float getscale() {
+        if (NoCom.getInstance().scale.getValue() == 1) {
             return 500f;
         }
-        if(NoCom.getInstance().scale.getValue() == 2){
+        if (NoCom.getInstance().scale.getValue() == 2) {
             return 250f;
         }
-        if(NoCom.getInstance().scale.getValue() == 3){
+        if (NoCom.getInstance().scale.getValue() == 3) {
             return 125f;
         }
-        if(NoCom.getInstance().scale.getValue() == 4){
+        if (NoCom.getInstance().scale.getValue() == 4) {
             return 75f;
         }
         return 705f;
@@ -96,17 +89,17 @@ public class GuiScanner extends GuiScreen {
 
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         ScaledResolution sr = new ScaledResolution(mc);
-        this.checkMouseWheel(mouseX,mouseY);
+        this.checkMouseWheel(mouseX, mouseY);
 
-        radarx = sr.getScaledWidth()/8;
-        radarx1 = ((sr.getScaledWidth()*5)/8);
-        radary = (sr.getScaledHeight()/2) -((radarx1 - radarx)/2);
-        radary1 = (sr.getScaledHeight()/2) +((radarx1 - radarx)/2);
+        radarx = sr.getScaledWidth() / 8;
+        radarx1 = ((sr.getScaledWidth() * 5) / 8);
+        radary = (sr.getScaledHeight() / 2) - ((radarx1 - radarx) / 2);
+        radary1 = (sr.getScaledHeight() / 2) + ((radarx1 - radarx) / 2);
 
-        centerx = (radarx + radarx1)/2;
-        centery = (radary + radary1)/2;
+        centerx = (radarx + radarx1) / 2;
+        centery = (radary + radary1) / 2;
 
-        consolex = (int) ((sr.getScaledWidth()*5.5f)/8f);
+        consolex = (int) ((sr.getScaledWidth() * 5.5f) / 8f);
         consolex1 = (sr.getScaledWidth() - 50);
         consoley = radary;
         consoley1 = radary1 - 50;
@@ -117,16 +110,16 @@ public class GuiScanner extends GuiScreen {
 
         RenderUtil.drawOutlineRect(consolex, consoley1 + 3, consolex1 - consolex, 15, 4f, new Color(0xCDA8A8A8, true).getRGB());
         RenderUtil.drawRect2(consolex, consoley1 + 3, consolex1, consoley1 + 17, new Color(0xF70C0C0C, true).getRGB());
-        FontRender.drawString3("cursor pos: " + hoverx*64 + "x" + "  " + hovery*64 + "z",consolex + 4,consoley1 + 6 ,-1);
+        FontRender.drawString3("cursor pos: " + hoverx * 64 + "x" + "  " + hovery * 64 + "z", consolex + 4, consoley1 + 6, -1);
 
         RenderUtil.drawOutlineRect(consolex, consoley1 + 20, consolex1 - consolex, 15, 4f, new Color(0xCDA8A8A8, true).getRGB());
 
-        if(!track) {
-           RenderUtil.drawRect2(consolex, consoley1 + 20, consolex1, consoley1 + 35, new Color(0xF70C0C0C, true).getRGB());
-           FontRender.drawString3("tracker off", consolex + 4, consoley1 + 26, -1);
+        if (!track) {
+            RenderUtil.drawRect2(consolex, consoley1 + 20, consolex1, consoley1 + 35, new Color(0xF70C0C0C, true).getRGB());
+            FontRender.drawString3("tracker off", consolex + 4, consoley1 + 26, -1);
         } else {
-           RenderUtil.drawRect2(consolex, consoley1 + 20, consolex1, consoley1 + 35, new Color(0xF75E5E5E, true).getRGB());
-           FontRender.drawString3("tracker on", consolex + 4, consoley1 + 26, -1);
+            RenderUtil.drawRect2(consolex, consoley1 + 20, consolex1, consoley1 + 35, new Color(0xF75E5E5E, true).getRGB());
+            FontRender.drawString3("tracker on", consolex + 4, consoley1 + 26, -1);
         }
 
         RenderUtil.drawOutlineRect(radarx, radary, radarx1 - radarx, radary1 - radary, 4f, new Color(0xCDA8A8A8, true).getRGB());
@@ -139,24 +132,24 @@ public class GuiScanner extends GuiScreen {
                     RenderUtil.drawRect2((point.posX / 4f) + centerx, (point.posY / 4f) + centery, ((point.posX / 4f) + (radarx1 - radarx) / getscale()) + centerx, ((point.posY / 4f) + (radary1 - radary) / getscale()) + centery, new Color(0x3CE708).getRGB());
                 }
             }
-        } catch (Exception e){
+        } catch (Exception e) {
 
         }
-        RenderUtil.drawRect2( centerx - 1f,centery - 1f,centerx + 1f, centery + 1f,new Color(0xFF0303).getRGB());
-        RenderUtil.drawRect2((mc.player.posX/16 / 4f) + centerx, (mc.player.posZ/16 / 4f) + centery, ((mc.player.posX/16 / 4f) + (radarx1 - radarx) / getscale()) + centerx, ((mc.player.posZ/16 / 4f) + (radary1 - radary) / getscale()) + centery, new Color(0x0012FF).getRGB());
+        RenderUtil.drawRect2(centerx - 1f, centery - 1f, centerx + 1f, centery + 1f, new Color(0xFF0303).getRGB());
+        RenderUtil.drawRect2((mc.player.posX / 16 / 4f) + centerx, (mc.player.posZ / 16 / 4f) + centery, ((mc.player.posX / 16 / 4f) + (radarx1 - radarx) / getscale()) + centerx, ((mc.player.posZ / 16 / 4f) + (radary1 - radary) / getscale()) + centery, new Color(0x0012FF).getRGB());
 
-        if(mouseX > radarx && mouseX < radarx1 && mouseY >  radary && mouseY < radary1 ){
-                hoverx = mouseX - centerx;
-                hovery = mouseY - centery;
+        if (mouseX > radarx && mouseX < radarx1 && mouseY > radary && mouseY < radary1) {
+            hoverx = mouseX - centerx;
+            hovery = mouseY - centery;
         }
 
-        RenderUtil.glScissor(consolex, consoley, consolex1 , consoley1 - 10, sr);
+        RenderUtil.glScissor(consolex, consoley, consolex1, consoley1 - 10, sr);
         GL11.glEnable(GL11.GL_SCISSOR_TEST);
         try {
             for (NoCom.cout out : consoleout) {
                 FontRender.drawString3(out.string, consolex + 4, consoley + 6 + (out.posY * 11) + wheely, -1);
             }
-        } catch (Exception ignored){
+        } catch (Exception ignored) {
 
         }
         GL11.glDisable(GL11.GL_SCISSOR_TEST);
@@ -187,17 +180,14 @@ public class GuiScanner extends GuiScreen {
         }
     }
 
-    int wheely = 0;
-
     public void checkMouseWheel(int mouseX, int mouseY) {
-            int dWheel = Mouse.getDWheel();
-            if (dWheel < 0) {
-                wheely = wheely - 20;
-            } else if (dWheel > 0) {
-                wheely = wheely + 20;
-            }
+        int dWheel = Mouse.getDWheel();
+        if (dWheel < 0) {
+            wheely = wheely - 20;
+        } else if (dWheel > 0) {
+            wheely = wheely + 20;
+        }
     }
-
 
 
 }

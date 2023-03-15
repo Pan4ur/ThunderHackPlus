@@ -3,7 +3,6 @@ package com.github.lunatrius.schematica.handler.client;
 import com.github.lunatrius.schematica.client.gui.control.GuiSchematicControl;
 import com.github.lunatrius.schematica.client.gui.load.GuiSchematicLoad;
 import com.github.lunatrius.schematica.client.gui.save.GuiSchematicSave;
-import com.github.lunatrius.schematica.client.printer.SchematicPrinter;
 import com.github.lunatrius.schematica.client.renderer.RenderSchematic;
 import com.github.lunatrius.schematica.client.world.SchematicWorld;
 import com.github.lunatrius.schematica.client.world.SchematicWorld.LayerMode;
@@ -11,11 +10,9 @@ import com.github.lunatrius.schematica.proxy.ClientProxy;
 import com.github.lunatrius.schematica.reference.Names;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraftforge.client.settings.KeyConflictContext;
 import net.minecraftforge.client.settings.KeyModifier;
 import net.minecraftforge.common.ForgeHooks;
@@ -33,11 +30,11 @@ public class InputHandler {
     private static final KeyBinding KEY_BINDING_LAYER_DEC = new KeyBinding(Names.Keys.LAYER_DEC, Keyboard.KEY_NONE, Names.Keys.CATEGORY);
     private static final KeyBinding KEY_BINDING_LAYER_TOGGLE = new KeyBinding(Names.Keys.LAYER_TOGGLE, Keyboard.KEY_NONE, Names.Keys.CATEGORY);
     private static final KeyBinding KEY_BINDING_RENDER_TOGGLE = new KeyBinding(Names.Keys.RENDER_TOGGLE, Keyboard.KEY_NONE, Names.Keys.CATEGORY);
-   // private static final KeyBinding KEY_BINDING_PRINTER_TOGGLE = new KeyBinding(Names.Keys.PRINTER_TOGGLE, Keyboard.KEY_NONE, Names.Keys.CATEGORY);
+    // private static final KeyBinding KEY_BINDING_PRINTER_TOGGLE = new KeyBinding(Names.Keys.PRINTER_TOGGLE, Keyboard.KEY_NONE, Names.Keys.CATEGORY);
     private static final KeyBinding KEY_BINDING_MOVE_HERE = new KeyBinding(Names.Keys.MOVE_HERE, Keyboard.KEY_NONE, Names.Keys.CATEGORY);
     private static final KeyBinding KEY_BINDING_PICK_BLOCK = new KeyBinding(Names.Keys.PICK_BLOCK, KeyConflictContext.IN_GAME, KeyModifier.SHIFT, -98, Names.Keys.CATEGORY);
 
-    public static final KeyBinding[] KEY_BINDINGS = new KeyBinding[] {
+    public static final KeyBinding[] KEY_BINDINGS = new KeyBinding[]{
             KEY_BINDING_LOAD,
             KEY_BINDING_SAVE,
             KEY_BINDING_CONTROL,
@@ -45,14 +42,15 @@ public class InputHandler {
             KEY_BINDING_LAYER_DEC,
             KEY_BINDING_LAYER_TOGGLE,
             KEY_BINDING_RENDER_TOGGLE,
-        //    KEY_BINDING_PRINTER_TOGGLE,
+            //    KEY_BINDING_PRINTER_TOGGLE,
             KEY_BINDING_MOVE_HERE,
             KEY_BINDING_PICK_BLOCK
     };
 
     private final Minecraft minecraft = Minecraft.getMinecraft();
 
-    private InputHandler() {}
+    private InputHandler() {
+    }
 
     @SubscribeEvent
     public void onKeyInput(final InputEvent event) {

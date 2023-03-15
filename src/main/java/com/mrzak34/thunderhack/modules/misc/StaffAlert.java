@@ -11,57 +11,17 @@ import net.minecraft.world.GameType;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.util.*;
-import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class StaffAlert extends Module {
-    public StaffAlert() {
-        super("StaffAlert", "StaffAlert", Category.MISC);
-    }
-
-    private LinkedHashMap<UUID, String> nameMap = new LinkedHashMap<>();
-
-
-    @Override
-    public void onDisable() {
-        nameMap.clear();
-    }
-
-
     private static final Pattern validUserPattern = Pattern.compile("^\\w{3,16}$");
     List<String> players = new ArrayList<>();
     List<String> notSpec = new ArrayList<>();
-
-
-    @Override
-    public void onUpdate(){
-        if (mc.player.ticksExisted % 10 == 0) {
-            players = getVanish();
-            notSpec = getOnlinePlayerD();
-            players.sort(String::compareTo);
-            notSpec.sort(String::compareTo);
-        }
+    private final LinkedHashMap<UUID, String> nameMap = new LinkedHashMap<>();
+    public StaffAlert() {
+        super("StaffAlert", "StaffAlert", Category.MISC);
     }
-
-    @SubscribeEvent
-    public void onRender2D(Render2DEvent er){
-        if (players.isEmpty() && notSpec.isEmpty()) return;
-        List<String> all = new ArrayList<>();
-        all.addAll(players);
-        all.addAll(notSpec);
-
-
-
-        int staffY = 11;
-        for (String player : all) {
-            String a = player.split(":")[1].equalsIgnoreCase("vanish") ? ChatFormatting.RED + "VANISH" : player.split(":")[1].equalsIgnoreCase("gm3") ? ChatFormatting.RED + "VANISH " + ChatFormatting.YELLOW + "(GM 3)" : ChatFormatting.GREEN + "ACTIVE";
-            FontRender.drawString6(player.split(":")[0] + " " + a, 10 + 3, 200 + 4 + staffY, -1,false);
-            staffY += 13;
-        }
-    }
-
-
 
     public static List<String> getOnlinePlayer() {
         return mc.player.connection.getPlayerInfoMap().stream()
@@ -79,7 +39,7 @@ public class StaffAlert extends Module {
             String prefix = player.getPlayerTeam().getPrefix();
 
             if (check(ChatFormatting.stripFormatting(prefix).toLowerCase())
-                   // || CommandStaff.staffNames.toString().toLowerCase().contains(player.getGameProfile().getName().toLowerCase())
+                    // || CommandStaff.staffNames.toString().toLowerCase().contains(player.getGameProfile().getName().toLowerCase())
                     || player.getGameProfile().getName().toLowerCase().contains("1danil_mansoru1") || player.getPlayerTeam().getPrefix().contains("YT")) {
                 String name = Arrays.asList(player.getPlayerTeam().getMembershipCollection().stream().toArray()).toString().replace("[", "").replace("]", "");
 
@@ -93,6 +53,41 @@ public class StaffAlert extends Module {
         return S;
     }
 
+    public static boolean check(String name) {
+        return name.contains("helper") || name.contains("moder") || name.contains("admin") || name.contains("owner") || name.contains("curator") || name.contains("������") || name.contains("�����") || name.contains("�����") || name.contains("�������");
+    }
+
+    @Override
+    public void onDisable() {
+        nameMap.clear();
+    }
+
+    @Override
+    public void onUpdate() {
+        if (mc.player.ticksExisted % 10 == 0) {
+            players = getVanish();
+            notSpec = getOnlinePlayerD();
+            players.sort(String::compareTo);
+            notSpec.sort(String::compareTo);
+        }
+    }
+
+    @SubscribeEvent
+    public void onRender2D(Render2DEvent er) {
+        if (players.isEmpty() && notSpec.isEmpty()) return;
+        List<String> all = new ArrayList<>();
+        all.addAll(players);
+        all.addAll(notSpec);
+
+
+        int staffY = 11;
+        for (String player : all) {
+            String a = player.split(":")[1].equalsIgnoreCase("vanish") ? ChatFormatting.RED + "VANISH" : player.split(":")[1].equalsIgnoreCase("gm3") ? ChatFormatting.RED + "VANISH " + ChatFormatting.YELLOW + "(GM 3)" : ChatFormatting.GREEN + "ACTIVE";
+            FontRender.drawString6(player.split(":")[0] + " " + a, 10 + 3, 200 + 4 + staffY, -1, false);
+            staffY += 13;
+        }
+    }
+
     public List<String> getVanish() {
         List<String> list = new ArrayList<>();
         for (ScorePlayerTeam s : mc.world.getScoreboard().getTeams()) {
@@ -101,20 +96,13 @@ public class StaffAlert extends Module {
 
             if (getOnlinePlayer().contains(name) || name.isEmpty())
                 continue;
-           // if (CommandStaff.staffNames.toString().toLowerCase().contains(name.toLowerCase()) && check(s.getPrefix().toLowerCase()) || check(s.getPrefix().toLowerCase()) || name.toLowerCase().contains("1danil_mansoru1") || s.getColorPrefix().contains("YT"))
-           //     list.add(s.getPrefix() + name + ":vanish");
+            // if (CommandStaff.staffNames.toString().toLowerCase().contains(name.toLowerCase()) && check(s.getPrefix().toLowerCase()) || check(s.getPrefix().toLowerCase()) || name.toLowerCase().contains("1danil_mansoru1") || s.getColorPrefix().contains("YT"))
+            //     list.add(s.getPrefix() + name + ":vanish");
             if (check(s.getPrefix().toLowerCase()) || name.toLowerCase().contains("1danil_mansoru1") || s.getPrefix().contains("YT"))
                 list.add(s.getPrefix() + name + ":vanish");
         }
         return list;
     }
-
-    public static boolean check(String name) {
-        return name.contains("helper") || name.contains("moder") || name.contains("admin") || name.contains("owner") || name.contains("curator") || name.contains("������") || name.contains("�����") || name.contains("�����") || name.contains("�������");
-    }
-
-
-
 
 
     // 1. заходим на сервер гетаем лист по пакету

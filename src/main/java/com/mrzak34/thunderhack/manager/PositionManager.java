@@ -1,6 +1,5 @@
 package com.mrzak34.thunderhack.manager;
 
-import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.modules.Feature;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -23,38 +22,47 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
  */
 public class PositionManager extends Feature {
 
+    private boolean blocking;
+    private volatile int teleportID;
+    private volatile double last_x;
+    private volatile double last_y;
+    private volatile double last_z;
+    private volatile boolean onGround;
+    private volatile boolean sprinting;
+
     public void init() {
         MinecraftForge.EVENT_BUS.register(this);
     }
+
     public void unload() {
         MinecraftForge.EVENT_BUS.unregister(this);
     }
 
     @SubscribeEvent
-    public void onPacketSend(PacketEvent.SendPost e){
+    public void onPacketSend(PacketEvent.SendPost e) {
 
-        if(e.getPacket() instanceof CPacketPlayer.Position){
+        if (e.getPacket() instanceof CPacketPlayer.Position) {
             readCPacket(e.getPacket());
         }
-        if(e.getPacket() instanceof CPacketPlayer.PositionRotation){
+        if (e.getPacket() instanceof CPacketPlayer.PositionRotation) {
             readCPacket(e.getPacket());
         }
-        if(e.getPacket() instanceof CPacketEntityAction){
+        if (e.getPacket() instanceof CPacketEntityAction) {
             CPacketEntityAction action = e.getPacket();
-            if(action.getAction() == CPacketEntityAction.Action.START_SPRINTING){
+            if (action.getAction() == CPacketEntityAction.Action.START_SPRINTING) {
                 sprinting = true;
             }
-            if(action.getAction() == CPacketEntityAction.Action.STOP_SPRINTING){
+            if (action.getAction() == CPacketEntityAction.Action.STOP_SPRINTING) {
                 sprinting = false;
             }
         }
     }
 
     @SubscribeEvent
-    public void onPacketReceive(PacketEvent.Receive e){
-        if(fullNullCheck()) return;
+    public void onPacketReceive(PacketEvent.Receive e) {
+        if (fullNullCheck()) return;
 
-        if(e.getPacket() instanceof SPacketPlayerPosLook){
+        if (e.getPacket() instanceof SPacketPlayerPosLook) {
 
             EntityPlayerSP player = mc.player;
             if (player == null) {
@@ -71,20 +79,17 @@ public class PositionManager extends Feature {
             double z = packet.getZ();
 
             if (packet.getFlags()
-                    .contains(SPacketPlayerPosLook.EnumFlags.X))
-            {
+                    .contains(SPacketPlayerPosLook.EnumFlags.X)) {
                 x += player.posX;
             }
 
             if (packet.getFlags()
-                    .contains(SPacketPlayerPosLook.EnumFlags.Y))
-            {
+                    .contains(SPacketPlayerPosLook.EnumFlags.Y)) {
                 y += player.posY;
             }
 
             if (packet.getFlags()
-                    .contains(SPacketPlayerPosLook.EnumFlags.Z))
-            {
+                    .contains(SPacketPlayerPosLook.EnumFlags.Z)) {
                 z += player.posZ;
             }
 
@@ -104,48 +109,33 @@ public class PositionManager extends Feature {
         }
 
 
-
     }
 
-
-    private boolean blocking;
-
-    private volatile int teleportID;
-    private volatile double last_x;
-    private volatile double last_y;
-    private volatile double last_z;
-    private volatile boolean onGround;
-    private volatile boolean sprinting;
-
-
-
-    public int getTeleportID()
-    {
+    public int getTeleportID() {
         return teleportID;
     }
 
-    public double getX()
-    {
+    public double getX() {
         return last_x;
     }
 
-    public double getY()
-    {
+    public double getY() {
         return last_y;
     }
 
-    public double getZ()
-    {
+    public double getZ() {
         return last_z;
     }
 
-    public boolean isOnGround()
-    {
+    public boolean isOnGround() {
         return onGround;
     }
 
-    public AxisAlignedBB getBB()
-    {
+    public void setOnGround(boolean onGround) {
+        this.onGround = onGround;
+    }
+
+    public AxisAlignedBB getBB() {
         double x = this.last_x;
         double y = this.last_y;
         double z = this.last_z;
@@ -154,13 +144,11 @@ public class PositionManager extends Feature {
         return new AxisAlignedBB(x - w, y, z - w, x + w, y + h, z + w);
     }
 
-    public Vec3d getVec()
-    {
+    public Vec3d getVec() {
         return new Vec3d(last_x, last_y, last_z);
     }
 
-    public void readCPacket(CPacketPlayer packetIn)
-    {
+    public void readCPacket(CPacketPlayer packetIn) {
         last_x = packetIn.getX(mc.player.posX);
         last_y = packetIn.getY(mc.player.posY);
         last_z = packetIn.getZ(mc.player.posZ);
@@ -174,13 +162,11 @@ public class PositionManager extends Feature {
         setOnGround(packetIn.isOnGround());
     }
 
-    public double getDistanceSq(Entity entity)
-    {
+    public double getDistanceSq(Entity entity) {
         return getDistanceSq(entity.posX, entity.posY, entity.posZ);
     }
 
-    public double getDistanceSq(double x, double y, double z)
-    {
+    public double getDistanceSq(double x, double y, double z) {
         double xDiff = last_x - x;
         double yDiff = last_y - y;
         double zDiff = last_z - z;
@@ -188,8 +174,7 @@ public class PositionManager extends Feature {
     }
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    public boolean canEntityBeSeen(Entity entity)
-    {
+    public boolean canEntityBeSeen(Entity entity) {
         return mc.world.rayTraceBlocks(
                 new Vec3d(last_x, last_y + mc.player.getEyeHeight(), last_z),
                 new Vec3d(entity.posX, entity.posY + entity.getEyeHeight(), entity.posZ),
@@ -198,32 +183,10 @@ public class PositionManager extends Feature {
                 false) == null;
     }
 
-    public void set(double x, double y, double z)
-    {
+    public void set(double x, double y, double z) {
         this.last_x = x;
         this.last_y = y;
         this.last_z = z;
-    }
-
-    public void setOnGround(boolean onGround)
-    {
-        this.onGround = onGround;
-    }
-
-    /**
-     * Makes {@link PositionManager#isBlocking()} return the given
-     * argument, that won't prevent other modules from
-     * spoofing positions but they can check it. For more info
-     * see {@link RotationManager#setBlocking(boolean)}.
-     *
-     * Remember to set this to false after
-     * the Rotations have been sent.
-     *
-     * @param blocking blocks position spoofing
-     */
-    public void setBlocking(boolean blocking)
-    {
-        this.blocking = blocking;
     }
 
     /**
@@ -233,11 +196,27 @@ public class PositionManager extends Feature {
      *
      * @return <tt>true</tt> if blocking.
      */
-    public boolean isBlocking()
-    {
+    public boolean isBlocking() {
         return blocking;
     }
 
-    public boolean isSprintingSS(){ return sprinting;}
+    /**
+     * Makes {@link PositionManager#isBlocking()} return the given
+     * argument, that won't prevent other modules from
+     * spoofing positions but they can check it. For more info
+     * see {@link RotationManager#setBlocking(boolean)}.
+     * <p>
+     * Remember to set this to false after
+     * the Rotations have been sent.
+     *
+     * @param blocking blocks position spoofing
+     */
+    public void setBlocking(boolean blocking) {
+        this.blocking = blocking;
+    }
+
+    public boolean isSprintingSS() {
+        return sprinting;
+    }
 
 }

@@ -4,36 +4,17 @@ import com.github.lunatrius.schematica.api.ISchematic;
 import com.github.lunatrius.schematica.reference.Constants;
 
 public class SchematicTransfer {
-    public enum State {
-        BEGIN_WAIT(true), BEGIN, CHUNK_WAIT(true), CHUNK, END_WAIT(true), END;
-        private boolean waiting;
-
-        State() { }
-
-        State(final boolean waiting) {
-            this.waiting = waiting;
-        }
-
-        public boolean isWaiting() {
-            return this.waiting;
-        }
-    }
-
     public final ISchematic schematic;
     public final String name;
-
     public final int width;
     public final int height;
     public final int length;
-
     public State state = State.BEGIN_WAIT;
     public int timeout = 0;
     public int retries = 0;
-
     public int baseX = 0;
     public int baseY = 0;
     public int baseZ = 0;
-
     public SchematicTransfer(final ISchematic schematic, final String name) {
         this.schematic = schematic;
         this.name = name;
@@ -71,5 +52,21 @@ public class SchematicTransfer {
         this.state = state;
         this.timeout = 0;
         this.retries = 0;
+    }
+
+    public enum State {
+        BEGIN_WAIT(true), BEGIN, CHUNK_WAIT(true), CHUNK, END_WAIT(true), END;
+        private boolean waiting;
+
+        State() {
+        }
+
+        State(final boolean waiting) {
+            this.waiting = waiting;
+        }
+
+        public boolean isWaiting() {
+            return this.waiting;
+        }
     }
 }

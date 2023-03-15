@@ -1,28 +1,7 @@
 package com.github.lunatrius.schematica.client.printer.registry;
 
 import com.github.lunatrius.schematica.block.state.BlockStateHelper;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockButton;
-import net.minecraft.block.BlockChest;
-import net.minecraft.block.BlockDispenser;
-import net.minecraft.block.BlockDoor;
-import net.minecraft.block.BlockEndRod;
-import net.minecraft.block.BlockEnderChest;
-import net.minecraft.block.BlockFenceGate;
-import net.minecraft.block.BlockFurnace;
-import net.minecraft.block.BlockHopper;
-import net.minecraft.block.BlockLever;
-import net.minecraft.block.BlockLog;
-import net.minecraft.block.BlockObserver;
-import net.minecraft.block.BlockPistonBase;
-import net.minecraft.block.BlockPumpkin;
-import net.minecraft.block.BlockQuartz;
-import net.minecraft.block.BlockRotatedPillar;
-import net.minecraft.block.BlockSlab;
-import net.minecraft.block.BlockStairs;
-import net.minecraft.block.BlockStandingSign;
-import net.minecraft.block.BlockTorch;
-import net.minecraft.block.BlockTrapDoor;
+import net.minecraft.block.*;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
@@ -35,14 +14,14 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class PlacementRegistry {
     public static final PlacementRegistry INSTANCE = new PlacementRegistry();
+
+    static {
+        INSTANCE.populateMappings();
+    }
 
     private final Map<Class<? extends Block>, PlacementData> classPlacementMap = new LinkedHashMap<Class<? extends Block>, PlacementData>();
     private final Map<Block, PlacementData> blockPlacementMap = new HashMap<Block, PlacementData>();
@@ -54,23 +33,23 @@ public class PlacementRegistry {
         this.itemPlacementMap.clear();
 
         final IValidPlayerFacing playerFacingEntity = (final IBlockState blockState, final EntityPlayer player, final BlockPos pos, final World world) -> {
-            final EnumFacing facing = BlockStateHelper.<EnumFacing>getPropertyValue(blockState, "facing");
+            final EnumFacing facing = BlockStateHelper.getPropertyValue(blockState, "facing");
             return facing == player.getHorizontalFacing();
         };
         final IValidPlayerFacing playerFacingEntityOpposite = (final IBlockState blockState, final EntityPlayer player, final BlockPos pos, final World world) -> {
-            final EnumFacing facing = BlockStateHelper.<EnumFacing>getPropertyValue(blockState, "facing");
+            final EnumFacing facing = BlockStateHelper.getPropertyValue(blockState, "facing");
             return facing == player.getHorizontalFacing().getOpposite();
         };
         final IValidPlayerFacing playerFacingPiston = (final IBlockState blockState, final EntityPlayer player, final BlockPos pos, final World world) -> {
-            final EnumFacing facing = BlockStateHelper.<EnumFacing>getPropertyValue(blockState, "facing");
+            final EnumFacing facing = BlockStateHelper.getPropertyValue(blockState, "facing");
             return facing == EnumFacing.getDirectionFromEntityLiving(pos, player);
         };
         final IValidPlayerFacing playerFacingObserver = (final IBlockState blockState, final EntityPlayer player, final BlockPos pos, final World world) -> {
-            final EnumFacing facing = BlockStateHelper.<EnumFacing>getPropertyValue(blockState, "facing");
+            final EnumFacing facing = BlockStateHelper.getPropertyValue(blockState, "facing");
             return facing == EnumFacing.getDirectionFromEntityLiving(pos, player).getOpposite();
         };
         final IValidPlayerFacing playerFacingRotateY = (final IBlockState blockState, final EntityPlayer player, final BlockPos pos, final World world) -> {
-            final EnumFacing facing = BlockStateHelper.<EnumFacing>getPropertyValue(blockState, "facing");
+            final EnumFacing facing = BlockStateHelper.getPropertyValue(blockState, "facing");
             return facing == player.getHorizontalFacing().rotateY();
         };
         final IValidPlayerFacing playerFacingLever = (final IBlockState blockState, final EntityPlayer player, final BlockPos pos, final World world) -> {
@@ -311,9 +290,5 @@ public class PlacementRegistry {
         }
 
         return null;
-    }
-
-    static {
-        INSTANCE.populateMappings();
     }
 }

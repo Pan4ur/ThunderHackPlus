@@ -14,19 +14,16 @@ public class RotationUtil
         implements Util {
 
 
-    public static EntityPlayer getRotationPlayer()
-    {
+    public static EntityPlayer getRotationPlayer() {
         EntityPlayer rotationEntity = mc.player;
         return rotationEntity == null ? mc.player : rotationEntity;
     }
 
-    public static float[] getRotations(BlockPos pos, EnumFacing facing)
-    {
+    public static float[] getRotations(BlockPos pos, EnumFacing facing) {
         return getRotations(pos, facing, RotationUtil.getRotationPlayer());
     }
 
-    public static float[] getRotations(BlockPos pos, EnumFacing facing, Entity from)
-    {
+    public static float[] getRotations(BlockPos pos, EnumFacing facing, Entity from) {
         return getRotations(pos, facing, from, mc.world, mc.world.getBlockState(pos));
     }
 
@@ -34,16 +31,14 @@ public class RotationUtil
                                        EnumFacing facing,
                                        Entity from,
                                        IBlockAccess world,
-                                       IBlockState state)
-    {
+                                       IBlockState state) {
         AxisAlignedBB bb = state.getBoundingBox(world, pos);
 
         double x = pos.getX() + (bb.minX + bb.maxX) / 2.0;
         double y = pos.getY() + (bb.minY + bb.maxY) / 2.0;
         double z = pos.getZ() + (bb.minZ + bb.maxZ) / 2.0;
 
-        if (facing != null)
-        {
+        if (facing != null) {
             x += facing.getDirectionVec().getX() * ((bb.minX + bb.maxX) / 2.0);
             y += facing.getDirectionVec().getY() * ((bb.minY + bb.maxY) / 2.0);
             z += facing.getDirectionVec().getZ() * ((bb.minZ + bb.maxZ) / 2.0);
@@ -52,18 +47,17 @@ public class RotationUtil
         return getRotations(x, y, z, from);
     }
 
-    public static float[] getRotations(double x, double y, double z, Entity f)
-    {
+    public static float[] getRotations(double x, double y, double z, Entity f) {
         return getRotations(x, y, z, f.posX, f.posY, f.posZ, f.getEyeHeight());
     }
+
     public static float[] getRotations(double x,
                                        double y,
                                        double z,
                                        double fromX,
                                        double fromY,
                                        double fromZ,
-                                       float fromHeight)
-    {
+                                       float fromHeight) {
         double xDiff = x - fromX;
         double yDiff = y - (fromY + fromHeight);
         double zDiff = z - fromZ;
@@ -75,15 +69,13 @@ public class RotationUtil
         float prevYaw = mc.player.rotationYaw;
         float diff = yaw - prevYaw;
 
-        if (diff < -180.0f || diff > 180.0f)
-        {
+        if (diff < -180.0f || diff > 180.0f) {
             float round = Math.round(Math.abs(diff / 360.0f));
             diff = diff < 0.0f ? diff + 360.0f * round : diff - (360.0f * round);
         }
 
-        return new float[]{ prevYaw + diff, pitch };
+        return new float[]{prevYaw + diff, pitch};
     }
-
 
 
     public static Vec2f getRotationTo(Vec3d posTo) {
@@ -94,6 +86,7 @@ public class RotationUtil
     public static Vec2f getRotationTo(Vec3d posFrom, Vec3d posTo) {
         return getRotationFromVec(posTo.subtract(posFrom));
     }
+
     public static Vec2f getRotationFromVec(Vec3d vec) {
         double lengthXZ = Math.hypot(vec.x, vec.z);
         double yaw = normalizeAngle(Math.toDegrees(Math.atan2(vec.z, vec.x)) - 90.0);
@@ -101,6 +94,7 @@ public class RotationUtil
 
         return new Vec2f((float) yaw, (float) pitch);
     }
+
     public static double normalizeAngle(double angle) {
         angle %= 360.0;
 
@@ -121,9 +115,9 @@ public class RotationUtil
         final double d2 = entityLivingBase.posZ - Util.mc.player.posZ;
         final double d3 = entityLivingBase.posY - (Util.mc.player.getEntityBoundingBox().minY + (Util.mc.player.getEntityBoundingBox().maxY - Minecraft.getMinecraft().player.getEntityBoundingBox().minY));
         final double d4 = MathHelper.sqrt(d * d + d2 * d2);
-        final float f = (float)(MathHelper.atan2(d2, d) * 180.0 / 3.141592653589793) - 90.0f;
-        final float f2 = (float)(-(MathHelper.atan2(d3, d4) * 180.0 / 3.141592653589793));
-        return new float[] { f, f2 };
+        final float f = (float) (MathHelper.atan2(d2, d) * 180.0 / 3.141592653589793) - 90.0f;
+        final float f2 = (float) (-(MathHelper.atan2(d3, d4) * 180.0 / 3.141592653589793));
+        return new float[]{f, f2};
     }
 
 
@@ -146,15 +140,13 @@ public class RotationUtil
         return Math.acos(arg) * 180.0f / Math.PI;
     }
 
-    public static double angle(float[] rotation1, float[] rotation2)
-    {
+    public static double angle(float[] rotation1, float[] rotation2) {
         Vec3d r1Vec = getVec3d(rotation1[0], rotation1[1]);
         Vec3d r2Vec = getVec3d(rotation2[0], rotation2[1]);
         return angle(r1Vec, r2Vec);
     }
 
-    public static Vec3d getVec3d(float yaw, float pitch)
-    {
+    public static Vec3d getVec3d(float yaw, float pitch) {
         float vx = -MathHelper.sin(MathUtil.rad(yaw)) * MathHelper.cos(MathUtil.rad(pitch));
         float vz = MathHelper.cos(MathUtil.rad(yaw)) * MathHelper.cos(MathUtil.rad(pitch));
         float vy = -MathHelper.sin(MathUtil.rad(pitch));
@@ -175,8 +167,7 @@ public class RotationUtil
             if (other.y > RotationUtil.mc.player.posY) {
                 return true;
             }
-        }
-        else if (RotationUtil.mc.player.rotationPitch < -30.0f && other.y < RotationUtil.mc.player.posY) {
+        } else if (RotationUtil.mc.player.rotationPitch < -30.0f && other.y < RotationUtil.mc.player.posY) {
             return true;
         }
         final float angle = calcAngleNoY(vec3d, other)[0] - transformYaw();
@@ -190,7 +181,7 @@ public class RotationUtil
     public static float[] calcAngleNoY(final Vec3d from, final Vec3d to) {
         final double difX = to.x - from.x;
         final double difZ = to.z - from.z;
-        return new float[] { (float)MathHelper.wrapDegrees(Math.toDegrees(Math.atan2(difZ, difX)) - 90.0) };
+        return new float[]{(float) MathHelper.wrapDegrees(Math.toDegrees(Math.atan2(difZ, difX)) - 90.0)};
     }
 
     public static float transformYaw() {
@@ -199,8 +190,7 @@ public class RotationUtil
             if (yaw > 180.0f) {
                 yaw = -180.0f + (yaw - 180.0f);
             }
-        }
-        else if (yaw < -180.0f) {
+        } else if (yaw < -180.0f) {
             yaw = 180.0f + (yaw + 180.0f);
         }
         if (yaw < 0.0f) {
@@ -208,7 +198,6 @@ public class RotationUtil
         }
         return -180.0f + yaw;
     }
-
 
 
     public static float[] calcAngle(Vec3d from, Vec3d to) {

@@ -7,11 +7,9 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
 @Mixin(EntityPlayer.class)
-public interface IEntityPlayer
-{
+public interface IEntityPlayer {
     @Accessor("ABSORPTION")
-    static DataParameter<Float> getAbsorption()
-    {
+    static DataParameter<Float> getAbsorption() {
         throw new IllegalStateException("ABSORPTION accessor wasn't shadowed.");
     }
 

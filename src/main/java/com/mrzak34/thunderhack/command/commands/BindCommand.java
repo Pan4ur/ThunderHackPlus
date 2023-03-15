@@ -1,8 +1,8 @@
 package com.mrzak34.thunderhack.command.commands;
 
 import com.mojang.realmsclient.gui.ChatFormatting;
-import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.Thunderhack;
+import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Bind;
 import org.lwjgl.input.Keyboard;

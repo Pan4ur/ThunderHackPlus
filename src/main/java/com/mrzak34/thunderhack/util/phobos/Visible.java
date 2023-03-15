@@ -9,23 +9,25 @@ import static com.mrzak34.thunderhack.util.Util.mc;
 
 public class Visible {
     public static final Visible INSTANCE = new Visible();
-
-    private class RayChecker extends PositionHistoryChecker {
-        protected boolean check(double x, double y, double z, float yaw, float pitch, int blockX, int blockY, int blockZ) {
-            Vec3d direction = RotationUtil.getVec3d(yaw, pitch);
-            return !checkRayTracing(x, y, z, direction.x, direction.y, direction.z, blockX, blockY, blockZ);
-        }
-
-        public boolean checkFlyingQueue(double x, double y, double z, float oldYaw, float oldPitch, int blockX, int blockY, int blockZ, PositionHistoryHelper history) {
-            return super.checkFlyingQueue(x, y, z, oldYaw, oldPitch, blockX, blockY, blockZ, history);
-        }
-    }
-
     private final NcpInteractTrace rayTracing = new NcpInteractTrace();
     private final RayChecker checker = new RayChecker();
 
     public Visible() {
         rayTracing.setMaxSteps(60);
+    }
+
+    public static boolean isSameBlock(int x1, int y1, int z1,
+                                      double x2, double y2, double z2) {
+        return x1 == floor(x2)
+                && z1 == floor(z2)
+                && y1 == floor(y2);
+    }
+
+    public static int floor(double num) {
+        int floor = (int) num;
+        return floor == num
+                ? floor
+                : floor - (int) (Double.doubleToRawLongBits(num) >>> 63);
     }
 
     public boolean check(BlockPos pos) {
@@ -53,13 +55,6 @@ public class Visible {
         }
 
         return collides;
-    }
-
-    public static boolean isSameBlock(int x1, int y1, int z1,
-                                      double x2, double y2, double z2) {
-        return x1 == floor(x2)
-                && z1 == floor(z2)
-                && y1 == floor(y2);
     }
 
     private boolean checkRayTracing(double eyeX, double eyeY, double eyeZ,
@@ -146,24 +141,27 @@ public class Visible {
             return (dir < 0.0 ? eyeOffset : 1.0 - eyeOffset) / Math.abs(dir);
         }
 
-        return tMin + 1.0 /  Math.abs(dir);
+        return tMin + 1.0 / Math.abs(dir);
     }
 
     private double toBlock(double coord, int block) {
         int blockDiff = block - floor(coord);
         if (blockDiff == 0) {
             return coord;
-        }
-        else {
+        } else {
             return Math.round(coord);
         }
     }
 
-    public static int floor(double num) {
-        int floor = (int) num;
-        return floor == num
-                ? floor
-                : floor - (int) (Double.doubleToRawLongBits(num) >>> 63);
+    private class RayChecker extends PositionHistoryChecker {
+        protected boolean check(double x, double y, double z, float yaw, float pitch, int blockX, int blockY, int blockZ) {
+            Vec3d direction = RotationUtil.getVec3d(yaw, pitch);
+            return !checkRayTracing(x, y, z, direction.x, direction.y, direction.z, blockX, blockY, blockZ);
+        }
+
+        public boolean checkFlyingQueue(double x, double y, double z, float oldYaw, float oldPitch, int blockX, int blockY, int blockZ, PositionHistoryHelper history) {
+            return super.checkFlyingQueue(x, y, z, oldYaw, oldPitch, blockX, blockY, blockZ, history);
+        }
     }
 
 }

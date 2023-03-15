@@ -6,8 +6,7 @@ import net.minecraft.client.network.NetHandlerPlayClient;
  * Duck interface for
  * {@link net.minecraft.client.multiplayer.PlayerControllerMP}.
  */
-public interface IPlayerControllerMP
-{
+public interface IPlayerControllerMP {
     /**
      * Accessor for syncCurrentPlayItem.
      */
@@ -23,16 +22,16 @@ public interface IPlayerControllerMP
     /**
      * Accessor for blockHitDelay.
      *
-     * @param delay set the delay.
+     * @return blockHitDelay.
      */
-    void setBlockHitDelay(int delay);
+    int getBlockHitDelay();
 
     /**
      * Accessor for blockHitDelay.
      *
-     * @return blockHitDelay.
+     * @param delay set the delay.
      */
-    int getBlockHitDelay();
+    void setBlockHitDelay(int delay);
 
     /**
      * Accessor for curBlockDamageMP.
@@ -51,16 +50,16 @@ public interface IPlayerControllerMP
     /**
      * Accessor for isHittingBlock.
      *
-     * @param hitting set isHittingBlock.
+     * @return isHittingBlock.
      */
-    void setIsHittingBlock(boolean hitting);
+    boolean getIsHittingBlock();
 
     /**
      * Accessor for isHittingBlock.
      *
-     * @return isHittingBlock.
+     * @param hitting set isHittingBlock.
      */
-    boolean getIsHittingBlock();
+    void setIsHittingBlock(boolean hitting);
 
     NetHandlerPlayClient getConnection();
 

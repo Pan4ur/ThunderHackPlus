@@ -14,8 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class ThreadHelper extends Feature
-{
+public class ThreadHelper extends Feature {
     private final Timer threadTimer = new Timer();
     private final Setting<Boolean> multiThread;
     private final Setting<Boolean> mainThreadThreads;
@@ -31,8 +30,7 @@ public class ThreadHelper extends Feature
                         Setting<Boolean> mainThreadThreads,
                         Setting<Integer> threadDelay,
                         Setting<AutoCrystal.RotationThread> rotationThread,
-                        Setting<AutoCrystal.ACRotate> rotate)
-    {
+                        Setting<AutoCrystal.ACRotate> rotate) {
         this.module = module;
         this.multiThread = multiThread;
         this.mainThreadThreads = mainThreadThreads;
@@ -42,59 +40,47 @@ public class ThreadHelper extends Feature
     }
 
     public synchronized void start(AbstractCalculation<?> calculation,
-                                   boolean multiThread)
-    {
-        if (threadTimer.passedMs(threadDelay.getValue()) && (currentCalc == null || currentCalc.isFinished()))
-        {
+                                   boolean multiThread) {
+        if (threadTimer.passedMs(threadDelay.getValue()) && (currentCalc == null || currentCalc.isFinished())) {
             currentCalc = calculation;
             execute(currentCalc, multiThread);
         }
     }
 
-    public synchronized void startThread(BlockPos...blackList)
-    {
+    public synchronized void startThread(BlockPos... blackList) {
         if (mc.world == null
                 || mc.player == null
                 || !threadTimer.passedMs(threadDelay.getValue())
-                || currentCalc != null && !currentCalc.isFinished())
-        {
+                || currentCalc != null && !currentCalc.isFinished()) {
             return;
         }
 
-        if (mc.isCallingFromMinecraftThread())
-        {
+        if (mc.isCallingFromMinecraftThread()) {
             startThread(new ArrayList<>(mc.world.loadedEntityList),
                     new ArrayList<>(mc.world.playerEntities),
                     blackList);
-        }
-        else
-        {
+        } else {
             startThread(Thunderhack.entityProvider.getEntities(),
                     Thunderhack.entityProvider.getPlayers(),
                     blackList);
         }
     }
 
-    public synchronized void startThread(boolean breakOnly, boolean noBreak, BlockPos...blackList)
-    {
+    public synchronized void startThread(boolean breakOnly, boolean noBreak, BlockPos... blackList) {
         if (mc.world == null
                 || mc.player == null
                 || !threadTimer.passedMs(threadDelay.getValue())
-                || currentCalc != null && !currentCalc.isFinished())
-        {
+                || currentCalc != null && !currentCalc.isFinished()) {
             return;
         }
 
-        if (mc.isCallingFromMinecraftThread())
-        {
+        if (mc.isCallingFromMinecraftThread()) {
             startThread(new ArrayList<>(mc.world.loadedEntityList),
                     new ArrayList<>(mc.world.playerEntities),
                     breakOnly,
                     noBreak,
                     blackList);
-        }
-        else
-        {
+        } else {
             startThread(Thunderhack.entityProvider.getEntities(),
                     Thunderhack.entityProvider.getPlayers(),
                     breakOnly,
@@ -107,53 +93,45 @@ public class ThreadHelper extends Feature
                              List<EntityPlayer> players,
                              boolean breakOnly,
                              boolean noBreak,
-                             BlockPos...blackList)
-    {
+                             BlockPos... blackList) {
         currentCalc = new Calculation(module, entities, players, breakOnly, noBreak, blackList);
         execute(currentCalc, multiThread.getValue());
     }
 
     private void startThread(List<Entity> entities,
                              List<EntityPlayer> players,
-                             BlockPos...blackList)
-    {
+                             BlockPos... blackList) {
         currentCalc = new Calculation(module, entities, players, blackList);
         execute(currentCalc, multiThread.getValue());
     }
 
     private void execute(AbstractCalculation<?> calculation,
-                         boolean multiThread)
-    {
-        if (multiThread)
-        {
+                         boolean multiThread) {
+        if (multiThread) {
             Thunderhack.threadManager.submitRunnable(calculation);
             threadTimer.reset();
-        }
-        else
-        {
+        } else {
             threadTimer.reset();
             calculation.run();
         }
     }
 
-    public void schedulePacket(PacketEvent.Receive event)
-    {
+    public void schedulePacket(PacketEvent.Receive event) {
         if ((multiThread.getValue() || mainThreadThreads.getValue())
                 && (rotate.getValue() == AutoCrystal.ACRotate.None
-                || rotationThread.getValue() != AutoCrystal.RotationThread.Predict))
-        {
+                || rotationThread.getValue() != AutoCrystal.RotationThread.Predict)) {
             event.addPostEvent(this::startThread);
         }
     }
 
-    /** @return the currently running, or last finished calculation. */
-    public AbstractCalculation<?> getCurrentCalc()
-    {
+    /**
+     * @return the currently running, or last finished calculation.
+     */
+    public AbstractCalculation<?> getCurrentCalc() {
         return currentCalc;
     }
 
-    public void resetThreadHelper()
-    {
+    public void resetThreadHelper() {
         currentCalc = null;
     }
 

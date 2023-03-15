@@ -12,50 +12,74 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class Sprint extends Module {
 
+    public static double oldSpeed, contextFriction;
+    public Setting<Float> reduction = this.register(new Setting<>("reduction ", 0.1f, 0f, 0.5f));
+    int cooldown;
+    private final Setting<mode> Mode = register(new Setting("Mode", mode.Default));
+
+
     public Sprint() {
         super("Sprint", "автоматически-спринтится", Category.MOVEMENT);
     }
 
-    public Setting<Float> reduction  = this.register(new Setting<>("reduction ", 0.1f, 0f, 0.5f));
-
-    private Setting<mode> Mode = register(new Setting("Mode", mode.Default));
-    public enum mode {
-        Default, NexusGrief;
+    public static double calculateSpeed(double speed) {
+        float speedAttributes = getAIMoveSpeed(mc.player);
+        final float n6 = getFrictionFactor(mc.player);
+        final float n7 = 0.16277136f / (n6 * n6 * n6);
+        float n8 = speedAttributes * n7;
+        double max2 = oldSpeed + n8;
+        max2 = Math.max(0.25, max2);
+        contextFriction = n6;
+        return max2 + speed;
     }
 
+    public static void postMove(double horizontal) {
+        oldSpeed = horizontal * contextFriction;
+    }
 
-    int cooldown;
+    public static float getAIMoveSpeed(EntityPlayer contextPlayer) {
+        boolean prevSprinting = contextPlayer.isSprinting();
+        contextPlayer.setSprinting(false);
+        float speed = contextPlayer.getAIMoveSpeed() * 1.3f;
+        contextPlayer.setSprinting(prevSprinting);
+        return speed;
+    }
+
+    private static float getFrictionFactor(EntityPlayer contextPlayer) {
+        BlockPos.PooledMutableBlockPos blockpos = BlockPos.PooledMutableBlockPos.retain(mc.player.prevPosX, mc.player.boundingBox.minY, mc.player.prevPosZ);
+        return contextPlayer.world.getBlockState(blockpos).getBlock().slipperiness * 0.91F;
+    }
 
     @Override
     public void onUpdate() {
-        if(nullCheck())return;
+        if (nullCheck()) return;
         if (mc.gameSettings.keyBindForward.isKeyDown()) {
             mc.player.setSprinting(true);
         }
-        if(cooldown > 0){
+        if (cooldown > 0) {
             cooldown--;
         }
     }
 
     @SubscribeEvent
-    public void onPacketReceive(PacketEvent.Receive e){
-        if(fullNullCheck()){
+    public void onPacketReceive(PacketEvent.Receive e) {
+        if (fullNullCheck()) {
             return;
         }
 
-        if(e.getPacket() instanceof SPacketPlayerPosLook){
+        if (e.getPacket() instanceof SPacketPlayerPosLook) {
             cooldown = 60;
         }
     }
 
     @SubscribeEvent
-    public void onMove(EventMove event){
-        if(Mode.getValue() == mode.NexusGrief && Thunderhack.moduleManager.getModuleByClass(Speed.class).isDisabled()) {
+    public void onMove(EventMove event) {
+        if (Mode.getValue() == mode.NexusGrief && Thunderhack.moduleManager.getModuleByClass(Speed.class).isDisabled()) {
 
-                double dX = mc.player.posX - mc.player.prevPosX;
-                double dZ = mc.player.posZ - mc.player.prevPosZ;
-                postMove(Math.sqrt(dX * dX + dZ * dZ));
-               // return;
+            double dX = mc.player.posX - mc.player.prevPosX;
+            double dZ = mc.player.posZ - mc.player.prevPosZ;
+            postMove(Math.sqrt(dX * dX + dZ * dZ));
+            // return;
 
             if (strafes()) {
                 double forward = mc.player.movementInput.moveForward;
@@ -85,9 +109,9 @@ public class Sprint extends Module {
             } else {
                 oldSpeed = 0;
             }
-           // if (event.getStage() == 0) {
-                event.setCanceled(true);
-          //  }
+            // if (event.getStage() == 0) {
+            event.setCanceled(true);
+            //  }
         }
     }
 
@@ -105,55 +129,29 @@ public class Sprint extends Module {
         if (mc.player.isInWeb) {
             return false;
         }
-        if(!mc.player.onGround){
+        if (!mc.player.onGround) {
             return false;
         }
-        if(mc.player.isJumping){
+        if (mc.player.isJumping) {
             return false;
         }
-        if(mc.gameSettings.keyBindJump.isKeyDown()){
+        if (mc.gameSettings.keyBindJump.isKeyDown()) {
             return false;
         }
-        if(cooldown > 0){
+        if (cooldown > 0) {
             return false;
         }
-        if(Thunderhack.moduleManager.getModuleByClass(RusherScaffold.class).isOn()){
+        if (Thunderhack.moduleManager.getModuleByClass(RusherScaffold.class).isOn()) {
             return false;
         }
-        if(Thunderhack.moduleManager.getModuleByClass(LongJump.class).isOn()){
+        if (Thunderhack.moduleManager.getModuleByClass(LongJump.class).isOn()) {
             return false;
         }
         return !mc.player.capabilities.isFlying;
     }
 
-    public static double oldSpeed, contextFriction;
-
-    public static double calculateSpeed(double speed) {
-        float speedAttributes = getAIMoveSpeed(mc.player);
-        final float n6 = getFrictionFactor(mc.player);
-        final float n7 = 0.16277136f / (n6 * n6 * n6);
-        float n8 = speedAttributes * n7;
-        double max2 = oldSpeed + n8;
-        max2 = Math.max(0.25, max2);
-        contextFriction = n6;
-        return max2 + speed;
-    }
-
-    public static void postMove(double horizontal) {
-        oldSpeed = horizontal * contextFriction;
-    }
-
-    public static float getAIMoveSpeed(EntityPlayer contextPlayer) {
-        boolean prevSprinting = contextPlayer.isSprinting();
-        contextPlayer.setSprinting(false);
-        float speed = contextPlayer.getAIMoveSpeed() * 1.3f;
-        contextPlayer.setSprinting(prevSprinting);
-        return speed;
-    }
-
-    private static float getFrictionFactor(EntityPlayer contextPlayer) {
-        BlockPos.PooledMutableBlockPos blockpos = BlockPos.PooledMutableBlockPos.retain(mc.player.prevPosX, mc.player.boundingBox.minY, mc.player.prevPosZ);
-        return contextPlayer.world.getBlockState(blockpos).getBlock().slipperiness * 0.91F;
+    public enum mode {
+        Default, NexusGrief
     }
 
 }

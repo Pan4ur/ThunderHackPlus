@@ -1,7 +1,6 @@
 package com.mrzak34.thunderhack.modules.render;
 
 import com.mojang.realmsclient.gui.ChatFormatting;
-import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.events.EventPreMotion;
 import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.events.Render2DEvent;
@@ -9,9 +8,8 @@ import com.mrzak34.thunderhack.events.Render3DEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.BlockUtils;
-import com.mrzak34.thunderhack.util.phobos.ThreadUtil;
-import com.mrzak34.thunderhack.util.render.RenderUtil;
 import com.mrzak34.thunderhack.util.Util;
+import com.mrzak34.thunderhack.util.render.RenderUtil;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.gui.FontRenderer;
@@ -29,36 +27,30 @@ import java.awt.*;
 import java.util.ArrayList;
 
 public class XRay extends Module {
-    public XRay() {
-        super("XRay", "Искать алмазы на ezzzzz", Category.MISC);
-    }
-    ArrayList<BlockPos> ores = new ArrayList();
-    ArrayList<BlockPos> toCheck = new ArrayList();
     public static int done;
     public static int all;
-
-    BlockPos verycute;
-
-    private Setting<mode> Mode = register(new Setting("Render Mode", mode.FullBox));
+    public Setting<Boolean> wh = this.register(new Setting<>("wallhack", false));
+    public Setting<Boolean> brutForce = this.register(new Setting<>("BrutForce", false));
     public Setting<Integer> checkSpeed = this.register(new Setting<>("checkSpeed", 4, 1, 5, v -> this.brutForce.getValue()));
     public Setting<Integer> rxz = this.register(new Setting<>("Radius XZ", 20, 5, 200, v -> this.brutForce.getValue()));
     public Setting<Integer> ry = this.register(new Setting<>("Radius Y", 6, 2, 50, v -> this.brutForce.getValue()));
-
-    public enum mode {
-        FullBox, Frame;
-    }
-    public Setting<Boolean> wh = this.register(new Setting<>("wallhack", false));
-    public Setting<Boolean> brutForce = this.register(new Setting<>("BrutForce", false));
-    public Setting<Boolean> diamond  = this.register(new Setting<>("diamond ", false));
+    public Setting<Boolean> diamond = this.register(new Setting<>("diamond ", false));
     public Setting<Boolean> gold = this.register(new Setting<>("gold", false));
     public Setting<Boolean> iron = this.register(new Setting<>("iron", false));
     public Setting<Boolean> emerald = this.register(new Setting<>("emerald", false));
     public Setting<Boolean> redstone = this.register(new Setting<>("redstone", false));
     public Setting<Boolean> lapis = this.register(new Setting<>("lapis", false));
     public Setting<Boolean> coal = this.register(new Setting<>("coal", false));
-    public Setting<Boolean> wow = this.register(new Setting<>("WowEffect", true,v-> brutForce.getValue()));
+    public Setting<Boolean> wow = this.register(new Setting<>("WowEffect", true, v -> brutForce.getValue()));
     public Setting<Boolean> water = this.register(new Setting<>("water", false));
     public Setting<Boolean> lava = this.register(new Setting<>("lava", false));
+    ArrayList<BlockPos> ores = new ArrayList();
+    ArrayList<BlockPos> toCheck = new ArrayList();
+    BlockPos verycute;
+    private final Setting<mode> Mode = register(new Setting("Render Mode", mode.FullBox));
+    public XRay() {
+        super("XRay", "Искать алмазы на ezzzzz", Category.MISC);
+    }
 
     @Override
     public void onEnable() {
@@ -74,15 +66,13 @@ public class XRay extends Module {
         }
         all = this.toCheck.size();
         done = 0;
-        if(wh.getValue() && brutForce.getValue()){
+        if (wh.getValue() && brutForce.getValue()) {
             wh.setValue(false);
         }
-        if(!brutForce.getValue()){
+        if (!brutForce.getValue()) {
             mc.renderGlobal.loadRenderers();
         }
     }
-
-
 
     @Override
     public void onDisable() {
@@ -99,7 +89,7 @@ public class XRay extends Module {
             BlockPos pos = this.toCheck.remove(0);
             ++done;
             mc.getConnection().sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.START_DESTROY_BLOCK, pos, EnumFacing.UP));
-            if(wow.getValue()) {
+            if (wow.getValue()) {
                 verycute = pos;
             }
 
@@ -109,12 +99,12 @@ public class XRay extends Module {
     @SubscribeEvent
     public void onReceivePacket(PacketEvent e) {
         if (e.getPacket() instanceof SPacketBlockChange) {
-            SPacketBlockChange p = (SPacketBlockChange)e.getPacket();
+            SPacketBlockChange p = e.getPacket();
             if (this.isEnabledOre(Block.getIdFromBlock(p.getBlockState().getBlock()))) {
                 this.ores.add(p.getBlockPosition());
             }
         } else if (e.getPacket() instanceof SPacketMultiBlockChange) {
-            SPacketMultiBlockChange p = (SPacketMultiBlockChange)e.getPacket();
+            SPacketMultiBlockChange p = e.getPacket();
             for (SPacketMultiBlockChange.BlockUpdateData dat : p.getChangedBlocks()) {
                 if (!this.isEnabledOre(Block.getIdFromBlock(dat.getBlockState().getBlock()))) continue;
                 this.ores.add(dat.getPos());
@@ -178,9 +168,9 @@ public class XRay extends Module {
 
             }
             if (verycute != null && (done != all) && wow.getValue()) {
-                RenderUtil.drawBlockOutline(verycute, new Color(255, 0, 30), 1, false,0);
+                RenderUtil.drawBlockOutline(verycute, new Color(255, 0, 30), 1, false, 0);
             }
-        } catch (Exception ignored){
+        } catch (Exception ignored) {
 
         }
     }
@@ -192,12 +182,12 @@ public class XRay extends Module {
         ScaledResolution sr = new ScaledResolution(mc);
         FontRenderer font = XRay.mc.fontRenderer;
         int size = 125;
-        float xOffset = (float)sr.getScaledWidth() / 2.0f - (float)size / 2.0f;
+        float xOffset = (float) sr.getScaledWidth() / 2.0f - (float) size / 2.0f;
         float yOffset = 5.0f;
         float Y = 0.0f;
-        RenderUtil.rectangleBordered(xOffset + 2.0f, yOffset + 1.0f, xOffset + 10.0f + (float)size + (float)font.getStringWidth(g) + 1.0f, yOffset + (float)size / 6.0f + 3.0f + ((float)font.FONT_HEIGHT + 2.2f), 0.5, 90, 0);
-        RenderUtil.rectangleBordered(xOffset + 3.0f, yOffset + 2.0f, xOffset + 10.0f + (float)size + (float)font.getStringWidth(g), yOffset + (float)size / 6.0f + 2.0f + ((float)font.FONT_HEIGHT + 2.2f), 0.5, 27, 61);
-        font.drawStringWithShadow("" + ChatFormatting.GREEN + "Done: " + ChatFormatting.WHITE + done + " / " + ChatFormatting.RED + "All: " + ChatFormatting.WHITE + all, xOffset + 25.0f, yOffset + (float)font.FONT_HEIGHT + 4.0f, -1);
+        RenderUtil.rectangleBordered(xOffset + 2.0f, yOffset + 1.0f, xOffset + 10.0f + (float) size + (float) font.getStringWidth(g) + 1.0f, yOffset + (float) size / 6.0f + 3.0f + ((float) font.FONT_HEIGHT + 2.2f), 0.5, 90, 0);
+        RenderUtil.rectangleBordered(xOffset + 3.0f, yOffset + 2.0f, xOffset + 10.0f + (float) size + (float) font.getStringWidth(g), yOffset + (float) size / 6.0f + 2.0f + ((float) font.FONT_HEIGHT + 2.2f), 0.5, 27, 61);
+        font.drawStringWithShadow("" + ChatFormatting.GREEN + "Done: " + ChatFormatting.WHITE + done + " / " + ChatFormatting.RED + "All: " + ChatFormatting.WHITE + all, xOffset + 25.0f, yOffset + (float) font.FONT_HEIGHT + 4.0f, -1);
         GlStateManager.disableBlend();
     }
 
@@ -272,40 +262,44 @@ public class XRay extends Module {
     }
 
     private ArrayList<BlockPos> getBlocks(int x, int y, int z) {
-        BlockPos min = new BlockPos(Util.mc.player.posX - (double)x, Util.mc.player.posY - (double)y, Util.mc.player.posZ - (double)z);
-        BlockPos max = new BlockPos(Util.mc.player.posX + (double)x, Util.mc.player.posY + (double)y, Util.mc.player.posZ + (double)z);
+        BlockPos min = new BlockPos(Util.mc.player.posX - (double) x, Util.mc.player.posY - (double) y, Util.mc.player.posZ - (double) z);
+        BlockPos max = new BlockPos(Util.mc.player.posX + (double) x, Util.mc.player.posY + (double) y, Util.mc.player.posZ + (double) z);
         return BlockUtils.getAllInBox(min, max);
     }
 
     public Boolean shouldRender(Block cast) {
-        if(cast == Blocks.DIAMOND_ORE && diamond.getValue()){
+        if (cast == Blocks.DIAMOND_ORE && diamond.getValue()) {
             return true;
         }
-        if(cast == Blocks.GOLD_ORE && gold.getValue()){
+        if (cast == Blocks.GOLD_ORE && gold.getValue()) {
             return true;
         }
-        if(cast == Blocks.WATER && water.getValue()){
+        if (cast == Blocks.WATER && water.getValue()) {
             return true;
         }
-        if(cast == Blocks.LAVA && lava.getValue()){
+        if (cast == Blocks.LAVA && lava.getValue()) {
             return true;
         }
-        if(cast == Blocks.IRON_ORE && iron.getValue()){
+        if (cast == Blocks.IRON_ORE && iron.getValue()) {
             return true;
         }
-        if(cast == Blocks.EMERALD_ORE && emerald.getValue()){
+        if (cast == Blocks.EMERALD_ORE && emerald.getValue()) {
             return true;
         }
-        if(cast == Blocks.REDSTONE_ORE && redstone.getValue()){
+        if (cast == Blocks.REDSTONE_ORE && redstone.getValue()) {
             return true;
         }
-        if(cast == Blocks.LAPIS_ORE && lapis.getValue()){
+        if (cast == Blocks.LAPIS_ORE && lapis.getValue()) {
             return true;
         }
-        if(cast == Blocks.COAL_ORE && coal.getValue()){
+        if (cast == Blocks.COAL_ORE && coal.getValue()) {
             return true;
         }
         return !wh.getValue();
+    }
+
+    public enum mode {
+        FullBox, Frame
     }
 
 

@@ -9,43 +9,32 @@ import java.util.concurrent.ThreadFactory;
 /**
  * Utility for Multithreading.
  */
-public class ThreadUtil
-{
-    public static final ThreadFactory FACTORY = newDaemonThreadFactoryBuilder()
-            .setNameFormat("ThunderHack-Thread-%d")
-            .build();
-    /**
-     * @return a single thread {@link ScheduledExecutorService}, whose
-     *         thread set ({@link Thread#setDaemon(boolean)}) to <tt>true</tt>.
-     */
+public class ThreadUtil {
+    public static final ThreadFactory FACTORY = newDaemonThreadFactoryBuilder().setNameFormat("ThunderHack-Thread-%d").build();
+    public static ExecutorService executor = Executors.newCachedThreadPool();
+
     public static ScheduledExecutorService newDaemonScheduledExecutor(
-            String name)
-    {
+            String name) {
         ThreadFactoryBuilder factory = newDaemonThreadFactoryBuilder();
         factory.setNameFormat("ThunderHack-" + name + "-%d");
         return Executors.newSingleThreadScheduledExecutor(factory.build());
     }
 
-    public static ExecutorService newDaemonCachedThreadPool()
-    {
+    public static ExecutorService newDaemonCachedThreadPool() {
         return Executors.newCachedThreadPool(FACTORY);
     }
 
-    public static ExecutorService newFixedThreadPool(int size)
-    {
+    public static ExecutorService newFixedThreadPool(int size) {
         ThreadFactoryBuilder factory = newDaemonThreadFactoryBuilder();
         factory.setNameFormat("ThunderHack-Fixed-%d");
         return Executors.newFixedThreadPool(Math.max(size, 1), factory.build());
     }
 
-    public static ThreadFactoryBuilder newDaemonThreadFactoryBuilder()
-    {
+    public static ThreadFactoryBuilder newDaemonThreadFactoryBuilder() {
         ThreadFactoryBuilder factory = new ThreadFactoryBuilder();
         factory.setDaemon(true);
         return factory;
     }
-
-    public static ExecutorService executor = Executors.newCachedThreadPool();
 
     public static void run(Runnable runnable, long delay) {
         executor.execute(() -> {

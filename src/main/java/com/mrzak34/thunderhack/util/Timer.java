@@ -3,6 +3,7 @@ package com.mrzak34.thunderhack.util;
 import com.mrzak34.thunderhack.util.phobos.Passable;
 
 public class Timer implements Passable {
+
     private long time = -1L;
 
     public boolean passedS(double s) {
@@ -51,10 +52,11 @@ public class Timer implements Passable {
     }
 
      */
-    public boolean passed( final long delay, final boolean reset ) {
-        if ( reset ) this.reset( );
-        return System.currentTimeMillis( ) - this.time >= delay;
+    public boolean passed(final long delay, final boolean reset) {
+        if (reset) this.reset();
+        return System.currentTimeMillis() - this.time >= delay;
     }
+
     public long getTime() {
         return System.nanoTime() - this.time;
     }

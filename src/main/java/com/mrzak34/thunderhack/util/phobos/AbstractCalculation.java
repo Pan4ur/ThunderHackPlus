@@ -5,8 +5,8 @@ import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.modules.combat.AutoCrystal;
 import com.mrzak34.thunderhack.util.EntityUtil;
 import com.mrzak34.thunderhack.util.InventoryUtil;
-import com.mrzak34.thunderhack.util.math.MathUtil;
 import com.mrzak34.thunderhack.util.RotationUtil;
+import com.mrzak34.thunderhack.util.math.MathUtil;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityEnderCrystal;
@@ -28,8 +28,7 @@ import static com.mrzak34.thunderhack.util.phobos.CalculationMotion.rayTraceTo;
 import static com.mrzak34.thunderhack.util.phobos.RotationUtil.getRotationsToTopMiddle;
 import static com.mrzak34.thunderhack.util.phobos.RotationUtil.rayTraceWithYP;
 
-public abstract class AbstractCalculation<T extends CrystalData> extends Finishable
-{
+public abstract class AbstractCalculation<T extends CrystalData> extends Finishable {
 
     protected final Set<BlockPos> blackList;
     protected final List<Entity> entities; // maybe filter these by distance?
@@ -58,30 +57,24 @@ public abstract class AbstractCalculation<T extends CrystalData> extends Finisha
     public AbstractCalculation(AutoCrystal module,
                                List<Entity> entities,
                                List<EntityPlayer> players,
-                               BlockPos...blackList)
-    {
+                               BlockPos... blackList) {
         noPlace = false;
         noBreak = false;
         motionID = module.motionID.get();
-        if (blackList.length == 0)
-        {
+        if (blackList.length == 0) {
             this.blackList = new EmptySet<>();
-        }
-        else
-        {
+        } else {
             this.blackList = new HashSet<>();
-            for (BlockPos pos : blackList)
-            {
-                if (pos != null)
-                {
+            for (BlockPos pos : blackList) {
+                if (pos != null) {
                     this.blackList.add(pos);
                 }
             }
         }
 
-        this.module   = module;
+        this.module = module;
         this.entities = entities;
-        this.raw  = players;
+        this.raw = players;
     }
 
     public AbstractCalculation(AutoCrystal module,
@@ -89,8 +82,7 @@ public abstract class AbstractCalculation<T extends CrystalData> extends Finisha
                                List<EntityPlayer> players,
                                boolean breakOnly,
                                boolean noBreak,
-                               BlockPos...blackList)
-    {
+                               BlockPos... blackList) {
         this(module, entities, players, blackList);
         this.noPlace = breakOnly;
         this.noBreak = noBreak;
@@ -99,68 +91,50 @@ public abstract class AbstractCalculation<T extends CrystalData> extends Finisha
     protected abstract IBreakHelper<T> getBreakHelper();
 
     @Override
-    protected void execute()
-    {
-        try
-        {
-            if (module.clearPost.getValue())
-            {
+    protected void execute() {
+        try {
+            if (module.clearPost.getValue()) {
                 // hmm, this could cause us to not get anything done
                 module.post.clear();
             }
 
             runCalc();
-        }
-        catch (Throwable t)
-        {
+        } catch (Throwable t) {
             t.printStackTrace();
         }
     }
 
-    private void runCalc()
-    {
-        if (check())
-        {
+    private void runCalc() {
+        if (check()) {
             return;
         }
 
         if (module.forceAntiTotem.getValue()
                 && module.antiTotem.getValue()
-                && checkForceAntiTotem())
-        {
+                && checkForceAntiTotem()) {
             return;
         }
 
         float minDamage = module.getMinDamage();
-        if (module.focusRotations.getValue() && !module.noRotateNigga(AutoCrystal.ACRotate.Break) && focusBreak())
-        {
+        if (module.focusRotations.getValue() && !module.noRotateNigga(AutoCrystal.ACRotate.Break) && focusBreak()) {
             return;
-        }
-        else
-        {
+        } else {
             module.focus = null;
         }
 
-        if (breakData == null && breakCheck())
-        {
+        if (breakData == null && breakCheck()) {
             breakData = getBreakHelper()
                     .getData(getBreakDataSet(), entities, all, friends);
 
             setCount(breakData, minDamage);
-            if (evaluate(breakData))
-            {
+            if (evaluate(breakData)) {
                 return;
             }
-        }
-        else if (module.multiPlaceCalc.getValue())
-        {
-            if (breakData != null)
-            {
+        } else if (module.multiPlaceCalc.getValue()) {
+            if (breakData != null) {
                 setCount(breakData, minDamage);
                 breakData = null;
-            }
-            else
-            {
+            } else {
                 BreakData<T> onlyForCountData =
                         getBreakHelper()
                                 .getData(new ArrayList<>(5), entities, all, friends);
@@ -168,16 +142,13 @@ public abstract class AbstractCalculation<T extends CrystalData> extends Finisha
             }
         }
 
-      //  Command.sendMessage("  da   " + timercheckerwfg.getPassedTimeMs());
-      //  timercheckerwfg.reset();
-        if (placeCheck())
-        {
+        //  Command.sendMessage("  da   " + timercheckerwfg.getPassedTimeMs());
+        //  timercheckerwfg.reset();
+        if (placeCheck()) {
             placeData = module.placeHelper.getData(all, players, enemies, friends, entities, minDamage, blackList, maxY);
-            if (place(placeData))
-            {
+            if (place(placeData)) {
                 boolean passed = module.obbyCalcTimer.passedMs(module.obbyCalc.getValue());
-                if (obbyCheck() && passed && placeObby(placeData, null) || module.basePlaceOnly.getValue())
-                {
+                if (obbyCheck() && passed && placeObby(placeData, null) || module.basePlaceOnly.getValue()) {
                     return;
                 }
 
@@ -192,21 +163,18 @@ public abstract class AbstractCalculation<T extends CrystalData> extends Finisha
                         || mc.player.getHeldItemMainhand().getItem()
                         instanceof ItemPickaxe)
                         && module.liquidTimer.passedMs(module.liqDelay.getValue())
-                        && (module.lava.getValue() || module.water.getValue()))
-                {
+                        && (module.lava.getValue() || module.water.getValue())) {
                     MineSlots mineSlots = HelperLiquids.getSlots(
                             module.requireOnGround.getValue());
                     if (mineSlots.getBlockSlot() == -1
-                            || mineSlots.getDamage() < 1.0f)
-                    {
+                            || mineSlots.getDamage() < 1.0f) {
                         return;
                     }
 
                     PlaceData liquidData = module.liquidHelper.calculate(module.placeHelper, placeData, friends, all, module.minDamage.getValue());
 
                     boolean attackingBefore = attacking;
-                    if (placeNoAntiTotem(liquidData, mineSlots) && attackingBefore == attacking && module.liquidObby.getValue() && obbyCheck() && passed)
-                    {
+                    if (placeNoAntiTotem(liquidData, mineSlots) && attackingBefore == attacking && module.liquidObby.getValue() && obbyCheck() && passed) {
                         placeObby(placeData, mineSlots);
                     }
                 }
@@ -214,11 +182,9 @@ public abstract class AbstractCalculation<T extends CrystalData> extends Finisha
         }
     }
 
-    protected void setCount(BreakData<T> breakData, float minDmg)
-    {
+    protected void setCount(BreakData<T> breakData, float minDmg) {
         shieldCount = breakData.getShieldCount();
-        if (module.multiPlaceMinDmg.getValue())
-        {
+        if (module.multiPlaceMinDmg.getValue()) {
             count = (int) breakData.getData()
                     .stream()
                     .filter(d -> module.countDeadCrystals.getValue()
@@ -236,23 +202,18 @@ public abstract class AbstractCalculation<T extends CrystalData> extends Finisha
     }
 
 
-
-    protected boolean evaluate(BreakData<T> breakData)
-    {
+    protected boolean evaluate(BreakData<T> breakData) {
         boolean shouldDanger = module.shouldDanger();
         boolean slowReset = !shouldDanger;
         AutoCrystal.BreakValidity validity;
 
 
-        if (this.breakData.getAntiTotem() != null && (validity = HelperUtil.isValid(module, this.breakData.getAntiTotem())) != AutoCrystal.BreakValidity.INVALID)
-        {
+        if (this.breakData.getAntiTotem() != null && (validity = HelperUtil.isValid(module, this.breakData.getAntiTotem())) != AutoCrystal.BreakValidity.INVALID) {
             attack(this.breakData.getAntiTotem(), validity);
             module.breakTimer.reset(module.breakDelay.getValue());
             module.antiTotemHelper.setTarget(null);
             module.antiTotemHelper.setTargetPos(null);
-        }
-        else
-        {
+        } else {
             int packets = !module.noRotateNigga(AutoCrystal.ACRotate.Break) ? 1 : module.packets.getValue();
 
             T firstRotation = null;
@@ -260,18 +221,14 @@ public abstract class AbstractCalculation<T extends CrystalData> extends Finisha
 
             for (T data : this.breakData.getData()) //TODO TUTA KRUTA
             {
-                if (EntityUtil.isDead(data.getCrystal()))
-                {
+                if (EntityUtil.isDead(data.getCrystal())) {
                     continue;
                 }
 
                 validity = HelperUtil.isValid(module, data.getCrystal());
-                if (validity == AutoCrystal.BreakValidity.VALID && valids.size() < packets)
-                {
+                if (validity == AutoCrystal.BreakValidity.VALID && valids.size() < packets) {
                     valids.add(data);
-                }
-                else if (validity == AutoCrystal.BreakValidity.ROTATIONS && firstRotation == null)
-                {
+                } else if (validity == AutoCrystal.BreakValidity.ROTATIONS && firstRotation == null) {
                     firstRotation = data;
                 }
             }
@@ -279,23 +236,17 @@ public abstract class AbstractCalculation<T extends CrystalData> extends Finisha
             int slowDelay = module.slowBreakDelay.getValue();
             float slow = module.slowBreakDamage.getValue();
 
-           // Command.sendMessage(String.valueOf(firstRotation == null) + " first"); tru
-           // Command.sendMessage(valids.isEmpty() + " valid"); tru
+            // Command.sendMessage(String.valueOf(firstRotation == null) + " first"); tru
+            // Command.sendMessage(valids.isEmpty() + " valid"); tru
 
-            if (valids.isEmpty())
-            {
-                if (firstRotation != null && (module.shouldDanger() || !(slowReset = firstRotation.getDamage() <= slow) || module.breakTimer.passed(slowDelay)))
-                {
+            if (valids.isEmpty()) {
+                if (firstRotation != null && (module.shouldDanger() || !(slowReset = firstRotation.getDamage() <= slow) || module.breakTimer.passed(slowDelay))) {
                     attack(firstRotation.getCrystal(), AutoCrystal.BreakValidity.ROTATIONS);
                 }
-            }
-            else
-            {
-                for (T valid : valids)
-                {
+            } else {
+                for (T valid : valids) {
                     boolean high = valid.getDamage() > module.slowBreakDamage.getValue();
-                    if (high || shouldDanger || module.breakTimer.passed(module.slowBreakDelay.getValue()) && valid.getDamage() >= module.minBreakDamage.getValue())
-                    {
+                    if (high || shouldDanger || module.breakTimer.passed(module.slowBreakDelay.getValue()) && valid.getDamage() >= module.minBreakDamage.getValue()) {
                         slowReset = slowReset && !high;
                         attack(valid.getCrystal(), AutoCrystal.BreakValidity.VALID);
                     }
@@ -303,8 +254,7 @@ public abstract class AbstractCalculation<T extends CrystalData> extends Finisha
             }
         }
 
-        if (attacking)
-        {
+        if (attacking) {
             module.breakTimer.reset(slowReset ? module.slowBreakDelay.getValue() : module.breakDelay.getValue());
         }
 
@@ -312,34 +262,25 @@ public abstract class AbstractCalculation<T extends CrystalData> extends Finisha
     }
 
 
-
-
-
-    protected boolean breakCheck()
-    {
+    protected boolean breakCheck() {
         return module.attack.getValue()
                 && !noBreak
                 && Thunderhack.switchManager.getLastSwitch() >= module.cooldown.getValue()
                 && module.breakTimer.passed(module.breakDelay.getValue());
     }
 
-    protected boolean placeCheck()
-    {
-        if (module.sequentialHelper.isBlockingPlacement())
-        {
+    protected boolean placeCheck() {
+        if (module.sequentialHelper.isBlockingPlacement()) {
             return false;
         }
 
-        if (module.damageSync.getValue())
-        {
+        if (module.damageSync.getValue()) {
             Confirmer c = module.damageSyncHelper.getConfirmer();
             if (c.isValid() // This is mostly to confirm place/break
                     && !(c.isPlaceConfirmed(module.placeConfirm.getValue())
-                    && c.isBreakConfirmed(module.breakConfirm.getValue())))
-            {
+                    && c.isBreakConfirmed(module.breakConfirm.getValue()))) {
                 // Could've been set to not valid
-                if (c.isValid() && module.preSynCheck.getValue())
-                {
+                if (c.isValid() && module.preSynCheck.getValue()) {
                     return false;
                 }
             }
@@ -356,13 +297,11 @@ public abstract class AbstractCalculation<T extends CrystalData> extends Finisha
                 && !noPlace;
     }
 
-    protected boolean obbyCheck()
-    {
+    protected boolean obbyCheck() {
         return preSpecialCheck() && module.obsidian.getValue() && module.obbyTimer.passedMs(module.obbyDelay.getValue());
     }
 
-    protected boolean preSpecialCheck()
-    {
+    protected boolean preSpecialCheck() {
         return !placing
                 && placeData != null
                 && (placeData.getTarget() != null
@@ -370,28 +309,24 @@ public abstract class AbstractCalculation<T extends CrystalData> extends Finisha
                 && !fallback;
     }
 
-    protected boolean check()
-    {
+    protected boolean check() {
         if (!module.spectator.getValue() && mc.player.isSpectator()
                 || raw == null
                 || entities == null
                 || module.stopWhenEating.getValue() && module.isEating()
-                || module.stopWhenMining.getValue() && module.isMining())
-        {
+                || module.stopWhenMining.getValue() && module.isMining()) {
             return true;
         }
 
         setFriendsAndEnemies();
-        if (all.isEmpty())
-        {
+        if (all.isEmpty()) {
             return true;
         }
 
         if (!module.shouldcalcN()
                 && module.autoSwitch.getValue() != AutoCrystal.AutoSwitch.Always
                 && !module.weaknessHelper.canSwitch()
-                && !module.switching)
-        {
+                && !module.switching) {
             return true;
         }
 
@@ -399,8 +334,7 @@ public abstract class AbstractCalculation<T extends CrystalData> extends Finisha
                 && module.antiWeakness.getValue() == AutoCrystal.AntiWeakness.None;
     }
 
-    protected void setFriendsAndEnemies()
-    {
+    protected void setFriendsAndEnemies() {
         if (module.isSuicideModule()) {
             // in case it gets modified
             //noinspection ArraysAsListWithZeroOrOneArgument
@@ -413,9 +347,9 @@ public abstract class AbstractCalculation<T extends CrystalData> extends Finisha
         }
 
         List<List<EntityPlayer>> split = CollectionUtil.split(raw, p -> p == null
-                        || (EntityUtil.isDead(p))
-                        || p.equals(mc.player)
-                        || p.getDistanceSq(mc.player) > MathUtil.square(module.targetRange.getValue()), Thunderhack.friendManager::isFriend, Thunderhack.friendManager::isEnemy);
+                || (EntityUtil.isDead(p))
+                || p.equals(mc.player)
+                || p.getDistanceSq(mc.player) > MathUtil.square(module.targetRange.getValue()), Thunderhack.friendManager::isFriend, Thunderhack.friendManager::isEnemy);
         // split.get(0) are the invalid players.
         this.friends = split.get(1);
         this.enemies = split.get(2);
@@ -423,44 +357,34 @@ public abstract class AbstractCalculation<T extends CrystalData> extends Finisha
         this.all = new ArrayList<>(enemies.size() + players.size());
         shieldRange += enemies.stream().peek(e -> all.add(e)).filter(e -> e.getDistanceSq(mc.player) <= MathUtil.square(module.shieldRange.getValue())).count();
         shieldRange += players.stream().peek(e -> all.add(e)).filter(e -> e.getDistanceSq(mc.player) <= MathUtil.square(module.shieldRange.getValue())).count();
-        if (module.yCalc.getValue())
-        {
+        if (module.yCalc.getValue()) {
             maxY = Double.MIN_VALUE;
-            for (EntityPlayer player : all)
-            {
-                if (player.posY > maxY)
-                {
+            for (EntityPlayer player : all) {
+                if (player.posY > maxY) {
                     maxY = player.posY;
                 }
             }
         }
     }
 
-    protected boolean attack(Entity entity, AutoCrystal.BreakValidity validity){
-        if (module.basePlaceOnly.getValue())
-        {
+    protected boolean attack(Entity entity, AutoCrystal.BreakValidity validity) {
+        if (module.basePlaceOnly.getValue()) {
             return validity != AutoCrystal.BreakValidity.INVALID;
         }
 
         module.setCrystal(entity);
-        switch (validity)
-        {
+        switch (validity) {
             case VALID:
-                if (module.weaknessHelper.isWeaknessed())
-                {
-                    if (module.antiWeakness.getValue() == AutoCrystal.AntiWeakness.None)
-                    {
+                if (module.weaknessHelper.isWeaknessed()) {
+                    if (module.antiWeakness.getValue() == AutoCrystal.AntiWeakness.None) {
                         return false;
-                    }
-                    else
-                    {
+                    } else {
                         Runnable r = module.rotationHelper.post(entity,
                                 new MutableWrapper<>(false));
                         r.run();
                         attacking = true;
 
-                        if (!module.noRotateNigga(AutoCrystal.ACRotate.Break))
-                        {
+                        if (!module.noRotateNigga(AutoCrystal.ACRotate.Break)) {
                             module.rotation = module.rotationHelper.forBreaking(entity, new MutableWrapper<>(true));
                         }
 
@@ -468,32 +392,26 @@ public abstract class AbstractCalculation<T extends CrystalData> extends Finisha
                     }
                 }
 
-                if (module.breakSwing.getValue() == AutoCrystal.SwingTime.Pre)
-                {
+                if (module.breakSwing.getValue() == AutoCrystal.SwingTime.Pre) {
                     Swing.Packet.swing(EnumHand.MAIN_HAND);
                 }
 
                 mc.player.connection.sendPacket(new CPacketUseEntity(entity));
 
-                if (module.pseudoSetDead.getValue())
-                {
+                if (module.pseudoSetDead.getValue()) {
                     ((IEntity) entity).setPseudoDeadT(true);
-                }
-                else if (module.setDead.getValue())
-                {
+                } else if (module.setDead.getValue()) {
                     Thunderhack.setDeadManager.setDead(entity);
                 }
 
-                if (module.breakSwing.getValue() == AutoCrystal.SwingTime.Post)
-                {
+                if (module.breakSwing.getValue() == AutoCrystal.SwingTime.Post) {
                     Swing.Packet.swing(EnumHand.MAIN_HAND);
                 }
 
                 Swing.Client.swing(EnumHand.MAIN_HAND);
                 attacking = true;
 
-                if (!module.noRotateNigga(AutoCrystal.ACRotate.Break))
-                {
+                if (!module.noRotateNigga(AutoCrystal.ACRotate.Break)) {
                     module.rotation =
                             module.rotationHelper.forBreaking(entity,
                                     new MutableWrapper<>(true));
@@ -513,13 +431,10 @@ public abstract class AbstractCalculation<T extends CrystalData> extends Finisha
                         == AutoCrystal.RotationThread.Cancel
                         && module.rotationCanceller.setRotations(function)
                         && HelperUtil.isValid(module, entity)
-                        == AutoCrystal.BreakValidity.VALID)
-                {
+                        == AutoCrystal.BreakValidity.VALID) {
                     rotating = false;
                     post.run();
-                }
-                else
-                {
+                } else {
                     module.rotation = function;
                     module.post.add(post);
                 }
@@ -531,19 +446,15 @@ public abstract class AbstractCalculation<T extends CrystalData> extends Finisha
         }
     }
 
-    protected boolean checkForceAntiTotem()
-    {
+    protected boolean checkForceAntiTotem() {
         BlockPos forcePos = module.forceHelper.getPos();
         if (forcePos != null
-                && module.forceHelper.isForcing(module.syncForce.getValue()))
-        {
-            for (Entity entity : entities)
-            {
+                && module.forceHelper.isForcing(module.syncForce.getValue())) {
+            for (Entity entity : entities) {
                 if (entity instanceof EntityEnderCrystal
                         && !(EntityUtil.isDead(entity))
                         && entity.getEntityBoundingBox()
-                        .intersects(new AxisAlignedBB(forcePos.up())))
-                {
+                        .intersects(new AxisAlignedBB(forcePos.up()))) {
                     attack(entity, HelperUtil.isValid(module, entity));
                     return true;
                 }
@@ -562,11 +473,9 @@ public abstract class AbstractCalculation<T extends CrystalData> extends Finisha
                 && module.idHelper.isSafe(raw,
                 module.holdingCheck.getValue(),
                 module.toolCheck.getValue());
-        for (AntiTotemData antiTotemData : data.getAntiTotem())
-        {
+        for (AntiTotemData antiTotemData : data.getAntiTotem()) {
             if (!antiTotemData.getCorresponding().isEmpty()
-                    && !antiTotemData.isBlocked())
-            {
+                    && !antiTotemData.isBlocked()) {
                 BlockPos pos = antiTotemData.getPos();
                 Entity entity = new EntityEnderCrystal(
                         mc.world,
@@ -574,13 +483,10 @@ public abstract class AbstractCalculation<T extends CrystalData> extends Finisha
                         pos.getY() + 1,
                         pos.getZ() + 0.5f);
 
-                if (god)
-                {
+                if (god) {
                     for (PositionData positionData :
-                            antiTotemData.getCorresponding())
-                    {
-                        if (positionData.isBlocked())
-                        {
+                            antiTotemData.getCorresponding()) {
+                        if (positionData.isBlocked()) {
                             continue;
                         }
 
@@ -593,14 +499,12 @@ public abstract class AbstractCalculation<T extends CrystalData> extends Finisha
                                         up.getZ(),
                                         up.getX() + 1.0,
                                         up.getY() + y,
-                                        up.getZ() + 1.0)))
-                        {
+                                        up.getZ() + 1.0))) {
                             continue;
                         }
 
                         if (module.totemSync.getValue() &&
-                                module.damageSyncHelper.isSyncing(0.0f, true))
-                        {
+                                module.damageSyncHelper.isSyncing(0.0f, true)) {
                             return false;
                         }
 
@@ -633,25 +537,21 @@ public abstract class AbstractCalculation<T extends CrystalData> extends Finisha
                     }
                 }
 
-                if (antiTotem == null)
-                {
+                if (antiTotem == null) {
                     antiTotem = antiTotemData;
-                    if (!god)
-                    {
+                    if (!god) {
                         break;
                     }
                 }
             }
         }
 
-        if (antiTotem != null)
-        {
+        if (antiTotem != null) {
             EntityPlayer player = antiTotem.getFirstTarget();
             module.setTarget(player);
 
             if (module.totemSync.getValue()
-                    && module.damageSyncHelper.isSyncing(0.0f, true))
-            {
+                    && module.damageSyncHelper.isSyncing(0.0f, true)) {
                 return false;
             }
 
@@ -666,12 +566,10 @@ public abstract class AbstractCalculation<T extends CrystalData> extends Finisha
 
         if (module.forceAntiTotem.getValue()
                 && module.antiTotem.getValue()
-                && module.forceTimer.passedMs(module.attempts.getValue()))
-        {
+                && module.forceTimer.passedMs(module.attempts.getValue())) {
             // TODO: Could find the best ForceData by Player
             for (Map.Entry<EntityPlayer, ForceData> entry :
-                    data.getForceData().entrySet())
-            {
+                    data.getForceData().entrySet()) {
                 ForceData forceData = entry.getValue();
                 PositionData first = forceData.getForceData()
                         .stream()
@@ -679,14 +577,12 @@ public abstract class AbstractCalculation<T extends CrystalData> extends Finisha
                         .orElse(null);
                 if (first == null
                         || !forceData.hasPossibleAntiTotem()
-                        || !forceData.hasPossibleHighDamage())
-                {
+                        || !forceData.hasPossibleHighDamage()) {
                     continue;
                 }
 
                 if (module.syncForce.getValue()
-                        && module.damageSyncHelper.isSyncing(0.0f, true))
-                {
+                        && module.damageSyncHelper.isSyncing(0.0f, true)) {
                     return false;
                 }
 
@@ -707,8 +603,7 @@ public abstract class AbstractCalculation<T extends CrystalData> extends Finisha
         float maxBlockedDamage = 0.0f;
         PositionData firstData = null;
 
-        for (PositionData d : data.getData())
-        {
+        for (PositionData d : data.getData()) {
             if (module.override.getValue()
                     && d.getSelfDamage() > module.maxSelfPlace.getValue()
                     && d.getMaxDamage() < d.getHealth()
@@ -718,10 +613,8 @@ public abstract class AbstractCalculation<T extends CrystalData> extends Finisha
                 continue;
             }
 
-            if (d.isBlocked())
-            {
-                if (maxBlockedDamage < d.getMaxDamage())
-                {
+            if (d.isBlocked()) {
+                if (maxBlockedDamage < d.getMaxDamage()) {
                     maxBlockedDamage = d.getMaxDamage();
                 }
 
@@ -733,14 +626,10 @@ public abstract class AbstractCalculation<T extends CrystalData> extends Finisha
         }
 
         boolean isRayBypass = false;
-        if (module.rayTraceBypass.getValue() && module.forceBypass.getValue() && firstData == null)
-        {
-            for (PositionData d : data.getRaytraceData())
-            {
-                if (d.isBlocked())
-                {
-                    if (maxBlockedDamage < d.getMaxDamage())
-                    {
+        if (module.rayTraceBypass.getValue() && module.forceBypass.getValue() && firstData == null) {
+            for (PositionData d : data.getRaytraceData()) {
+                if (d.isBlocked()) {
+                    if (maxBlockedDamage < d.getMaxDamage()) {
                         maxBlockedDamage = d.getMaxDamage();
                         isRayBypass = true;
                     }
@@ -753,10 +642,9 @@ public abstract class AbstractCalculation<T extends CrystalData> extends Finisha
             }
         }
 
-        if (breakData != null && !attacking)
-        {
+        if (breakData != null && !attacking) {
             Entity fallback = breakData.getFallBack();
-            if (    module.fallBack.getValue()
+            if (module.fallBack.getValue()
                     && (!isRayBypass || module.rayBypassFallback.getValue())
                     && breakData.getFallBackDmg()
                     < module.fallBackDmg.getValue()
@@ -764,40 +652,31 @@ public abstract class AbstractCalculation<T extends CrystalData> extends Finisha
                     && maxBlockedDamage != 0.0f
                     && (firstData == null
                     || maxBlockedDamage - firstData.getMaxDamage()
-                    >= module.fallBackDiff.getValue()))
-            {
+                    >= module.fallBackDiff.getValue())) {
                 attack(fallback, HelperUtil.isValid(module, fallback));
                 return false;
             }
         }
 
 
-
-        if (firstData != null && firstData.isRaytraceBypass())
-        {
+        if (firstData != null && firstData.isRaytraceBypass()) {
             module.setRenderPos(firstData.getPos(), MathUtil.round(firstData.getMaxDamage(), 1) + " (RB)");
             module.setBypassPos(firstData.getPos());
             return false;
         }
 
-        if (firstData != null && !module.damageSyncHelper.isSyncing(firstData.getMaxDamage(), module.damageSync.getValue()) && (liquid == null || module.minDamage.getValue() <= firstData.getMaxDamage()))
-        {
+        if (firstData != null && !module.damageSyncHelper.isSyncing(firstData.getMaxDamage(), module.damageSync.getValue()) && (liquid == null || module.minDamage.getValue() <= firstData.getMaxDamage())) {
             boolean slow = false;
-            if (firstData.getMaxDamage() <= module.slowPlaceDmg.getValue() && !module.shouldDanger())
-            {
-                if (module.placeTimer.passed(module.slowPlaceDelay.getValue()))
-                {
+            if (firstData.getMaxDamage() <= module.slowPlaceDmg.getValue() && !module.shouldDanger()) {
+                if (module.placeTimer.passed(module.slowPlaceDelay.getValue())) {
                     slow = true;
-                }
-                else
-                {
+                } else {
                     return !module.damageSyncHelper.isSyncing(0.0f, module.damageSync.getValue());
                 }
             }
 
             MutableWrapper<Boolean> liquidBreak = null;
-            if (liquid != null)
-            {
+            if (liquid != null) {
                 liquidBreak = placeAndBreakLiquid(firstData, liquid, rotating);
             }
 
@@ -812,8 +691,7 @@ public abstract class AbstractCalculation<T extends CrystalData> extends Finisha
                 && (shield = data.getShieldData().stream().findFirst()).isPresent()
                 && placeData.getHighestSelfDamage()
                 >= module.shieldMinDamage.getValue()
-                && shieldRange > 0)
-        {
+                && shieldRange > 0) {
             place(shield.get(), shield.get().getTarget(), !module.noRotateNigga(AutoCrystal.ACRotate.Place), rotating || scheduling, false, Float.MAX_VALUE, null, true);
 
             module.shieldTimer.reset();
@@ -824,8 +702,7 @@ public abstract class AbstractCalculation<T extends CrystalData> extends Finisha
                 module.damageSync.getValue());
     }
 
-    protected void place(PositionData data, EntityPlayer target, boolean rotate, boolean schedule, boolean resetSlow)
-    {
+    protected void place(PositionData data, EntityPlayer target, boolean rotate, boolean schedule, boolean resetSlow) {
         place(data, target, rotate, schedule, resetSlow, Float.MAX_VALUE, null);
     }
 
@@ -861,12 +738,12 @@ public abstract class AbstractCalculation<T extends CrystalData> extends Finisha
             if (module.autoSwitch.getValue() == AutoCrystal.AutoSwitch.Always
                     || module.autoSwitch.getValue() == AutoCrystal.AutoSwitch.Bind
                     && module.switching) {
-              //  if (!module.mainHand.getValue()) {
-             //       mc.addScheduledTask(() ->
-              //      {
-              //          OFFHAND.computeIfPresent(o -> o.setMode(OffhandMode.CRYSTAL));
-             //       });
-             //   }
+                //  if (!module.mainHand.getValue()) {
+                //       mc.addScheduledTask(() ->
+                //      {
+                //          OFFHAND.computeIfPresent(o -> o.setMode(OffhandMode.CRYSTAL));
+                //       });
+                //   }
             }
         }
 
@@ -902,8 +779,7 @@ public abstract class AbstractCalculation<T extends CrystalData> extends Finisha
      * @return <tt>true</tt> if obby has been placed.
      */
     protected boolean placeObby(PlaceData data,
-                                MineSlots liquid)
-    {
+                                MineSlots liquid) {
         PositionData bestData = module.obbyHelper
                 .findBestObbyData(liquid != null
                                 ? data.getLiquidObby()
@@ -918,29 +794,23 @@ public abstract class AbstractCalculation<T extends CrystalData> extends Finisha
 
         module.obbyCalcTimer.reset();
         if (bestData != null
-                && bestData.getMaxDamage() > module.obbyMinDmg.getValue())
-        {
+                && bestData.getMaxDamage() > module.obbyMinDmg.getValue()) {
             module.setTarget(bestData.getTarget());
             if (module.obbyRotate.getValue() != AutoCrystal.Rotate.None
                     && !rotating
-                    && bestData.getPath().length > 0)
-            {
+                    && bestData.getPath().length > 0) {
                 module.rotation = module.rotationHelper.forObby(bestData);
                 rotating = true;
             }
 
             Runnable r = module.rotationHelper.postBlock(bestData);
-            if (!rotating)
-            {
+            if (!rotating) {
                 r.run();
-            }
-            else
-            {
+            } else {
                 module.post.add(r);
             }
 
-            if (liquid != null)
-            {
+            if (liquid != null) {
                 placeAndBreakLiquid(bestData, liquid, rotating);
             }
 
@@ -958,69 +828,55 @@ public abstract class AbstractCalculation<T extends CrystalData> extends Finisha
     }
 
     @Override
-    public void setFinished(boolean finished)
-    {
+    public void setFinished(boolean finished) {
         if (module.multiThread.getValue()
                 && module.smartPost.getValue()
-                && module.motionID.get() != motionID)
-        {
+                && module.motionID.get() != motionID) {
             module.runPost();
         }
 
         super.setFinished(finished);
-        if (finished)
-        {
-            synchronized (module)
-            {
+        if (finished) {
+            synchronized (module) {
                 module.notifyAll();
             }
         }
     }
 
-    protected boolean placeCheckPre(BlockPos pos)
-    {
+    protected boolean placeCheckPre(BlockPos pos) {
         double x = Thunderhack.positionManager.getX();
         double y = Thunderhack.positionManager.getY() + (module.placeRangeEyes.getValue() ? RotationUtil.getRotationPlayer().getEyeHeight() : 0);
         double z = Thunderhack.positionManager.getZ();
 
         if ((module.placeRangeCenter.getValue()
                 ? pos.distanceSqToCenter(x, y, z)
-                : pos.distanceSq(x, y, z)) >= MathUtil.square(module.placeRange.getValue()))
-        {
+                : pos.distanceSq(x, y, z)) >= MathUtil.square(module.placeRange.getValue())) {
             return false;
         }
 
-        if (!module.noRotateNigga(AutoCrystal.ACRotate.Place) && !module.isNotCheckingRotations())
-        {
+        if (!module.noRotateNigga(AutoCrystal.ACRotate.Place) && !module.isNotCheckingRotations()) {
             RayTraceResult result = rayTraceTo(pos, mc.world);
-            if (result == null || !result.getBlockPos().equals(pos))
-            {
+            if (result == null || !result.getBlockPos().equals(pos)) {
                 return false;
             }
         }
 
         if (pos.distanceSqToCenter(x, y, z)
-                >= MathUtil.square(module.placeTrace.getValue()))
-        {
+                >= MathUtil.square(module.placeTrace.getValue())) {
             if (module.rayTraceBypass.getValue()
-                    && !Visible.INSTANCE.check(pos, module.bypassTicks.getValue()))
-            {
+                    && !Visible.INSTANCE.check(pos, module.bypassTicks.getValue())) {
                 return true;
             }
 
             RayTraceResult result;
-            if (module.isNotCheckingRotations())
-            {
+            if (module.isNotCheckingRotations()) {
                 float[] rotations = getRotationsToTopMiddle(pos);
-                result = rayTraceWithYP(pos, mc.world, rotations[0], rotations[1], (b,p) -> true);
-            }
-            else
-            {
-                result = rayTraceTo(pos, mc.world, (b,p) -> true);
+                result = rayTraceWithYP(pos, mc.world, rotations[0], rotations[1], (b, p) -> true);
+            } else {
+                result = rayTraceTo(pos, mc.world, (b, p) -> true);
             }
 
-            if (result != null && !result.getBlockPos().equals(pos))
-            {
+            if (result != null && !result.getBlockPos().equals(pos)) {
                 // TODO: what even is this?
                 //noinspection deprecation
                 return module.ignoreNonFull.getValue()
@@ -1038,8 +894,7 @@ public abstract class AbstractCalculation<T extends CrystalData> extends Finisha
 
     protected MutableWrapper<Boolean> placeAndBreakLiquid(PositionData data,
                                                           MineSlots liquid,
-                                                          boolean rotating)
-    {
+                                                          boolean rotating) {
         boolean newVer = module.newVer.getValue();
         boolean absorb = module.absorb.getValue();
         List<Ray> path = new ArrayList<>((newVer ? 1 : 2) + (absorb ? 1 : 0));
@@ -1056,8 +911,7 @@ public abstract class AbstractCalculation<T extends CrystalData> extends Finisha
         BlockPos up = data.getPos().up();
         access.addBlockState(up, Blocks.NETHERRACK.getDefaultState());
         IBlockState upState = mc.world.getBlockState(up);
-        if (!newVer && upState.getMaterial().isLiquid())
-        {
+        if (!newVer && upState.getMaterial().isLiquid()) {
             path.add(RayTraceFactory.rayTrace(data.getFrom(),
                     up,
                     EnumFacing.UP,
@@ -1068,27 +922,22 @@ public abstract class AbstractCalculation<T extends CrystalData> extends Finisha
                             : 2.0));
 
             access.addBlockState(up.up(), Blocks.NETHERRACK.getDefaultState());
-            order = new int[] { 0, 1 };
-        }
-        else
-        {
-            order = new int[] { 0 };
+            order = new int[]{0, 1};
+        } else {
+            order = new int[]{0};
         }
 
-        if (absorb)
-        {
+        if (absorb) {
             BlockPos absorpPos = up;
             EnumFacing absorbFacing = module.liquidHelper.getAbsorbFacing(
                     absorpPos, entities, access, module.placeRange.getValue());
-            if (absorbFacing == null && !newVer)
-            {
+            if (absorbFacing == null && !newVer) {
                 absorpPos = up.up();
                 absorbFacing = module.liquidHelper.getAbsorbFacing(
                         absorpPos, entities, access, module.placeRange.getValue());
             }
 
-            if (absorbFacing != null)
-            {
+            if (absorbFacing != null) {
                 path.add(RayTraceFactory.rayTrace(data.getFrom(),
                         absorpPos,
                         absorbFacing,
@@ -1098,8 +947,8 @@ public abstract class AbstractCalculation<T extends CrystalData> extends Finisha
                                 ? -1.0
                                 : 2.0));
                 order = order.length == 2
-                        ? new int[] { 2, 1, 0 }
-                        : new int[] { 1, 0 };
+                        ? new int[]{2, 1, 0}
+                        : new int[]{1, 0};
             }
         }
 
@@ -1114,36 +963,28 @@ public abstract class AbstractCalculation<T extends CrystalData> extends Finisha
         Runnable b = module.rotationHelper.breakBlock(
                 liquid.getToolSlot(), placed, postBlock, order, pathArray);
         Runnable a = null;
-        if (module.setAir.getValue())
-        {
+        if (module.setAir.getValue()) {
             a = () ->
             {
-                for (Ray ray : path)
-                {
+                for (Ray ray : path) {
                     mc.world.setBlockState(ray.getPos().offset(ray.getFacing()),
                             Blocks.AIR.getDefaultState());
                 }
             };
         }
 
-        if (rotating)
-        {
-            synchronized (module.post)
-            {
+        if (rotating) {
+            synchronized (module.post) {
                 module.post.add(r);
                 module.post.add(b);
-                if (a != null)
-                {
+                if (a != null) {
                     mc.addScheduledTask(a);
                 }
             }
-        }
-        else
-        {
+        } else {
             r.run();
             b.run();
-            if (a != null)
-            {
+            if (a != null) {
                 mc.addScheduledTask(a);
             }
         }
@@ -1151,22 +992,17 @@ public abstract class AbstractCalculation<T extends CrystalData> extends Finisha
         return placed;
     }
 
-    protected boolean focusBreak()
-    {
+    protected boolean focusBreak() {
         Entity focus = module.focus;
-        if (focus != null)
-        {
+        if (focus != null) {
             if (EntityUtil.isDead(focus)
                     || !module.rangeHelper.isCrystalInRangeOfLastPosition(focus)
-                    && !module.rangeHelper.isCrystalInRange(focus))
-            {
+                    && !module.rangeHelper.isCrystalInRange(focus)) {
                 module.focus = null;
                 return false;
-            }
-            else
-            {
+            } else {
                 double exponent = module.focusExponent.getValue();
-                breakData = getBreakHelper().getData(module.focusAngleCalc.getValue() && exponent != 0.0 ?   RotationComparator.asSet(exponent, module.focusDiff.getValue()) :   getBreakDataSet(), entities, all, friends);
+                breakData = getBreakHelper().getData(module.focusAngleCalc.getValue() && exponent != 0.0 ? RotationComparator.asSet(exponent, module.focusDiff.getValue()) : getBreakDataSet(), entities, all, friends);
 
                 List<T> focusList = new ArrayList<>(1);
                 BreakData<T> focusData = getBreakHelper()
@@ -1174,29 +1010,24 @@ public abstract class AbstractCalculation<T extends CrystalData> extends Finisha
 
                 T minData = null;
                 double minAngle = Double.MAX_VALUE;
-                for (T data : breakData.getData())
-                {
-                    if (EntityUtil.isDead(data.getCrystal()))
-                    {
+                for (T data : breakData.getData()) {
+                    if (EntityUtil.isDead(data.getCrystal())) {
                         continue;
                     }
 
-                    if (data.hasCachedRotations() && data.getAngle() < minAngle)
-                    {
+                    if (data.hasCachedRotations() && data.getAngle() < minAngle) {
                         minAngle = data.getAngle();
-                        minData  = data;
+                        minData = data;
                     }
 
-                    if (!data.getCrystal().equals(focus))
-                    {
+                    if (!data.getCrystal().equals(focus)) {
                         continue;
                     }
 
                     if (data.getSelfDmg()
                             > module.maxSelfBreak.getValue()
                             || data.getDamage()
-                            < module.minBreakDamage.getValue())
-                    {
+                            < module.minBreakDamage.getValue()) {
                         return false;
                     }
 
@@ -1204,16 +1035,14 @@ public abstract class AbstractCalculation<T extends CrystalData> extends Finisha
                 }
 
                 Optional<T> first = focusData.getData().stream().filter(d -> !EntityUtil.isDead(d.getCrystal())).findFirst();
-                if (!first.isPresent())
-                {
+                if (!first.isPresent()) {
                     module.focus = null;
                     return false;
                 }
 
                 if (module.focusAngleCalc.getValue()
                         && minData != null
-                        && !minData.equals(first.get()))
-                {
+                        && !minData.equals(first.get())) {
                     focusList.set(0, minData);
                 }
 
@@ -1225,12 +1054,10 @@ public abstract class AbstractCalculation<T extends CrystalData> extends Finisha
         return false;
     }
 
-    protected Set<T> getBreakDataSet()
-    {
+    protected Set<T> getBreakDataSet() {
         double exponent = module.rotationExponent.getValue();
         if (Double.compare(exponent, 0.0) == 0
-                || module.noRotateNigga(AutoCrystal.ACRotate.Break))
-        {
+                || module.noRotateNigga(AutoCrystal.ACRotate.Break)) {
             return new TreeSet<>();
         }
 

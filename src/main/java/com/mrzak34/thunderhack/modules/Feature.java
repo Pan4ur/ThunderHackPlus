@@ -1,12 +1,12 @@
 package com.mrzak34.thunderhack.modules;
 
 import com.mrzak34.thunderhack.setting.Setting;
+import com.mrzak34.thunderhack.util.Util;
+
 import java.util.ArrayList;
 import java.util.List;
 
-import com.mrzak34.thunderhack.util.Util;
-
-public class Feature implements Util{
+public class Feature implements Util {
 
     public List<Setting> settings = new ArrayList<>();
     private String name;

@@ -1,6 +1,5 @@
 package com.mrzak34.thunderhack.modules.movement;
 
-import com.mrzak34.thunderhack.events.EventSprint;
 import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
@@ -14,13 +13,12 @@ import org.lwjgl.input.Keyboard;
 
 public class GuiMove extends Module {
 
+    public Setting<Boolean> clickBypass = register(new Setting<>("strict", false));
+
+
     public GuiMove() {
         super("GuiMove", "GuiMove", Category.MOVEMENT);
     }
-
-
-    public Setting<Boolean> clickBypass = register(new Setting<>("strict", false));
-
 
     @Override
     public void onUpdate() {
@@ -49,8 +47,8 @@ public class GuiMove extends Module {
     }
 
     @SubscribeEvent
-    public void onPacketSend(PacketEvent.Send e){
-        if(e.getPacket() instanceof CPacketClickWindow){
+    public void onPacketSend(PacketEvent.Send e) {
+        if (e.getPacket() instanceof CPacketClickWindow) {
             if (clickBypass.getValue()
                     && mc.player.onGround
                     && MovementUtil.isMoving()
@@ -66,7 +64,7 @@ public class GuiMove extends Module {
 
     @SubscribeEvent
     public void onPacketSendPost(PacketEvent.SendPost e) {
-        if(e.getPacket() instanceof CPacketClickWindow){
+        if (e.getPacket() instanceof CPacketClickWindow) {
             if (mc.player.isSprinting()) {
                 mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.START_SPRINTING));
             }

@@ -23,47 +23,64 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 public class PacketFly2 extends Module {
-    public PacketFly2() {
-        super("PacketFly2", "PacketFly2", Category.MOVEMENT);
-    }
-
-
-    private Setting<Mode> mode = register(new Setting("Mode", Mode.Fast));
-    private Setting<Phase> phase = register(new Setting("Phase", Phase.Full));
-    private Setting<Type> type = register(new Setting("Type", Type.Preserve));
-
-    public enum Mode {
-        Fast,Factor,Rubber,Limit
-    }
-    public enum Phase {
-        Full,Off,Semi
-    }    
-    public enum Type {
-        Preserve,Up,Down,Bounds
-    }
-
     public Setting<Boolean> autoClip = register(new Setting<>("AutoClip", false));//(antiCheat);
     public Setting<Boolean> limit = register(new Setting<>("Limit", true));//(antiCheat);
     public Setting<Boolean> antiKick = register(new Setting<>("AntiKick", true));//(antiCheat);
-
-
     public Setting<Float> speed = register(new Setting("Speed", 1.0f, 0.0f, 3.0f));//(antiCheat);
     public Setting<Float> timer = register(new Setting("Timer", 1f, 0.0f, 2f));//(antiCheat);
     public Setting<Integer> increaseTicks = register(new Setting("IncreaseTicks", 20, 1, 20));//(antiCheat);
     public Setting<Integer> factor = register(new Setting("Factor", 1, 1, 10));//(antiCheat);
-
-
-
+    private final Setting<Mode> mode = register(new Setting("Mode", Mode.Fast));
+    private final Setting<Phase> phase = register(new Setting("Phase", Phase.Full));
+    private final Setting<Type> type = register(new Setting("Type", Type.Preserve));
     private int Field3526 = -1;
-    private ConcurrentSet Field3527 = new ConcurrentSet();
-    private Random Field3528 = new Random();
-    private ConcurrentHashMap Field3529 = new ConcurrentHashMap();
+    private final ConcurrentSet Field3527 = new ConcurrentSet();
+    private final Random Field3528 = new Random();
+    private final ConcurrentHashMap Field3529 = new ConcurrentHashMap();
     private int Field3530 = 0;
     private int Field3531 = 0;
     private int Field3532 = 0;
     private boolean Field3533 = false;
     private boolean Field3534 = false;
+    public PacketFly2() {
+        super("PacketFly2", "PacketFly2", Category.MOVEMENT);
+    }
 
+    private static boolean Method4295(Object o) {
+        return System.currentTimeMillis() - ((Class443) ((Map.Entry) o).getValue()).Method1915() > TimeUnit.SECONDS.toMillis(30L);
+    }
+
+    public static boolean Method103() {
+        return Util.mc.player != null && (Util.mc.player.movementInput.moveForward != 0.0f || Util.mc.player.movementInput.moveStrafe != 0.0f);
+    }
+
+    public static double[] Method3180(double d) {
+        double d2 = Util.mc.player.movementInput.moveForward;
+        double d3 = Util.mc.player.movementInput.moveStrafe;
+        float f = Util.mc.player.rotationYaw;
+        double[] dArray = new double[2];
+        if (d2 == 0.0 && d3 == 0.0) {
+            dArray[0] = 0.0;
+            dArray[1] = 0.0;
+        } else {
+            if (d2 != 0.0) {
+                if (d3 > 0.0) {
+                    f += (float) (d2 > 0.0 ? -45 : 45);
+                } else if (d3 < 0.0) {
+                    f += (float) (d2 > 0.0 ? 45 : -45);
+                }
+                d3 = 0.0;
+                if (d2 > 0.0) {
+                    d2 = 1.0;
+                } else if (d2 < 0.0) {
+                    d2 = -1.0;
+                }
+            }
+            dArray[0] = d2 * d * Math.cos(Math.toRadians(f + 90.0f)) + d3 * d * Math.sin(Math.toRadians(f + 90.0f));
+            dArray[1] = d2 * d * Math.sin(Math.toRadians(f + 90.0f)) - d3 * d * Math.cos(Math.toRadians(f + 90.0f));
+        }
+        return dArray;
+    }
 
     @Override
     public void onEnable() {
@@ -80,9 +97,8 @@ public class PacketFly2 extends Module {
 
     @Override
     public void onDisable() {
-        Thunderhack.TICK_TIMER =(1.0f);
+        Thunderhack.TICK_TIMER = (1.0f);
     }
-
 
 
     public void Method4286() {
@@ -121,7 +137,7 @@ public class PacketFly2 extends Module {
         Vec3d vec3d3 = vec3d.add(vec3d2);
         switch ((this.type.getValue())) {
             case Preserve: {
-                vec3d3 = vec3d3.add((double)this.Method4291(), 0.0, (double)this.Method4291());
+                vec3d3 = vec3d3.add(this.Method4291(), 0.0, this.Method4291());
                 break;
             }
             case Up: {
@@ -143,8 +159,8 @@ public class PacketFly2 extends Module {
         Vec3d vec3d = new Vec3d(d.doubleValue(), d2.doubleValue(), d3.doubleValue());
         Vec3d vec3d2 = Util.mc.player.getPositionVector().add(vec3d);
         Vec3d vec3d3 = this.Method4292(vec3d, vec3d2);
-        this.Method4290((CPacketPlayer)new CPacketPlayer.Position(vec3d2.x, vec3d2.y, vec3d2.z, Util.mc.player.onGround));
-        this.Method4290((CPacketPlayer)new CPacketPlayer.Position(vec3d3.x, vec3d3.y, vec3d3.z, Util.mc.player.onGround));
+        this.Method4290(new CPacketPlayer.Position(vec3d2.x, vec3d2.y, vec3d2.z, Util.mc.player.onGround));
+        this.Method4290(new CPacketPlayer.Position(vec3d3.x, vec3d3.y, vec3d3.z, Util.mc.player.onGround));
         if (bl) {
             Util.mc.player.connection.sendPacket(new CPacketConfirmTeleport(++this.Field3526));
             this.Field3529.put(this.Field3526, new Class443(vec3d2.x, vec3d2.y, vec3d2.z, System.currentTimeMillis()));
@@ -157,12 +173,12 @@ public class PacketFly2 extends Module {
 
     @SubscribeEvent
     public void Method4282(PacketEvent.Receive eventNetworkPrePacketEvent) {
-        if(fullNullCheck()){
+        if (fullNullCheck()) {
             return;
         }
         if (Util.mc.player != null && eventNetworkPrePacketEvent.getPacket() instanceof SPacketPlayerPosLook) {
-            SPacketPlayerPosLook sPacketPlayerPosLook = (SPacketPlayerPosLook)eventNetworkPrePacketEvent.getPacket();
-            Class443 class443 = (Class443)this.Field3529.remove(sPacketPlayerPosLook.teleportId);
+            SPacketPlayerPosLook sPacketPlayerPosLook = eventNetworkPrePacketEvent.getPacket();
+            Class443 class443 = (Class443) this.Field3529.remove(sPacketPlayerPosLook.teleportId);
             if (Util.mc.player.isEntityAlive() && Util.mc.world.isBlockLoaded(new BlockPos(Util.mc.player.posX, Util.mc.player.posY, Util.mc.player.posZ), false) && !(Util.mc.currentScreen instanceof GuiDownloadTerrain) && this.mode.getValue() != Mode.Rubber && class443 != null && Class443.Method1920(class443) == sPacketPlayerPosLook.x && Class443.Method1921(class443) == sPacketPlayerPosLook.y && Class443.Method1922(class443) == sPacketPlayerPosLook.z) {
                 eventNetworkPrePacketEvent.setCanceled(true);
                 return;
@@ -172,8 +188,8 @@ public class PacketFly2 extends Module {
             this.Field3526 = sPacketPlayerPosLook.getTeleportId();
         }
     }
-    
-    
+
+
     @SubscribeEvent
     public void Method4281(PacketEvent.Send eventNetworkPostPacketEvent) {
         if (eventNetworkPostPacketEvent.getPacket() instanceof CPacketPlayer) {
@@ -189,12 +205,6 @@ public class PacketFly2 extends Module {
     public void onUpdate() {
         this.Field3529.entrySet().removeIf(PacketFly2::Method4295);
     }
-
-    private static boolean Method4295(Object o) {
-        return System.currentTimeMillis() - ((Class443)((Map.Entry)o).getValue()).Method1915() > TimeUnit.SECONDS.toMillis(30L);
-    }
-
-
 
     @SubscribeEvent
     public void Method4279(EventMove eventPlayerMove) {
@@ -214,8 +224,8 @@ public class PacketFly2 extends Module {
 
     @SubscribeEvent
     public void Method4278(EventPreMotion eventPlayerUpdateWalking) {
-        if ((double)(this.timer.getValue()) != 1.0) {
-            Thunderhack.TICK_TIMER =((this.timer.getValue()));
+        if ((double) (this.timer.getValue()) != 1.0) {
+            Thunderhack.TICK_TIMER = ((this.timer.getValue()));
         }
         Util.mc.player.setVelocity(0.0, 0.0, 0.0);
         if (this.mode.getValue() != Mode.Rubber && this.Field3526 == 0) {
@@ -231,12 +241,12 @@ public class PacketFly2 extends Module {
             d = Util.mc.player.movementInput.jump ? (d /= 2.5) : (d /= 1.5);
         }
         if (Util.mc.player.movementInput.jump && (this.autoClip.getValue())) {
-            Util.mc.player.connection.sendPacket(new CPacketEntityAction( Util.mc.player, this.Field3534 ? CPacketEntityAction.Action.START_SNEAKING : CPacketEntityAction.Action.STOP_SNEAKING));
+            Util.mc.player.connection.sendPacket(new CPacketEntityAction(Util.mc.player, this.Field3534 ? CPacketEntityAction.Action.START_SNEAKING : CPacketEntityAction.Action.STOP_SNEAKING));
             this.Field3534 = !this.Field3534;
         }
-        double[] dArray = Method3180(this.phase.getValue() == Phase.Full && bl ? 0.034444444444444444 : (double)(this.speed.getValue()) * 0.26);
+        double[] dArray = Method3180(this.phase.getValue() == Phase.Full && bl ? 0.034444444444444444 : (double) (this.speed.getValue()) * 0.26);
         int n = 1;
-        if (this.mode.getValue() == Mode.Factor && Util.mc.player.ticksExisted % (Integer)this.increaseTicks.getValue() == 0) {
+        if (this.mode.getValue() == Mode.Factor && Util.mc.player.ticksExisted % this.increaseTicks.getValue() == 0) {
             n = this.factor.getValue();
         }
         for (int i = 1; i <= n; ++i) {
@@ -246,30 +256,41 @@ public class PacketFly2 extends Module {
                         this.Field3533 = false;
                         d = -0.032;
                     }
-                    Util.mc.player.motionX = dArray[0] * (double)i;
-                    Util.mc.player.motionZ = dArray[1] * (double)i;
-                    Util.mc.player.motionY = d * (double)i;
-                    this.Method4293(Util.mc.player.motionX, Util.mc.player.motionY, Util.mc.player.motionZ, this.limit.getValue() == false);
+                    Util.mc.player.motionX = dArray[0] * (double) i;
+                    Util.mc.player.motionZ = dArray[1] * (double) i;
+                    Util.mc.player.motionY = d * (double) i;
+                    this.Method4293(Util.mc.player.motionX, Util.mc.player.motionY, Util.mc.player.motionZ, !this.limit.getValue());
                     continue;
                 }
                 if (!(d < 0.0)) continue;
                 this.Field3533 = true;
                 continue;
             }
-            Util.mc.player.motionX = dArray[0] * (double)i;
-            Util.mc.player.motionZ = dArray[1] * (double)i;
-            Util.mc.player.motionY = d * (double)i;
+            Util.mc.player.motionX = dArray[0] * (double) i;
+            Util.mc.player.motionZ = dArray[1] * (double) i;
+            Util.mc.player.motionY = d * (double) i;
             this.Method4293(Util.mc.player.motionX, Util.mc.player.motionY, Util.mc.player.motionZ, this.mode.getValue() != Mode.Rubber);
         }
     }
 
+    public enum Mode {
+        Fast, Factor, Rubber, Limit
+    }
 
+
+    public enum Phase {
+        Full, Off, Semi
+    }
+
+    public enum Type {
+        Preserve, Up, Down, Bounds
+    }
 
     public static class Class443 {
-        private double Field1501;
-        private double Field1502;
-        private double Field1503;
-        private long Field1504;
+        private final double Field1501;
+        private final double Field1502;
+        private final double Field1503;
+        private final long Field1504;
 
         public Class443(double d, double d2, double d3, long l) {
             this.Field1501 = d;
@@ -277,12 +298,6 @@ public class PacketFly2 extends Module {
             this.Field1503 = d3;
             this.Field1504 = l;
         }
-
-
-        public long Method1915() {
-            return this.Field1504;
-        }
-
 
         static double Method1920(Class443 class443) {
             return class443.Field1501;
@@ -295,41 +310,10 @@ public class PacketFly2 extends Module {
         static double Method1922(Class443 class443) {
             return class443.Field1503;
         }
-    }
-    public static boolean Method103() {
-        return Util.mc.player != null && (Util.mc.player.movementInput.moveForward != 0.0f || Util.mc.player.movementInput.moveStrafe != 0.0f);
-    }
 
-
-
-
-
-    public static double[] Method3180(double d) {
-        double d2 = Util.mc.player.movementInput.moveForward;
-        double d3 = Util.mc.player.movementInput.moveStrafe;
-        float f = Util.mc.player.rotationYaw;
-        double[] dArray = new double[2];
-        if (d2 == 0.0 && d3 == 0.0) {
-            dArray[0] = 0.0;
-            dArray[1] = 0.0;
-        } else {
-            if (d2 != 0.0) {
-                if (d3 > 0.0) {
-                    f += (float)(d2 > 0.0 ? -45 : 45);
-                } else if (d3 < 0.0) {
-                    f += (float)(d2 > 0.0 ? 45 : -45);
-                }
-                d3 = 0.0;
-                if (d2 > 0.0) {
-                    d2 = 1.0;
-                } else if (d2 < 0.0) {
-                    d2 = -1.0;
-                }
-            }
-            dArray[0] = d2 * d * Math.cos(Math.toRadians(f + 90.0f)) + d3 * d * Math.sin(Math.toRadians(f + 90.0f));
-            dArray[1] = d2 * d * Math.sin(Math.toRadians(f + 90.0f)) - d3 * d * Math.cos(Math.toRadians(f + 90.0f));
+        public long Method1915() {
+            return this.Field1504;
         }
-        return dArray;
     }
 
 }

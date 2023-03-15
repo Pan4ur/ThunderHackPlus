@@ -14,8 +14,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import java.util.Map;
 
 @Mod(modid = Reference.MODID, name = Reference.NAME, version = Reference.VERSION, guiFactory = Reference.GUI_FACTORY)
-public class Schematica
-{
+public class Schematica {
     @Mod.Instance(Reference.MODID)
     public static Schematica instance;
 
@@ -23,32 +22,27 @@ public class Schematica
     public static CommonProxy proxy;
 
     @NetworkCheckHandler
-    public boolean checkModList(final Map<String, String> versions, final Side side)
-    {
+    public boolean checkModList(final Map<String, String> versions, final Side side) {
         return true;
     }
 
     @Mod.EventHandler
-    public void preInit(final FMLPreInitializationEvent event)
-    {
+    public void preInit(final FMLPreInitializationEvent event) {
         proxy.preInit(event);
     }
 
     @Mod.EventHandler
-    public void init(final FMLInitializationEvent event)
-    {
+    public void init(final FMLInitializationEvent event) {
         proxy.init(event);
     }
 
     @Mod.EventHandler
-    public void postInit(final FMLPostInitializationEvent event)
-    {
+    public void postInit(final FMLPostInitializationEvent event) {
         proxy.postInit(event);
     }
 
     @Mod.EventHandler
-    public void serverStarting(final FMLServerStartingEvent event)
-    {
+    public void serverStarting(final FMLServerStartingEvent event) {
         proxy.serverStarting(event);
     }
 }

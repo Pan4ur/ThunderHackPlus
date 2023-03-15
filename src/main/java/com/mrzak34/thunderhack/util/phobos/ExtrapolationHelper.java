@@ -15,9 +15,7 @@ public class ExtrapolationHelper extends Feature {
         this.module = module;
     }
 
-    public static void onUpdateEntity(UpdateEntitiesEvent e){
-
-        //TODO SUBSCRIBEp
+    public static void onUpdateEntity(UpdateEntitiesEvent e) {
         for (EntityPlayer player : mc.world.playerEntities) {
             MotionTracker tracker = ((IEntityPlayer) player).getMotionTrackerT();
             MotionTracker breakTracker = ((IEntityPlayer) player).getBreakMotionTrackerT();

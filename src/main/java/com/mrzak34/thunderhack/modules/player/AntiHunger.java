@@ -8,9 +8,9 @@ import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class AntiHunger extends Module {
-    public  Setting<Boolean> sprint = this.register(new Setting<>("Sprint", true));
-    public  Setting<Boolean> noGround = this.register(new Setting<>("Ground", true));
-    public  Setting<Boolean> grPacket = this.register(new Setting<>("GroundPacket", true));
+    public Setting<Boolean> sprint = this.register(new Setting<>("Sprint", true));
+    public Setting<Boolean> noGround = this.register(new Setting<>("Ground", true));
+    public Setting<Boolean> grPacket = this.register(new Setting<>("GroundPacket", true));
 
     private boolean isOnGround = false;
 
@@ -33,17 +33,17 @@ public class AntiHunger extends Module {
     @SubscribeEvent
     public void onPacketSend(PacketEvent.Send event) {
         if (event.getPacket() instanceof CPacketEntityAction) {
-            CPacketEntityAction action = (CPacketEntityAction) event.getPacket();
+            CPacketEntityAction action = event.getPacket();
             if (sprint.getValue() && (action.getAction() == CPacketEntityAction.Action.START_SPRINTING || action.getAction() == CPacketEntityAction.Action.STOP_SPRINTING)) {
                 event.setCanceled(true);
             }
         }
 
         if (event.getPacket() instanceof CPacketPlayer) {
-            CPacketPlayer player = (CPacketPlayer) event.getPacket();
+            CPacketPlayer player = event.getPacket();
             boolean ground = mc.player.onGround;
             if (noGround.getValue() && isOnGround && ground && player.getY(0.0) == (!mc.player.isSprinting() ? 0.0 : mc.player.posY)) {
-                if(grPacket.getValue()){
+                if (grPacket.getValue()) {
                     player.onGround = false;
                 } else {
                     mc.player.onGround = false;

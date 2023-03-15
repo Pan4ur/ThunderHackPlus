@@ -1,13 +1,13 @@
 package com.mrzak34.thunderhack.gui.clickui.elements;
 
-import com.mrzak34.thunderhack.util.render.Drawable;
-import com.mrzak34.thunderhack.util.render.RenderUtil;
-import com.mrzak34.thunderhack.util.RoundedShader;
 import com.mrzak34.thunderhack.gui.clickui.base.AbstractElement;
 import com.mrzak34.thunderhack.gui.fontstuff.FontRender;
 import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.setting.Setting;
+import com.mrzak34.thunderhack.util.RoundedShader;
 import com.mrzak34.thunderhack.util.math.MathUtil;
+import com.mrzak34.thunderhack.util.render.Drawable;
+import com.mrzak34.thunderhack.util.render.RenderUtil;
 
 import java.awt.*;
 
@@ -25,13 +25,10 @@ public class ColorPickerElement extends AbstractElement {
     private float spos, bpos, hpos, apos;
 
     private Color prevColor;
-    
+
     private boolean firstInit;
 
-    private Setting colorSetting;
-    public ColorSetting getColorSetting() {
-        return (ColorSetting) colorSetting.getValue();
-    }
+    private final Setting colorSetting;
 
     public ColorPickerElement(Setting setting) {
         super(setting);
@@ -39,6 +36,10 @@ public class ColorPickerElement extends AbstractElement {
         prevColor = getColorSetting().getColorObject();
         updatePos();
         firstInit = true;
+    }
+
+    public ColorSetting getColorSetting() {
+        return (ColorSetting) colorSetting.getValue();
     }
 
     @Override
@@ -49,7 +50,7 @@ public class ColorPickerElement extends AbstractElement {
         Drawable.drawBlurredShadow((int) (x + width - 20), (int) (y + 5), 14, 6, 10, getColorSetting().getColorObject());
         RoundedShader.drawRound((float) (x + width - 20), (float) (y + 5), 14, 6, 1, getColorSetting().getColorObject());
 
-        if(!getColorSetting().isCycle()){
+        if (!getColorSetting().isCycle()) {
             FontRender.drawString5("R", (float) (x + width - 30), (float) (y + 7), new Color(0x484848).getRGB());
         } else {
             FontRender.drawString5("R", (float) (x + width - 30), (float) (y + 7), -1);
@@ -69,7 +70,7 @@ public class ColorPickerElement extends AbstractElement {
             updatePos();
             prevColor = getColorSetting().getColorObject();
         }
-        
+
         if (firstInit) {
             spos = (float) ((cx + cw) - (cw - (cw * saturation)));
             bpos = (float) ((cy + (ch - (ch * brightness))));

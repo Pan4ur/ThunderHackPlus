@@ -3,10 +3,14 @@ package com.mrzak34.thunderhack.modules.player;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 
-public class Reach extends Module
-{
+public class Reach extends Module {
     private static Reach INSTANCE;
-    public Setting<Float> add  = this.register(new Setting<>("Add", 3.0f,0f,7f));
+
+    static {
+        Reach.INSTANCE = new Reach();
+    }
+
+    public Setting<Float> add = this.register(new Setting<>("Add", 3.0f, 0f, 7f));
 
     public Reach() {
         super("Reach", "Увеличивает дальность-взаимодействий (и член)", Module.Category.PLAYER);
@@ -26,9 +30,5 @@ public class Reach extends Module
 
     public String getDisplayInfo() {
         return this.add.getValue().toString();
-    }
-
-    static {
-        Reach.INSTANCE = new Reach();
     }
 }

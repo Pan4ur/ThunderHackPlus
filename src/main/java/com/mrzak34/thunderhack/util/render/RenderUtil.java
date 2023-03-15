@@ -1,10 +1,9 @@
 package com.mrzak34.thunderhack.util.render;
 
-import com.mrzak34.thunderhack.modules.client.ThunderHackGui;
+import com.mrzak34.thunderhack.mixin.mixins.IRenderManager;
 import com.mrzak34.thunderhack.util.EntityUtil;
 import com.mrzak34.thunderhack.util.Util;
 import com.mrzak34.thunderhack.util.gaussianblur.GaussianFilter;
-import com.mrzak34.thunderhack.mixin.mixins.IRenderManager;
 import com.mrzak34.thunderhack.util.math.MathUtil;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -22,26 +21,58 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.GL11;
+import org.lwjgl.util.glu.GLU;
 
+import javax.vecmath.Vector3d;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 import java.text.NumberFormat;
 import java.util.HashMap;
 import java.util.Objects;
 
 import static org.lwjgl.opengl.GL11.*;
-import static org.lwjgl.opengl.GL11.glBlendFunc;
 
 public class RenderUtil implements Util {
 
-    public static double interpolate (double current, double old, double scale) {
+    public static RenderItem itemRender = RenderUtil.mc.getItemRenderer().itemRenderer;
+    public static ICamera camera = new Frustum();
+    public static Tessellator tessellator = Tessellator.getInstance();
+    public static BufferBuilder bufferbuilder = tessellator.getBuffer();
+    private static final HashMap<Integer, Integer> shadowCache = new HashMap<Integer, Integer>();
+
+    static {
+        itemRender = mc.getRenderItem();
+        camera = new Frustum();
+    }
+
+    public static double interpolate(double current, double old, double scale) {
         return old + (current - old) * scale;
     }
+
     public static void bindTexture(int texture) {
         glBindTexture(GL_TEXTURE_2D, texture);
     }
 
+    public static javax.vecmath.Vector3d vectorTo2D(int scaleFactor, double x, double y, double z) {
+        float xPos = (float) x;
+        float yPos = (float) y;
+        float zPos = (float) z;
+        IntBuffer viewport = GLAllocation.createDirectIntBuffer(16);
+        FloatBuffer modelview = GLAllocation.createDirectFloatBuffer(16);
+        FloatBuffer projection = GLAllocation.createDirectFloatBuffer(16);
+        FloatBuffer vector = GLAllocation.createDirectFloatBuffer(4);
+        GL11.glGetFloat(GL11.GL_MODELVIEW_MATRIX, modelview);
+        GL11.glGetFloat(GL11.GL_PROJECTION_MATRIX, projection);
+        GL11.glGetInteger(GL11.GL_VIEWPORT, viewport);
+        if (GLU.gluProject(xPos, yPos, zPos, modelview, projection, viewport, vector))
+            return new Vector3d((vector.get(0) / scaleFactor), ((Display.getHeight() - vector.get(1)) / scaleFactor),
+                    vector.get(2));
+        return null;
+    }
 
     public static float scrollAnimate(float endPoint, float current, float speed) {
         boolean shouldContinueAnimation = endPoint > current;
@@ -55,6 +86,7 @@ public class RenderUtil implements Util {
         float factor = dif * speed;
         return current + (shouldContinueAnimation ? factor : -factor);
     }
+
     public static void glBillboard(float x, float y, float z) {
         float scale = 0.016666668f * 1.6f;
         GlStateManager.translate(x - ((IRenderManager) mc.getRenderManager()).getRenderPosX(), y - ((IRenderManager) mc.getRenderManager()).getRenderPosY(), z - ((IRenderManager) mc.getRenderManager()).getRenderPosZ());
@@ -63,6 +95,7 @@ public class RenderUtil implements Util {
         GlStateManager.rotate(Minecraft.getMinecraft().player.rotationPitch, Minecraft.getMinecraft().gameSettings.thirdPersonView == 2 ? -1.0f : 1.0f, 0.0f, 0.0f);
         GlStateManager.scale(-scale, -scale, scale);
     }
+
     public static void glBillboardDistanceScaled(float x, float y, float z, EntityPlayer player, float scale) {
         glBillboard(x, y, z);
         int distance = (int) player.getDistance(x, y, z);
@@ -86,15 +119,10 @@ public class RenderUtil implements Util {
         }
     }
 
-
-
-
-    public static RenderItem itemRender = RenderUtil.mc.getItemRenderer().itemRenderer;
-    public static ICamera camera = new Frustum();
-
     public static float lerp(float a, float b, float f) {
         return a + f * (b - a);
     }
+
     public static Color TwoColoreffect(Color cl1, Color cl2, double speed) {
         double thing = speed / 4.0 % 1.0;
         float val = MathHelper.clamp((float) Math.sin(Math.PI * 6 * thing) / 2.0f + 0.5f, 0.0f, 1.0f);
@@ -102,7 +130,6 @@ public class RenderUtil implements Util {
                 lerp((float) cl1.getGreen() / 255.0f, (float) cl2.getGreen() / 255.0f, val),
                 lerp((float) cl1.getBlue() / 255.0f, (float) cl2.getBlue() / 255.0f, val));
     }
-
 
     public static void drawFilledCircleNoGL(final int x, final int y, final double r, final int c, final int quality) {
         final float f = ((c >> 24) & 0xff) / 255F;
@@ -121,7 +148,6 @@ public class RenderUtil implements Util {
 
         GL11.glEnd();
     }
-
 
     public static void drawCircleWithTexture(float cX, float cY, int start, int end, float radius, ResourceLocation res, int color) {
         double radian, x, y, tx, ty, xsin, ycos;
@@ -152,10 +178,6 @@ public class RenderUtil implements Util {
         GL11.glPopMatrix();
     }
 
-
-
-
-
     public static void glColor(int hex) {
         float alpha = (hex >> 24 & 0xFF) / 255.0F;
         float red = (hex >> 16 & 0xFF) / 255.0F;
@@ -163,6 +185,7 @@ public class RenderUtil implements Util {
         float blue = (hex & 0xFF) / 255.0F;
         GL11.glColor4f(red, green, blue, alpha);
     }
+
     public static void glColor(final Color color) {
         final float red = color.getRed() / 255F;
         final float green = color.getGreen() / 255F;
@@ -171,8 +194,6 @@ public class RenderUtil implements Util {
 
         GlStateManager.color(red, green, blue, alpha);
     }
-
-
 
     public static void drawRect(float x, float y, float w, float h, int color) {
 
@@ -237,7 +258,6 @@ public class RenderUtil implements Util {
         GlStateManager.disableBlend();
     }
 
-
     public static void draw2DGradientRect(float left, float top, float right, float bottom, int leftBottomColor, int leftTopColor, int rightBottomColor, int rightTopColor) {
         float lba = (float) (leftBottomColor >> 24 & 255) / 255.0F;
         float lbr = (float) (leftBottomColor >> 16 & 255) / 255.0F;
@@ -275,7 +295,6 @@ public class RenderUtil implements Util {
         GlStateManager.enableTexture2D();
     }
 
-
     public static void draw1DGradientRect(float left, float top, float right, float bottom, int leftColor, int rightColor) {
         float la = (float) (leftColor >> 24 & 255) / 255.0F;
         float lr = (float) (leftColor >> 16 & 255) / 255.0F;
@@ -304,9 +323,6 @@ public class RenderUtil implements Util {
         GlStateManager.enableTexture2D();
     }
 
-    public static Tessellator tessellator = Tessellator.getInstance();
-    public static BufferBuilder bufferbuilder = tessellator.getBuffer();
-
     public static void beginRender() {
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
@@ -315,6 +331,7 @@ public class RenderUtil implements Util {
         GlStateManager.disableCull();
         //GlStateManager.color(1, 1, 1, 1);
     }
+
     public static void endRender() {
         //GlStateManager.resetColor();
         GlStateManager.enableCull();
@@ -327,30 +344,25 @@ public class RenderUtil implements Util {
         float f1 = (float) (color >> 16 & 255) / 255.0f;
         float f2 = (float) (color >> 8 & 255) / 255.0f;
         float f3 = (float) (color & 255) / 255.0f;
-        GL11.glColor4f((float) f1, (float) f2, (float) f3, (float) f);
-    }
-
-    static {
-        itemRender = mc.getRenderItem();
-        camera = new Frustum();
+        GL11.glColor4f(f1, f2, f3, f);
     }
 
     public static void renderCrosses(BlockPos pos, Color color, float lineWidth) {
-        AxisAlignedBB bb = new AxisAlignedBB((double)pos.getX() - Util.mc.getRenderManager().viewerPosX, (double)pos.getY() - Util.mc.getRenderManager().viewerPosY, (double)pos.getZ() - Util.mc.getRenderManager().viewerPosZ, (double)(pos.getX() + 1) - Util.mc.getRenderManager().viewerPosX, (double)(pos.getY() + 1) - Util.mc.getRenderManager().viewerPosY, (double)(pos.getZ() + 1) - Util.mc.getRenderManager().viewerPosZ);
+        AxisAlignedBB bb = new AxisAlignedBB((double) pos.getX() - Util.mc.getRenderManager().viewerPosX, (double) pos.getY() - Util.mc.getRenderManager().viewerPosY, (double) pos.getZ() - Util.mc.getRenderManager().viewerPosZ, (double) (pos.getX() + 1) - Util.mc.getRenderManager().viewerPosX, (double) (pos.getY() + 1) - Util.mc.getRenderManager().viewerPosY, (double) (pos.getZ() + 1) - Util.mc.getRenderManager().viewerPosZ);
         camera.setPosition(Objects.requireNonNull(Util.mc.getRenderViewEntity()).posX, Util.mc.getRenderViewEntity().posY, Util.mc.getRenderViewEntity().posZ);
         if (camera.isBoundingBoxInFrustum(new AxisAlignedBB(pos))) {
             GlStateManager.pushMatrix();
             GlStateManager.enableBlend();
             GlStateManager.disableDepth();
-            GlStateManager.tryBlendFuncSeparate((int)770, (int)771, (int)0, (int)1);
+            GlStateManager.tryBlendFuncSeparate(770, 771, 0, 1);
             GlStateManager.disableTexture2D();
-            GlStateManager.depthMask((boolean)false);
-            GL11.glEnable((int)2848);
-            GL11.glHint((int)3154, (int)4354);
-            GL11.glLineWidth((float)lineWidth);
+            GlStateManager.depthMask(false);
+            GL11.glEnable(2848);
+            GL11.glHint(3154, 4354);
+            GL11.glLineWidth(lineWidth);
             renderCrosses(bb, color);
-            GL11.glDisable((int)2848);
-            GlStateManager.depthMask((boolean)true);
+            GL11.glDisable(2848);
+            GlStateManager.depthMask(true);
             GlStateManager.enableDepth();
             GlStateManager.enableTexture2D();
             GlStateManager.disableBlend();
@@ -358,12 +370,11 @@ public class RenderUtil implements Util {
         }
     }
 
-
     public static void renderCrosses(AxisAlignedBB bb, Color color) {
         int hex = color.getRGB();
-        float red = (float)(hex >> 16 & 0xFF) / 255.0f;
-        float green = (float)(hex >> 8 & 0xFF) / 255.0f;
-        float blue = (float)(hex & 0xFF) / 255.0f;
+        float red = (float) (hex >> 16 & 0xFF) / 255.0f;
+        float green = (float) (hex >> 8 & 0xFF) / 255.0f;
+        float blue = (float) (hex & 0xFF) / 255.0f;
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder bufferbuilder = tessellator.getBuffer();
         bufferbuilder.begin(1, DefaultVertexFormats.POSITION_COLOR);
@@ -373,7 +384,6 @@ public class RenderUtil implements Util {
         bufferbuilder.pos(bb.maxX, bb.minY, bb.maxZ).color(red, green, blue, 1.0f).endVertex();
         tessellator.draw();
     }
-
 
     public static void blockEspFrame(BlockPos blockPos, double red, double green, double blue) {
         double d = blockPos.getX();
@@ -399,7 +409,6 @@ public class RenderUtil implements Util {
         GL11.glDisable(3042);
     }
 
-
     public static void rectangleBordered(double x, double y, double x1, double y1, double width, int internalColor, int borderColor) {
         drawRect((float) (x + width), (float) (y + width), (float) (x1 - width), (float) (y1 - width), internalColor);
         drawRect((float) (x + width), (float) y, (float) (x1 - width), (float) (y + width), borderColor);
@@ -408,13 +417,11 @@ public class RenderUtil implements Util {
         drawRect((float) (x + width), (float) (y1 - width), (float) (x1 - width), (float) y1, borderColor);
     }
 
-
-    public static void rotationHelper( float xAngle , float yAngle , float zAngle ) {
-        GlStateManager.rotate ( yAngle , 0.0f , 1.0f , 0.0f );
-        GlStateManager.rotate ( zAngle , 0.0f , 0.0f , 1.0f );
-        GlStateManager.rotate ( xAngle , 1.0f , 0.0f , 0.0f );
+    public static void rotationHelper(float xAngle, float yAngle, float zAngle) {
+        GlStateManager.rotate(yAngle, 0.0f, 1.0f, 0.0f);
+        GlStateManager.rotate(zAngle, 0.0f, 0.0f, 1.0f);
+        GlStateManager.rotate(xAngle, 1.0f, 0.0f, 0.0f);
     }
-
 
     public static AxisAlignedBB interpolateAxis(AxisAlignedBB bb) {
         return new AxisAlignedBB(bb.minX - RenderUtil.mc.getRenderManager().viewerPosX, bb.minY - RenderUtil.mc.getRenderManager().viewerPosY, bb.minZ - RenderUtil.mc.getRenderManager().viewerPosZ, bb.maxX - RenderUtil.mc.getRenderManager().viewerPosX, bb.maxY - RenderUtil.mc.getRenderManager().viewerPosY, bb.maxZ - RenderUtil.mc.getRenderManager().viewerPosZ);
@@ -424,10 +431,10 @@ public class RenderUtil implements Util {
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder BufferBuilder2 = tessellator.getBuffer();
         BufferBuilder2.begin(7, DefaultVertexFormats.POSITION_TEX);
-        BufferBuilder2.pos(x + 0, y + height, zLevel).tex((float) (textureX + 0) * 0.00390625f, (float) (textureY + height) * 0.00390625f).endVertex();
+        BufferBuilder2.pos(x, y + height, zLevel).tex((float) (textureX) * 0.00390625f, (float) (textureY + height) * 0.00390625f).endVertex();
         BufferBuilder2.pos(x + width, y + height, zLevel).tex((float) (textureX + width) * 0.00390625f, (float) (textureY + height) * 0.00390625f).endVertex();
-        BufferBuilder2.pos(x + width, y + 0, zLevel).tex((float) (textureX + width) * 0.00390625f, (float) (textureY + 0) * 0.00390625f).endVertex();
-        BufferBuilder2.pos(x + 0, y + 0, zLevel).tex((float) (textureX + 0) * 0.00390625f, (float) (textureY + 0) * 0.00390625f).endVertex();
+        BufferBuilder2.pos(x + width, y, zLevel).tex((float) (textureX + width) * 0.00390625f, (float) (textureY) * 0.00390625f).endVertex();
+        BufferBuilder2.pos(x, y, zLevel).tex((float) (textureX) * 0.00390625f, (float) (textureY) * 0.00390625f).endVertex();
         tessellator.draw();
     }
 
@@ -444,28 +451,27 @@ public class RenderUtil implements Util {
         GL11.glScissor((int) (x * (float) sr.getScaleFactor()), (int) ((float) RenderUtil.mc.displayHeight - y1 * (float) sr.getScaleFactor()), (int) ((x1 - x) * (float) sr.getScaleFactor()), (int) ((y1 - y) * (float) sr.getScaleFactor()));
     }
 
-
-    public static void glScissor(float x, float y, float x1, float y1, ScaledResolution sr,double animation_factor) {
+    public static void glScissor(float x, float y, float x1, float y1, ScaledResolution sr, double animation_factor) {
         float h = y + y1;
-        float h2 = (float) (h * (1d - MathUtil.clamp(animation_factor,0,1.0025f)));
+        float h2 = (float) (h * (1d - MathUtil.clamp(animation_factor, 0, 1.0025f)));
 
         float x3 = x;
         float y3 = y + h2;
         float x4 = x1;
         float y4 = y1 - h2;
 
-        if(x4 < x3){
+        if (x4 < x3) {
             x4 = x3;
         }
-        if(y4 < y3){
+        if (y4 < y3) {
             y4 = y3;
         }
-        glScissor( x3, y3, x4, y4, sr);
+        glScissor(x3, y3, x4, y4, sr);
 
     }
 
     public static Color blend(Color color1, Color color2, double ratio) {
-        float r = (float)ratio;
+        float r = (float) ratio;
         float ir = 1.0f - r;
         float[] rgb1 = new float[3];
         float[] rgb2 = new float[3];
@@ -492,8 +498,7 @@ public class RenderUtil implements Util {
         Color color = null;
         try {
             color = new Color(red, green, blue);
-        }
-        catch (IllegalArgumentException exp) {
+        } catch (IllegalArgumentException exp) {
             NumberFormat numberFormat = NumberFormat.getNumberInstance();
         }
         return color;
@@ -512,35 +517,33 @@ public class RenderUtil implements Util {
         GL11.glScalef(2.0f, 2.0f, 2.0f);
     }
 
-
-    public static void drawBox(BlockPos pos, Color color,int mode) {
+    public static void drawBox(BlockPos pos, Color color, int mode) {
 
         IBlockState iblockstate = RenderUtil.mc.world.getBlockState(pos);
         Vec3d interp = EntityUtil.interpolateEntity(RenderUtil.mc.renderViewEntity, mc.getRenderPartialTicks());
 
         AxisAlignedBB bb = null;
-        switch (mode){
-            case 0 :
+        switch (mode) {
+            case 0:
                 bb = iblockstate.getSelectedBoundingBox(RenderUtil.mc.world, pos).grow(0.002f).offset(-interp.x, -interp.y, -interp.z);
                 break;
-            case 1 :
-                bb = iblockstate.getSelectedBoundingBox(RenderUtil.mc.world, pos).grow(0.002f).expand(0.9,0,0).offset(-interp.x, -interp.y, -interp.z);
+            case 1:
+                bb = iblockstate.getSelectedBoundingBox(RenderUtil.mc.world, pos).grow(0.002f).expand(0.9, 0, 0).offset(-interp.x, -interp.y, -interp.z);
                 break;
-            case 2 :
-                bb = iblockstate.getSelectedBoundingBox(RenderUtil.mc.world, pos).grow(0.002f).expand(-0.9,0,0).offset(-interp.x, -interp.y, -interp.z);
+            case 2:
+                bb = iblockstate.getSelectedBoundingBox(RenderUtil.mc.world, pos).grow(0.002f).expand(-0.9, 0, 0).offset(-interp.x, -interp.y, -interp.z);
                 break;
-            case 3 :
-                bb = iblockstate.getSelectedBoundingBox(RenderUtil.mc.world, pos).grow(0.002f).expand(0,0,0.9).offset(-interp.x, -interp.y, -interp.z);
+            case 3:
+                bb = iblockstate.getSelectedBoundingBox(RenderUtil.mc.world, pos).grow(0.002f).expand(0, 0, 0.9).offset(-interp.x, -interp.y, -interp.z);
                 break;
-            case 4 :
-                bb = iblockstate.getSelectedBoundingBox(RenderUtil.mc.world, pos).grow(0.002f).expand(0,0,-0.9).offset(-interp.x, -interp.y, -interp.z);
+            case 4:
+                bb = iblockstate.getSelectedBoundingBox(RenderUtil.mc.world, pos).grow(0.002f).expand(0, 0, -0.9).offset(-interp.x, -interp.y, -interp.z);
                 break;
         }
 
         camera.setPosition(Objects.requireNonNull(RenderUtil.mc.getRenderViewEntity()).posX, RenderUtil.mc.getRenderViewEntity().posY, RenderUtil.mc.getRenderViewEntity().posZ);
         if (camera.isBoundingBoxInFrustum(new AxisAlignedBB(bb.minX + RenderUtil.mc.getRenderManager().viewerPosX, bb.minY + RenderUtil.mc.getRenderManager().viewerPosY, bb.minZ + RenderUtil.mc.getRenderManager().viewerPosZ, bb.maxX + RenderUtil.mc.getRenderManager().viewerPosX, bb.maxY + RenderUtil.mc.getRenderManager().viewerPosY, bb.maxZ + RenderUtil.mc.getRenderManager().viewerPosZ))) {
             GlStateManager.pushMatrix();
-
 
             boolean texture = GL11.glIsEnabled(GL11.GL_TEXTURE_2D);
             boolean blend = GL11.glIsEnabled(GL11.GL_BLEND);
@@ -549,26 +552,23 @@ public class RenderUtil implements Util {
             GlStateManager.enableBlend();
             GlStateManager.tryBlendFuncSeparate(770, 771, 0, 1);
             GlStateManager.disableTexture2D();
-
             GL11.glEnable(2848);
             GL11.glHint(3154, 4354);
 
             RenderGlobal.renderFilledBox(bb, (float) color.getRed() / 255.0f, (float) color.getGreen() / 255.0f, (float) color.getBlue() / 255.0f, (float) color.getAlpha() / (mode == 0 ? 255f : 510.0f));
 
-            if(!hz)
+            if (!hz)
                 GL11.glDisable(2848);
-
-            if(texture)
+            if (texture)
                 GlStateManager.enableTexture2D();
-            if(!blend)
+            if (!blend)
                 GlStateManager.disableBlend();
 
             GlStateManager.popMatrix();
         }
     }
 
-
-    public static void drawBlockOutline(BlockPos pos, Color color, float linewidth, boolean air,int mode) {
+    public static void drawBlockOutline(BlockPos pos, Color color, float linewidth, boolean air, int mode) {
         IBlockState iblockstate = RenderUtil.mc.world.getBlockState(pos);
         if ((air || iblockstate.getMaterial() != Material.AIR) && RenderUtil.mc.world.getWorldBorder().contains(pos)) {
             assert (RenderUtil.mc.renderViewEntity != null);
@@ -578,8 +578,6 @@ public class RenderUtil implements Util {
 
         }
     }
-
-
 
     public static void drawBlockOutline(AxisAlignedBB bb, Color color, float linewidth) {
         float red = (float) color.getRed() / 255.0f;
@@ -599,7 +597,6 @@ public class RenderUtil implements Util {
         GlStateManager.disableTexture2D();
         GlStateManager.depthMask(false);
         GL11.glEnable(2848);
-
 
 
         GL11.glHint(3154, 4354);
@@ -625,24 +622,22 @@ public class RenderUtil implements Util {
         bufferbuilder.pos(bb.minX, bb.maxY, bb.minZ).color(red, green, blue, alpha).endVertex();
         tessellator.draw();
 
-        if(!HZ)
+        if (!HZ)
             GL11.glDisable(2848);
-        if(DEPTH) {
+        if (DEPTH) {
             GlStateManager.depthMask(true);
             GlStateManager.enableDepth();
         }
-        if(texture) {
+        if (texture) {
             GlStateManager.enableTexture2D();
         }
-        if(blend) {
+        if (blend) {
             GlStateManager.disableBlend();
         }
 
 
-
         GlStateManager.popMatrix();
     }
-
 
     public static void blockEsp(BlockPos blockPos, Color c, double length, double length2) {
         double x = (double) blockPos.getX() - RenderUtil.mc.renderManager.renderPosX;
@@ -670,24 +665,22 @@ public class RenderUtil implements Util {
 
     public static void drawRect2(double left, double top, double right, double bottom, int color) {
         GlStateManager.pushMatrix();
-        if (left < right)
-        {
+        if (left < right) {
             double i = left;
             left = right;
             right = i;
         }
 
-        if (top < bottom)
-        {
+        if (top < bottom) {
             double j = top;
             top = bottom;
             bottom = j;
         }
 
-        float f3 = (float)(color >> 24 & 255) / 255.0F;
-        float f = (float)(color >> 16 & 255) / 255.0F;
-        float f1 = (float)(color >> 8 & 255) / 255.0F;
-        float f2 = (float)(color & 255) / 255.0F;
+        float f3 = (float) (color >> 24 & 255) / 255.0F;
+        float f = (float) (color >> 16 & 255) / 255.0F;
+        float f1 = (float) (color >> 8 & 255) / 255.0F;
+        float f2 = (float) (color & 255) / 255.0F;
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder bufferbuilder = tessellator.getBuffer();
         GlStateManager.enableBlend();
@@ -695,17 +688,15 @@ public class RenderUtil implements Util {
         GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
         GlStateManager.color(f, f1, f2, f3);
         bufferbuilder.begin(7, DefaultVertexFormats.POSITION);
-        bufferbuilder.pos((double)left, (double)bottom, 0.0D).endVertex();
-        bufferbuilder.pos((double)right, (double)bottom, 0.0D).endVertex();
-        bufferbuilder.pos((double)right, (double)top, 0.0D).endVertex();
-        bufferbuilder.pos((double)left, (double)top, 0.0D).endVertex();
+        bufferbuilder.pos(left, bottom, 0.0D).endVertex();
+        bufferbuilder.pos(right, bottom, 0.0D).endVertex();
+        bufferbuilder.pos(right, top, 0.0D).endVertex();
+        bufferbuilder.pos(left, top, 0.0D).endVertex();
         tessellator.draw();
         GlStateManager.enableTexture2D();
         GlStateManager.disableBlend();
         GlStateManager.popMatrix();
     }
-
-
 
     public static void drawColorBox(AxisAlignedBB axisalignedbb, float red, float green, float blue, float alpha) {
         Tessellator ts = Tessellator.getInstance();
@@ -801,7 +792,6 @@ public class RenderUtil implements Util {
         tessellator.draw();
     }
 
-
     public static void glEnd() {
         GL11.glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
         GL11.glPopMatrix();
@@ -814,7 +804,6 @@ public class RenderUtil implements Util {
     public static AxisAlignedBB getBoundingBox(BlockPos blockPos) {
         return RenderUtil.mc.world.getBlockState(blockPos).getBoundingBox(RenderUtil.mc.world, blockPos).offset(blockPos);
     }
-
 
     public static void drawFilledBox(AxisAlignedBB bb, int color) {
         GlStateManager.pushMatrix();
@@ -862,16 +851,13 @@ public class RenderUtil implements Util {
         GlStateManager.popMatrix();
     }
 
-
     public static void setColor(Color color) {
         GL11.glColor4d((double) color.getRed() / 255.0, (double) color.getGreen() / 255.0, (double) color.getBlue() / 255.0, (double) color.getAlpha() / 255.0);
     }
 
-
     public static Entity getEntity() {
         return mc.getRenderViewEntity() == null ? mc.player : mc.getRenderViewEntity();
     }
-
 
     public static void prepare(float x, float y, float x1, float y1, int color, int color1) {
         startRender();
@@ -914,13 +900,9 @@ public class RenderUtil implements Util {
         GL11.glPopAttrib();
     }
 
-    private static HashMap<Integer, Integer> shadowCache = new HashMap<Integer, Integer>();
-
-
     public static void drawBlurredShadow(float x, float y, float width, float height, int blurRadius, Color color) {
         glPushMatrix();
         GlStateManager.alphaFunc(GL11.GL_GREATER, 0.01f);
-
         width = width + blurRadius * 2;
         height = height + blurRadius * 2;
         x = x - blurRadius;

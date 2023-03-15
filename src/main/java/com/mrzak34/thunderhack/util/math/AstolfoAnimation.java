@@ -5,20 +5,6 @@ import net.minecraft.client.Minecraft;
 public class AstolfoAnimation {
     private double value, prevValue;
 
-    public void update() {
-        this.prevValue = this.value;
-        this.value += 0.01;
-    }
-
-    public int getColor(double offset) {
-        double hue = ((this.prevValue + (this.value - this.prevValue) * Minecraft.getMinecraft().getRenderPartialTicks()) + offset) % 1.;
-        if (hue > 0.5F) {
-            hue = 0.5F - (hue - 0.5F);
-        }
-        hue += 0.5F;
-        return HSBtoRGB((float) hue, 0.5f, 1);
-    }
-
     public static int HSBtoRGB(float hue, float saturation, float brightness) {
         int r = 0, g = 0, b = 0;
         if (saturation == 0) {
@@ -63,5 +49,19 @@ public class AstolfoAnimation {
             }
         }
         return 0xff000000 | (r << 16) | (g << 8) | (b);
+    }
+
+    public void update() {
+        this.prevValue = this.value;
+        this.value += 0.01;
+    }
+
+    public int getColor(double offset) {
+        double hue = ((this.prevValue + (this.value - this.prevValue) * Minecraft.getMinecraft().getRenderPartialTicks()) + offset) % 1.;
+        if (hue > 0.5F) {
+            hue = 0.5F - (hue - 0.5F);
+        }
+        hue += 0.5F;
+        return HSBtoRGB((float) hue, 0.5f, 1);
     }
 }

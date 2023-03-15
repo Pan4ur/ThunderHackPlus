@@ -5,8 +5,7 @@ import net.minecraft.world.DimensionType;
 
 import java.util.List;
 
-public class Trace
-{
+public class Trace {
     private String name;
     private int index;
     private Vec3d pos;
@@ -17,65 +16,53 @@ public class Trace
                  String name,
                  DimensionType type,
                  Vec3d pos,
-                 List<TracePos> trace)
-    {
+                 List<TracePos> trace) {
         this.index = index;
-        this.name  = name;
-        this.type  = type;
-        this.pos   = pos;
+        this.name = name;
+        this.type = type;
+        this.pos = pos;
         this.trace = trace;
     }
 
-    public int getIndex()
-    {
+    public int getIndex() {
         return this.index;
     }
 
-    public DimensionType getType()
-    {
-        return this.type;
-    }
-
-    public List<TracePos> getTrace()
-    {
-        return this.trace;
-    }
-
-    public void setTrace(List<TracePos> trace)
-    {
-        this.trace = trace;
-    }
-
-    public String getName()
-    {
-        return this.name;
-    }
-
-    public void setName(String name)
-    {
-        this.name = name;
-    }
-
-    public void setPos(Vec3d pos)
-    {
-        this.pos = pos;
-    }
-
-    public void setIndex(int index)
-    {
+    public void setIndex(int index) {
         this.index = index;
     }
 
-    public Vec3d getPos()
-    {
-        return this.pos;
+    public DimensionType getType() {
+        return this.type;
     }
 
-    public void setType(DimensionType type)
-    {
+    public void setType(DimensionType type) {
         this.type = type;
     }
 
+    public List<TracePos> getTrace() {
+        return this.trace;
+    }
+
+    public void setTrace(List<TracePos> trace) {
+        this.trace = trace;
+    }
+
+    public String getName() {
+        return this.name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Vec3d getPos() {
+        return this.pos;
+    }
+
+    public void setPos(Vec3d pos) {
+        this.pos = pos;
+    }
 
     public static class TracePos {
         private final Vec3d pos;
@@ -87,7 +74,7 @@ public class Trace
             stopWatch.reset();
         }
 
-        public TracePos(Vec3d pos,long time) {
+        public TracePos(Vec3d pos, long time) {
             this.pos = pos;
             stopWatch.reset();
             this.time = time;

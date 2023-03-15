@@ -9,13 +9,11 @@ import net.minecraft.util.ChatAllowedCharacters;
 import static com.mrzak34.thunderhack.gui.clickui.elements.SliderElement.removeLastChar;
 
 public class StringElement extends AbstractElement {
+    public boolean isListening;
+    private CurrentString currentString = new CurrentString("");
     public StringElement(Setting setting) {
         super(setting);
     }
-
-    public boolean isListening;
-    private CurrentString currentString = new CurrentString("");
-
 
     @Override
     public void render(int mouseX, int mouseY, float delta) {
@@ -29,7 +27,7 @@ public class StringElement extends AbstractElement {
 
     }
 
-    public String getIdleSign(){
+    public String getIdleSign() {
         return "...";
     }
 
