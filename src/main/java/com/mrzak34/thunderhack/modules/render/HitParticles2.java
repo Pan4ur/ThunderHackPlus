@@ -1,9 +1,11 @@
 package com.mrzak34.thunderhack.modules.render;
 
 import com.mrzak34.thunderhack.events.Render3DEvent;
+import com.mrzak34.thunderhack.mixin.mixins.IRenderManager;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.setting.Setting;
+import com.mrzak34.thunderhack.util.Util;
 import com.mrzak34.thunderhack.util.math.MathUtil;
 import com.mrzak34.thunderhack.util.render.RenderUtil;
 import net.minecraft.client.renderer.GlStateManager;
@@ -156,9 +158,9 @@ public class HitParticles2 extends Module {
 
             try {
 
-                final double posX = x - (mc.getRenderManager()).renderPosX;
-                final double posY = y - (mc.getRenderManager()).renderPosY;
-                final double posZ = z - (mc.getRenderManager()).renderPosZ;
+                final double posX = x - ((IRenderManager) Util.mc.getRenderManager()).getRenderPosX();
+                final double posY = y - ((IRenderManager) Util.mc.getRenderManager()).getRenderPosY();
+                final double posZ = z - ((IRenderManager) Util.mc.getRenderManager()).getRenderPosZ();
 
                 final double distanceFromPlayer = mc.player.getDistance(x, y - 1, z);
                 int quality = (int) (distanceFromPlayer * 4 + 10);

@@ -41,7 +41,7 @@ public class Scheduler extends Feature {
 
     @SubscribeEvent
     public void onGameZaloop(GameZaloopEvent e) {
-        gameLoop = ((IMinecraft) mc).getGameLoop();
+        gameLoop = ((InterfaceMinecraft) mc).getGameLoop();
 
         executing = true;
         CollectionUtil.emptyQueue(scheduled, Runnable::run);
@@ -58,7 +58,7 @@ public class Scheduler extends Feature {
     public void schedule(Runnable runnable, boolean checkGameLoop) {
         if (mc.isCallingFromMinecraftThread()) {
             if (executing || checkGameLoop
-                    && gameLoop != ((IMinecraft) mc).getGameLoop()) {
+                    && gameLoop != ((InterfaceMinecraft) mc).getGameLoop()) {
                 toSchedule.add(runnable);
             } else {
                 scheduled.add(runnable);

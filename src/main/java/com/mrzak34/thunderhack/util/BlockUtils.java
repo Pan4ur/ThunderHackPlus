@@ -1,6 +1,7 @@
 package com.mrzak34.thunderhack.util;
 
 import com.mrzak34.thunderhack.events.EventPreMotion;
+import com.mrzak34.thunderhack.mixin.mixins.IMinecraft;
 import com.mrzak34.thunderhack.util.math.MathUtil;
 import net.minecraft.block.*;
 import net.minecraft.block.material.Material;
@@ -340,7 +341,7 @@ public class BlockUtils {
             mc.playerController.processRightClickBlock(mc.player, mc.world, pos, direction, vec, hand);
         }
         mc.player.swingArm(EnumHand.MAIN_HAND);
-        mc.rightClickDelayTimer = 4;
+        ((IMinecraft)mc).setRightClickDelayTimer(4);
     }
 
     public static boolean placeBlockSmartRotate(BlockPos pos, EnumHand hand, boolean rotate, boolean packet, boolean isSneaking, EventPreMotion ev) {
@@ -364,7 +365,7 @@ public class BlockUtils {
         }
         rightClickBlock2(neighbour, hitVec, hand, opposite, packet);
         mc.player.swingArm(EnumHand.MAIN_HAND);
-        mc.rightClickDelayTimer = 4;
+        ((IMinecraft)mc).setRightClickDelayTimer(4);
         return sneaking || isSneaking;
     }
 
@@ -425,13 +426,6 @@ public class BlockUtils {
         return dirnumber != 3 || (double) pos.getX() - mc.player.getPositionVector().x >= 0.0;
     }
 
-    public static Vec3d[] convertVec3ds(Vec3d vec3d, Vec3d[] input) {
-        Vec3d[] output = new Vec3d[input.length];
-        for (int i = 0; i < input.length; ++i) {
-            output[i] = vec3d.add(input[i]);
-        }
-        return output;
-    }
 
     public static boolean rayTracePlaceCheck(BlockPos pos, boolean shouldCheck, float height) {
         return !shouldCheck || mc.world.rayTraceBlocks(new Vec3d(mc.player.posX, mc.player.posY + (double) mc.player.getEyeHeight(), mc.player.posZ), new Vec3d(pos.getX(), (float) pos.getY() + height, pos.getZ()), false, true, false) == null;

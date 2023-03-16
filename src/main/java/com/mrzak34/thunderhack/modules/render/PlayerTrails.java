@@ -3,9 +3,12 @@ package com.mrzak34.thunderhack.modules.render;
 import com.mrzak34.thunderhack.events.EventEntityMove;
 import com.mrzak34.thunderhack.events.PreRenderEvent;
 import com.mrzak34.thunderhack.events.Render3DEvent;
+import com.mrzak34.thunderhack.mixin.mixins.IEntityRenderer;
+import com.mrzak34.thunderhack.mixin.mixins.IRenderManager;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.setting.Setting;
+import com.mrzak34.thunderhack.util.Util;
 import com.mrzak34.thunderhack.util.math.AstolfoAnimation;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.renderer.GlStateManager;
@@ -50,7 +53,7 @@ public class PlayerTrails extends Module {
 
 
             float alpha = color.getValue().getAlpha() / 255f;
-            mc.entityRenderer.setupCameraTransform(mc.getRenderPartialTicks(), 2);
+            ((IEntityRenderer)mc.entityRenderer).invokeSetupCameraTransform(mc.getRenderPartialTicks(), 2);
             if (entAndTrail.get(entity).size() > 0) {
                 GL11.glPushMatrix();
                 GL11.glEnable(GL11.GL_BLEND);
@@ -229,7 +232,7 @@ public class PlayerTrails extends Module {
 
 
             float alpha = color.getValue().getAlpha() / 255f;
-            mc.entityRenderer.setupCameraTransform(mc.getRenderPartialTicks(), 2);
+            ((IEntityRenderer)mc.entityRenderer).invokeSetupCameraTransform(mc.getRenderPartialTicks(), 2);
             if (entAndTrail.get(entity).size() > 0) {
                 GL11.glPushMatrix();
                 GL11.glEnable(GL11.GL_BLEND);
@@ -430,9 +433,9 @@ public class PlayerTrails extends Module {
         }
 
         public Vec3d interpolate(float pt) {
-            double x = from.x + ((to.x - from.x) * pt) - mc.getRenderManager().renderPosX;
-            double y = from.y + ((to.y - from.y) * pt) - mc.getRenderManager().renderPosY;
-            double z = from.z + ((to.z - from.z) * pt) - mc.getRenderManager().renderPosZ;
+            double x = from.x + ((to.x - from.x) * pt) - ((IRenderManager)Util.mc.getRenderManager()).getRenderPosX();
+            double y = from.y + ((to.y - from.y) * pt) - ((IRenderManager)Util.mc.getRenderManager()).getRenderPosY();
+            double z = from.z + ((to.z - from.z) * pt) - ((IRenderManager)Util.mc.getRenderManager()).getRenderPosZ();
             return new Vec3d(x, y, z);
         }
 

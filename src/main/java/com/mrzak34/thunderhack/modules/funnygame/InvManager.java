@@ -187,9 +187,9 @@ public class InvManager extends Module {
                 }
             }
         }
-        if (stack.getItem() instanceof ItemBlock && (getBlockCount() > cap.getValue() || invalidBlocks.contains(((ItemBlock) stack.getItem()).getBlock()))) {
-            return true;
-        }
+      //  if (stack.getItem() instanceof ItemBlock && (getBlockCount() > cap.getValue() || invalidBlocks.contains(((ItemBlock) stack.getItem()).getBlock()))) {
+       //     return true;
+      //  }
         if (stack.getItem() instanceof ItemPotion) {
             if (isBadPotion(stack)) {
                 return true;
@@ -242,7 +242,7 @@ public class InvManager extends Module {
                 ItemStack is = mc.player.inventoryContainer.getSlot(i).getStack();
                 Item item = is.getItem();
                 if (is.getItem() instanceof ItemBlock && !invalidBlocks.contains(((ItemBlock) item).getBlock())) {
-                    blockCount += is.stackSize;
+                //    blockCount += is.getStackSize();
                 }
             }
         }

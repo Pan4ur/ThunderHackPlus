@@ -2,10 +2,12 @@ package com.mrzak34.thunderhack.modules.render;
 
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.events.Render3DEvent;
+import com.mrzak34.thunderhack.mixin.mixins.IRenderManager;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.BlockUtils;
+import com.mrzak34.thunderhack.util.Util;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.model.ModelPlayer;
 import net.minecraft.client.renderer.GlStateManager;
@@ -71,9 +73,9 @@ public class Skeleton
                 GlStateManager.color(Color3.getValue().getRed() / 255f, Color3.getValue().getGreen() / 255f, Color3.getValue().getBlue() / 255f, Color3.getValue().getAlpha() / 255f);
             }
             Vec3d vec = this.getVec3(event, e);
-            double x = vec.x - Skeleton.mc.getRenderManager().renderPosX;
-            double y = vec.y - Skeleton.mc.getRenderManager().renderPosY;
-            double z = vec.z - Skeleton.mc.getRenderManager().renderPosZ;
+            double x = vec.x - ((IRenderManager) Util.mc.getRenderManager()).getRenderPosX();
+            double y = vec.y - ((IRenderManager)Util.mc.getRenderManager()).getRenderPosY();
+            double z = vec.z - ((IRenderManager)Util.mc.getRenderManager()).getRenderPosZ();
             GL11.glTranslated(x, y, z);
             float xOff = e.prevRenderYawOffset + (e.renderYawOffset - e.prevRenderYawOffset) * event.getPartialTicks();
             GL11.glRotatef(-xOff, 0.0f, 1.0f, 0.0f);

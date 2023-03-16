@@ -42,7 +42,7 @@ public class ClickTP extends Module {
             if (rayTracedEntity == null && ray != null && ray.typeOfHit == RayTraceResult.Type.BLOCK) {
                 if (spoofs.getValue()) {
                     for (i = 0; i < 10; ++i) {
-                        this.mc.player.connection.sendPacket(new CPacketPlayer.Position(pos.x, ass.getValue() + pos.y, pos.z, ground.getValue()));
+                        this.mc.player.connection.sendPacket(new CPacketPlayer.Position(pos.getX(), ass.getValue() + pos.getY(), pos.getZ(), ground.getValue()));
                     }
                 }
                 mc.player.setPosition(pos.getX(), pos.getY() + ass.getValue(), pos.getZ());
@@ -51,10 +51,10 @@ public class ClickTP extends Module {
                 BlockPos bp = new BlockPos(rayTracedEntity);
                 if (spoofs.getValue()) {
                     for (i = 0; i < 10; ++i) {
-                        this.mc.player.connection.sendPacket(new CPacketPlayer.Position(bp.x, adss.getValue() + bp.y, bp.z, ground.getValue()));
+                        this.mc.player.connection.sendPacket(new CPacketPlayer.Position(bp.getX(), adss.getValue() + bp.getY(), bp.getZ(), ground.getValue()));
                     }
                 }
-                mc.player.setPosition(bp.x, bp.y + adss.getValue(), bp.z);
+                mc.player.setPosition(bp.getX(), bp.getY() + adss.getValue(), bp.getZ());
             }
         }
     }

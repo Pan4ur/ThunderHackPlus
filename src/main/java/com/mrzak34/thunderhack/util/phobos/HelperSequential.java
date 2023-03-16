@@ -2,6 +2,7 @@ package com.mrzak34.thunderhack.util.phobos;
 
 import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.events.PacketEvent;
+import com.mrzak34.thunderhack.mixin.mixins.ICPacketUseEntity;
 import com.mrzak34.thunderhack.modules.Feature;
 import com.mrzak34.thunderhack.modules.combat.AutoCrystal;
 import com.mrzak34.thunderhack.util.Timer;
@@ -32,7 +33,7 @@ public class HelperSequential extends Feature {
     @SubscribeEvent
     public void onPacketSend(PacketEvent.SendPost e) {
         if (e.getPacket() instanceof CPacketUseEntity) {
-            Entity entity = mc.world.getEntityByID(((CPacketUseEntity) e.getPacket()).entityId);
+            Entity entity = mc.world.getEntityByID(((ICPacketUseEntity) e.getPacket()).getEntityId());
             if (entity instanceof EntityEnderCrystal) {
                 if (module.endSequenceOnBreak.getValue()) {
                     setExpecting(null);

@@ -4,6 +4,7 @@ import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.events.ElytraEvent;
 import com.mrzak34.thunderhack.mixin.mixins.IEntityPlayerSP;
+import com.mrzak34.thunderhack.mixin.mixins.IKeyBinding;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.InventoryUtil;
@@ -481,7 +482,7 @@ public class ElytraFlight extends Module {
             toggle();
             return;
         }
-        if (mc.player.inWater) {
+        if (mc.player.isInWater()) {
             return;
         }
         if (mc.player.onGround) {
@@ -506,7 +507,7 @@ public class ElytraFlight extends Module {
             }
             mc.player.motionY = -0.01f;
             MovementUtil.setMotion(MovementUtil.getSpeed());
-            if (!mc.player.isSneaking() && mc.gameSettings.keyBindJump.pressed) {
+            if (!mc.player.isSneaking() && ((IKeyBinding)mc.gameSettings.keyBindJump).isPressed()) {
                 mc.player.motionY = 0.8f;
             }
             if (mc.gameSettings.keyBindSneak.isKeyDown()) {

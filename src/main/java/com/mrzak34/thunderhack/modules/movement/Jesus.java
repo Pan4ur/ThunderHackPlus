@@ -5,6 +5,7 @@ import com.mrzak34.thunderhack.events.EventPreMotion;
 import com.mrzak34.thunderhack.events.HandleLiquidJumpEvent;
 import com.mrzak34.thunderhack.events.JesusEvent;
 import com.mrzak34.thunderhack.events.PacketEvent;
+import com.mrzak34.thunderhack.mixin.mixins.ICPacketPlayer;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.MovementUtil;
@@ -312,16 +313,17 @@ public class Jesus extends Module {
                     && mc.player.fallDistance < 3.0F) {
                 final CPacketPlayer packet = event.getPacket();
                 if (isOnLiquid() && !isInLiquid()) {
-                    packet.onGround = (false);
+                    ((ICPacketPlayer)packet).setOnGround(false);
+
                     if (strict.getValue()) {
                         lastOffset += 0.12F;
 
                         if (lastOffset > 0.4F) {
                             lastOffset = 0.2F;
                         }
-                        packet.y = (packet.getY(mc.player.posY) - lastOffset);
+                        ((ICPacketPlayer)packet).setY((packet.getY(mc.player.posY) - lastOffset));
                     } else {
-                        packet.y = ((mc.player.ticksExisted % 2 == 0) ? (packet.getY(mc.player.posY) - 0.05D) : packet.getY(mc.player.posY));
+                        ((ICPacketPlayer)packet).setY(((mc.player.ticksExisted % 2 == 0) ? (packet.getY(mc.player.posY) - 0.05D) : packet.getY(mc.player.posY)));
                     }
                 }
             }

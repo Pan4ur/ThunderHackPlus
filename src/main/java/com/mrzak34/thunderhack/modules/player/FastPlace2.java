@@ -2,6 +2,7 @@ package com.mrzak34.thunderhack.modules.player;
 
 import com.mrzak34.thunderhack.events.EventPreMotion;
 import com.mrzak34.thunderhack.events.Render2DEvent;
+import com.mrzak34.thunderhack.mixin.mixins.IMinecraft;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.setting.SubBind;
@@ -82,8 +83,6 @@ public class FastPlace2
         ItemStack stack4 = armorStacks2[2];
         ItemStack stack5 = armorStacks2[3];
         if (PlayerUtils.isKeyDown(aboba.getValue().getKey()) && (calculatePercentage(stack2) < threshold.getValue() || calculatePercentage(stack3) < threshold.getValue() || calculatePercentage(stack4) < threshold.getValue() || calculatePercentage(stack5) < threshold.getValue())) {
-
-
             int itemSlot = getXpSlot();
             boolean changeItem = mc.player.inventory.currentItem != itemSlot && itemSlot != -1;
             startingItem = mc.player.inventory.currentItem;
@@ -97,15 +96,8 @@ public class FastPlace2
 
         if (mc.player.getHeldItem(EnumHand.MAIN_HAND).getItem() == Items.EXPERIENCE_BOTTLE || (getXpSlot() != -1) && target != null) {
             if (PlayerUtils.isKeyDown(aboba.getValue().getKey()) && (calculatePercentage(stack2) < threshold.getValue() || calculatePercentage(stack3) < threshold.getValue() || calculatePercentage(stack4) < threshold.getValue() || calculatePercentage(stack5) < threshold.getValue())) {
-
-
                 shouldMend = false;
-
-
-                // FastPlace2.mc.player.connection.sendPacket((Packet)new CPacketPlayer.Rotation(0.0f,  90.0f,  true));
                 target = FastPlace2.mc.player.getPosition().add(0.0f, -1.0f, 0.0f);
-
-
                 ItemStack[] armorStacks = new ItemStack[]{
                         mc.player.inventory.getStackInSlot(39),
                         mc.player.inventory.getStackInSlot(38),
@@ -201,8 +193,8 @@ public class FastPlace2
 
     @Override
     public void onUpdate() {
-        if (afast.getValue() && mc.rightClickDelayTimer > rcdtimer.getValue())
-            mc.rightClickDelayTimer = rcdtimer.getValue();
+        if (afast.getValue() && ((IMinecraft)mc).getRightClickDelayTimer() > rcdtimer.getValue())
+            ((IMinecraft)mc).setRightClickDelayTimer(rcdtimer.getValue());
     }
 
     @SubscribeEvent
@@ -263,7 +255,7 @@ public class FastPlace2
 
             final int expCount = this.getExpCount();
 
-            FastPlace2.mc.renderItem.renderItemIntoGUI(new ItemStack(Items.EXPERIENCE_BOTTLE), waterMarkZ2.getValue() + 70 + 11, waterMarkZ1.getValue() + 17);
+            FastPlace2.mc.getRenderItem().renderItemIntoGUI(new ItemStack(Items.EXPERIENCE_BOTTLE), waterMarkZ2.getValue() + 70 + 11, waterMarkZ1.getValue() + 17);
             final String s3 = String.valueOf(expCount);
             Util.fr.drawStringWithShadow(s3, waterMarkZ2.getValue() + 85 + 11, waterMarkZ1.getValue() + 9 + 17, 16777215);
 
@@ -303,7 +295,7 @@ public class FastPlace2
         int expCount = 0;
         for (int i = 0; i < 45; ++i) {
             if (FastPlace2.mc.player.inventory.getStackInSlot(i).getItem().equals(Items.EXPERIENCE_BOTTLE)) {
-                expCount = expCount + FastPlace2.mc.player.inventory.getStackInSlot(i).stackSize;
+                expCount = expCount + FastPlace2.mc.player.inventory.getStackInSlot(i).getCount();
             }
         }
         if (FastPlace2.mc.player.getHeldItemOffhand().getItem().equals(Items.EXPERIENCE_BOTTLE)) {

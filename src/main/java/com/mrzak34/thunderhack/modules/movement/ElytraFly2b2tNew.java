@@ -6,6 +6,7 @@ import com.mrzak34.thunderhack.events.EventPlayerTravel;
 import com.mrzak34.thunderhack.events.EventPreMotion;
 import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.events.TurnEvent;
+import com.mrzak34.thunderhack.mixin.mixins.ISPacketPlayerPosLook;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.Timer;
@@ -57,7 +58,7 @@ public class ElytraFly2b2tNew extends Module {
         if (mc.player.isSpectator() || !elytraIsEquipped || elytraDurability <= 1 || !isFlying) return;
         if (e.getPacket() instanceof SPacketPlayerPosLook) {
             SPacketPlayerPosLook packet = e.getPacket();
-            packet.pitch = mc.player.rotationPitch;
+            ((ISPacketPlayerPosLook)packet).setPitch(mc.player.rotationPitch);
             acceleration_ticks = 0;
             accelerationDelay.reset();
         }
@@ -97,14 +98,14 @@ public class ElytraFly2b2tNew extends Module {
 
     public void stateUpdate() {
         ItemStack armorSlot = mc.player.inventory.armorInventory.get(2);
-        elytraIsEquipped = armorSlot.item == Items.ELYTRA;
+        elytraIsEquipped = armorSlot.getItem() == Items.ELYTRA;
         if (elytraIsEquipped) {
             int oldDurability = elytraDurability;
-            elytraDurability = armorSlot.getMaxDamage() - armorSlot.itemDamage;
+            elytraDurability = armorSlot.getMaxDamage() - armorSlot.getItemDamage();
             if (!mc.player.onGround && oldDurability != elytraDurability) {
                 if (elytraDurability <= 1) {
                     if (durabilityWarning.getValue()) {
-                        mc.soundHandler.playSound(PositionedSoundRecord.getRecord(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.0f));
+                        mc.getSoundHandler().playSound(PositionedSoundRecord.getRecord(SoundEvents.ENTITY_EXPERIENCE_ORB_PICKUP, 1.0f, 1.0f));
                         Command.sendMessage("Elytra is low, disabling!");
                         toggle();
                     }

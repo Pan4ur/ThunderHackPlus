@@ -1,5 +1,6 @@
 package com.mrzak34.thunderhack.util.seedoverlay;
 
+import com.mrzak34.thunderhack.mixin.mixins.IChunkProviderClient;
 import com.mrzak34.thunderhack.util.Util;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.GameType;
@@ -50,7 +51,7 @@ public class WorldLoader {
             Testchunk = ChunkGenerator.generateChunk(x, z);
         else Testchunk = fakeworld.getChunk(x, z);
 
-        fakeworld.getChunkProvider().loadedChunks.put(ChunkPos.asLong(x, z), Testchunk);
+        ((IChunkProviderClient)fakeworld.getChunkProvider()).getLoadedChunks().put(ChunkPos.asLong(x, z), Testchunk);
         Testchunk.onLoad();
         populate(fakeworld.getChunkProvider(), ChunkGenerator, x, z);
 

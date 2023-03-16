@@ -4,6 +4,7 @@ import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.events.EventPreMotion;
 import com.mrzak34.thunderhack.events.Render3DEvent;
 import com.mrzak34.thunderhack.gui.fontstuff.FontRender;
+import com.mrzak34.thunderhack.mixin.ducks.IPlayerControllerMP;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.*;
@@ -108,8 +109,7 @@ public class C4Aura extends Module {
 
     public void placeC4(BlockPos bp, EventPreMotion ed) {
         mc.player.inventory.currentItem = findC4();
-        mc.playerController.syncCurrentPlayItem();
-
+        ((IPlayerControllerMP)mc.playerController).syncItem();
         renderblockpos = bp;
         if (placeTimer.passedMs(placedelay.getValue())) {
             sneak_fix = BlockUtils.placeBlockSmartRotate(bp, EnumHand.MAIN_HAND, true, false, sneak_fix, ed);
@@ -141,7 +141,7 @@ public class C4Aura extends Module {
 
 
     private boolean canPlaceC4(BlockPos bp) {
-        if (mc.player.getDistance(bp.x, bp.y, bp.z) > rang.getValue()) {
+        if (mc.player.getDistance(bp.getX(), bp.getY(), bp.getZ()) > rang.getValue()) {
             return false;
         }
         /*
@@ -268,8 +268,8 @@ public class C4Aura extends Module {
         BlockPos pos = null;
         double bestdmg = mindmg.getValue();
         for (BlockPos pos1 : vsepos) {
-            if (getDamage(pos1.x, pos1.y, pos1.z, nigger) > bestdmg) {
-                bestdmg = getDamage(pos1.x, pos1.y, pos1.z, nigger);
+            if (getDamage(pos1.getX(), pos1.getY(), pos1.getZ(), nigger) > bestdmg) {
+                bestdmg = getDamage(pos1.getX(), pos1.getY(), pos1.getZ(), nigger);
                 pos = pos1;
             }
         }
@@ -319,7 +319,7 @@ public class C4Aura extends Module {
                 RenderUtil.glBillboardDistanceScaled((float) aboba.getX() + 0.5f, (float) aboba.getY() + 0.5f, (float) aboba.getZ() + 0.5f, mc.player, 1);
             } catch (Exception ignored) {
             }
-            FontRender.drawString3(df.format(getDamage(aboba.x, aboba.y, aboba.z, target)), (int) -(FontRender.getStringWidth(df.format(getDamage(aboba.x, aboba.y + 1, aboba.z, target))) / 2.0D), -4, -1);
+            FontRender.drawString3(df.format(getDamage(aboba.getX(), aboba.getY(), aboba.getZ(), target)), (int) -(FontRender.getStringWidth(df.format(getDamage(aboba.getX(), aboba.getY() + 1, aboba.getZ(), target))) / 2.0D), -4, -1);
             GlStateManager.enableLighting();
             GlStateManager.enableDepth();
             GlStateManager.popMatrix();

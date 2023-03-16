@@ -6,6 +6,7 @@ import com.mrzak34.thunderhack.events.PostPlayerUpdateEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.Timer;
+import com.mrzak34.thunderhack.util.phobos.IEntity;
 import net.minecraft.network.play.server.SPacketPlayerPosLook;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
@@ -39,7 +40,7 @@ public class FastFall extends Module {
         if (Jesus.isInLiquid() || mc.player.isOverWater() || mc.player.capabilities.isFlying || mc.player.isElytraFlying() || mc.player.isOnLadder()) {
             return;
         }
-        if (mc.player.isInWeb && !webs.getValue()) {
+        if (((IEntity)mc.player).isInWeb() && !webs.getValue()) {
             return;
         }
         if (mc.gameSettings.keyBindJump.isKeyDown() || mc.gameSettings.keyBindSneak.isKeyDown()) {
@@ -65,7 +66,7 @@ public class FastFall extends Module {
         if (Jesus.isInLiquid() || mc.player.isOverWater() || mc.player.capabilities.isFlying || mc.player.isElytraFlying() || mc.player.isOnLadder()) {
             return;
         }
-        if (mc.player.isInWeb && !webs.getValue()) {
+        if (((IEntity)mc.player).isInWeb() && !webs.getValue()) {
             return;
         }
         if (mc.gameSettings.keyBindJump.isKeyDown()) {

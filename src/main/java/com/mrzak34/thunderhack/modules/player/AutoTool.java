@@ -1,5 +1,6 @@
 package com.mrzak34.thunderhack.modules.player;
 
+import com.mrzak34.thunderhack.mixin.mixins.IKeyBinding;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import net.minecraft.block.BlockAir;
@@ -30,7 +31,7 @@ public class AutoTool extends Module {
     @Override
     public void onUpdate() {
         if (mc.objectMouseOver.getBlockPos() == null) return;
-        if (getTool(mc.objectMouseOver.getBlockPos()) != -1 && mc.gameSettings.keyBindAttack.pressed) {
+        if (getTool(mc.objectMouseOver.getBlockPos()) != -1 && ((IKeyBinding)mc.gameSettings.keyBindAttack).isPressed()) {
             if (mc.player.inventory.getCurrentItem() != swapedItem) {
                 lastItem.add(mc.player.inventory.currentItem);
 

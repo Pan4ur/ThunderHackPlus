@@ -5,6 +5,7 @@ import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.events.*;
 import com.mrzak34.thunderhack.manager.EventManager;
+import com.mrzak34.thunderhack.mixin.mixins.IEntityPlayer;
 import com.mrzak34.thunderhack.mixin.mixins.IRenderManager;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.modules.player.AutoGApple;
@@ -17,6 +18,7 @@ import com.mrzak34.thunderhack.util.SilentRotationUtil;
 import com.mrzak34.thunderhack.util.Timer;
 import com.mrzak34.thunderhack.util.math.ExplosionBuilder;
 import com.mrzak34.thunderhack.util.math.MathUtil;
+import com.mrzak34.thunderhack.util.phobos.IEntity;
 import com.mrzak34.thunderhack.util.phobos.IEntityLivingBase;
 import com.mrzak34.thunderhack.util.rotations.CastHelper;
 import com.mrzak34.thunderhack.util.rotations.RayTracingUtils;
@@ -74,6 +76,7 @@ public class Aura extends Module {
     public static int CPSLimit;
     /*-------------   AntiCheat  ----------*/
     public final Setting<Parent> antiCheat = register(new Setting<>("AntiCheat", new Parent(false)));
+    private final Setting<rotmod> rotation = register(new Setting("Rotation", rotmod.Matrix)).withParent(antiCheat);
     public final Setting<Float> rotateDistance = register(new Setting("RotateDst", 1f, 0f, 5f)).withParent(antiCheat);
     public final Setting<Float> attackDistance = register(new Setting("AttackDst", 3.1f, 0.0f, 7.0f)).withParent(antiCheat);
     public final Setting<RayTracingMode> rayTracing = register(new Setting("RayTracing", RayTracingMode.NewJitter)).withParent(antiCheat);
@@ -85,14 +88,13 @@ public class Aura extends Module {
     public final Setting<Float> walldistance = register(new Setting("WallDst", 3.6f, 0.0f, 7.0f)).withParent(antiCheat);
     public final Setting<Integer> fov = register(new Setting("FOV", 180, 5, 180)).withParent(antiCheat);
     public final Setting<Float> hitboxScale = register(new Setting("RTXScale", 2.8f, 0.0f, 3.0f)).withParent(antiCheat);
+    public final Setting<Integer> yawStep = register(new Setting("YawStep", 80, 5, 180, v -> rotation.getValue() == rotmod.Matrix)).withParent(antiCheat);
     /*------------   Exploits  ------------*/
     public final Setting<Parent> exploits = register(new Setting<>("Exploits", new Parent(false)));
     public final Setting<Boolean> resolver = register(new Setting<>("Resolver", false)).withParent(exploits);
     public final Setting<Boolean> shieldDesync = register(new Setting<>("Shield Desync", false)).withParent(exploits);
     public final Setting<Boolean> backTrack = register(new Setting<>("RotateToBackTrack", true)).withParent(exploits);
     public final Setting<Boolean> shiftTap = register(new Setting<>("ShiftTap", false)).withParent(exploits);
-    /*-------------------------------------*/
-    public final Setting<Boolean> trujCrit = register(new Setting<>("TrujCrit", false)).withParent(exploits);
     /*-------------   Misc  ---------------*/
     public final Setting<Parent> misc = register(new Setting<>("Misc", new Parent(false)));
     public final Setting<Boolean> shieldDesyncOnlyOnAura = register(new Setting<>("Wait Target", true, v -> shieldDesync.getValue())).withParent(misc);
@@ -100,8 +102,6 @@ public class Aura extends Module {
     public final Setting<CritMode> critMode = register(new Setting("CritMode", CritMode.WexSide, v -> criticals.getValue())).withParent(misc);
     public final Setting<Float> critdist = register(new Setting("FallDistance", 0.15f, 0.0f, 1.0f, v -> criticals.getValue() && critMode.getValue() == CritMode.Simple)).withParent(misc);
     public final Setting<Boolean> criticals_autojump = register(new Setting<>("AutoJump", false, v -> criticals.getValue())).withParent(misc);
-
-    /*-------------------------------------*/
     public final Setting<Boolean> smartCrit = register(new Setting<>("SpaceOnly", true, v -> criticals.getValue())).withParent(misc);
     public final Setting<Boolean> watercrits = register(new Setting<>("WaterCrits", false, v -> criticals.getValue())).withParent(misc);
     public final Setting<Boolean> weaponOnly = register(new Setting<>("WeaponOnly", true)).withParent(misc);
@@ -131,8 +131,6 @@ public class Aura extends Module {
     public final Setting<Boolean> RTXVisual = register(new Setting<>("RTXVisual", false)).withParent(render);
     public final Setting<Boolean> targetesp = register(new Setting<>("Target Esp", true)).withParent(render);//(visual);
     public final Setting<ColorSetting> shitcollor = this.register(new Setting<>("TargetColor", new ColorSetting(-2009289807))).withParent(render);
-    private final Setting<rotmod> rotation = register(new Setting("Rotation", rotmod.Matrix)).withParent(antiCheat);
-    public final Setting<Integer> yawStep = register(new Setting("YawStep", 80, 5, 180, v -> rotation.getValue() == rotmod.Matrix)).withParent(antiCheat);
     /*-------------------------------------*/
     private final Timer oldTimer = new Timer();
     private final Timer hitttimer = new Timer();
@@ -142,6 +140,7 @@ public class Aura extends Module {
     private Vec3d last_best_vec;
     private float rotation_smoother;
     private float rotationPitch, rotationYaw;
+
     public Aura() {
         super("Aura", "Запомните блядь-киллка тх не мисает-а дает шанс убежать", "attacks entities", Category.COMBAT);
     }
@@ -185,12 +184,12 @@ public class Aura extends Module {
     }
 
     public static boolean isActiveItemStackBlocking(EntityPlayer other, int time) {
-        if (other.isHandActive() && !other.activeItemStack.isEmpty()) {
-            Item item = other.activeItemStack.getItem();
-            if (item.getItemUseAction(other.activeItemStack) != EnumAction.BLOCK) {
+        if (other.isHandActive() && !other.getActiveItemStack().isEmpty()) {
+            Item item = other.getActiveItemStack().getItem();
+            if (item.getItemUseAction(other.getActiveItemStack()) != EnumAction.BLOCK) {
                 return false;
             } else {
-                return item.getMaxItemUseDuration(other.activeItemStack) - other.activeItemStackUseCount >= time;
+                return item.getMaxItemUseDuration(other.getActiveItemStack()) - ((IEntityLivingBase)other).getActiveItemStackUseCount() >= time;
             }
         } else {
             return false;
@@ -324,10 +323,10 @@ public class Aura extends Module {
                 double cs = prevCircleStep + (circleStep - prevCircleStep) * mc.getRenderPartialTicks();
                 double prevSinAnim = absSinAnimation(cs - 0.15);
                 double sinAnim = absSinAnimation(cs);
-                double x = entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * mc.getRenderPartialTicks() - mc.getRenderManager().renderPosX;
-                double y = entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * mc.getRenderPartialTicks() - mc.getRenderManager().renderPosY + prevSinAnim * 1.4f;
-                double z = entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * mc.getRenderPartialTicks() - mc.getRenderManager().renderPosZ;
-                double nextY = entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * mc.getRenderPartialTicks() - mc.getRenderManager().renderPosY + sinAnim * 1.4f;
+                double x = entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * mc.getRenderPartialTicks() - ((IRenderManager)mc.getRenderManager()).getRenderPosX();
+                double y = entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * mc.getRenderPartialTicks() - ((IRenderManager)mc.getRenderManager()).getRenderPosY() + prevSinAnim * 1.4f;
+                double z = entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * mc.getRenderPartialTicks() - ((IRenderManager)mc.getRenderManager()).getRenderPosZ();
+                double nextY = entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * mc.getRenderPartialTicks() - ((IRenderManager)mc.getRenderManager()).getRenderPosY() + sinAnim * 1.4f;
 
                 GL11.glPushMatrix();
 
@@ -559,7 +558,7 @@ public class Aura extends Module {
     }
 
     public boolean canAttack() {
-        boolean reasonForCancelCritical = mc.player.isOnLadder() || (isInLiquid()) || mc.player.isInWeb || (smartCrit.getValue() && ((!criticals_autojump.getValue() && !mc.gameSettings.keyBindJump.isKeyDown())));
+        boolean reasonForCancelCritical = mc.player.isOnLadder() || (isInLiquid()) || ((IEntity)mc.player).isInWeb() || (smartCrit.getValue() && ((!criticals_autojump.getValue() && !mc.gameSettings.keyBindJump.isKeyDown())));
 
         if (timingMode.getValue() == TimingMode.Default) {
             if (CPSLimit > 0) return false;
@@ -784,7 +783,7 @@ public class Aura extends Module {
             bestVector = base.getPositionEyes(1);
         }
 
-        boolean inside_target = mc.player.boundingBox.intersects(base.boundingBox);
+        boolean inside_target = mc.player.getEntityBoundingBox().intersects(base.getEntityBoundingBox());
 
 
         if (rotation.getValue() == rotmod.Matrix3 && inside_target) {
@@ -911,7 +910,7 @@ public class Aura extends Module {
     @SubscribeEvent
     public void onPostPlayerUpdate(PostPlayerUpdateEvent event) {
         if (criticals_autojump.getValue()) {
-            if (mc.player.onGround && !isInLiquid() && !mc.player.isOnLadder() && !mc.player.isInWeb && !mc.player.isPotionActive(MobEffects.SLOWNESS) && target != null && criticals_autojump.getValue()) {
+            if (mc.player.onGround && !isInLiquid() && !mc.player.isOnLadder() && !((IEntity)mc.player).isInWeb()  && !mc.player.isPotionActive(MobEffects.SLOWNESS) && target != null && criticals_autojump.getValue()) {
                 mc.player.jump();
             }
         }

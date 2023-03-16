@@ -29,15 +29,16 @@ public class ItemPhysics extends Module {
         super("ItemPhysics", "описание", Category.RENDER);
     }
 
+
     private static int Method2280(ItemStack itemStack) {
         int n = 1;
-        if (itemStack.stackSize > 48) {
+        if (itemStack.getCount() > 48) {
             n = 5;
-        } else if (itemStack.stackSize > 32) {
+        } else if (itemStack.getCount() > 32) {
             n = 4;
-        } else if (itemStack.stackSize > 16) {
+        } else if (itemStack.getCount() > 16) {
             n = 3;
-        } else if (itemStack.stackSize > 1) {
+        } else if (itemStack.getCount() > 1) {
             n = 2;
         }
         return n;
@@ -63,7 +64,7 @@ public class ItemPhysics extends Module {
         IBakedModel iBakedModel = mc.getRenderItem().getItemModelMesher().getItemModel(itemStack);
         boolean bl = iBakedModel.isGui3d();
         boolean bl2 = iBakedModel.isGui3d();
-        int n2 = ItemPhysics.Method2280(itemStack);
+        int n2 = Method2280(itemStack);
         GlStateManager.translate((float) d, (float) d2, (float) d3);
         if (iBakedModel.isGui3d()) {
             GlStateManager.scale(0.5f, 0.5f, 0.5f);

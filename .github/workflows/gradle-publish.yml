@@ -21,7 +21,6 @@ jobs:
         run: chmod +x gradlew
       - name: Build with Gradle
         run: |
-          ./gradlew setupDecompWorkspace
           ./gradlew build
       - name: List files
         run: ls
@@ -29,4 +28,4 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: ThunderHack+
-          path: ./build/libs/*release.jar 
+          path: ./build/libs/*.jar 

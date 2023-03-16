@@ -71,9 +71,9 @@ public class DMGFly extends Module {
             SPacketEntityVelocity packet = event.getPacket();
             if (packet.getEntityID() == mc.player.getEntityId()
                     && System.currentTimeMillis() - lastVelocityTime > 1350) {
-                double vX = Math.abs(packet.motionX / 8000d),
-                        vY = packet.motionY / 8000d,
-                        vZ = Math.abs(packet.motionZ / 8000d);
+                double vX = Math.abs(packet.getMotionX() / 8000d),
+                        vY = packet.getMotionY() / 8000d,
+                        vZ = Math.abs(packet.getMotionZ() / 8000d);
                 if (vX + vZ > 0.3) {
                     velocityXZ = vX + vZ;
                     lastVelocityTime = System.currentTimeMillis();

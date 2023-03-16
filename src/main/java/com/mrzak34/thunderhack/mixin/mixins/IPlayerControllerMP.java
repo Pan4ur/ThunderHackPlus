@@ -10,6 +10,9 @@ public interface IPlayerControllerMP {
     @Accessor(value = "curBlockDamageMP")
     float getCurBlockDamageMP();
 
+    @Accessor(value = "curBlockDamageMP")
+    void setCurBlockDamageMP(float a);
+
     @Accessor(value = "currentBlock")
     BlockPos getCurrentBlock();
 }

@@ -1,6 +1,7 @@
 package com.mrzak34.thunderhack.modules.combat;
 
 import com.mrzak34.thunderhack.Thunderhack;
+import com.mrzak34.thunderhack.mixin.mixins.IKeyBinding;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.EntityUtil;
@@ -54,7 +55,7 @@ public class AntiBowBomb extends Module {
 
         if (target == null) {
             if (b) {
-                mc.gameSettings.keyBindUseItem.pressed = (false);
+                ((IKeyBinding)mc.gameSettings.keyBindUseItem).setPressed(false);
                 if (old != -1) InventoryUtil.swapToHotbarSlot(old, false);
                 target = null;
                 b = false;
@@ -81,7 +82,7 @@ public class AntiBowBomb extends Module {
             InventoryUtil.switchToHotbarSlot(shield, false);
 
             if (mc.player.getHeldItemMainhand().getItem() instanceof ItemShield) {
-                mc.gameSettings.keyBindUseItem.pressed = true;
+                ((IKeyBinding)mc.gameSettings.keyBindUseItem).setPressed(true);
                 InventoryUtil.swapToHotbarSlot(shield, false);
                 SilentRotationUtil.lookAtEntity(target);
                 b = true;

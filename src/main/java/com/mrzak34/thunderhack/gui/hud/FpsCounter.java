@@ -35,7 +35,7 @@ public class FpsCounter extends Module {
         x1 = e.scaledResolution.getScaledWidth() * pos.getValue().getX();
 
 
-        String fpsText = "FPS " + ChatFormatting.WHITE + Minecraft.debugFPS;
+        String fpsText = "FPS " + ChatFormatting.WHITE + Minecraft.getDebugFPS();
 
 
         FontRender.drawString6(fpsText, x1, y1, color.getValue().getRawColor(), false);

@@ -4,6 +4,7 @@ import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.events.EventMove;
 import com.mrzak34.thunderhack.events.EventPreMotion;
 import com.mrzak34.thunderhack.events.PacketEvent;
+import com.mrzak34.thunderhack.mixin.mixins.ISPacketPlayerPosLook;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.Util;
@@ -178,13 +179,13 @@ public class PacketFly2 extends Module {
         }
         if (Util.mc.player != null && eventNetworkPrePacketEvent.getPacket() instanceof SPacketPlayerPosLook) {
             SPacketPlayerPosLook sPacketPlayerPosLook = eventNetworkPrePacketEvent.getPacket();
-            Class443 class443 = (Class443) this.Field3529.remove(sPacketPlayerPosLook.teleportId);
-            if (Util.mc.player.isEntityAlive() && Util.mc.world.isBlockLoaded(new BlockPos(Util.mc.player.posX, Util.mc.player.posY, Util.mc.player.posZ), false) && !(Util.mc.currentScreen instanceof GuiDownloadTerrain) && this.mode.getValue() != Mode.Rubber && class443 != null && Class443.Method1920(class443) == sPacketPlayerPosLook.x && Class443.Method1921(class443) == sPacketPlayerPosLook.y && Class443.Method1922(class443) == sPacketPlayerPosLook.z) {
+            Class443 class443 = (Class443) this.Field3529.remove(((ISPacketPlayerPosLook)sPacketPlayerPosLook).getTeleportId());
+            if (Util.mc.player.isEntityAlive() && Util.mc.world.isBlockLoaded(new BlockPos(Util.mc.player.posX, Util.mc.player.posY, Util.mc.player.posZ), false) && !(Util.mc.currentScreen instanceof GuiDownloadTerrain) && this.mode.getValue() != Mode.Rubber && class443 != null && Class443.Method1920(class443) == sPacketPlayerPosLook.getX() && Class443.Method1921(class443) == sPacketPlayerPosLook.getY() && Class443.Method1922(class443) == sPacketPlayerPosLook.getZ()) {
                 eventNetworkPrePacketEvent.setCanceled(true);
                 return;
             }
-            sPacketPlayerPosLook.yaw = Util.mc.player.rotationYaw;
-            sPacketPlayerPosLook.pitch = Util.mc.player.rotationPitch;
+            ((ISPacketPlayerPosLook)sPacketPlayerPosLook).setYaw(Util.mc.player.rotationYaw);
+            ((ISPacketPlayerPosLook)sPacketPlayerPosLook).setPitch(Util.mc.player.rotationPitch);
             this.Field3526 = sPacketPlayerPosLook.getTeleportId();
         }
     }

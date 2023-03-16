@@ -91,7 +91,7 @@ public class StaffBoard extends Module {
     }
 
     public static boolean check(String name) {
-        String ip = (mc.currentServerData == null ? "SinglePlayer" : mc.currentServerData.serverIP);
+        String ip = (mc.getCurrentServerData() == null ? "SinglePlayer" : mc.getCurrentServerData().serverIP);
         if (Objects.equals(ip, "mcfunny.su")) {
             return name.contains("helper") || name.contains("moder") || name.contains("хелпер");
         }

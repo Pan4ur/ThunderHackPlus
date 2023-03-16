@@ -2,6 +2,7 @@ package com.mrzak34.thunderhack.modules.misc;
 
 import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.events.PacketEvent;
+import com.mrzak34.thunderhack.mixin.mixins.ICPacketChatMessage;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import net.minecraft.network.play.client.CPacketChatMessage;
@@ -24,7 +25,9 @@ public class MessageAppend extends Module {
         if (e.getPacket() instanceof CPacketChatMessage) {
             if (((CPacketChatMessage) e.getPacket()).getMessage().startsWith("/") || ((CPacketChatMessage) e.getPacket()).getMessage().startsWith(Command.getCommandPrefix()))
                 return;
-            ((CPacketChatMessage) e.getPacket()).message = ((CPacketChatMessage) e.getPacket()).getMessage() + word.getValue();
+
+            CPacketChatMessage pac = e.getPacket();
+            ((ICPacketChatMessage) pac).setMessage(((CPacketChatMessage) e.getPacket()).getMessage() + word.getValue());
         }
     }
 }

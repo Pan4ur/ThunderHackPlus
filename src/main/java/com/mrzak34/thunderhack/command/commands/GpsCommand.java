@@ -27,9 +27,9 @@ public class GpsCommand extends Command {
             BlockPos pos = new BlockPos(Integer.parseInt(commands[0]), 0, Integer.parseInt(commands[1]));
             Thunderhack.gps_position = pos;
             if (Thunderhack.moduleManager.getModuleByClass(MainSettings.class).language.getValue() == MainSettings.Language.RU) {
-                Command.sendMessage("GPS настроен на X: " + pos.x + " Z: " + pos.z);
+                Command.sendMessage("GPS настроен на X: " + pos.getX() + " Z: " + pos.getZ());
             } else {
-                Command.sendMessage("GPS is set to X: " + pos.x + " Z: " + pos.z);
+                Command.sendMessage("GPS is set to X: " + pos.getX() + " Z: " + pos.getZ());
             }
         }
     }

@@ -5,18 +5,27 @@
   "refmap": "mixins.thunderhack.refmap.json",
   "mixins": [
     "AccessorMinecraft",
+    "IBlock",
     "IChunkProviderClient",
+    "ICPacketChatMessage",
+    "ICPacketCustomPayload",
     "ICPacketPlayer",
+    "ICPacketPlayerTryUseItemOnBlock",
     "ICPacketUseEntity",
     "IEntityPlayer",
     "IEntityPlayerSP",
     "IEntityRenderer",
+    "IGuiBossOverlay",
     "IGuiScreen",
+    "IItemRenderer",
     "IItemTool",
+    "IMinecraft",
     "IPlayerControllerMP",
     "IRenderGlobal",
     "IRenderManager",
     "ISPacketEntity",
+    "ISPacketEntityVelocity",
+    "ISPacketExplosion",
     "ISPacketPlayerPosLook",
     "MixinAbstractClientPlayer",
     "MixinBlock",
@@ -66,6 +75,8 @@
     "MixinWorld"
   ],
   "client": [
+    "IKeyBinding",
+    "ISoundHandler",
     "MixinGuiContainer"
   ]
 }

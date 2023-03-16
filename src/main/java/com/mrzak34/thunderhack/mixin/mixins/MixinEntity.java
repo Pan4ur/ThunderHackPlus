@@ -16,6 +16,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.gen.Accessor;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
@@ -71,6 +72,10 @@ public abstract class MixinEntity implements IEntity {
     public float height;
     private boolean pseudoDead;
     private long stamp;
+
+    @Override
+    @Accessor(value = "isInWeb")
+    public abstract boolean isInWeb();
 
     @Shadow
     public abstract boolean isSneaking();

@@ -66,47 +66,9 @@ public class BlockStateHelper implements IBlockStateHelper {
         return state;
     }
 
-    /**
-     * This Method is not ThreadSafe, unless you use the second
-     * constructor with a Concurrent map. If you want to use
-     * this method on another Thread you are better of
-     * instantiating your own BlockStateManager.
-     * <p></p>
-     * Some modules used to set a BlockState in the world
-     * to some other BlockState, do a calculation and then
-     * set it back. That doesn't go well with Multithreading
-     * and other stuff, so this Manager was created.
-     * <p></p>
-     * Use this Method to add the given BlockState.
-     * The BlockState will not be added if a BlockState
-     * is already added for that position.
-     * for example.
-     *
-     * @param pos   the position to change the BlockState at.
-     * @param state the state that will be at that position.
-     */
     @Override
     public void addBlockState(BlockPos pos, IBlockState state) {
         states.putIfAbsent(pos.toImmutable(), state);
-    }
-
-    /**
-     * Removes the custom IBlockState at the given pos.
-     *
-     * @param pos the pos to remove.
-     */
-    @Override
-    public void delete(BlockPos pos) {
-        states.remove(pos);
-    }
-
-    /**
-     * Clears all BlockStates set by
-     * {@link BlockStateHelper#addBlockState(BlockPos, IBlockState)}.
-     */
-    @Override
-    public void clearAllStates() {
-        states.clear();
     }
 
     @Override

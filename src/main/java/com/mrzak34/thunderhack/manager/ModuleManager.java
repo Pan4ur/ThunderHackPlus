@@ -50,6 +50,7 @@ public class ModuleManager extends Feature {
         this.modules.add(new NewChunks());
         this.modules.add(new SilentBow());
         this.modules.add(new Spammer());
+        this.modules.add(new PacketStatistics());
         this.modules.add(new AutoFlyme());
         this.modules.add(new ReverseStep());
         this.modules.add(new Step());
@@ -98,7 +99,6 @@ public class ModuleManager extends Feature {
         this.modules.add(new ItemScroller());
         this.modules.add(new Quiver());
         this.modules.add(new NoFall());
-        this.modules.add(new AutoReconnect());
         this.modules.add(new KeepSprint());
         this.modules.add(new LevitationControl());
         this.modules.add(new CustomEnchants());
@@ -152,7 +152,6 @@ public class ModuleManager extends Feature {
         this.modules.add(new MainSettings());
         this.modules.add(new TPSCounter());
         this.modules.add(new WaterMark());
-        this.modules.add(new PrinterBypass());
         this.modules.add(new Player());
         this.modules.add(new Speedometer());
         this.modules.add(new ArmorHud());

@@ -1,6 +1,7 @@
 package com.mrzak34.thunderhack.modules.misc;
 
 import com.mrzak34.thunderhack.events.PacketEvent;
+import com.mrzak34.thunderhack.mixin.mixins.ICPacketCustomPayload;
 import com.mrzak34.thunderhack.modules.Module;
 import io.netty.buffer.Unpooled;
 import net.minecraft.network.PacketBuffer;
@@ -21,7 +22,7 @@ public class NoHandShake
             event.setCanceled(true);
         }
         if (event.getPacket() instanceof CPacketCustomPayload && (packet = event.getPacket()).getChannelName().equals("MC|Brand")) {
-            packet.data = new PacketBuffer(Unpooled.buffer()).writeString("vanilla");
+            ((ICPacketCustomPayload)packet).setData(new PacketBuffer(Unpooled.buffer()).writeString("vanilla"));
         }
     }
 }

@@ -53,10 +53,10 @@ public class AltCompoment {
         Color selected_color = new Color(0x811D7201, true);
 
 
-        RoundedShader.drawRound(posX, posY, 210, 40, 8f, Util.mc.session.getUsername().equals(this.name) ? selected_color : color);
+        RoundedShader.drawRound(posX, posY, 210, 40, 8f, Util.mc.getSession().getUsername().equals(this.name) ? selected_color : color);
 
         renderCustomTexture(posX + 5, posY + 5, 30, 30, 16, 16);
-        FontRender.drawString3(name, posX + 38, posY + 5, Util.mc.session.getUsername().equals(this.name) ? new Color(0x7A7A7A).getRGB() : -1);
+        FontRender.drawString3(name, posX + 38, posY + 5, Util.mc.getSession().getUsername().equals(this.name) ? new Color(0x7A7A7A).getRGB() : -1);
 
         RoundedShader.drawRound(posX + 165, posY + 5, 35, 12, 3f, isHoveringLoggin(mouseX, mouseY) ? new Color(0x8104F839, true) : new Color(0x813EFF00, true));
         FontRender.drawCentString6("log", posX + 182.5f, posY + 10, isHoveringLoggin(mouseX, mouseY) ? new Color(0x7A7A7A).getRGB() : -1);

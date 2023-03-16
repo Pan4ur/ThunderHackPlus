@@ -178,7 +178,6 @@ public class CevBreaker extends Module {
                     tick = 99;
             }
         }
-        mc.playerController.blockHitDelay = 0;
     }
 
     public void onBreakPacket() {
@@ -210,7 +209,7 @@ public class CevBreaker extends Module {
         if (lastBlock != null) {
             RenderUtil.drawBlockOutline(lastBlock, new Color(175, 175, 255), 2f, false, 0);
 
-            float prognum = ((((float) tick / pickTickSwitch.getValue() * 100) / Blocks.OBSIDIAN.blockHardness) * mc.world.getBlockState(lastBlock).getBlock().blockHardness);
+            float prognum = ((((float) tick / pickTickSwitch.getValue() * 100) / 50) * this.mc.world.getBlockState(lastBlock).getBlock().getBlockHardness(this.mc.world.getBlockState(lastBlock), this.mc.world , lastBlock));
 
 
             GlStateManager.pushMatrix();

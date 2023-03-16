@@ -5,6 +5,7 @@ import com.mrzak34.thunderhack.events.EventMove;
 import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
+import com.mrzak34.thunderhack.util.phobos.IEntity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.play.server.SPacketPlayerPosLook;
 import net.minecraft.util.math.BlockPos;
@@ -46,7 +47,7 @@ public class Sprint extends Module {
     }
 
     private static float getFrictionFactor(EntityPlayer contextPlayer) {
-        BlockPos.PooledMutableBlockPos blockpos = BlockPos.PooledMutableBlockPos.retain(mc.player.prevPosX, mc.player.boundingBox.minY, mc.player.prevPosZ);
+        BlockPos.PooledMutableBlockPos blockpos = BlockPos.PooledMutableBlockPos.retain(mc.player.prevPosX, mc.player.getEntityBoundingBox().minY, mc.player.prevPosZ);
         return contextPlayer.world.getBlockState(blockpos).getBlock().slipperiness * 0.91F;
     }
 
@@ -126,13 +127,10 @@ public class Sprint extends Module {
         if (mc.player.isInWater()) {
             return false;
         }
-        if (mc.player.isInWeb) {
+        if (((IEntity)mc.player).isInWeb()) {
             return false;
         }
         if (!mc.player.onGround) {
-            return false;
-        }
-        if (mc.player.isJumping) {
             return false;
         }
         if (mc.gameSettings.keyBindJump.isKeyDown()) {

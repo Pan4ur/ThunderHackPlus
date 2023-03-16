@@ -1,6 +1,7 @@
 package com.mrzak34.thunderhack.modules.render;
 
 import com.mrzak34.thunderhack.events.PacketEvent;
+import com.mrzak34.thunderhack.mixin.mixins.IGuiBossOverlay;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.Pair;
@@ -15,6 +16,7 @@ import net.minecraft.entity.projectile.EntityArrow;
 import net.minecraft.entity.projectile.EntityFishHook;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.network.play.server.*;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderLivingEvent;
 import net.minecraftforge.event.entity.PlaySoundAtEntityEvent;
@@ -122,11 +124,13 @@ class NoRender extends Module {
         }
     }
 
+    private static final ResourceLocation GUI_BARS_TEXTURES = new ResourceLocation("textures/gui/bars.png");
+
     @SubscribeEvent
     public void onRenderPost(final RenderGameOverlayEvent.Post event) {
         if (event.getType() == RenderGameOverlayEvent.ElementType.BOSSINFO && this.boss.getValue() != Boss.NONE) {
             if (this.boss.getValue() == Boss.MINIMIZE) {
-                final Map<UUID, BossInfoClient> map = NoRender.mc.ingameGUI.getBossOverlay().mapBossInfos;
+                final Map<UUID, BossInfoClient> map = ((IGuiBossOverlay)NoRender.mc.ingameGUI.getBossOverlay()).getMapBossInfos();
                 if (map == null) {
                     return;
                 }
@@ -140,15 +144,15 @@ class NoRender extends Module {
                     GL11.glScaled((double) this.scale.getValue(), (double) this.scale.getValue(), 1.0);
                     if (!event.isCanceled()) {
                         GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-                        NoRender.mc.getTextureManager().bindTexture(GuiBossOverlay.GUI_BARS_TEXTURES);
-                        NoRender.mc.ingameGUI.getBossOverlay().render(k, j, info);
+                        NoRender.mc.getTextureManager().bindTexture(GUI_BARS_TEXTURES);
+                        ((IGuiBossOverlay)NoRender.mc.ingameGUI.getBossOverlay()).invokeRender(k, j, info);
                         NoRender.mc.fontRenderer.drawStringWithShadow(text, i / this.scale.getValue() / 2.0f - NoRender.mc.fontRenderer.getStringWidth(text) / 2f, (float) (j - 9), 16777215);
                     }
                     GL11.glScaled(1.0 / this.scale.getValue(), 1.0 / this.scale.getValue(), 1.0);
                     j += 10 + NoRender.mc.fontRenderer.FONT_HEIGHT;
                 }
             } else if (this.boss.getValue() == Boss.STACK) {
-                final Map<UUID, BossInfoClient> map = NoRender.mc.ingameGUI.getBossOverlay().mapBossInfos;
+                final Map<UUID, BossInfoClient> map = ((IGuiBossOverlay)NoRender.mc.ingameGUI.getBossOverlay()).getMapBossInfos();
                 final HashMap<String, Pair<BossInfoClient, Integer>> to = new HashMap<>();
                 for (final Map.Entry<UUID, BossInfoClient> entry2 : map.entrySet()) {
                     final String s = entry2.getValue().getName().getFormattedText();
@@ -173,8 +177,8 @@ class NoRender extends Module {
                     GL11.glScaled((double) this.scale.getValue(), (double) this.scale.getValue(), 1.0);
                     if (!event.isCanceled()) {
                         GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-                        NoRender.mc.getTextureManager().bindTexture(GuiBossOverlay.GUI_BARS_TEXTURES);
-                        NoRender.mc.ingameGUI.getBossOverlay().render(k2, m, info2);
+                        NoRender.mc.getTextureManager().bindTexture(GUI_BARS_TEXTURES);
+                        ((IGuiBossOverlay)NoRender.mc.ingameGUI.getBossOverlay()).invokeRender(k2, m, info2);
                         NoRender.mc.fontRenderer.drawStringWithShadow(text, l / this.scale.getValue() / 2.0f - NoRender.mc.fontRenderer.getStringWidth(text) / 2f, (float) (m - 9), 16777215);
                     }
                     GL11.glScaled(1.0 / this.scale.getValue(), 1.0 / this.scale.getValue(), 1.0);

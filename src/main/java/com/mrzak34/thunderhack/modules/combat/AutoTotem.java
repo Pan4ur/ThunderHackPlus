@@ -342,7 +342,7 @@ public class AutoTotem extends Module {
                     }
                 }
                 if (hard.getValue()) {
-                    if ((defaultItem.getValue().item == Items.SHIELD && mc.player.cooldownTracker.hasCooldown(Items.SHIELD)) || (defaultItem.getValue().item == Items.SHIELD && findItemSlot(Items.SHIELD) == -1 && mc.player.getHeldItemOffhand().getItem() != Items.SHIELD)) {
+                    if ((defaultItem.getValue().item == Items.SHIELD && mc.player.getCooldownTracker().hasCooldown(Items.SHIELD)) || (defaultItem.getValue().item == Items.SHIELD && findItemSlot(Items.SHIELD) == -1 && mc.player.getHeldItemOffhand().getItem() != Items.SHIELD)) {
                         putItemIntoOffhand(Items.GOLDEN_APPLE);
                     } else {
                         putItemIntoOffhand(defaultItem.getValue().item);

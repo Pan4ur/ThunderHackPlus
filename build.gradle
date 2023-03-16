@@ -1,147 +1,104 @@
 buildscript {
     repositories {
         mavenCentral()
-        jcenter()
-        maven {
-            name = "forge"
-            url = "https://files.minecraftforge.net/maven"
-        }
-        maven {
-            name = 'SpongePowered'
-            url = 'https://repo.spongepowered.org/maven'
-        }
+        maven { url = "https://plugins.gradle.org/m2" }
+        maven { url = "https://repo.spongepowered.org/maven" }
+        maven { url = "https://maven.minecraftforge.net/" }
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
-        classpath 'org.spongepowered:mixingradle:0.6-SNAPSHOT'
-        classpath 'com.github.jengelman.gradle.plugins:shadow:2.0.4'
-
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '4.1.+', changing: true
+        classpath "org.spongepowered:mixingradle:0.7-SNAPSHOT"
+        classpath 'com.github.jengelman.gradle.plugins:shadow:4.0.3'
     }
 }
-
-
-apply plugin: 'net.minecraftforge.gradle.forge'
+apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'org.spongepowered.mixin'
 apply plugin: 'com.github.johnrengelman.shadow'
-apply plugin: 'java'
 
-compileJava.options.encoding = 'UTF-8'
-
-
-version project.modVersion
-group project.modGroup //http://maven.apache.org/guides/mini/guide-naming-conventions.html
-
-
-sourceCompatibility = targetCompatibility = '1.8'
-compileJava {
-    sourceCompatibility = targetCompatibility = '1.8'
-}
+version = "1.12.2"
+group = "com.mrzak34.thunderhack"
+sourceCompatibility = targetCompatibility = 1.8
+compileJava.options.encoding = "UTF-8"
 
 minecraft {
-    version = project.forgeVersion
-    runDir = 'run'
-    mappings = project.mcpVersion
-    coreMod = 'com.mrzak34.thunderhack.mixin.THLoader'
-    makeObfSourceJar = false
+
+    mappings channel: 'stable', version: "39-1.12"
+    runs {
+        client {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
+            args '--tweakClass', 'org.spongepowered.asm.launch.MixinTweaker', '--mixin', 'mixins.firework.json'
+        }
+    }
 }
 
+mixin {
+    add sourceSets.main, "mixins.thunderhack.refmap.json"
+}
 
+sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 repositories {
-    mavenCentral()
+    maven { url = "https://repo.spongepowered.org/maven" }
     maven {
-        name = 'spongepowered-repo'
-        url = 'https://repo.spongepowered.org/maven/'
+        name = 'impactdevelopment-repo'
+        url = 'https://impactdevelopment.github.io/maven/'
     }
-    maven {
-        name = 'swt-repo'
-        url = "https://maven-eclipse.github.io/maven"
-    }
-    maven { url 'https://repo.opencollab.dev/maven-snapshots/' }
-    maven { url 'https://repo.opencollab.dev/maven-releases/' }
-
     maven {
         name = "jitpack.io"
         url = "https://jitpack.io"
     }
-
+    maven {
+        name = 'swt-repo'
+        url = "http://maven-eclipse.github.io/maven"
+    }
+    mavenCentral()
     jcenter()
 }
+
 configurations {
     jarLibs
 }
 
 dependencies {
-    compile group: "com.googlecode.json-simple", name: "json-simple", version: "1.1.1"
-    compile('org.spongepowered:mixin:0.7.11-SNAPSHOT') {
-        exclude module: 'launchwrapper'
-        exclude module: 'guava'
-        exclude module: 'gson'
+    minecraft "net.minecraftforge:forge:1.12.2-14.23.5.2855"
+    jarLibs group: "com.googlecode.json-simple", name: "json-simple", version: "1.1.1"
+    jarLibs('org.spongepowered:mixin:0.7.11-SNAPSHOT') {
         exclude module: 'commons-io'
+        exclude module: 'gson'
+        exclude module: 'guava'
+        exclude module: 'launchwrapper'
+        exclude module: 'log4j-core'
+    }
+    annotationProcessor('org.spongepowered:mixin:0.8.2:processor') {
+        exclude module: 'gson'
+    }
+    jarLibs('club.minnced:java-discord-rpc:2.0.2') {
+        exclude module: 'jna'
     }
 
-    compile 'club.minnced:java-discord-rpc:2.0.2'
     implementation configurations.jarLibs
-}
-
-
-
-task getDeps(type: Copy) {
-    from sourceSets.main.runtimeClasspath
-    into 'runtime/'
-}
-
-processResources {
-    inputs.property 'version', project.version
-    inputs.property 'mcversion', project.minecraft.version
-    from(sourceSets.main.resources.srcDirs) {
-        include 'mcmod.info'
-        expand 'version': project.version, 'mcversion': project.minecraft.version
-    }
-    from(sourceSets.main.resources.srcDirs) {
-        exclude 'mcmod.info'
-    }
-    rename '(.+_at.cfg)', 'META-INF/$1'
-}
-
-shadowJar {
-    dependencies {
-        include(dependency('club.minnced:java-discord-rpc'))
-        include(dependency('com.googlecode.json-simple:json-simple:1.1.1'))
-        include(dependency('org.spongepowered:mixin'))
-    }
-    exclude 'dummyThing'
-    exclude 'LICENSE.txt'
-    classifier = 'release'
-}
-
-mixin {
-    defaultObfuscationEnv searge
-    add sourceSets.main, 'mixins.thunderhack.refmap.json'
-
-}
-
-reobf {
-    shadowJar {
-        mappingType = 'SEARGE'
-        classpath = sourceSets.main.compileClasspath
-    }
 }
 
 jar {
     manifest {
-        attributes(
-                'MixinConfigs': 'mixins.thunderhack.json',
-                'tweakClass': 'org.spongepowered.asm.launch.MixinTweaker',
-                'TweakOrder': 0,
-                'FMLCorePluginContainsFMLMod': 'true',
-                'FMLCorePlugin': 'com.mrzak34.thunderhack.mixin.THLoader',
-                'ForceLoadAsMod': 'true',
-                'FMLAT': 'th_at.cfg',
-        )
+        attributes([
+                "Implementation-Title"    : 'thunderhack',
+                "Implementation-Version"  : '1.12.2',
+                "TweakClass": "org.spongepowered.asm.launch.MixinTweaker",
+                "MixinConfigs": "mixins.thunderhack.json",
+                "FMLCorePluginContainsFMLMod": "true",
+                "ForceLoadAsMod": "true",
+                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+        ])
+    }
+
+    from {
+        configurations.jarLibs.collect {
+            it.isDirectory() ? it : zipTree(it)
+        }
     }
 }
 
-
-
-build.dependsOn(shadowJar)
+jar.finalizedBy('reobfJar')

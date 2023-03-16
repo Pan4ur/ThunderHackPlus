@@ -15,75 +15,18 @@ public class EntityPlayerNoInterp extends EntityOtherPlayerMP implements IEntity
         super(worldIn, gameProfileIn);
     }
 
-    @Override
-    public double getNoInterpX() {
-        return posX;
-    }
 
     @Override
     public void setNoInterpX(double x) {
     }
 
-    @Override
-    public double getNoInterpY() {
-        return posY;
-    }
 
     @Override
     public void setNoInterpY(double y) {
     }
 
-    @Override
-    public double getNoInterpZ() {
-        return posZ;
-    }
 
     @Override
     public void setNoInterpZ(double z) {
-    }
-
-    @Override
-    public int getPosIncrements() {
-        return 0;
-    }
-
-    @Override
-    public void setPosIncrements(int posIncrements) {
-    }
-
-    @Override
-    public float getNoInterpSwingAmount() {
-        return 0;
-    }
-
-    @Override
-    public void setNoInterpSwingAmount(float noInterpSwingAmount) {
-    }
-
-    @Override
-    public float getNoInterpSwing() {
-        return 0;
-    }
-
-    @Override
-    public void setNoInterpSwing(float noInterpSwing) {
-    }
-
-    @Override
-    public float getNoInterpPrevSwing() {
-        return 0;
-    }
-
-    @Override
-    public void setNoInterpPrevSwing(float noInterpPrevSwing) {
-    }
-
-    @Override
-    public boolean isNoInterping() {
-        return false;
-    }
-
-    @Override
-    public void setNoInterping(boolean noInterping) {
     }
 }

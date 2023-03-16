@@ -1,9 +1,11 @@
 package com.mrzak34.thunderhack.modules.render;
 
 import com.mrzak34.thunderhack.events.PreRenderEvent;
+import com.mrzak34.thunderhack.mixin.mixins.IRenderManager;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.setting.Setting;
+import com.mrzak34.thunderhack.util.Util;
 import com.mrzak34.thunderhack.util.math.MathUtil;
 import com.mrzak34.thunderhack.util.render.RenderUtil;
 import net.minecraft.client.renderer.GlStateManager;
@@ -167,7 +169,7 @@ class StorageEsp extends Module {
             }
             GL11.glPushMatrix();
             GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
-            TileEntityRendererDispatcher.instance.render(tileEntity, tileEntity.getPos().getX() - mc.renderManager.renderPosX, tileEntity.getPos().getY() - mc.renderManager.renderPosY, tileEntity.getPos().getZ() - mc.renderManager.renderPosZ, n);
+            TileEntityRendererDispatcher.instance.render(tileEntity, tileEntity.getPos().getX() - ((IRenderManager)Util.mc.getRenderManager()).getRenderPosX(), tileEntity.getPos().getY() - ((IRenderManager)Util.mc.getRenderManager()).getRenderPosY(), tileEntity.getPos().getZ() - ((IRenderManager)Util.mc.getRenderManager()).getRenderPosZ(), n);
             GL11.glPopMatrix();
         }
     }
@@ -181,7 +183,7 @@ class StorageEsp extends Module {
 
             setColor(new Color(getTileEntityColor(tileEntity)));
 
-            TileEntityRendererDispatcher.instance.render(tileEntity, tileEntity.getPos().getX() - mc.renderManager.renderPosX, tileEntity.getPos().getY() - mc.renderManager.renderPosY, tileEntity.getPos().getZ() - mc.renderManager.renderPosZ, n);
+            TileEntityRendererDispatcher.instance.render(tileEntity, tileEntity.getPos().getX() - ((IRenderManager) Util.mc.getRenderManager()).getRenderPosX(), tileEntity.getPos().getY() - ((IRenderManager)Util.mc.getRenderManager()).getRenderPosY(), tileEntity.getPos().getZ() - ((IRenderManager)Util.mc.getRenderManager()).getRenderPosZ(), n);
         }
     }
 

@@ -1,6 +1,7 @@
 package com.mrzak34.thunderhack.util.render;
 
 import com.mrzak34.thunderhack.gui.fontstuff.FontRender;
+import com.mrzak34.thunderhack.mixin.mixins.IRenderManager;
 import com.mrzak34.thunderhack.util.Util;
 import com.mrzak34.thunderhack.util.gaussianblur.GaussianFilter;
 import net.minecraft.client.renderer.BufferBuilder;
@@ -19,6 +20,7 @@ import java.util.HashMap;
 
 import static com.mrzak34.thunderhack.gui.hud.RadarRewrite.astolfo;
 import static com.mrzak34.thunderhack.modules.render.ItemESP.astolfo2;
+import static com.mrzak34.thunderhack.util.Util.mc;
 import static org.lwjgl.opengl.GL11.*;
 
 public class RenderHelper {
@@ -118,9 +120,9 @@ public class RenderHelper {
         GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
         GL11.glDisable(GL11.GL_DEPTH_TEST);
         glBegin(GL11.GL_LINE_STRIP);
-        double x = entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * partialTicks - Util.mc.getRenderManager().renderPosX;
-        double y = entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * partialTicks - Util.mc.getRenderManager().renderPosY;
-        double z = entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * partialTicks - Util.mc.getRenderManager().renderPosZ;
+        double x = entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * partialTicks - ((IRenderManager)Util.mc.getRenderManager()).getRenderPosX();
+        double y = entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * partialTicks - ((IRenderManager)Util.mc.getRenderManager()).getRenderPosY();
+        double z = entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * partialTicks - ((IRenderManager)Util.mc.getRenderManager()).getRenderPosZ();
         if (!astolfo) {
             setColor(color);
             for (int i = 0; i <= points; i++) {
@@ -151,9 +153,9 @@ public class RenderHelper {
         GlStateManager.disableTexture2D();
         GL11.glDisable(GL11.GL_DEPTH_TEST);
         GlStateManager.depthMask(false);
-        double x = entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * Util.mc.timer.renderPartialTicks - Util.mc.getRenderManager().renderPosX;
-        double y = entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * Util.mc.timer.renderPartialTicks - Util.mc.getRenderManager().renderPosY;
-        double z = entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * Util.mc.timer.renderPartialTicks - Util.mc.getRenderManager().renderPosZ;
+        double x = entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * mc.getRenderPartialTicks() - ((IRenderManager)Util.mc.getRenderManager()).getRenderPosX();
+        double y = entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * mc.getRenderPartialTicks() - ((IRenderManager)Util.mc.getRenderManager()).getRenderPosY();
+        double z = entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * mc.getRenderPartialTicks() - ((IRenderManager)Util.mc.getRenderManager()).getRenderPosZ();
         AxisAlignedBB axisAlignedBB = entity.getEntityBoundingBox();
         AxisAlignedBB axisAlignedBB2 = new AxisAlignedBB(axisAlignedBB.minX - entity.posX + x - 0.05, axisAlignedBB.minY - entity.posY + y, axisAlignedBB.minZ - entity.posZ + z - 0.05, axisAlignedBB.maxX - entity.posX + x + 0.05, axisAlignedBB.maxY - entity.posY + y + 0.15, axisAlignedBB.maxZ - entity.posZ + z + 0.05);
         GlStateManager.glLineWidth(2.0F);

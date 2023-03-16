@@ -38,7 +38,7 @@ import static org.lwjgl.opengl.GL11.*;
 
 public class RenderUtil implements Util {
 
-    public static RenderItem itemRender = RenderUtil.mc.getItemRenderer().itemRenderer;
+    public static RenderItem itemRender;
     public static ICamera camera = new Frustum();
     public static Tessellator tessellator = Tessellator.getInstance();
     public static BufferBuilder bufferbuilder = tessellator.getBuffer();
@@ -388,13 +388,13 @@ public class RenderUtil implements Util {
     public static void blockEspFrame(BlockPos blockPos, double red, double green, double blue) {
         double d = blockPos.getX();
         Minecraft.getMinecraft().getRenderManager();
-        double x = d - mc.getRenderManager().renderPosX;
+        double x = d - ((IRenderManager)RenderUtil.mc.getRenderManager()).getRenderPosX();
         double d2 = blockPos.getY();
         Minecraft.getMinecraft().getRenderManager();
-        double y = d2 - mc.getRenderManager().renderPosY;
+        double y = d2 - ((IRenderManager)RenderUtil.mc.getRenderManager()).getRenderPosY();
         double d3 = blockPos.getZ();
         Minecraft.getMinecraft().getRenderManager();
-        double z = d3 - mc.getRenderManager().renderPosZ;
+        double z = d3 - ((IRenderManager)RenderUtil.mc.getRenderManager()).getRenderPosZ();
         glBlendFunc(770, 771);
         GL11.glEnable(3042);
         GL11.glLineWidth(1.0f);
@@ -520,7 +520,7 @@ public class RenderUtil implements Util {
     public static void drawBox(BlockPos pos, Color color, int mode) {
 
         IBlockState iblockstate = RenderUtil.mc.world.getBlockState(pos);
-        Vec3d interp = EntityUtil.interpolateEntity(RenderUtil.mc.renderViewEntity, mc.getRenderPartialTicks());
+        Vec3d interp = EntityUtil.interpolateEntity(RenderUtil.mc.getRenderViewEntity(), mc.getRenderPartialTicks());
 
         AxisAlignedBB bb = null;
         switch (mode) {
@@ -571,8 +571,8 @@ public class RenderUtil implements Util {
     public static void drawBlockOutline(BlockPos pos, Color color, float linewidth, boolean air, int mode) {
         IBlockState iblockstate = RenderUtil.mc.world.getBlockState(pos);
         if ((air || iblockstate.getMaterial() != Material.AIR) && RenderUtil.mc.world.getWorldBorder().contains(pos)) {
-            assert (RenderUtil.mc.renderViewEntity != null);
-            Vec3d interp = EntityUtil.interpolateEntity(RenderUtil.mc.renderViewEntity, mc.getRenderPartialTicks());
+            assert (RenderUtil.mc.getRenderViewEntity() != null);
+            Vec3d interp = EntityUtil.interpolateEntity(RenderUtil.mc.getRenderViewEntity(), mc.getRenderPartialTicks());
             drawBlockOutline(iblockstate.getSelectedBoundingBox(RenderUtil.mc.world, pos).grow(0.002f).offset(-interp.x, -interp.y, -interp.z), color, linewidth);
 
 
@@ -640,9 +640,9 @@ public class RenderUtil implements Util {
     }
 
     public static void blockEsp(BlockPos blockPos, Color c, double length, double length2) {
-        double x = (double) blockPos.getX() - RenderUtil.mc.renderManager.renderPosX;
-        double y = (double) blockPos.getY() - RenderUtil.mc.renderManager.renderPosY;
-        double z = (double) blockPos.getZ() - RenderUtil.mc.renderManager.renderPosZ;
+        double x = (double) blockPos.getX() - ((IRenderManager)RenderUtil.mc.getRenderManager()).getRenderPosX();
+        double y = (double) blockPos.getY() - ((IRenderManager)RenderUtil.mc.getRenderManager()).getRenderPosY();
+        double z = (double) blockPos.getZ() - ((IRenderManager)RenderUtil.mc.getRenderManager()).getRenderPosZ();
         GL11.glPushMatrix();
         glBlendFunc(770, 771);
         GL11.glEnable(3042);

@@ -5,6 +5,8 @@ import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.events.EventPreMotion;
 import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.events.PushEvent;
+import com.mrzak34.thunderhack.mixin.mixins.ISPacketEntityVelocity;
+import com.mrzak34.thunderhack.mixin.mixins.ISPacketExplosion;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.modules.combat.Aura;
 import com.mrzak34.thunderhack.setting.Setting;
@@ -74,13 +76,13 @@ public class Velocity
         if (event.getPacket() instanceof SPacketExplosion) {
             SPacketExplosion velocity_ = event.getPacket();
             if (mode.getValue() == modeEn.Custom) {
-                velocity_.motionX *= this.horizontal.getValue() / 100f;
-                velocity_.motionY *= this.vertical.getValue() / 100f;
-                velocity_.motionZ *= this.horizontal.getValue() / 100f;
+                ((ISPacketExplosion)velocity_).setMotionX(((ISPacketExplosion)velocity_).getMotionX() * this.horizontal.getValue() / 100f);
+                ((ISPacketExplosion)velocity_).setMotionZ(((ISPacketExplosion)velocity_).getMotionZ() * this.horizontal.getValue() / 100f);
+                ((ISPacketExplosion)velocity_).setMotionY(((ISPacketExplosion)velocity_).getMotionY() * this.vertical.getValue() / 100f);
             } else if (mode.getValue() == modeEn.Cancel) {
-                velocity_.motionX = 0;
-                velocity_.motionZ = 0;
-                velocity_.motionY = 0;
+                ((ISPacketExplosion)velocity_).setMotionX(0);
+                ((ISPacketExplosion)velocity_).setMotionY(0);
+                ((ISPacketExplosion)velocity_).setMotionZ(0);
             }
         }
 
@@ -91,17 +93,17 @@ public class Velocity
 
         if (mode.getValue() == modeEn.Cancel && event.getPacket() instanceof SPacketEntityVelocity) {
             SPacketEntityVelocity pac = event.getPacket();
-            if (pac.getEntityID() == mc.player.entityId) {
+            if (pac.getEntityID() == mc.player.getEntityId()) {
                 event.setCanceled(true);
                 return;
             }
         }
         if (mode.getValue() == modeEn.Custom) {
             SPacketEntityVelocity velocity;
-            if (event.getPacket() instanceof SPacketEntityVelocity && (velocity = event.getPacket()).getEntityID() == Velocity.mc.player.entityId) {
-                velocity.motionX = (int) ((float) velocity.motionX * this.horizontal.getValue() / 100f);
-                velocity.motionY = (int) ((float) velocity.motionY * this.vertical.getValue() / 100f);
-                velocity.motionZ = (int) ((float) velocity.motionZ * this.horizontal.getValue() / 100f);
+            if (event.getPacket() instanceof SPacketEntityVelocity && (velocity = event.getPacket()).getEntityID() == mc.player.getEntityId()) {
+                ((ISPacketEntityVelocity)velocity).setMotionX((int) ((float) velocity.getMotionX() * this.horizontal.getValue() / 100f));
+                ((ISPacketEntityVelocity)velocity).setMotionY((int) ((float) velocity.getMotionY() * this.vertical.getValue() / 100f));
+                ((ISPacketEntityVelocity)velocity).setMotionZ((int) ((float) velocity.getMotionZ() * this.horizontal.getValue() / 100f));
             }
         }
         if (mode.getValue() == modeEn.Matrix) {
@@ -114,13 +116,13 @@ public class Velocity
 
             if (event.getPacket() instanceof SPacketEntityVelocity) {
                 SPacketEntityVelocity var4 = event.getPacket();
-                if (var4.getEntityID() == mc.player.entityId) {
+                if (var4.getEntityID() == mc.player.getEntityId()) {
                     if (!flag) {
                         event.setCanceled(true);
                     } else {
                         flag = false;
-                        var4.motionX = ((int) ((double) var4.motionX * -0.1));
-                        var4.motionZ = ((int) ((double) var4.motionZ * -0.1));
+                        ((ISPacketEntityVelocity)var4).setMotionX(((int) ((double) var4.getMotionX() * -0.1)));
+                        ((ISPacketEntityVelocity)var4).setMotionZ(((int) ((double) var4.getMotionZ() * -0.1)));
                     }
                 }
             }

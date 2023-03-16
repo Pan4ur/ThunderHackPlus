@@ -32,6 +32,9 @@ public class HoleFiller extends Module {
 
     private final Setting<Float> rangeXZ = this.register(new Setting<>("Range", 6f, 1f, 7f));
     private final Setting<Integer> predictTicks = this.register(new Setting<>("PredictTicks", 3, 0, 25));
+
+
+
     private final List<BlockPos> Holes = new ArrayList<>();
     private final Timer notification_timer = new Timer();
     EntityPlayer target;
@@ -40,22 +43,7 @@ public class HoleFiller extends Module {
         super("HoleFiller", "HoleFiller", "HoleFiller", Category.COMBAT);
     }
 
-    public static EntityEnderCrystal searchCrystal(BlockPos blockPos) {
-        BlockPos boost = blockPos.add(0, 1, 0);
-        BlockPos boost2 = blockPos.add(0, 2, 0);
 
-        for (Entity entity : mc.world.getEntitiesWithinAABB(Entity.class, new AxisAlignedBB(boost))) {
-            if (entity instanceof EntityEnderCrystal) {
-                return (EntityEnderCrystal) entity;
-            }
-        }
-        for (Entity entity : mc.world.getEntitiesWithinAABB(Entity.class, new AxisAlignedBB(boost2))) {
-            if (entity instanceof EntityEnderCrystal) {
-                return (EntityEnderCrystal) entity;
-            }
-        }
-        return null;
-    }
 
     @SubscribeEvent
     public void onEntitySync(EventPreMotion e) {
@@ -84,7 +72,7 @@ public class HoleFiller extends Module {
         for (BlockPos bp : Holes) {
             if (target.getDistanceSq(bp) < 4) {
                 fixHolePre(bp);
-            } else if (predict_pos.distanceSq(bp.x, bp.y, bp.z) < 4) {
+            } else if (predict_pos.distanceSq(bp.getX(), bp.getY(), bp.getZ()) < 4) {
                 fixHolePre(bp);
             }
         }
@@ -111,7 +99,7 @@ public class HoleFiller extends Module {
             mc.player.connection.sendPacket(new CPacketHeldItemChange(obby_slot));
             InteractionUtil.placeBlock(targetPosition, true);
             if (notification_timer.passedMs(200) && Thunderhack.moduleManager.getModuleByClass(NotificationManager.class).isOn()) {
-                NotificationManager.publicity("HoleFiller " + ChatFormatting.GREEN + "hole X" + targetPosition.x + " Y" + targetPosition.y + " Z" + targetPosition.z + " is successfully blocked", 2, Notification.Type.SUCCESS);
+                NotificationManager.publicity("HoleFiller " + ChatFormatting.GREEN + "hole X" + targetPosition.getX() + " Y" + targetPosition.getY() + " Z" + targetPosition.getZ() + " is successfully blocked", 2, Notification.Type.SUCCESS);
                 notification_timer.reset();
             }
             targetPosition = null;

@@ -35,6 +35,20 @@ public class InventoryUtil implements Util {
         return b;
     }
 
+    public static int getItemCount(Item item) {
+        if (mc.player == null) {
+            return 0;
+        }
+        int n = 0;
+        int n2 = 44;
+        for (int i = 0; i <= n2; ++i) {
+            ItemStack itemStack = mc.player.inventory.getStackInSlot(i);
+            if (itemStack.getItem() != item) continue;
+            n += itemStack.getCount();
+        }
+        return n;
+    }
+
     public static int getBestAxe() {
         int b = -1;
         float f = 1.0F;

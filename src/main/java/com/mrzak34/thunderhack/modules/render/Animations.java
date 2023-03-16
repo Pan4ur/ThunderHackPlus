@@ -2,6 +2,7 @@ package com.mrzak34.thunderhack.modules.render;
 
 
 import com.mrzak34.thunderhack.events.Render2DEvent;
+import com.mrzak34.thunderhack.mixin.mixins.IItemRenderer;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -78,11 +79,11 @@ class Animations extends Module {
         if (nullCheck()) {
             return;
         }
-        abobka228 = mc.itemRenderer.equippedProgressMainHand < 1f;
+        abobka228 = ((IItemRenderer)mc.getItemRenderer()).getEquippedProgressMainHand() < 1f;
 
-        if (ed.getValue() && Animations.mc.entityRenderer.itemRenderer.prevEquippedProgressMainHand >= 0.9) {
-            Animations.mc.entityRenderer.itemRenderer.equippedProgressMainHand = 1.0f;
-            Animations.mc.entityRenderer.itemRenderer.itemStackMainHand = Animations.mc.player.getHeldItemMainhand();
+        if (ed.getValue() && ((IItemRenderer)mc.getItemRenderer()).getEquippedProgressMainHand() >= 0.9) {
+            ((IItemRenderer)mc.getItemRenderer()).setEquippedProgressMainHand(1f);
+            ((IItemRenderer)mc.getItemRenderer()).setItemStackMainHand(Animations.mc.player.getHeldItemMainhand());
         }
     }
 

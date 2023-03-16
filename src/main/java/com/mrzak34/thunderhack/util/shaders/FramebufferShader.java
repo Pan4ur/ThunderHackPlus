@@ -1,5 +1,6 @@
 package com.mrzak34.thunderhack.util.shaders;
 
+import com.mrzak34.thunderhack.mixin.mixins.IEntityRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
@@ -37,7 +38,7 @@ public class FramebufferShader extends Shader {
         framebuffer.bindFramebuffer(true);
         entityShadows = mc.gameSettings.entityShadows;
         mc.gameSettings.entityShadows = false;
-        mc.entityRenderer.setupCameraTransform(partialTicks, 0);
+        ((IEntityRenderer)mc.entityRenderer).invokeSetupCameraTransform(partialTicks, 0);
     }
 
     public void stopDraw(final Color color, final float radius, final float quality, float duplicate) {

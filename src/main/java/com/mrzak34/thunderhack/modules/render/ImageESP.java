@@ -1,6 +1,8 @@
 package com.mrzak34.thunderhack.modules.render;
 
 import com.mrzak34.thunderhack.events.Render2DEvent;
+import com.mrzak34.thunderhack.mixin.mixins.IEntityRenderer;
+import com.mrzak34.thunderhack.mixin.mixins.IRenderManager;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.setting.Setting;
@@ -53,9 +55,6 @@ public class ImageESP extends Module {
 
     @SubscribeEvent
     public void onRender2D(Render2DEvent event) {
-
-
-        float partialTicks = mc.timer.renderPartialTicks;
         Float scaleFactor = scalefactor.getValue();
         double scaling = scaleFactor / Math.pow(scaleFactor, 2);
         GlStateManager.scale(scaling, scaling, scaling);
@@ -84,11 +83,11 @@ public class ImageESP extends Module {
                     AxisAlignedBB axisAlignedBB2 = entity.getEntityBoundingBox();
                     AxisAlignedBB axisAlignedBB = new AxisAlignedBB(axisAlignedBB2.minX - entity.posX + x - 0.05, axisAlignedBB2.minY - entity.posY + y, axisAlignedBB2.minZ - entity.posZ + z - 0.05, axisAlignedBB2.maxX - entity.posX + x + 0.05, axisAlignedBB2.maxY - entity.posY + y + 0.15, axisAlignedBB2.maxZ - entity.posZ + z + 0.05);
                     Vector3d[] vectors = new Vector3d[]{new Vector3d(axisAlignedBB.minX, axisAlignedBB.minY, axisAlignedBB.minZ), new Vector3d(axisAlignedBB.minX, axisAlignedBB.maxY, axisAlignedBB.minZ), new Vector3d(axisAlignedBB.maxX, axisAlignedBB.minY, axisAlignedBB.minZ), new Vector3d(axisAlignedBB.maxX, axisAlignedBB.maxY, axisAlignedBB.minZ), new Vector3d(axisAlignedBB.minX, axisAlignedBB.minY, axisAlignedBB.maxZ), new Vector3d(axisAlignedBB.minX, axisAlignedBB.maxY, axisAlignedBB.maxZ), new Vector3d(axisAlignedBB.maxX, axisAlignedBB.minY, axisAlignedBB.maxZ), new Vector3d(axisAlignedBB.maxX, axisAlignedBB.maxY, axisAlignedBB.maxZ)};
-                    mc.entityRenderer.setupCameraTransform(partialTicks, 0);
+                    ((IEntityRenderer)mc.entityRenderer).invokeSetupCameraTransform(event.getPartialTicks(), 0);
 
                     Vector4d position = null;
                     for (Vector3d vector : vectors) {
-                        vector = project2D(scaleFactor, vector.x - mc.getRenderManager().renderPosX, vector.y - mc.getRenderManager().renderPosY, vector.z - mc.getRenderManager().renderPosZ);
+                        vector = project2D(scaleFactor, vector.x - ((IRenderManager)Util.mc.getRenderManager()).getRenderPosX(), vector.y - ((IRenderManager)Util.mc.getRenderManager()).getRenderPosY(), vector.z - ((IRenderManager)Util.mc.getRenderManager()).getRenderPosZ());
                         if (vector != null && vector.z > 0 && vector.z < 1) {
                             if (position == null)
                                 position = new Vector4d(vector.x, vector.y, vector.z, 0);

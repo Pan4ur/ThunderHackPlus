@@ -29,8 +29,8 @@ public class WaterMark extends Module {
     @SubscribeEvent
     public void onRender2D(Render2DEvent e) {
 
-        RenderUtil.drawBlurredShadow(4, 4, FontRender.getStringWidth6("ThunderHack" + "  |  " + mc.player.getName() + "  |  " + Thunderhack.serverManager.getPing() + " ms  |  " + (mc.currentServerData == null ? "SinglePlayer" : mc.currentServerData.serverIP)) + 29, 12, 10, shadowColor.getValue().getColorObject());
-        RoundedShader.drawRound(4, 4, FontRender.getStringWidth6("ThunderHack" + "  |  " + mc.player.getName() + "  |  " + Thunderhack.serverManager.getPing() + " ms  |  " + (mc.currentServerData == null ? "SinglePlayer" : mc.currentServerData.serverIP)) + 30, 13, 2f, color2.getValue().getColorObject());
+        RenderUtil.drawBlurredShadow(4, 4, FontRender.getStringWidth6("ThunderHack" + "  |  " + mc.player.getName() + "  |  " + Thunderhack.serverManager.getPing() + " ms  |  " + (mc.getCurrentServerData() == null ? "SinglePlayer" : mc.getCurrentServerData().serverIP)) + 29, 12, 10, shadowColor.getValue().getColorObject());
+        RoundedShader.drawRound(4, 4, FontRender.getStringWidth6("ThunderHack" + "  |  " + mc.player.getName() + "  |  " + Thunderhack.serverManager.getPing() + " ms  |  " + (mc.getCurrentServerData() == null ? "SinglePlayer" : mc.getCurrentServerData().serverIP)) + 30, 13, 2f, color2.getValue().getColorObject());
 
         if (timer.passedMs(350)) {
             ++i;
@@ -146,7 +146,7 @@ public class WaterMark extends Module {
 
 
         FontRender.drawString6(text, 7, 9, -1, false);
-        FontRender.drawString6("  |  " + mc.player.getName() + "  |  " + Thunderhack.serverManager.getPing() + " ms  |  " + (mc.currentServerData == null ? "SinglePlayer" : mc.currentServerData.serverIP), FontRender.getStringWidth6("ThunderHack") + 10, 9, color1.getValue().getColor(), false);
+        FontRender.drawString6("  |  " + mc.player.getName() + "  |  " + Thunderhack.serverManager.getPing() + " ms  |  " + (mc.getCurrentServerData() == null ? "SinglePlayer" : mc.getCurrentServerData().serverIP), FontRender.getStringWidth6("ThunderHack") + 10, 9, color1.getValue().getColor(), false);
 
     }
 

@@ -84,8 +84,8 @@ public class RadarRewrite extends Module {
     }
 
     public static float getRotations(BlockPos entity) {
-        double x = entity.x - interp(mc.player.posX, mc.player.lastTickPosX);
-        double z = entity.z - interp(mc.player.posZ, mc.player.lastTickPosZ);
+        double x = entity.getX() - interp(mc.player.posX, mc.player.lastTickPosX);
+        double z = entity.getZ() - interp(mc.player.posZ, mc.player.lastTickPosZ);
         return (float) -(Math.atan2(x, z) * (180 / Math.PI));
     }
 

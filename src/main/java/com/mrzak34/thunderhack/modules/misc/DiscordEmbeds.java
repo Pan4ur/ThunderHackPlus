@@ -3,6 +3,7 @@ package com.mrzak34.thunderhack.modules.misc;
 import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.events.Render2DEvent;
+import com.mrzak34.thunderhack.mixin.mixins.ICPacketChatMessage;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.PNGtoResourceLocation;
@@ -136,8 +137,11 @@ public class DiscordEmbeds extends Module {
     @SubscribeEvent
     public void onPacketSend(PacketEvent.Send e) {
         if (e.getPacket() instanceof CPacketChatMessage) {
-            if (((CPacketChatMessage) e.getPacket()).message.contains("https://cdn.discordapp.com/attachments/") && fgbypass.getValue()) {
-                ((CPacketChatMessage) e.getPacket()).message = "!" + codeFGBypass(((CPacketChatMessage) e.getPacket()).message.replace("!", ""));
+            CPacketChatMessage pac = e.getPacket();
+            if (((ICPacketChatMessage)pac).getMessage().contains("https://cdn.discordapp.com/attachments/") && fgbypass.getValue()) {
+                ((ICPacketChatMessage)pac).setMessage(
+                        "!" + codeFGBypass(((ICPacketChatMessage)pac).getMessage().replace("!", ""))
+                );
             }
         }
     }

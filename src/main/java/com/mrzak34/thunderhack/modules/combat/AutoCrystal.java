@@ -27,6 +27,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.EnumAction;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemPickaxe;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.client.CPacketPlayer;
@@ -454,26 +455,22 @@ public class AutoCrystal extends Module {
 
 
     public AutoCrystal() {
-        super("AutoCrystal", "AutoCrystal", "do you really need-an explanation?)", Category.COMBAT);
+        super("AutoCrystal", "ставит и ломает кристалы", "do you really need-an explanation?)", Category.COMBAT);
     }
 
-    public static boolean canBeFeetPlaced(EntityPlayer player,
-                                          boolean ignoreCrystals,
-                                          boolean noBoost2) {
+    public static boolean canBeFeetPlaced(EntityPlayer player, boolean ignoreCrystals, boolean noBoost2) {
         BlockPos origin = (player.getPosition()).down();
         for (EnumFacing face : HORIZONTALS) {
             BlockPos off = origin.offset(face);
             IBlockState state = mc.world.getBlockState(off);
             if (canPlaceCrystal(off, ignoreCrystals, noBoost2)) return true;
             BlockPos off2 = off.offset(face);
-            if (canPlaceCrystal(off2, ignoreCrystals, noBoost2)
-                    && state.getBlock() == Blocks.AIR) return true;
+            if (canPlaceCrystal(off2, ignoreCrystals, noBoost2) && state.getBlock() == Blocks.AIR) return true;
         }
         return false;
     }
 
-    public static EntityPlayer getByFov(List<EntityPlayer> players,
-                                        double maxRange) {
+    public static EntityPlayer getByFov(List<EntityPlayer> players, double maxRange) {
         EntityPlayer closest = null;
         double closestAngle = 360.0;
         for (EntityPlayer player : players) {
@@ -492,8 +489,7 @@ public class AutoCrystal extends Module {
         return closest;
     }
 
-    public static EntityPlayer getByAngle(List<EntityPlayer> players,
-                                          double maxRange) {
+    public static EntityPlayer getByAngle(List<EntityPlayer> players, double maxRange) {
         EntityPlayer closest = null;
         double closestAngle = 360.0;
         for (EntityPlayer player : players) {
@@ -544,8 +540,11 @@ public class AutoCrystal extends Module {
             return ChatFormatting.GREEN + "Switching";
         }
 
+        String cps = crys_speed * 2 + " c/s";
+
         EntityPlayer t = getTarget();
-        return t == null ? null : t.getName();
+        return t == null ? null : t.getName() + " " + cps;
+
     }
 
     public void setRenderPos(BlockPos pos, float damage) {
@@ -577,9 +576,6 @@ public class AutoCrystal extends Module {
         return renderPos;
     }
 
-    /**
-     * @return the currently targeted player.
-     */
     public EntityPlayer getTarget() {
         if (targetTimer.passedMs(600)) {
             target = null;
@@ -588,20 +584,12 @@ public class AutoCrystal extends Module {
         return target;
     }
 
-    /**
-     * Sets the Target displayed in the Info and ESP.
-     * Will have no effects on who's getting targeted.
-     *
-     * @param target the target.
-     */
     public void setTarget(EntityPlayer target) {
         this.targetTimer.reset();
         this.target = target;
     }
 
-    /**
-     * @return the currently targeted crystal.
-     */
+
     public Entity getCrystal() {
         if (cTargetTimer.passedMs(600)) {
             crystal = null;
@@ -619,33 +607,25 @@ public class AutoCrystal extends Module {
         this.crystal = crystal;
     }
 
-    /**
-     * @return minDamage used for Calculation.
-     * Normally @link CrystalAura#minDamage}.
-     */
+
     public float getMinDamage() {
-        // We could also check if we are mining webs with our sword.
         return holdFacePlace.getValue()
                 && mc.currentScreen == null
                 && Mouse.isButtonDown(0)
                 && (!(mc.player.getHeldItemMainhand().getItem()
                 instanceof ItemPickaxe)
                 || pickAxeHold.getValue())
-                || dangerFacePlace.getValue() /*Managers.SAFETY.isSafe()*/
+                || dangerFacePlace.getValue()
                 ? minFaceDmg.getValue()
                 : minDamage.getValue();
     }
 
-    /**
-     * Runs all Runnables in {@link AutoCrystal#post}.
-     */
+
     public void runPost() {
         CollectionUtil.emptyQueue(post);
     }
 
-    /**
-     * Resets all fields and helpers.
-     */
+
     public void resetModule() {
         target = null;
         crystal = null;
@@ -675,11 +655,7 @@ public class AutoCrystal extends Module {
         return dangerSpeed.getValue() && (/*Managers.SAFETY.isSafe()*/ EntityUtil.getHealth(mc.player) < dangerHealth.getValue());
     }
 
-    /**
-     * This guarantees that the Executor is only started once!
-     * Could probably also package this as Observers for the
-     * 4 settings we check but too much work.
-     */
+
     public void checkExecutor() {
         // we use "started" here cause its faster than the atomic one
         if (!started
@@ -983,8 +959,17 @@ public class AutoCrystal extends Module {
         }
     }
 
+    private Timer inv_timer = new Timer();
+    private int prev_crystals_ammount;
+    private int crys_speed;
+
     @Override
     public void onTick() {
+        if(inv_timer.passedMs(500)){
+            crys_speed = prev_crystals_ammount - InventoryUtil.getItemCount(Items.END_CRYSTAL);
+            prev_crystals_ammount = InventoryUtil.getItemCount(Items.END_CRYSTAL);
+            inv_timer.reset();
+        }
 
         checkExecutor();
         placed.values().removeIf(stamp ->
@@ -998,6 +983,8 @@ public class AutoCrystal extends Module {
         }
         weaknessHelper.updateWeakness();
     }
+
+
 
     private void updater228(PacketEvent.Send event) {
         if (multiThread.getValue() && !isSpoofing && rotate.getValue() != ACRotate.None && rotationThread.getValue() == RotationThread.Cancel) {

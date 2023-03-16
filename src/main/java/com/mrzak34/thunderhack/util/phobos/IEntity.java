@@ -16,4 +16,6 @@ public interface IEntity extends Dummy {
 
     long getTimeStampT();
 
+    boolean isInWeb();
+
 }

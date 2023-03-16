@@ -3,6 +3,7 @@ package com.mrzak34.thunderhack.modules.player;
 import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.events.FinishUseItemEvent;
 import com.mrzak34.thunderhack.events.PlayerUpdateEvent;
+import com.mrzak34.thunderhack.mixin.mixins.IKeyBinding;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.EntityUtil;
@@ -32,20 +33,20 @@ public class AutoGApple extends Module {
             if (EntityUtil.getHealth(mc.player) <= health.getValue() && useDelay.passedMs(Delay.getValue())) {
                 stopAura = true;
                 isActive = true;
-                mc.gameSettings.keyBindUseItem.pressed = true;
+                ((IKeyBinding)mc.gameSettings.keyBindUseItem).setPressed(true);
             } else if (isActive) {
                 stopAura = false;
                 isActive = false;
-                mc.gameSettings.keyBindUseItem.pressed = false;
+                ((IKeyBinding)mc.gameSettings.keyBindUseItem).setPressed(false);
                 antiLag = 0;
             } else {
                 stopAura = false;
             }
-            if (mc.gameSettings.keyBindUseItem.pressed && fg.getValue()) {
+            if (((IKeyBinding)mc.gameSettings.keyBindUseItem).isPressed() && fg.getValue()) {
                 ++antiLag;
                 if (antiLag > 50) {
                     Command.sendMessage("AntiGapLAG");
-                    mc.gameSettings.keyBindUseItem.pressed = false;
+                    ((IKeyBinding)mc.gameSettings.keyBindUseItem).setPressed(false);
                     antiLag = 0;
                 }
             }

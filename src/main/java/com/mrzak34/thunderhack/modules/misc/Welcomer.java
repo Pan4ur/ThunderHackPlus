@@ -50,8 +50,8 @@ public class Welcomer extends Module {
 
             int n = (int) Math.floor(Math.random() * bb.length);
             int n2 = (int) Math.floor(Math.random() * qq.length);
-            if (mc.currentServerData != null) {
-                string1 = qq[n2].replace("SERVERIP1D5A9E", mc.currentServerData.serverIP);
+            if (mc.getCurrentServerData() != null) {
+                string1 = qq[n2].replace("SERVERIP1D5A9E", mc.getCurrentServerData().serverIP);
             } else {
                 string1 = "server";
             }

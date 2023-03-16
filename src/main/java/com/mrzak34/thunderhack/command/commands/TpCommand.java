@@ -20,11 +20,11 @@ public class TpCommand extends Command {
             BlockPos pos = new BlockPos(Integer.parseInt(commands[0]), Integer.parseInt(commands[1]), Integer.parseInt(commands[2]));
 
             for (int i = 0; i < 10; ++i) {
-                this.mc.player.connection.sendPacket(new CPacketPlayer.Position(pos.x, 1 + pos.y, pos.z, false));
+                this.mc.player.connection.sendPacket(new CPacketPlayer.Position(pos.getX(), 1 + pos.getY(), pos.getZ(), false));
             }
             mc.player.setPosition(pos.getX(), pos.getY() + 1, pos.getZ());
 
-            Command.sendMessage("Телепортируемся на координаты X: " + pos.x + " Y: " + pos.y + " Z: " + pos.z);
+            Command.sendMessage("Телепортируемся на координаты X: " + pos.getX() + " Y: " + pos.getY() + " Z: " + pos.getZ());
         }
     }
 }

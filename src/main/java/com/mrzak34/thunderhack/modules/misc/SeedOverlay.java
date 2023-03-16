@@ -284,8 +284,8 @@ public class SeedOverlay extends Module {
                     for (BlockPos block : chunk.blocks) {
 
 
-                        if (mc.player.getDistanceSq(new BlockPos(block.x, block.y, block.z)) < renderDistance.getValue() * renderDistance.getValue()) {
-                            RenderUtil.blockEspFrame(new BlockPos(block.x, block.y, block.z), 0.0, 255.0, 255.0);
+                        if (mc.player.getDistanceSq(new BlockPos(block.getX(), block.getY(), block.getZ())) < renderDistance.getValue() * renderDistance.getValue()) {
+                            RenderUtil.blockEspFrame(new BlockPos(block.getX(), block.getY(), block.getZ()), 0.0, 255.0, 255.0);
                         }
 
                     }

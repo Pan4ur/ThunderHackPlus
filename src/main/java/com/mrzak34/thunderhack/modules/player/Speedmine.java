@@ -4,6 +4,7 @@ import com.mrzak34.thunderhack.events.DamageBlockEvent;
 import com.mrzak34.thunderhack.events.EventPreMotion;
 import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.events.Render3DEvent;
+import com.mrzak34.thunderhack.mixin.mixins.IPlayerControllerMP;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.modules.render.BreakHighLight;
 import com.mrzak34.thunderhack.setting.Setting;
@@ -68,34 +69,26 @@ public class Speedmine extends Module {
                 }
             }
             if (mode.getValue() == Mode.Damage) {
-                if (mc.playerController.curBlockDamageMP < startDamage.getValue())
-                    mc.playerController.curBlockDamageMP = startDamage.getValue();
-
-                if (mc.playerController.curBlockDamageMP >= endDamage.getValue()) {
-                    mc.playerController.curBlockDamageMP = 1.0f;
-                }
+                if (((IPlayerControllerMP)mc.playerController).getCurBlockDamageMP() < startDamage.getValue())
+                    ((IPlayerControllerMP)mc.playerController).setCurBlockDamageMP(startDamage.getValue());
+                if (((IPlayerControllerMP)mc.playerController).getCurBlockDamageMP() >= endDamage.getValue())
+                    ((IPlayerControllerMP)mc.playerController).setCurBlockDamageMP(1f);
             } else if (mode.getValue() == Mode.NexusGrief) {
                 if (mc.player.getHeldItemMainhand().getItem() instanceof ItemPickaxe) {
-                    if (mc.playerController.curBlockDamageMP < 0.17f)
-                        mc.playerController.curBlockDamageMP = 0.17f;
-
-                    if (mc.playerController.curBlockDamageMP >= 0.83) {
-                        mc.playerController.curBlockDamageMP = 1f;
-                    }
+                    if (((IPlayerControllerMP)mc.playerController).getCurBlockDamageMP() < 0.17f)
+                        ((IPlayerControllerMP)mc.playerController).setCurBlockDamageMP(0.17f);
+                    if (((IPlayerControllerMP)mc.playerController).getCurBlockDamageMP() >= 0.83) {
+                        ((IPlayerControllerMP)mc.playerController).setCurBlockDamageMP(1f);}
                 } else if (mc.player.getHeldItemMainhand().getItem() instanceof ItemAxe) {
-                    if (mc.playerController.curBlockDamageMP < 0.17f)
-                        mc.playerController.curBlockDamageMP = 0.17f;
-
-                    if (mc.playerController.curBlockDamageMP >= 1f) {
-                        mc.playerController.curBlockDamageMP = 1.0f;
-                    }
+                    if (((IPlayerControllerMP)mc.playerController).getCurBlockDamageMP() < 0.17f)
+                        ((IPlayerControllerMP)mc.playerController).setCurBlockDamageMP(0.17f);
+                    if (((IPlayerControllerMP)mc.playerController).getCurBlockDamageMP() >= 1f)
+                        ((IPlayerControllerMP)mc.playerController).setCurBlockDamageMP(1f);
                 } else if (mc.player.getHeldItemMainhand().getItem() == Items.STONE_SHOVEL || mc.player.getHeldItemMainhand().getItem() == Items.IRON_SHOVEL || mc.player.getHeldItemMainhand().getItem() == Items.DIAMOND_SHOVEL) {
-                    if (mc.playerController.curBlockDamageMP < 0.17f)
-                        mc.playerController.curBlockDamageMP = 0.17f;
-
-                    if (mc.playerController.curBlockDamageMP >= 1f) {
-                        mc.playerController.curBlockDamageMP = 1.0f;
-                    }
+                    if (((IPlayerControllerMP)mc.playerController).getCurBlockDamageMP() < 0.17f)
+                        ((IPlayerControllerMP)mc.playerController).setCurBlockDamageMP(0.17f);
+                    if (((IPlayerControllerMP)mc.playerController).getCurBlockDamageMP() >= 1f)
+                        ((IPlayerControllerMP)mc.playerController).setCurBlockDamageMP(1f);
                 }
             } else if (mode.getValue() == Mode.Packet) {
                 if (minePosition != null && !mc.world.isAirBlock(minePosition)) {

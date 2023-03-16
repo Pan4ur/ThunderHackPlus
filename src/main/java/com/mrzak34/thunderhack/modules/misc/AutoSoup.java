@@ -24,7 +24,7 @@ public class AutoSoup extends Module {
             int currentslot = mc.player.inventory.currentItem;
             if (soupslot != -1) {
                 mc.player.connection.sendPacket(new CPacketHeldItemChange(soupslot));
-                mc.playerController.connection.sendPacket(new CPacketPlayerTryUseItem(EnumHand.MAIN_HAND));
+                mc.player.connection.sendPacket(new CPacketPlayerTryUseItem(EnumHand.MAIN_HAND));
                 InventoryUtil.switchToHotbarSlot(currentslot, true);
             }
         }

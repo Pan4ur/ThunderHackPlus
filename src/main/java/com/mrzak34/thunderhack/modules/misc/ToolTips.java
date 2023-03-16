@@ -81,9 +81,10 @@ public class ToolTips
             Item item = stack.getItem();
             TileEntityShulkerBox entityBox = new TileEntityShulkerBox();
             ItemShulkerBox shulker = (ItemShulkerBox) item;
-            entityBox.blockType = shulker.getBlock();
+            // entityBox.blockType = shulker.getBlock();
             entityBox.setWorld(ToolTips.mc.world);
-            ItemStackHelper.loadAllItems(Objects.requireNonNull(stack.getTagCompound()).getCompoundTag("BlockEntityTag"), entityBox.items);
+            NonNullList<ItemStack> nonnulllist = NonNullList.withSize(27, ItemStack.EMPTY);
+            ItemStackHelper.loadAllItems(Objects.requireNonNull(stack.getTagCompound()).getCompoundTag("BlockEntityTag"), nonnulllist);
             entityBox.readFromNBT(stack.getTagCompound().getCompoundTag("BlockEntityTag"));
             entityBox.setCustomName(name == null ? stack.getDisplayName() : name);
             new Thread(() -> {

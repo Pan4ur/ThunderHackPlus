@@ -11,4 +11,7 @@ public interface ISPacketPlayerPosLook {
 
     @Accessor(value = "pitch")
     void setPitch(float pitch);
+
+    @Accessor(value = "teleportId")
+    int getTeleportId();
 }

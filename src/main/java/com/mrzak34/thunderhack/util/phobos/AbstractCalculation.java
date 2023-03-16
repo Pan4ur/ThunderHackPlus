@@ -164,8 +164,7 @@ public abstract class AbstractCalculation<T extends CrystalData> extends Finisha
                         instanceof ItemPickaxe)
                         && module.liquidTimer.passedMs(module.liqDelay.getValue())
                         && (module.lava.getValue() || module.water.getValue())) {
-                    MineSlots mineSlots = HelperLiquids.getSlots(
-                            module.requireOnGround.getValue());
+                    MineSlots mineSlots = HelperLiquids.getSlots(module.requireOnGround.getValue());
                     if (mineSlots.getBlockSlot() == -1
                             || mineSlots.getDamage() < 1.0f) {
                         return;

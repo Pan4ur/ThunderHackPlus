@@ -139,23 +139,9 @@ public class MixinEntityOtherPlayerMP extends AbstractClientPlayer {
         if (ShiftInterp.getInstance().isOn()) {
             renderOffsetY = 0;
             super.onUpdate();
-            // limbSwing = 0;
-            // limbSwingAmount = 0;
-            // prevLimbSwingAmount = 0;
 
             if (ShiftInterp.getInstance().sleep.getValue()) {
                 sleeping = true;
-            } else if (ShiftInterp.getInstance().aboba.getValue()) {
-                EntityPig rockez = new EntityPig(mc.world);
-                rockez.limbSwing = limbSwing;
-                rockez.limbSwingAmount = limbSwingAmount;
-                ridingEntity = rockez;
-                ridingEntity.posX = posX;
-                ridingEntity.posY = posY;
-                ridingEntity.posZ = posZ;
-                ridingEntity.rotationYaw = rotationYaw;
-                ridingEntity.rotationPitch = rotationPitch;
-                renderYawOffset = rotationYaw;
             } else {
                 sleeping = false;
                 setSneaking(true);

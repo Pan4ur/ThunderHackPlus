@@ -337,6 +337,8 @@ public class TargetHud extends Module {
             GlStateManager.color(1F, 1F - hurtPercent, 1F - hurtPercent);
 
             renderPlayerModelTexture(xPos + 5.5f + hurtPercent2, yPos + 5.5f + hurtPercent2, 3F, 3F, 3, 3, (int) (39 - (double) hurtPercent2 * 2), (int) (39 - (double) hurtPercent2 * 2), 24, 24.5f, (AbstractClientPlayer) target);
+            renderPlayerModelTexture(xPos + 5.5f + hurtPercent2, yPos + 5.5f + hurtPercent2, 15F, 3F, 3, 3, (int) (39 - (double) hurtPercent2 * 2), (int) (39 - (double) hurtPercent2 * 2), 24, 24.5f, (AbstractClientPlayer) target);
+
             Stencil.dispose();
             GL11.glPopMatrix();
             GlStateManager.resetColor();
@@ -410,7 +412,7 @@ public class TargetHud extends Module {
             if (PNGtoResourceLocation.getCustomImg("targethud", "png") != null) {
                 customImg = PNGtoResourceLocation.getCustomImg("targethud", "png");
             } else {
-                Command.sendMessage("Перейди в .minecraft/ThunderHack/customimg и добавь туда png картинку с названием targethud");
+                Command.sendMessage("Перейди в .minecraft/ThunderHack/images и добавь туда png картинку с названием targethud");
                 toggle();
             }
             return;

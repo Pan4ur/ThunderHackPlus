@@ -136,8 +136,8 @@ public class Thunderhack {
         moduleManager.onLoad();
         ThunderUtils.syncCapes();
         MacroManager.onLoad();
-        if (Util.mc.session != null && !alts.contains(Util.mc.session.getUsername())) {
-            alts.add(Util.mc.session.getUsername());
+        if (Util.mc.getSession() != null && !alts.contains(Util.mc.getSession().getUsername())) {
+            alts.add(Util.mc.getSession().getUsername());
         }
     }
 

@@ -6,8 +6,12 @@ import com.mrzak34.thunderhack.util.EntityUtil;
 import com.mrzak34.thunderhack.util.Util;
 import com.mrzak34.thunderhack.util.math.MathUtil;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockAir;
+import net.minecraft.block.BlockEnderChest;
+import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Enchantments;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
@@ -16,6 +20,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 
 import java.util.List;
+
+import static com.mrzak34.thunderhack.util.Util.mc;
 
 
 public class HelperLiquids {
@@ -30,17 +36,13 @@ public class HelperLiquids {
         int bestTool = -1;
         float maxSpeed = 0.0f;
         for (int i = 8; i > -1; i--) {
-            ItemStack stack = Util.mc.player.inventory.getStackInSlot(i);
+            ItemStack stack = mc.player.inventory.getStackInSlot(i);
             if (stack.getItem() instanceof ItemBlock) {
                 Block block = ((ItemBlock) stack.getItem()).getBlock();
-                int tool = MineUtil.findBestTool(BlockPos.ORIGIN,
-                        block.getDefaultState());
-                float damage = MineUtil.getDamage(
-                        block.getDefaultState(),
-                        Util.mc.player.inventory.getStackInSlot(tool),
-                        BlockPos.ORIGIN,
-                        !onGroundCheck
-                                || Util.mc.player.onGround);
+                int tool = getTool(block);
+                final float digSpeed = EnchantmentHelper.getEnchantmentLevel(Enchantments.EFFICIENCY, mc.player.inventory.getStackInSlot(tool));
+                final float destroySpeed = mc.player.inventory.getStackInSlot(tool).getDestroySpeed(block.getDefaultState());
+                float damage = digSpeed + destroySpeed;
 
                 if (damage > maxSpeed) {
                     bestBlock = i;
@@ -69,7 +71,25 @@ public class HelperLiquids {
         return newData;
     }
 
-    // TODO: make this utility method somewhere else, MineUtil maybe
+
+    private static int getTool(final Block pos) {
+        int index = -1;
+        float CurrentFastest = 1.0f;
+        for (int i = 0; i < 9; ++i) {
+            final ItemStack stack = mc.player.inventory.getStackInSlot(i);
+            if (stack != ItemStack.EMPTY) {
+                final float digSpeed = EnchantmentHelper.getEnchantmentLevel(Enchantments.EFFICIENCY, stack);
+                final float destroySpeed = stack.getDestroySpeed(pos.getDefaultState());
+
+                if (pos instanceof BlockAir) return 0;
+                if (digSpeed + destroySpeed > CurrentFastest) {
+                    CurrentFastest = digSpeed + destroySpeed;
+                    index = i;
+                }
+            }
+        }
+        return index;
+    }
 
     public EnumFacing getAbsorbFacing(BlockPos pos,
                                       List<Entity> entities,

@@ -6,6 +6,7 @@ import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.Timer;
 import com.mrzak34.thunderhack.util.math.MathUtil;
+import com.mrzak34.thunderhack.util.phobos.IEntity;
 import com.mrzak34.thunderhack.util.phobos.IEntityLivingBase;
 import net.minecraft.block.BlockAir;
 import net.minecraft.block.BlockLiquid;
@@ -54,7 +55,7 @@ public class TriggerBot extends Module {
                 mc.player.isPotionActive(MobEffects.SLOWNESS)
                         || mc.player.isOnLadder()
                         || (Aura.isInLiquid())
-                        || mc.player.isInWeb
+                        || ((IEntity)mc.player).isInWeb()
                         || (smartCrit.getValue() && (!mc.gameSettings.keyBindJump.isKeyDown()));
 
 

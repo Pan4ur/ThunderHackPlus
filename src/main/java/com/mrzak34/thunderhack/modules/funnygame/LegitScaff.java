@@ -1,6 +1,7 @@
 package com.mrzak34.thunderhack.modules.funnygame;
 
 
+import com.mrzak34.thunderhack.mixin.mixins.IMinecraft;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.Timer;
@@ -28,7 +29,7 @@ public class LegitScaff extends Module {
     public void onUpdate() {
         if (Util.mc.player != null && Util.mc.world != null) {
             if (fast.getValue()) {
-                mc.rightClickDelayTimer = blue.getValue();
+                ((IMinecraft)mc).setRightClickDelayTimer(blue.getValue());
             }
             if (lt.getValue()) {
                 if (mc.player.movementInput.jump) {

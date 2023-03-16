@@ -45,22 +45,6 @@ public class MotionTracker extends EntityPlayerNoInterp {
         this.motionZ = 0.0;
     }
 
-    /*
-    public void pushOutOfBlocks(PushMode mode)
-    {
-        AxisAlignedBB axisalignedbb = shrinkPush
-                ? this.getEntityBoundingBox().expand(-0.0625, -0.0625, -0.0625)
-                : this.getEntityBoundingBox();
-
-        // TODO: smarter way than calling this 4 times?????
-        mode.pushOutOfBlocks(this, this.posX - (double)this.width * 0.35D, axisalignedbb.minY + 0.5D, this.posZ + (double)this.width * 0.35D);
-        mode.pushOutOfBlocks(this, this.posX - (double)this.width * 0.35D, axisalignedbb.minY + 0.5D, this.posZ - (double)this.width * 0.35D);
-        mode.pushOutOfBlocks(this, this.posX + (double)this.width * 0.35D, axisalignedbb.minY + 0.5D, this.posZ - (double)this.width * 0.35D);
-        mode.pushOutOfBlocks(this, this.posX + (double)this.width * 0.35D, axisalignedbb.minY + 0.5D, this.posZ + (double)this.width * 0.35D);
-    }
-
-     */
-
     public void updateFromTrackedEntity() {
         this.motionX = tracked.motionX;
         this.motionY = tracked.motionY > 0.0 ? tracked.motionY * yPlusFactor : tracked.motionY * yMinusFactor;

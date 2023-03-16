@@ -6,8 +6,10 @@ import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.events.PreRenderEvent;
 import com.mrzak34.thunderhack.events.Render3DEvent;
+import com.mrzak34.thunderhack.mixin.mixins.IRenderManager;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
+import com.mrzak34.thunderhack.util.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
@@ -124,9 +126,9 @@ public class LogoutSpots extends Module {
             GlStateManager.color(1, 1, 1, 1);
             try {
                 mc.getRenderManager().renderEntity(data.ghost,
-                        data.position.x - mc.getRenderManager().renderPosX,
-                        data.position.y - mc.getRenderManager().renderPosY,
-                        data.position.z - mc.getRenderManager().renderPosZ,
+                        data.position.x - ((IRenderManager) Util.mc.getRenderManager()).getRenderPosX(),
+                        data.position.y - ((IRenderManager) Util.mc.getRenderManager()).getRenderPosY(),
+                        data.position.z - ((IRenderManager) Util.mc.getRenderManager()).getRenderPosZ(),
 
                         data.ghost.rotationYaw, mc.getRenderPartialTicks(), false);
             } catch (Exception ignored) {
@@ -152,9 +154,9 @@ public class LogoutSpots extends Module {
                 this.logoutCache.remove(uuid);
                 continue;
             }
-            renderNameTag(data.position.x - mc.getRenderManager().renderPosX,
-                    data.position.y - mc.getRenderManager().renderPosY,
-                    data.position.z - mc.getRenderManager().renderPosZ,
+            renderNameTag(data.position.x - ((IRenderManager)Util.mc.getRenderManager()).getRenderPosX(),
+                    data.position.y - ((IRenderManager)Util.mc.getRenderManager()).getRenderPosY(),
+                    data.position.z - ((IRenderManager)Util.mc.getRenderManager()).getRenderPosZ(),
                     event.getPartialTicks(), data.profile.getName() + " just logout at " + (int) data.position.x + " " + (int) data.position.y + " " + (int) data.position.z);
         }
     }

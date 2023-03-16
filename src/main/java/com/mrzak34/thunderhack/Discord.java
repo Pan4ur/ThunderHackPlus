@@ -36,14 +36,9 @@ class Discord {
     void start ( ) {
         started = true;
         DiscordEventHandlers handlers = new DiscordEventHandlers ( );
-
-
         rpc.Discord_Initialize("939112431488225280", handlers, true, "");
-
-
-
             Discord.presence.startTimestamp = (System.currentTimeMillis() / 1000L);
-            Discord.presence.details = Util.mc.currentScreen instanceof GuiMainMenu ? "В главном меню" : "Играет " + (Minecraft.getMinecraft().currentServerData != null ? (RPC.INSTANCE.showIP.getValue() ? Minecraft.getMinecraft().currentServerData.serverIP.equals("localhost") ? "на " + "2bt2.org via 2bored2wait" : "на " + Minecraft.getMinecraft().currentServerData.serverIP : " НН сервер") : " Читерит в одиночке");
+            Discord.presence.details = Util.mc.currentScreen instanceof GuiMainMenu ? "В главном меню" : "Играет " + (Minecraft.getMinecraft().getCurrentServerData() != null ? (RPC.INSTANCE.showIP.getValue() ? Minecraft.getMinecraft().getCurrentServerData().serverIP.equals("localhost") ? "на " + "2bt2.org via 2bored2wait" : "на " + Minecraft.getMinecraft().getCurrentServerData().serverIP : " НН сервер") : " Читерит в одиночке");
             Discord.presence.state = RPC.INSTANCE.state.getValue();
             Discord.presence.largeImageText = "v2.40";
             rpc.Discord_UpdatePresence(presence);
@@ -53,7 +48,7 @@ class Discord {
                     rpc.Discord_RunCallbacks();
 
                     if (!RPC.inQ) {
-                        Discord.presence.details = Minecraft.getMinecraft().currentScreen instanceof GuiMainMenu || Minecraft.getMinecraft().currentScreen instanceof GuiScreenServerList || Minecraft.getMinecraft().currentScreen instanceof GuiScreenAddServer ? "В главном меню" : (Minecraft.getMinecraft().currentServerData != null ? (RPC.INSTANCE.showIP.getValue() ? "Играет на " + Minecraft.getMinecraft().currentServerData.serverIP : "НН сервер") : "Выбирает сервер");
+                        Discord.presence.details = Minecraft.getMinecraft().currentScreen instanceof GuiMainMenu || Minecraft.getMinecraft().currentScreen instanceof GuiScreenServerList || Minecraft.getMinecraft().currentScreen instanceof GuiScreenAddServer ? "В главном меню" : (Minecraft.getMinecraft().getCurrentServerData() != null ? (RPC.INSTANCE.showIP.getValue() ? "Играет на " + Minecraft.getMinecraft().getCurrentServerData().serverIP : "НН сервер") : "Выбирает сервер");
                     } else {
                         Discord.presence.details = "In queue: " + RPC.position;
                     }
@@ -61,11 +56,11 @@ class Discord {
 
                     if (RPC.INSTANCE.nickname.getValue()) {
                         if(Thunderhack.moduleManager.getModuleByClass(NameProtect.class).isDisabled()) {
-                            Discord.presence.smallImageText = "logged as - " + Util.mc.session.getUsername();
+                            Discord.presence.smallImageText = "logged as - " + Util.mc.getSession().getUsername();
                         } else {
                             Discord.presence.smallImageText = "logged as - Protected";
                         }
-                        Discord.presence.smallImageKey = "https://minotar.net/helm/" +  Util.mc.session.getUsername()+ "/100.png";
+                        Discord.presence.smallImageKey = "https://minotar.net/helm/" +  Util.mc.getSession().getUsername()+ "/100.png";
                     }
 
 

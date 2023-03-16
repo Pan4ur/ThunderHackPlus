@@ -25,7 +25,7 @@ public class AutoOzera extends Module {
         if (timer.passedMs(delay.getValue()) && InventoryUtil.getOzeraAtHotbar() != -1 && !mc.player.isPotionActive(MobEffects.STRENGTH)) {
             int hotbarslot = mc.player.inventory.currentItem;
             mc.player.connection.sendPacket(new CPacketHeldItemChange(InventoryUtil.getOzeraAtHotbar()));
-            mc.playerController.connection.sendPacket(new CPacketPlayerTryUseItem(EnumHand.MAIN_HAND));
+            mc.player.connection.sendPacket(new CPacketPlayerTryUseItem(EnumHand.MAIN_HAND));
             mc.player.connection.sendPacket(new CPacketHeldItemChange(hotbarslot));
             timer.reset();
         }

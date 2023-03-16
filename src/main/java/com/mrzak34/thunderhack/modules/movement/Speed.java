@@ -5,6 +5,7 @@ import com.mrzak34.thunderhack.events.EventMove;
 import com.mrzak34.thunderhack.events.EventPreMotion;
 import com.mrzak34.thunderhack.events.MatrixMove;
 import com.mrzak34.thunderhack.events.PacketEvent;
+import com.mrzak34.thunderhack.mixin.mixins.IKeyBinding;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.MovementUtil;
@@ -65,7 +66,6 @@ public class Speed extends Module {
         distance = 0.0;
         FunnyGameStage = 0;
         mc.player.jumpMovementFactor = 0.02f;
-        mc.player.speedInAir = 0.02f;
         Thunderhack.TICK_TIMER = 1f;
         velocity = 0;
     }
@@ -144,7 +144,7 @@ public class Speed extends Module {
     @Override
     public void onUpdate() {
         if (autoWalk.getValue()) {
-            mc.gameSettings.keyBindForward.pressed = true;
+            ((IKeyBinding)mc.gameSettings.keyBindForward).setPressed(true);
         }
         if (Mode.getValue() == mode.Grief) {
             if (!isMoving()) {
@@ -152,11 +152,9 @@ public class Speed extends Module {
             }
             if (mc.player.onGround) {
                 mc.player.jump();
-                mc.player.speedInAir = 0.0201F;
                 Thunderhack.TICK_TIMER = 0.94F;
             }
             if (mc.player.fallDistance > 0.7 && mc.player.fallDistance < 1.3) {
-                mc.player.speedInAir = 0.02F;
                 Thunderhack.TICK_TIMER = 1.8F;
             }
         }

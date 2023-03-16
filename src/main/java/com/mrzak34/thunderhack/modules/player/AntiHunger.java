@@ -1,6 +1,7 @@
 package com.mrzak34.thunderhack.modules.player;
 
 import com.mrzak34.thunderhack.events.PacketEvent;
+import com.mrzak34.thunderhack.mixin.mixins.ICPacketPlayer;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import net.minecraft.network.play.client.CPacketEntityAction;
@@ -44,7 +45,8 @@ public class AntiHunger extends Module {
             boolean ground = mc.player.onGround;
             if (noGround.getValue() && isOnGround && ground && player.getY(0.0) == (!mc.player.isSprinting() ? 0.0 : mc.player.posY)) {
                 if (grPacket.getValue()) {
-                    player.onGround = false;
+                    ((ICPacketPlayer)player).setOnGround(false);
+
                 } else {
                     mc.player.onGround = false;
                 }

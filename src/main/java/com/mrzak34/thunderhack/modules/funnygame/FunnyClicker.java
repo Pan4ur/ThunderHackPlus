@@ -42,7 +42,7 @@ public class FunnyClicker extends Module {
         for (final TileEntity tileEntity : mc.world.loadedTileEntityList) {
             if (mc.player.getDistanceSq(new BlockPos(tileEntity.getPos())) > 4) continue;
             if (((tileEntity instanceof TileEntityChest))) {
-                if (mc.player.getDistance(tileEntity.getPos().x, tileEntity.getPos().y, tileEntity.getPos().z) > 8) {
+                if (mc.player.getDistance(tileEntity.getPos().getX(), tileEntity.getPos().getY(), tileEntity.getPos().getZ()) > 8) {
                     continue;
                 }
                 if (timer.passedMs(chanceval.getValue())) {

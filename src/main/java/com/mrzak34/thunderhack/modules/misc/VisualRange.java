@@ -40,7 +40,7 @@ public class VisualRange extends Module {
     @SubscribeEvent
     public void onEntityAdded(EntityAddedEvent event) {
         if (funnyGame.getValue() && !mc.isSingleplayer()) {
-            if (Objects.equals(Minecraft.getMinecraft().currentServerData.serverIP, "mcfunny.su")) {
+            if (Objects.equals(Minecraft.getMinecraft().getCurrentServerData().serverIP, "mcfunny.su")) {
                 return;
             }
         }

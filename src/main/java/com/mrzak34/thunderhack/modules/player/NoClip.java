@@ -26,16 +26,16 @@ public class NoClip extends Module {
     }
 
     public static boolean playerInsideBlock() {
-        for (int i = MathHelper.floor(mc.player.boundingBox.minX); i < MathHelper.floor(mc.player.boundingBox.maxX) + 1; ++i) {
-            for (int j = MathHelper.floor(mc.player.boundingBox.minY + 1.0); j < MathHelper.floor(mc.player.boundingBox.maxY) + 2; ++j) {
-                for (int k = MathHelper.floor(mc.player.boundingBox.minZ); k < MathHelper.floor(mc.player.boundingBox.maxZ) + 1; ++k) {
+        for (int i = MathHelper.floor(mc.player.getEntityBoundingBox().minX); i < MathHelper.floor(mc.player.getEntityBoundingBox().maxX) + 1; ++i) {
+            for (int j = MathHelper.floor(mc.player.getEntityBoundingBox().minY + 1.0); j < MathHelper.floor(mc.player.getEntityBoundingBox().maxY) + 2; ++j) {
+                for (int k = MathHelper.floor(mc.player.getEntityBoundingBox().minZ); k < MathHelper.floor(mc.player.getEntityBoundingBox().maxZ) + 1; ++k) {
                     Block block = mc.world.getBlockState(new BlockPos(i, j, k)).getBlock();
                     if (block == null || block instanceof BlockAir) continue;
                     AxisAlignedBB axisAlignedBB = block.getSelectedBoundingBox(mc.world.getBlockState(new BlockPos(i, j, k)), mc.world, new BlockPos(i, j, k));
                     if (block instanceof BlockHopper) {
                         axisAlignedBB = new AxisAlignedBB(i, j, k, i + 1, j + 1, k + 1);
                     }
-                    if (axisAlignedBB == null || !mc.player.boundingBox.intersects(axisAlignedBB)) continue;
+                    if (axisAlignedBB == null || !mc.player.getEntityBoundingBox().intersects(axisAlignedBB)) continue;
                     return true;
                 }
             }

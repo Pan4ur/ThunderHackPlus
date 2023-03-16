@@ -2,6 +2,7 @@ package com.mrzak34.thunderhack.modules.movement;
 
 import com.mrzak34.thunderhack.events.EventPreMotion;
 import com.mrzak34.thunderhack.events.PacketEvent;
+import com.mrzak34.thunderhack.mixin.mixins.ICPacketPlayer;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.MovementUtil;
@@ -111,7 +112,7 @@ public class Flight extends Module {
             if (e.getPacket() instanceof CPacketPlayer) {
                 CPacketPlayer packet = e.getPacket();
                 if (spoofValue.getValue()) {
-                    packet.onGround = true;
+                    ((ICPacketPlayer)packet).setOnGround(true);
                 }
             }
         } else if (mode.getValue() == Mode.AirJump) {

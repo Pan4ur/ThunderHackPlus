@@ -75,7 +75,7 @@ public class ServerManager extends Feature {
                 for (Float value : getTPSResults()) {
                     f += Math.max(0.0f, Math.min(20.0f, value));
                 }
-                setTPS(f /= (float) getTPSResults().size());
+                setTPS(f / (float) getTPSResults().size());
             }
             setTime(System.currentTimeMillis());
         }

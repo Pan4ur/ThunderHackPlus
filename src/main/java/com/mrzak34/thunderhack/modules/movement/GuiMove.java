@@ -52,7 +52,7 @@ public class GuiMove extends Module {
             if (clickBypass.getValue()
                     && mc.player.onGround
                     && MovementUtil.isMoving()
-                    && mc.world.getCollisionBoxes(mc.player, mc.player.boundingBox.offset(0.0, 0.0656, 0.0)).isEmpty()
+                    && mc.world.getCollisionBoxes(mc.player, mc.player.getEntityBoundingBox().offset(0.0, 0.0656, 0.0)).isEmpty()
             ) {
                 if (mc.player.isSprinting()) {
                     mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.STOP_SPRINTING));

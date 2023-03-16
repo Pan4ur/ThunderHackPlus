@@ -3,6 +3,7 @@ package com.mrzak34.thunderhack.modules.render;
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.events.Render3DEvent;
 import com.mrzak34.thunderhack.gui.fontstuff.FontRender;
+import com.mrzak34.thunderhack.mixin.mixins.IRenderManager;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.setting.Setting;
@@ -67,9 +68,9 @@ public class NameTags extends Module {
             for (EntityPlayer player : mc.world.playerEntities) {
                 if (player == null || player.equals(mc.player) || !player.isEntityAlive() || player.isInvisible() && !this.invisibles.getValue() || this.onlyFov.getValue() && !RotationUtil.isInFov(player))
                     continue;
-                double x = this.interpolate(player.lastTickPosX, player.posX, event.getPartialTicks()) - mc.getRenderManager().renderPosX;
-                double y = this.interpolate(player.lastTickPosY, player.posY, event.getPartialTicks()) - mc.getRenderManager().renderPosY;
-                double z = this.interpolate(player.lastTickPosZ, player.posZ, event.getPartialTicks()) - mc.getRenderManager().renderPosZ;
+                double x = this.interpolate(player.lastTickPosX, player.posX, event.getPartialTicks()) - ((IRenderManager)Util.mc.getRenderManager()).getRenderPosX();
+                double y = this.interpolate(player.lastTickPosY, player.posY, event.getPartialTicks()) - ((IRenderManager)Util.mc.getRenderManager()).getRenderPosY();
+                double z = this.interpolate(player.lastTickPosZ, player.posZ, event.getPartialTicks()) - ((IRenderManager)Util.mc.getRenderManager()).getRenderPosZ();
                 this.renderNameTag(player, x, y, z, event.getPartialTicks());
             }
         }
@@ -158,10 +159,7 @@ public class NameTags extends Module {
         }
         GlStateManager.disableBlend();
         ItemStack renderMainHand = player.getHeldItemMainhand().copy();
-        if (renderMainHand.hasEffect() && (renderMainHand.getItem() instanceof ItemTool || renderMainHand.getItem() instanceof ItemArmor)) {
-            renderMainHand.stackSize = 1;
-        }
-        if (this.heldStackName.getValue() && !renderMainHand.isEmpty && renderMainHand.getItem() != Items.AIR) {
+        if (this.heldStackName.getValue() && !renderMainHand.isEmpty() && renderMainHand.getItem() != Items.AIR) {
             String stackName = renderMainHand.getDisplayName();
             int stackNameWidth = Util.fr.getStringWidth(stackName) / 2;
             GL11.glPushMatrix();
@@ -179,17 +177,11 @@ public class NameTags extends Module {
             }
             xOffset -= 8;
             ItemStack renderOffhand = player.getHeldItemOffhand().copy();
-            if (renderOffhand.hasEffect() && (renderOffhand.getItem() instanceof ItemTool || renderOffhand.getItem() instanceof ItemArmor)) {
-                renderOffhand.stackSize = 1;
-            }
             this.renderItemStack(renderOffhand, xOffset, -26);
             xOffset += 16;
             for (ItemStack stack : player.inventory.armorInventory) {
                 if (stack == null) continue;
                 ItemStack armourStack = stack.copy();
-                if (armourStack.hasEffect() && (armourStack.getItem() instanceof ItemTool || armourStack.getItem() instanceof ItemArmor)) {
-                    armourStack.stackSize = 1;
-                }
                 this.renderItemStack(armourStack, xOffset, -26);
                 xOffset += 16;
             }

@@ -5,6 +5,7 @@ import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.events.EventMove;
 import com.mrzak34.thunderhack.events.EventPostMotion;
 import com.mrzak34.thunderhack.events.PacketEvent;
+import com.mrzak34.thunderhack.mixin.mixins.ISPacketPlayerPosLook;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.notification.Notification;
 import com.mrzak34.thunderhack.notification.NotificationManager;
@@ -87,8 +88,8 @@ public class LongJump extends Module {
         } else if (Mode.getValue() == ModeEn.NexusGrief || Mode.getValue() == ModeEn.MatrixCustom) {
             if (mc.currentScreen == null && e.getPacket() instanceof SPacketPlayerPosLook) {
                 final SPacketPlayerPosLook packet = e.getPacket();
-                packet.yaw = mc.player.rotationYaw;
-                packet.pitch = mc.player.rotationPitch;
+                ((ISPacketPlayerPosLook)packet).setPitch(mc.player.rotationPitch);
+                ((ISPacketPlayerPosLook)packet).setYaw(mc.player.rotationYaw);
             }
         }
     }

@@ -48,7 +48,7 @@ public class AutoPot extends Module {
             int hotbarslot = mc.player.inventory.currentItem;
             mc.world.playSound(getPlayerPos(), SoundEvents.BLOCK_BREWING_STAND_BREW, SoundCategory.AMBIENT, 150.0f, 1.0F, true);
             mc.player.connection.sendPacket(new CPacketHeldItemChange(InventoryUtil.getCappuchinoAtHotbar()));
-            mc.playerController.connection.sendPacket(new CPacketPlayerTryUseItem(EnumHand.MAIN_HAND));
+            mc.player.connection.sendPacket(new CPacketPlayerTryUseItem(EnumHand.MAIN_HAND));
             mc.player.connection.sendPacket(new CPacketHeldItemChange(hotbarslot));
             ++neededCap;
             aboba();

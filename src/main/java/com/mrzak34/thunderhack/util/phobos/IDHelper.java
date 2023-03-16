@@ -1,6 +1,7 @@
 package com.mrzak34.thunderhack.util.phobos;
 
 import com.mrzak34.thunderhack.events.PacketEvent;
+import com.mrzak34.thunderhack.mixin.mixins.ICPacketUseEntity;
 import com.mrzak34.thunderhack.modules.combat.AutoCrystal;
 import com.mrzak34.thunderhack.util.InventoryUtil;
 import com.mrzak34.thunderhack.util.Util;
@@ -37,8 +38,8 @@ public class IDHelper {
 
     public static CPacketUseEntity attackPacket(int id) {
         CPacketUseEntity packet = new CPacketUseEntity();
-        packet.entityId = (id);
-        packet.action = (CPacketUseEntity.Action.ATTACK);
+        ((ICPacketUseEntity) packet).setEntityId(id);
+        ((ICPacketUseEntity) packet).setAction(CPacketUseEntity.Action.ATTACK);
         return packet;
 
     }

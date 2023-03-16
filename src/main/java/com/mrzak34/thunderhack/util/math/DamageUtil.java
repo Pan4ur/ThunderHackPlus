@@ -1,5 +1,6 @@
 package com.mrzak34.thunderhack.util.math;
 
+import com.mrzak34.thunderhack.mixin.mixins.IBlock;
 import com.mrzak34.thunderhack.util.BlockUtils;
 import com.mrzak34.thunderhack.util.Util;
 import net.minecraft.block.Block;
@@ -71,7 +72,7 @@ public class DamageUtil implements Util {
                             ++j2;
                         } else {
                             Block blockHit = BlockUtils.getBlock(result.getBlockPos());
-                            if (blockHit.blockResistance < 600)
+                            if (((IBlock)blockHit).getBlockResistance() < 600)
                                 ++j2;
                         }
 

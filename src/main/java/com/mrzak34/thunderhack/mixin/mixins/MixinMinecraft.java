@@ -5,7 +5,7 @@ import com.mrzak34.thunderhack.events.*;
 import com.mrzak34.thunderhack.gui.mainmenu.ThunderMenu;
 import com.mrzak34.thunderhack.modules.client.AntiDisconnect;
 import com.mrzak34.thunderhack.modules.client.MainSettings;
-import com.mrzak34.thunderhack.util.phobos.IMinecraft;
+import com.mrzak34.thunderhack.util.phobos.InterfaceMinecraft;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiMainMenu;
 import net.minecraft.client.gui.GuiScreen;
@@ -26,7 +26,7 @@ import javax.annotation.Nullable;
 import static com.mrzak34.thunderhack.util.Util.mc;
 
 @Mixin(value = {Minecraft.class})
-public abstract class MixinMinecraft implements IMinecraft {
+public abstract class MixinMinecraft implements InterfaceMinecraft {
 
     @Shadow
     @Nullable

@@ -4,6 +4,7 @@ import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.events.EventPreMotion;
 import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.events.Render3DEvent;
+import com.mrzak34.thunderhack.mixin.mixins.IRenderManager;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.EntityUtil;
@@ -33,7 +34,6 @@ public class TargetStrafe extends Module {
     public Setting<Boolean> usingItemCheck = this.register(new Setting<>("EatingSlowDown", false));
     public Setting<Boolean> speedpot = this.register(new Setting<>("Speed if Potion ", true));
     public Setting<Float> spdd = this.register(new Setting<>("PotionSpeed", 0.45f, 0.1f, 2.0f, v -> speedpot.getValue()));
-    public Setting<Boolean> SwitchIfMiss = register(new Setting("SwitchIfMiss", true));
     public Setting<Boolean> autoThirdPerson = register(new Setting("AutoThirdPers", Boolean.TRUE));
     public Setting<Float> trgrange = register(new Setting("TrgtRange", 3.8F, 0.1F, 7.0F));
     public Setting<Boolean> drawradius = this.register(new Setting<>("drawradius", true));
@@ -201,11 +201,11 @@ public class TargetStrafe extends Module {
         if (Aura.target != null && drawradius.getValue()) {
             EntityLivingBase entity = Aura.target;
             double calcX = entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * mc.getRenderPartialTicks()
-                    - mc.getRenderManager().renderPosX;
+                    - ((IRenderManager)mc.getRenderManager()).getRenderPosX();
             double calcY = entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * mc.getRenderPartialTicks()
-                    - mc.getRenderManager().renderPosY;
+                    - ((IRenderManager)mc.getRenderManager()).getRenderPosY();
             double calcZ = entity.lastTickPosZ + (entity.posZ - entity.lastTickPosZ) * mc.getRenderPartialTicks()
-                    - mc.getRenderManager().renderPosZ;
+                    - ((IRenderManager)mc.getRenderManager()).getRenderPosZ();
             float radius = range.getValue();
             GL11.glPushMatrix();
             GL11.glDisable(GL11.GL_TEXTURE_2D);
@@ -247,20 +247,6 @@ public class TargetStrafe extends Module {
                 if (vX < 0) vX *= -1;
                 if (vZ < 0) vZ *= -1;
                 velocity = vX + vZ;
-            }
-        }
-        if (!SwitchIfMiss.getValue()) {
-            return;
-        }
-        if (e.getPacket() instanceof SPacketSoundEffect) {
-            SPacketSoundEffect pac = e.getPacket();
-            if (pac.posX < mc.player.posX + 1 && pac.posX > mc.player.posX - 1) {
-                if (pac.posY < mc.player.posY + 4 && pac.posY > mc.player.posY - 4) {
-                    if (pac.posZ < mc.player.posZ + 1 && pac.posZ > mc.player.posZ - 1) {
-                        if (pac.sound.getSoundName().toString().contains("nodamage"))
-                            this.switchDir = !this.switchDir;
-                    }
-                }
             }
         }
     }

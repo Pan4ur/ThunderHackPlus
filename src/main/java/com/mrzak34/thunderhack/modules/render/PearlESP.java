@@ -11,6 +11,7 @@ import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.TimeAnimation;
 import com.mrzak34.thunderhack.util.Trace;
+import com.mrzak34.thunderhack.util.Util;
 import com.mrzak34.thunderhack.util.math.AnimationMode;
 import com.mrzak34.thunderhack.util.render.DrawHelper;
 import com.mrzak34.thunderhack.util.render.Drawable;
@@ -324,8 +325,8 @@ public class PearlESP extends Module {
                         (next.pos.y - v.y) * mc.getRenderPartialTicks(),
                         (next.pos.z - v.z) * mc.getRenderPartialTicks());
             }
-            GL11.glVertex3d(v.x - mc.getRenderManager().renderPosX, v.y - mc.getRenderManager().renderPosY,
-                    v.z - mc.getRenderManager().renderPosZ);
+            GL11.glVertex3d(v.x - ((IRenderManager)Util.mc.getRenderManager()).getRenderPosX(), v.y - ((IRenderManager) Util.mc.getRenderManager()).getRenderPosY(),
+                    v.z - ((IRenderManager)Util.mc.getRenderManager()).getRenderPosZ());
             first = false;
         }
         list.removeIf(w -> w.tick < entity.ticksExisted);

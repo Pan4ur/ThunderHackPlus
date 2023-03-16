@@ -4,6 +4,7 @@ package com.mrzak34.thunderhack.modules.movement;
 import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.events.PlayerUpdateEvent;
+import com.mrzak34.thunderhack.mixin.mixins.IKeyBinding;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.Timer;
@@ -114,9 +115,9 @@ public class LegitStrafe extends Module {
 
                 mc.player.motionY = jitterY.getValue();
 
-                if (mc.gameSettings.keyBindJump.pressed) {
+                if (((IKeyBinding)mc.gameSettings.keyBindJump).isPressed()) {
                     mc.player.motionY = motion2.getValue();
-                } else if (mc.gameSettings.keyBindSneak.pressed) {
+                } else if (((IKeyBinding)mc.gameSettings.keyBindSneak).isPressed()) {
                     mc.player.motionY = -motion2.getValue();
                 }
                 if (isMoving()) {
@@ -147,7 +148,7 @@ public class LegitStrafe extends Module {
                 mc.player.motionY = mc.player.ticksExisted % 2 != 0 ? -0.25 : 0.25;
 
 
-                if (!mc.player.isSneaking() && mc.gameSettings.keyBindJump.pressed) {
+                if (!mc.player.isSneaking() && ((IKeyBinding)mc.gameSettings.keyBindJump).isPressed()) {
                     mc.player.motionY = motion2.getValue();
                 }
                 if (mc.gameSettings.keyBindSneak.isKeyDown()) {

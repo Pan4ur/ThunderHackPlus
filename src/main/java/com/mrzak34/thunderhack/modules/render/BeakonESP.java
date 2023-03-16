@@ -1,6 +1,7 @@
 package com.mrzak34.thunderhack.modules.render;
 
 import com.mrzak34.thunderhack.events.Render3DEvent;
+import com.mrzak34.thunderhack.mixin.mixins.IRenderManager;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.setting.Setting;
@@ -26,15 +27,15 @@ public class BeakonESP extends Module {
         for (TileEntity tileent : mc.world.loadedTileEntityList) {
             if (tileent instanceof TileEntityBeacon) {
                 TileEntityBeacon beacon = (TileEntityBeacon) tileent;
-                final double n = beacon.getPos().x;
+                final double n = beacon.getPos().getX();
                 mc.getRenderManager();
-                final double x = n - mc.getRenderManager().renderPosX;
-                final double n2 = beacon.getPos().y;
+                final double x = n - ((IRenderManager)mc.getRenderManager()).getRenderPosX();
+                final double n2 = beacon.getPos().getY();
                 mc.getRenderManager();
-                final double y = n2 - mc.getRenderManager().renderPosY;
-                final double n3 = beacon.getPos().z;
+                final double y = n2 - ((IRenderManager)mc.getRenderManager()).getRenderPosY();
+                final double n3 = beacon.getPos().getZ();
                 mc.getRenderManager();
-                final double z = n3 - mc.getRenderManager().renderPosZ;
+                final double z = n3 - ((IRenderManager)mc.getRenderManager()).getRenderPosZ();
                 GL11.glPushMatrix();
                 RenderUtil.drawBlockOutline(beacon.getPos(), color.getValue().getColorObject(), 3f, true, 0);
                 RenderHelper.disableStandardItemLighting();

@@ -5,6 +5,7 @@ import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.Timer;
+import com.mrzak34.thunderhack.util.phobos.IEntity;
 import net.minecraft.entity.item.EntityEnderCrystal;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.play.client.CPacketPlayer;
@@ -30,7 +31,7 @@ public class Criticals extends Module {
             return;
         }
 
-        boolean reasonToReturn = mc.player.fallDistance > 0.08f || mc.player.isInLava() || mc.player.isInWeb || mc.player.isRiding() || mc.player.isOnLadder() || e.getEntity() instanceof EntityEnderCrystal;
+        boolean reasonToReturn = mc.player.fallDistance > 0.08f || mc.player.isInLava() || ((IEntity)mc.player).isInWeb() || mc.player.isRiding() || mc.player.isOnLadder() || e.getEntity() instanceof EntityEnderCrystal;
 
         if (reasonToReturn) {
             return;

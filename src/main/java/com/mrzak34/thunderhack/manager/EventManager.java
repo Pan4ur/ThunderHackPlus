@@ -330,8 +330,8 @@ public class EventManager extends Feature {
     }
 
     public int getDistance(BlockPos bp) {
-        double d0 = mc.player.posX - bp.x;
-        double d2 = mc.player.posZ - bp.z;
+        double d0 = mc.player.posX - bp.getX();
+        double d2 = mc.player.posZ - bp.getZ();
         return (int) (MathHelper.sqrt(d0 * d0 + d2 * d2));
     }
 }

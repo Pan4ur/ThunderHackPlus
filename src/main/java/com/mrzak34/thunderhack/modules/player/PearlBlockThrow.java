@@ -1,6 +1,7 @@
 package com.mrzak34.thunderhack.modules.player;
 
 import com.mrzak34.thunderhack.events.PacketEvent;
+import com.mrzak34.thunderhack.mixin.mixins.ICPacketPlayerTryUseItemOnBlock;
 import com.mrzak34.thunderhack.modules.Module;
 import net.minecraft.init.Items;
 import net.minecraft.network.play.client.CPacketPlayerTryUseItemOnBlock;
@@ -20,7 +21,7 @@ public class PearlBlockThrow extends Module {
         if (mc.player.getHeldItemMainhand().getItem() == Items.ENDER_PEARL) {
             if (event.getPacket() instanceof CPacketPlayerTryUseItemOnBlock) {
                 CPacketPlayerTryUseItemOnBlock pac = event.getPacket();
-                pac.hand = EnumHand.OFF_HAND; //Але, не пастить сука
+                ((ICPacketPlayerTryUseItemOnBlock)pac).setHand(EnumHand.OFF_HAND);//Але, не пастить сука
             }
         }
     }

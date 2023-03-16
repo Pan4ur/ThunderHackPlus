@@ -3,10 +3,12 @@ package com.mrzak34.thunderhack.modules.movement;
 import com.mrzak34.thunderhack.events.*;
 import com.mrzak34.thunderhack.manager.EventManager;
 import com.mrzak34.thunderhack.mixin.mixins.IEntityPlayerSP;
+import com.mrzak34.thunderhack.mixin.mixins.IKeyBinding;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.InventoryUtil;
 import com.mrzak34.thunderhack.util.Timer;
+import com.mrzak34.thunderhack.util.phobos.IEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
@@ -228,7 +230,7 @@ public class Strafe extends Module {
             if (!elytra.getValue()) return;
             int elytra = getHotbarSlotOfItem();
 
-            if (mc.player.isInWater() || mc.player.isInLava() || waterTicks > 0 || elytra == -1 || mc.player.isInWeb)
+            if (mc.player.isInWater() || mc.player.isInLava() || waterTicks > 0 || elytra == -1 || ((IEntity)mc.player).isInWeb())
                 return;
             if (mc.player.fallDistance != 0 && mc.player.fallDistance < 0.1 && mc.player.motionY < -0.1) {
                 if (elytra != -2) {
@@ -428,7 +430,7 @@ public class Strafe extends Module {
                 }
             }
             if (!skip) {
-                if (mc.player.onGround && !mc.gameSettings.keyBindJump.pressed) {
+                if (mc.player.onGround && !((IKeyBinding)mc.gameSettings.keyBindJump).isPressed()) {
                     mc.player.jump();
                     if (jumpTicks != 0) {
                         strafe((float) (0.2));

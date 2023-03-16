@@ -158,6 +158,7 @@ public abstract class MixinEntityRenderer {
         }
     }
 
+    /*
     @Redirect(method = {"setupFog"}, at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/ActiveRenderInfo;getBlockStateAtEntityViewpoint(Lnet/minecraft/world/World;Lnet/minecraft/entity/Entity;F)Lnet/minecraft/block/state/IBlockState;"))
     public IBlockState getBlockStateAtEntityViewpointHook(final World worldIn, final Entity entityIn, final float p_186703_2_) {
         if (NoRender.getInstance().isOn() && NoRender.getInstance().fog.getValue() == NoRender.Fog.AIR) {
@@ -165,6 +166,7 @@ public abstract class MixinEntityRenderer {
         }
         return ActiveRenderInfo.getBlockStateAtEntityViewpoint(worldIn, entityIn, p_186703_2_);
     }
+     */
 
     @Inject(method = {"hurtCameraEffect"}, at = {@At("HEAD")}, cancellable = true)
     public void hurtCameraEffectHook(final float ticks, final CallbackInfo info) {

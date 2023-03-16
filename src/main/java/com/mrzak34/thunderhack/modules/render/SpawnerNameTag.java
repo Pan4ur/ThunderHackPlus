@@ -1,9 +1,11 @@
 package com.mrzak34.thunderhack.modules.render;
 
 import com.mrzak34.thunderhack.events.Render3DEvent;
+import com.mrzak34.thunderhack.mixin.mixins.IRenderManager;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.setting.Setting;
+import com.mrzak34.thunderhack.util.Util;
 import com.mrzak34.thunderhack.util.render.RenderUtil;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
@@ -32,15 +34,15 @@ public class SpawnerNameTag extends Module {
         for (TileEntity tileent : mc.world.loadedTileEntityList) {
             if (tileent instanceof TileEntityMobSpawner) {
                 TileEntityMobSpawner spawner = (TileEntityMobSpawner) tileent;
-                final double n = spawner.getPos().x;
+                final double n = spawner.getPos().getX();
                 mc.getRenderManager();
-                final double x = n - mc.getRenderManager().renderPosX;
-                final double n2 = spawner.getPos().y;
+                final double x = n - ((IRenderManager) Util.mc.getRenderManager()).getRenderPosX();
+                final double n2 = spawner.getPos().getY();
                 mc.getRenderManager();
-                final double y = n2 - mc.getRenderManager().renderPosY;
-                final double n3 = spawner.getPos().z;
+                final double y = n2 - ((IRenderManager)Util.mc.getRenderManager()).getRenderPosY();
+                final double n3 = spawner.getPos().getZ();
                 mc.getRenderManager();
-                final double z = n3 - mc.getRenderManager().renderPosZ;
+                final double z = n3 - ((IRenderManager)Util.mc.getRenderManager()).getRenderPosZ();
 
                 GL11.glPushMatrix();
                 RenderUtil.drawBlockOutline(spawner.getPos(), color.getValue().getColorObject(), 3f, true, 0);

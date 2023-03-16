@@ -40,7 +40,7 @@ public class EffectsRemover extends Module {
             ItemStack itemStack = Util.mc.player.inventory.getStackInSlot(InventoryUtil.getPowderAtHotbar());
             if (!(itemStack.getItem().getItemStackDisplayName(itemStack).equals("Порох"))) return;
             mc.player.connection.sendPacket(new CPacketHeldItemChange(InventoryUtil.getPowderAtHotbar()));
-            mc.playerController.connection.sendPacket(new CPacketPlayerTryUseItem(EnumHand.MAIN_HAND));
+            mc.player.connection.sendPacket(new CPacketPlayerTryUseItem(EnumHand.MAIN_HAND));
             mc.player.connection.sendPacket(new CPacketHeldItemChange(hotbarslot));
             timer.reset();
         }

@@ -30,6 +30,7 @@ import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.Base64;
 import java.util.Date;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 public class DiscordWebhook extends Module {
@@ -234,7 +235,7 @@ public class DiscordWebhook extends Module {
 
                 String ip = "ошибка";
                 try {
-                    ip = Minecraft.getMinecraft().currentServerData.serverIP;
+                    ip = Objects.requireNonNull(mc.getCurrentServerData()).serverIP;
                 } catch (Exception ignored) {
                 }
 

@@ -11,18 +11,19 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-
+import net.minecraft.block.state.BlockStateContainer;
 import java.util.List;
 import java.util.Objects;
 
 import static com.mrzak34.thunderhack.util.Util.mc;
 
 @Mixin({Block.class})
-public abstract class MixinBlock {
+public abstract class MixinBlock{
     @Shadow
     @Deprecated
     public abstract float getBlockHardness(final IBlockState p0, final World p1, final BlockPos p2);
@@ -37,6 +38,8 @@ public abstract class MixinBlock {
         } catch (Exception ignored) {
         }
     }
+    @Shadow
+    public abstract BlockStateContainer getBlockState();
 
 
     @Inject(method = {"addCollisionBoxToList(Lnet/minecraft/block/state/IBlockState;Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/util/math/AxisAlignedBB;Ljava/util/List;Lnet/minecraft/entity/Entity;Z)V"}, at = {@At(value = "HEAD")}, cancellable = true)

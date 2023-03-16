@@ -5,6 +5,7 @@ import com.ibm.icu.math.BigDecimal;
 import com.mrzak34.thunderhack.events.DeathEvent;
 import com.mrzak34.thunderhack.events.Render3DEvent;
 import com.mrzak34.thunderhack.gui.fontstuff.FontRender;
+import com.mrzak34.thunderhack.mixin.mixins.IRenderManager;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.setting.Setting;
@@ -72,7 +73,7 @@ public class DMGParticles extends Module {
                     GlStateManager.pushMatrix();
                     GlStateManager.enablePolygonOffset();
                     GlStateManager.doPolygonOffset(1, -1500000);
-                    GlStateManager.translate(p.posX - mc.getRenderManager().renderPosX, p.posY - mc.getRenderManager().renderPosY, p.posZ - mc.getRenderManager().renderPosZ);
+                    GlStateManager.translate(p.posX - ((IRenderManager)mc.getRenderManager()).getRenderPosX(), p.posY - ((IRenderManager)mc.getRenderManager()).getRenderPosY(), p.posZ - ((IRenderManager)mc.getRenderManager()).getRenderPosZ());
                     GlStateManager.rotate(-mc.getRenderManager().playerViewY, 0, 1, 0);
                     GlStateManager.rotate(mc.getRenderManager().playerViewX, mc.gameSettings.thirdPersonView == 2 ? -1 : 1, 0, 0);
                     GlStateManager.scale(-0.03, -0.03, 0.03);

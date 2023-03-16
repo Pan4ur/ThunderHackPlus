@@ -1,11 +1,12 @@
 package com.mrzak34.thunderhack.mixin.mixins;
 
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.Block;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.gen.Accessor;
 
+@Mixin(Block.class)
 public interface IBlock {
-    void setHarvestLevelNonForge(String toolClass, int level);
+    @Accessor("blockResistance")
+    float getBlockResistance();
 
-    String getHarvestToolNonForge(IBlockState state);
-
-    int getHarvestLevelNonForge(IBlockState state);
 }
