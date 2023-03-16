@@ -50,6 +50,7 @@ public class ModuleManager extends Feature {
         this.modules.add(new NewChunks());
         this.modules.add(new SilentBow());
         this.modules.add(new Spammer());
+        this.modules.add(new FastUse());
         this.modules.add(new PacketStatistics());
         this.modules.add(new AutoFlyme());
         this.modules.add(new ReverseStep());
@@ -178,7 +179,7 @@ public class ModuleManager extends Feature {
         this.modules.add(new Indicators());
         this.modules.add(new ChestStealer());
         this.modules.add(new InvManager());
-        this.modules.add(new FastPlace2());
+        this.modules.add(new AutoMend());
         this.modules.add(new AutoArmor());
         this.modules.add(new ChorusESP());
         this.modules.add(new GroundBoost());

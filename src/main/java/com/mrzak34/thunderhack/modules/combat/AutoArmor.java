@@ -4,7 +4,7 @@ import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.modules.movement.ElytraFlight;
-import com.mrzak34.thunderhack.modules.player.FastPlace2;
+import com.mrzak34.thunderhack.modules.player.AutoMend;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.InvStack;
 import com.mrzak34.thunderhack.util.Timer;
@@ -77,7 +77,7 @@ public class AutoArmor
                 if (proximity.isEmpty()) return;
             }
 
-            if (FastPlace2.isMending) return;
+            if (AutoMend.isMending) return;
 
 
             if (allowMend.getValue()) {

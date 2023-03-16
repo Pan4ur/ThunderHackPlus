@@ -32,6 +32,7 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
 
@@ -204,8 +205,10 @@ public class Speedmine extends Module {
     public void onRender3D(Render3DEvent e) {
         if (mode.getValue() == Mode.Packet) {
             if (minePosition != null && !mc.world.isAirBlock(minePosition)) {
-                GlStateManager.disableTexture2D();
-                GlStateManager.enableBlend();
+                GlStateManager.pushMatrix();
+                GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
+              //  GlStateManager.disableTexture2D();
+              //  GlStateManager.enableBlend();
                 GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
                 GlStateManager.shadeModel(7425);
                 GlStateManager.disableDepth();
@@ -213,12 +216,8 @@ public class Speedmine extends Module {
                 Vec3d mineCenter = mineBox.getCenter();
                 AxisAlignedBB shrunkMineBox = new AxisAlignedBB(mineCenter.x, mineCenter.y, mineCenter.z, mineCenter.x, mineCenter.y, mineCenter.z);
                 BreakHighLight.renderBreakingBB2(shrunkMineBox.shrink(MathUtil.clamp(mineDamage, 0, 1) * 0.5), mineDamage >= 0.95 ? new Color(47, 255, 0, 120) : new Color(255, 0, 0, 120), mineDamage >= 0.95 ? new Color(0, 255, 13, 120) : new Color(255, 0, 0, 120));
-                GlStateManager.shadeModel(7424);
-                GlStateManager.disableBlend();
-                GlStateManager.enableDepth();
-                GlStateManager.depthMask(true);
-                GlStateManager.enableTexture2D();
-                GlStateManager.enableBlend();
+                GL11.glPopAttrib();
+                GlStateManager.popMatrix();
             }
         }
     }
