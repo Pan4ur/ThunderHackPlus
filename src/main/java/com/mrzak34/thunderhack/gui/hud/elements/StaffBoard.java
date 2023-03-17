@@ -1,10 +1,12 @@
-package com.mrzak34.thunderhack.gui.hud;
+package com.mrzak34.thunderhack.gui.hud.elements;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.realmsclient.gui.ChatFormatting;
 import com.mrzak34.thunderhack.command.commands.StaffCommand;
 import com.mrzak34.thunderhack.events.Render2DEvent;
 import com.mrzak34.thunderhack.gui.fontstuff.FontRender;
+import com.mrzak34.thunderhack.gui.hud.HudElement;
+import com.mrzak34.thunderhack.gui.hud.elements.HudEditorGui;
 import com.mrzak34.thunderhack.gui.thundergui2.ThunderGui2;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.ColorSetting;
@@ -27,27 +29,22 @@ import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-public class StaffBoard extends Module {
+public class StaffBoard extends HudElement {
     private static final Pattern validUserPattern = Pattern.compile("^\\w{3,16}$");
     static boolean yt2 = false;
     public final Setting<ColorSetting> shadowColor = this.register(new Setting<>("ShadowColor", new ColorSetting(0xFF101010)));
     public final Setting<ColorSetting> color2 = this.register(new Setting<>("Color", new ColorSetting(0xFF101010)));
     public final Setting<ColorSetting> color3 = this.register(new Setting<>("Color2", new ColorSetting(0xC59B9B9B)));
     public final Setting<ColorSetting> textColor = this.register(new Setting<>("TextColor", new ColorSetting(0xBEBEBE)));
-    private final Setting<PositionSetting> pos = this.register(new Setting<>("Position", new PositionSetting(0.5f, 0.5f)));
     private final Setting<Float> psize = this.register(new Setting<>("Size", 1f, 0.1f, 2f));
-    public Setting<Boolean> yt = register(new Setting<Boolean>("YT", true));
-    float x1 = 0;
-    float y1 = 0;
-    int dragX, dragY = 0;
-    boolean mousestate = false;
+    public Setting<Boolean> yt = register(new Setting<>("YT", true));
     List<String> players = new java.util.ArrayList<>();
     List<String> notSpec = new java.util.ArrayList<>();
     private final LinkedHashMap<UUID, String> nameMap = new LinkedHashMap<>();
 
 
     public StaffBoard() {
-        super("StaffBoard", "StaffBoard", Module.Category.HUD);
+        super("StaffBoard", "StaffBoard", 50,50);
     }
 
     public static void size(double width, double height, double animation) {
@@ -100,18 +97,11 @@ public class StaffBoard extends Module {
 
     @SubscribeEvent
     public void onRender2D(Render2DEvent e) {
-        y1 = e.scaledResolution.getScaledHeight() * pos.getValue().getY();
-        x1 = e.scaledResolution.getScaledWidth() * pos.getValue().getX();
-
-
+        super.onRender2D(e);
         int y_offset1 = 11;
-
-
-        //  if (players.isEmpty() && notSpec.isEmpty()) return;
         List<String> all = new java.util.ArrayList<>();
         all.addAll(players);
         all.addAll(notSpec);
-
         float scale_x = 50;
         for (String player : all) {
             if (player != null) {
@@ -125,14 +115,14 @@ public class StaffBoard extends Module {
 
 
         GlStateManager.pushMatrix();
-        size(x1 + 50, y1 + (20 + y_offset1) / 2f, psize.getValue());
+        size(getPosX() + 50, getPosY() + (20 + y_offset1) / 2f, psize.getValue());
 
-        RenderUtil.drawBlurredShadow(x1, y1, scale_x + 20, 20 + y_offset1, 20, shadowColor.getValue().getColorObject());
+        RenderUtil.drawBlurredShadow(getPosX(), getPosY(), scale_x + 20, 20 + y_offset1, 20, shadowColor.getValue().getColorObject());
 
 
-        RoundedShader.drawRound(x1, y1, scale_x + 20, 20 + y_offset1, 7f, color2.getValue().getColorObject());
-        FontRender.drawCentString6("StaffBoard", x1 + (scale_x + 20) / 2, y1 + 5, textColor.getValue().getColor());
-        RoundedShader.drawRound(x1 + 2, y1 + 13, scale_x + 16, 1, 0.5f, color3.getValue().getColorObject());
+        RoundedShader.drawRound(getPosX(), getPosY(), scale_x + 20, 20 + y_offset1, 7f, color2.getValue().getColorObject());
+        FontRender.drawCentString6("StaffBoard", getPosX() + (scale_x + 20) / 2, getPosY() + 5, textColor.getValue().getColor());
+        RoundedShader.drawRound(getPosX() + 2, getPosY() + 13, scale_x + 16, 1, 0.5f, color3.getValue().getColorObject());
 
 
         int y_offset = 11;
@@ -140,31 +130,13 @@ public class StaffBoard extends Module {
             GlStateManager.pushMatrix();
             GlStateManager.resetColor();
             String a = player.split(":")[0] + " " + (player.split(":")[1].equalsIgnoreCase("vanish") ? ChatFormatting.RED + "VANISH" : player.split(":")[1].equalsIgnoreCase("gm3") ? ChatFormatting.RED + "VANISH " + ChatFormatting.YELLOW + "(NEAR!)" : ChatFormatting.GREEN + "ACTIVE");
-            FontRender.drawString6(a, x1 + 5, y1 + 18 + y_offset, -1, false);
+            FontRender.drawString6(a, getPosX() + 5, getPosY() + 18 + y_offset, -1, false);
             GlStateManager.resetColor();
             GlStateManager.popMatrix();
             y_offset += 13;
         }
 
         GlStateManager.popMatrix();
-
-        if (mc.currentScreen instanceof GuiChat || mc.currentScreen instanceof HudEditorGui || mc.currentScreen instanceof ThunderGui2) {
-            if (isHovering()) {
-                if (Mouse.isButtonDown(0) && mousestate) {
-                    pos.getValue().setX((float) (normaliseX() - dragX) / e.scaledResolution.getScaledWidth());
-                    pos.getValue().setY((float) (normaliseY() - dragY) / e.scaledResolution.getScaledHeight());
-                }
-            }
-        }
-        if (Mouse.isButtonDown(0) && isHovering()) {
-            if (!mousestate) {
-                dragX = (int) (normaliseX() - (pos.getValue().getX() * e.scaledResolution.getScaledWidth()));
-                dragY = (int) (normaliseY() - (pos.getValue().getY() * e.scaledResolution.getScaledHeight()));
-            }
-            mousestate = true;
-        } else {
-            mousestate = false;
-        }
     }
 
     public int normaliseX() {
@@ -177,7 +149,7 @@ public class StaffBoard extends Module {
     }
 
     public boolean isHovering() {
-        return normaliseX() > x1 - 10 && normaliseX() < x1 + 100 && normaliseY() > y1 && normaliseY() < y1 + 100;
+        return normaliseX() > getPosX() - 10 && normaliseX() < getPosX() + 100 && normaliseY() > getPosY() && normaliseY() < getPosY() + 100;
     }
 
     @Override

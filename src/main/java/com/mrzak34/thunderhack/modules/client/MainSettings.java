@@ -9,6 +9,8 @@ public class MainSettings extends Module {
     public Setting<Boolean> notifyToggles = this.register(new Setting<>("NotifyToggles", false));
     public Setting<Boolean> mainMenu = this.register(new Setting<>("MainMenu", true));
     public Setting<Boolean> renderRotations = this.register(new Setting<>("RenderRotations", true));
+    public Setting<Boolean> eatAnim = register(new Setting("BedrockEatAnim", false));
+
     public Setting<ShaderModeEn> shaderMode = register(new Setting("ShaderMode", ShaderModeEn.Smoke));
     public Setting<Language> language = register(new Setting("Language", Language.RU));
     public MainSettings() {

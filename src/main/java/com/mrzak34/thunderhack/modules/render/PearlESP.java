@@ -4,7 +4,7 @@ import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.events.Render2DEvent;
 import com.mrzak34.thunderhack.events.Render3DEvent;
 import com.mrzak34.thunderhack.gui.clickui.ColorUtil;
-import com.mrzak34.thunderhack.gui.hud.RadarRewrite;
+import com.mrzak34.thunderhack.gui.hud.elements.RadarRewrite;
 import com.mrzak34.thunderhack.mixin.mixins.IRenderManager;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.ColorSetting;
@@ -34,7 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.mrzak34.thunderhack.gui.hud.RadarRewrite.hexColor;
+import static com.mrzak34.thunderhack.gui.hud.elements.RadarRewrite.hexColor;
 import static org.lwjgl.opengl.GL11.*;
 
 public class PearlESP extends Module {

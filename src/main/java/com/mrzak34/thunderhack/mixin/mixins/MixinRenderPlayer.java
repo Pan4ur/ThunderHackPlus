@@ -21,7 +21,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import static com.mrzak34.thunderhack.gui.hud.RadarRewrite.interp;
+import static com.mrzak34.thunderhack.gui.hud.elements.RadarRewrite.interp;
 
 @Mixin({RenderPlayer.class})
 public class MixinRenderPlayer {

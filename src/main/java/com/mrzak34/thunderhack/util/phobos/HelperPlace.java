@@ -388,7 +388,7 @@ public class HelperPlace {
             return true;
         }
 
-        if (DistanceUtil.distanceSq(pos.getX() + 0.5f, pos.getY() + 1, pos.getZ() + 0.5f, mc.player)
+        if (distanceSq(pos.getX() + 0.5f, pos.getY() + 1, pos.getZ() + 0.5f, mc.player)
                 > MathUtil.square(module.pbTrace.getValue())) {
             return !RayTraceUtil.canBeSeen(
                     new Vec3d(pos.getX() + 0.5f,
@@ -398,6 +398,17 @@ public class HelperPlace {
         }
 
         return false;
+    }
+
+    public static double distanceSq(double x, double y, double z, Entity entity) {
+        return distanceSq(x, y, z, entity.posX, entity.posY, entity.posZ);
+    }
+
+    public static double distanceSq(double x, double y, double z, double x1, double y1, double z1) {
+        double xDist = x - x1;
+        double yDist = y - y1;
+        double zDist = z - z1;
+        return xDist * xDist + yDist * yDist + zDist * zDist;
     }
 
     private boolean checkFriends(PositionData data, List<EntityPlayer> friends) {

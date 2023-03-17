@@ -9,33 +9,33 @@ import com.mrzak34.thunderhack.notification.Notification;
 import com.mrzak34.thunderhack.notification.NotificationManager;
 import com.mrzak34.thunderhack.setting.Bind;
 import com.mrzak34.thunderhack.setting.Setting;
+import com.mrzak34.thunderhack.util.Util;
+import net.minecraft.client.Minecraft;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.common.MinecraftForge;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import static com.mrzak34.thunderhack.util.PlayerUtils.getPlayerPos;
 
-public class Module extends Feature {
-
+public class Module  {
+    private List<Setting> settings = new ArrayList<>();
     private final String description;
     private final String eng_description;
-
-
+    public static Minecraft mc = Util.mc;
     private final Category category;
     public Setting<Boolean> enabled = this.register(new Setting<>("Enabled", false));
     public Setting<String> displayName;
-    public boolean hidden;
-    public boolean settingopened;
     public Setting<Bind> bind = this.register(new Setting<>("Keybind", new Bind(-1)));
     public Setting<Boolean> drawn = this.register(new Setting<>("Drawn", true));
 
 
     public Module(String name, String description, Category category) {
-        super(name);
-        this.displayName = this.register(new Setting<String>("DisplayName", name));
+        this.displayName = this.register(new Setting<>("DisplayName", name));
         this.description = description;
         this.category = category;
         this.eng_description = "no english_description";
@@ -43,25 +43,12 @@ public class Module extends Feature {
 
 
     public Module(String name, String description, String eng_description, Category category) {
-        super(name);
-        this.displayName = this.register(new Setting<String>("DisplayName", name));
+        this.displayName = this.register(new Setting<>("DisplayName", name));
         this.description = description;
         this.eng_description = eng_description;
         this.category = category;
     }
 
-    public boolean isSetting() {
-        return this.settingopened;
-    }
-
-    public void setSetting(Boolean a) {
-        this.settingopened = a;
-    }
-
-
-    public void render(int mouseX, int mouseY, float partialTicks) {
-
-    }
 
     public void onEnable() {
     }
@@ -69,8 +56,6 @@ public class Module extends Feature {
     public void onDisable() {
     }
 
-    public void onToggle() {
-    }
 
     public void onLoad() {
     }
@@ -119,21 +104,18 @@ public class Module extends Feature {
 
     public void enable() {
         this.enabled.setValue(true);
-        this.onToggle();
         this.onEnable();
 
         if ((Objects.equals(this.getDisplayName(), "ThunderGui") || (Objects.equals(this.getDisplayName(), "ClickGUI")))) {
         } else {
             mc.world.playSound(getPlayerPos(), SoundEvents.BLOCK_NOTE_XYLOPHONE, SoundCategory.AMBIENT, 150.0f, 2.0F, true);
         }
-
-
         if ((!Objects.equals(this.getDisplayName(), "ElytraSwap") && (!Objects.equals(this.getDisplayName(), "ClickGui")) && (!Objects.equals(this.getDisplayName(), "ThunderGui")) && (!Objects.equals(this.getDisplayName(), "Windows")))) {
             NotificationManager.publicity(this.getDisplayName() + " was enabled!", 2, Notification.Type.ENABLED);
         }
         if (Thunderhack.moduleManager.getModuleByClass(MainSettings.class).notifyToggles.getValue()) {
             TextComponentString text = new TextComponentString(Thunderhack.commandManager.getClientMessage() + " " + ChatFormatting.GREEN + this.getDisplayName() + " toggled on.");
-            Module.mc.ingameGUI.getChatGUI().printChatMessageWithOptionalDeletion(text, 1);
+            Util.mc.ingameGUI.getChatGUI().printChatMessageWithOptionalDeletion(text, 1);
         }
         if (this.isOn()) {
             MinecraftForge.EVENT_BUS.register(this);
@@ -158,10 +140,9 @@ public class Module extends Feature {
         if (Thunderhack.moduleManager.getModuleByClass(MainSettings.class).notifyToggles.getValue()) {
             TextComponentString text = new TextComponentString(Thunderhack.commandManager.getClientMessage() + " " + ChatFormatting.RED + this.getDisplayName() + " toggled off.");
             if (text != null) {
-                Module.mc.ingameGUI.getChatGUI().printChatMessageWithOptionalDeletion(text, 1);
+                Util.mc.ingameGUI.getChatGUI().printChatMessageWithOptionalDeletion(text, 1);
             }
         }
-        this.onToggle();
         this.onDisable();
     }
 
@@ -169,14 +150,9 @@ public class Module extends Feature {
         this.setEnabled(!this.isEnabled());
     }
 
-    public boolean isValidBind(String s) {
-        return s.length() < 2;
-    }
-
     public String getDisplayName() {
         return this.displayName.getValue();
     }
-
 
     public String getDescription() {
         if (Thunderhack.moduleManager.getModuleByClass(MainSettings.class).language.getValue() == MainSettings.Language.RU) {
@@ -197,7 +173,6 @@ public class Module extends Feature {
     public void setDrawn(boolean drawn) {
         this.drawn.setValue(drawn);
     }
-
 
     public Category getCategory() {
         return this.category;
@@ -223,6 +198,40 @@ public class Module extends Feature {
         return this.getDisplayName() + ChatFormatting.GRAY + (this.getDisplayInfo() != null ? " [" + ChatFormatting.WHITE + this.getDisplayInfo() + ChatFormatting.GRAY + "]" : "");
     }
 
+    public static boolean fullNullCheck() {
+        return Util.mc.player == null || Util.mc.world == null;
+    }
+
+    public String getName() {
+        return this.getDisplayName();
+    }
+
+    public List<Setting> getSettings() {
+        return this.settings;
+    }
+
+    public boolean isEnabled() {
+        return this.isOn();
+    }
+
+    public boolean isDisabled() {
+        return !this.isEnabled();
+    }
+
+    public Setting register(Setting setting) {
+        setting.setModule(this);
+        settings.add(setting);
+        return setting;
+    }
+
+
+    public Setting getSettingByName(String name) {
+        for (Setting setting : this.settings) {
+            if (!setting.getName().equalsIgnoreCase(name)) continue;
+            return setting;
+        }
+        return null;
+    }
 
     public enum Category {
         COMBAT("Combat"),

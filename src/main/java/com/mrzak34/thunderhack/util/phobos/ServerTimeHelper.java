@@ -1,7 +1,6 @@
 package com.mrzak34.thunderhack.util.phobos;
 
 import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.modules.Feature;
 import com.mrzak34.thunderhack.modules.combat.AutoCrystal;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.EntityUtil;
@@ -26,10 +25,11 @@ import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import static com.mrzak34.thunderhack.util.Util.mc;
 import static com.mrzak34.thunderhack.util.phobos.CalculationMotion.rayTraceTo;
 import static net.minecraft.util.EnumFacing.HORIZONTALS;
 
-public class ServerTimeHelper extends Feature {
+public class ServerTimeHelper {
     private static final ScheduledExecutorService THREAD;
 
     static {

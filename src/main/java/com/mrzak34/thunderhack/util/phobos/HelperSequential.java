@@ -3,7 +3,6 @@ package com.mrzak34.thunderhack.util.phobos;
 import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.mixin.mixins.ICPacketUseEntity;
-import com.mrzak34.thunderhack.modules.Feature;
 import com.mrzak34.thunderhack.modules.combat.AutoCrystal;
 import com.mrzak34.thunderhack.util.Timer;
 import net.minecraft.entity.Entity;
@@ -19,7 +18,9 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-public class HelperSequential extends Feature {
+import static com.mrzak34.thunderhack.util.Util.mc;
+
+public class HelperSequential {
     private final Timer timer = new Timer();
     private final AutoCrystal module;
     private volatile BlockPos expecting;
@@ -46,7 +47,7 @@ public class HelperSequential extends Feature {
 
     @SubscribeEvent
     public void onPacketReceive(PacketEvent.Receive e) {
-        if (fullNullCheck()) {
+        if (mc.player == null || mc.world == null) {
             return;
         }
         if (e.getPacket() instanceof SPacketSoundEffect) {

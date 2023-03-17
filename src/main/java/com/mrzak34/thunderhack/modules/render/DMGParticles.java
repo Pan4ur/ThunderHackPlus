@@ -1,113 +1,142 @@
 package com.mrzak34.thunderhack.modules.render;
 
-import com.google.common.collect.Maps;
-import com.ibm.icu.math.BigDecimal;
-import com.mrzak34.thunderhack.events.DeathEvent;
-import com.mrzak34.thunderhack.events.Render3DEvent;
-import com.mrzak34.thunderhack.gui.fontstuff.FontRender;
+import com.mrzak34.thunderhack.events.PreRenderEvent;
 import com.mrzak34.thunderhack.mixin.mixins.IRenderManager;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.setting.Setting;
-import com.mrzak34.thunderhack.util.Util;
+import com.mrzak34.thunderhack.util.EntityUtil;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
-import java.awt.*;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.text.DecimalFormat;
+import java.util.*;
+
+import static com.mrzak34.thunderhack.util.render.RenderUtil.interpolate;
 
 
 public class DMGParticles extends Module {
-    public final Setting<ColorSetting> color1 = this.register(new Setting<>("HealthColor", new ColorSetting(3142544)));
+    public final Setting<ColorSetting> color1 = this.register(new Setting<>("HealColor", new ColorSetting(3142544)));
     public final Setting<ColorSetting> color2 = this.register(new Setting<>("DamageColor", new ColorSetting(15811379)));
-    private final Map<Integer, Float> hpData = Maps.newHashMap();
-    private final List<Particle> particles = new CopyOnWriteArrayList<>();
+    private final Setting<Float> size = this.register(new Setting<>("size", 0.5f, 0.1f, 3.0f));
+    private final Setting<Integer> ticks = this.register(new Setting<>("ticks", 35, 5f, 60));
+
     public DMGParticles() {
         super("DMGParticles", "партиклы урона", Category.RENDER);
     }
 
-    @SubscribeEvent
-    public void onRespawn(DeathEvent event) {
-        if (event.player == mc.player) {
-            particles.clear();
-        }
+    private final HashMap<Integer, Float> healthMap = new HashMap<>();
+    private final ArrayList<Marker> particles = new ArrayList<>();
+
+    @Override
+    public void onDisable() {
+        this.particles.clear();
+        this.healthMap.clear();
     }
 
     @Override
     public void onUpdate() {
-        for (Entity entity : mc.world.loadedEntityList) {
-            if (entity instanceof EntityLivingBase) {
-                EntityLivingBase ent = (EntityLivingBase) entity;
-                final double lastHp = hpData.getOrDefault(ent.getEntityId(), ent.getMaxHealth());
-                hpData.remove(entity.getEntityId());
-                hpData.put(entity.getEntityId(), ent.getHealth());
-                if (lastHp == ent.getHealth()) continue;
-                Color color;
-                if (lastHp > ent.getHealth()) {
-                    color = Color.red;
-                } else {
-                    color = Color.GREEN;
-                }
-                Vec3d loc = new Vec3d(entity.posX + Math.random() * 0.5 * (Math.random() > 0.5 ? -1 : 1), entity.getEntityBoundingBox().minY + (entity.getEntityBoundingBox().maxY - entity.getEntityBoundingBox().minY) * 0.5, entity.posZ + Math.random() * 0.5 * (Math.random() > 0.5 ? -1 : 1));
-                double str = new BigDecimal(Math.abs(lastHp - ent.getHealth())).setScale(1, BigDecimal.ROUND_HALF_UP).doubleValue();
-                particles.add(new Particle("" + str, loc.x, loc.y, loc.z, color));
+        synchronized (this.particles) {
+            for (Entity entity : mc.world.loadedEntityList) {
+                if (entity == null || mc.player.getDistance(entity) > 10.0f || entity.isDead || !(entity instanceof EntityLivingBase)) continue;
+                float lastHealth = this.healthMap.getOrDefault(entity.getEntityId(), ((EntityLivingBase) entity).getMaxHealth());
+
+                this.healthMap.put(entity.getEntityId(), EntityUtil.getHealth(entity));
+                if (lastHealth == EntityUtil.getHealth(entity)) continue;
+                this.particles.add(new Marker(entity, lastHealth - EntityUtil.getHealth(entity), entity.posX - 0.5 + (double)new Random(System.currentTimeMillis()).nextInt(5) * 0.1, entity.getEntityBoundingBox().minY + (entity.getEntityBoundingBox().maxY - entity.getEntityBoundingBox().minY) / 2.0, entity.posZ - 0.5 + (double)new Random(System.currentTimeMillis() + 1L).nextInt(5) * 0.1));
+            }
+            ArrayList<Marker> needRemove = new ArrayList<>();
+            for (Marker marker : this.particles) {
+                marker.ticks++;
+                if (!((float)marker.ticks >= ticks.getValue()) && !marker.getEntity().isDead) continue;
+                needRemove.add(marker);
+            }
+            for (Marker marker : needRemove) {
+                this.particles.remove(marker);
             }
         }
-        if (!particles.isEmpty()) {
-            particles.removeIf(Particle::update);
-        }
-
     }
+
 
     @SubscribeEvent
-    public void onRender3D(Render3DEvent e) {
-        if (!particles.isEmpty()) {
-            for (Particle p : particles) {
-                if (p != null) {
-                    GlStateManager.pushMatrix();
-                    GlStateManager.enablePolygonOffset();
-                    GlStateManager.doPolygonOffset(1, -1500000);
-                    GlStateManager.translate(p.posX - ((IRenderManager)mc.getRenderManager()).getRenderPosX(), p.posY - ((IRenderManager)mc.getRenderManager()).getRenderPosY(), p.posZ - ((IRenderManager)mc.getRenderManager()).getRenderPosZ());
-                    GlStateManager.rotate(-mc.getRenderManager().playerViewY, 0, 1, 0);
-                    GlStateManager.rotate(mc.getRenderManager().playerViewX, mc.gameSettings.thirdPersonView == 2 ? -1 : 1, 0, 0);
-                    GlStateManager.scale(-0.03, -0.03, 0.03);
-                    GL11.glDepthMask(false);
-                    FontRender.drawCentString6(p.str, (float) (-Util.fr.getStringWidth(p.str) * 0.5), -5, p.color.getRGB());
-                    GL11.glColor4f(1, 1, 1, 1);
-                    GL11.glDepthMask(true);
-                    GlStateManager.doPolygonOffset(1, 1500000);
-                    GlStateManager.disablePolygonOffset();
-                    GlStateManager.resetColor();
-                    GlStateManager.popMatrix();
-                }
+    public void onRender(PreRenderEvent event) {
+        synchronized (this.particles) {
+            for (Marker marker : this.particles) {
+                RenderManager renderManager = mc.getRenderManager();
+                double size =  (double)(this.size.getValue() / marker.getScale() * 2.0f) * 0.1;
+                size = MathHelper.clamp(size, 0.03, (double)this.size.getValue());
+                double x = marker.posX - ((IRenderManager)renderManager).getRenderPosX();
+                double y = marker.posY - ((IRenderManager)renderManager).getRenderPosY();
+                double z = marker.posZ - ((IRenderManager)renderManager).getRenderPosZ();
+                GlStateManager.pushMatrix();
+                GlStateManager.enablePolygonOffset();
+                GlStateManager.doPolygonOffset(1.0f, -1500000.0f);
+                GlStateManager.translate(x, y, z);
+                GlStateManager.rotate(-renderManager.playerViewY, 0.0f, 1.0f, 0.0f);
+                double textY = mc.gameSettings.thirdPersonView == 2 ? -1.0 : 1.0;
+                GlStateManager.rotate(renderManager.playerViewX, (float)textY, 0.0f, 0.0f);
+                GlStateManager.scale(-size, -size, size);
+                GL11.glDepthMask(false);
+                int color = marker.getHp() > 0 ? color1.getValue().getColor() : color2.getValue().getColor();
+                GlStateManager.enableTexture2D();
+                DecimalFormat decimalFormat = new DecimalFormat( "#.#" );
+                mc.fontRenderer.drawStringWithShadow(decimalFormat.format(marker.getHp()), -((float)mc.fontRenderer.getStringWidth(marker.getHp() + "") / 2.0f), -(mc.fontRenderer.FONT_HEIGHT - 1), color);
+                GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
+                GL11.glDepthMask(true);
+                GlStateManager.doPolygonOffset(1.0f, 1500000.0f);
+                GlStateManager.disablePolygonOffset();
+                GlStateManager.popMatrix();
             }
         }
     }
 
-    class Particle {
-        public String str;
-        public double posX, posY, posZ;
-        public Color color;
-        public int ticks;
+    private class Marker {
+        private final Entity entity;
+        private final float hp;
+        private final double posX;
+        private final double posY;
+        private final double posZ;
+        private int ticks = 0;
 
-        public Particle(String str, double posX, double posY, double posZ, Color color) {
-            this.str = str;
+        public Marker(Entity entity, float hp, double posX, double posY, double posZ) {
+            this.entity = entity;
+            this.hp = hp;
             this.posX = posX;
             this.posY = posY;
             this.posZ = posZ;
-            this.color = color;
-            this.ticks = 25;
         }
 
+        public float getScale() {
+            return (float) interpolate(ticks,ticks - 1,mc.getRenderPartialTicks());
+        }
 
-        public boolean update() {
-            return --ticks <= 0;
+        public Entity getEntity() {
+            return this.entity;
+        }
+
+        public float getHp() {
+            return -this.hp;
+        }
+
+        public double getPosX() {
+            return this.posX;
+        }
+
+        public double getPosY() {
+            return this.posY;
+        }
+
+        public double getPosZ() {
+            return this.posZ;
+        }
+
+        public int getTicks() {
+            return this.ticks;
         }
     }
 }

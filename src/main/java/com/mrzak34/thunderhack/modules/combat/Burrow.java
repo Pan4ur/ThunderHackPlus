@@ -483,8 +483,7 @@ public class Burrow extends Module {
         }
 
         BlockPos posHead = getPosition(rEntity).up().up();
-        if (!mc.world.getBlockState(posHead).getMaterial().isReplaceable()
-                && wait.getValue()) {
+        if (!mc.world.getBlockState(posHead).getMaterial().isReplaceable() && wait.getValue()) {
             return;
         }
 

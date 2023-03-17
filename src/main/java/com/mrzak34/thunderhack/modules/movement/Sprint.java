@@ -53,7 +53,7 @@ public class Sprint extends Module {
 
     @Override
     public void onUpdate() {
-        if (nullCheck()) return;
+        if (fullNullCheck()) return;
         if (mc.gameSettings.keyBindForward.isKeyDown()) {
             mc.player.setSprinting(true);
         }

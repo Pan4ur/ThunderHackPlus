@@ -8,7 +8,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 
 import static com.mrzak34.thunderhack.util.Util.mc;
-import static com.mrzak34.thunderhack.util.phobos.DistanceUtil.distanceSq;
 
 public class HelperRange {
     private final AutoCrystal module;
@@ -71,6 +70,17 @@ public class HelperRange {
         return distanceSq(crystalX, crystalY, crystalZ,
                 breakerX, breakerY, breakerZ)
                 < MathUtil.square(module.breakRange.getValue());
+    }
+
+    public static double distanceSq(double x, double y, double z, Entity entity) {
+        return distanceSq(x, y, z, entity.posX, entity.posY, entity.posZ);
+    }
+
+    public static double distanceSq(double x, double y, double z, double x1, double y1, double z1) {
+        double xDist = x - x1;
+        double yDist = y - y1;
+        double zDist = z - z1;
+        return xDist * xDist + yDist * yDist + zDist * zDist;
     }
 
     public boolean isCrystalOutsideNegativeRange(BlockPos pos) {

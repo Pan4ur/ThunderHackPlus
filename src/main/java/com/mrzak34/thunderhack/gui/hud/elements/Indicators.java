@@ -1,8 +1,10 @@
-package com.mrzak34.thunderhack.gui.hud;
+package com.mrzak34.thunderhack.gui.hud.elements;
 
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.events.Render2DEvent;
 import com.mrzak34.thunderhack.gui.fontstuff.FontRender;
+import com.mrzak34.thunderhack.gui.hud.HudElement;
+import com.mrzak34.thunderhack.gui.hud.elements.HudEditorGui;
 import com.mrzak34.thunderhack.gui.thundergui2.ThunderGui2;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.modules.misc.Timer;
@@ -26,12 +28,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class Indicators extends Module {
+public class Indicators extends HudElement {
     public static AstolfoAnimation astolfo = new AstolfoAnimation();
     private static final List<Indicator> indicators = new java.util.ArrayList();
     private final Setting<ColorSetting> cc = this.register(new Setting<>("Color", new ColorSetting(0x8800FF00)));
     private final Setting<ColorSetting> cs = this.register(new Setting<>("RectColor", new ColorSetting(0x8800FF00)));
-    private final Setting<PositionSetting> pos = this.register(new Setting<>("Position", new PositionSetting(0.5f, 0.5f)));
     public Setting<Boolean> dmgflyy = register(new Setting<>("DMGFly", true));
     public Setting<Boolean> Memoryy = register(new Setting<>("Memory", true));
     public Setting<Boolean> Timerr = register(new Setting<>("Timer", true));
@@ -42,13 +43,10 @@ public class Indicators extends Module {
     public Setting<Float> gmult = register(new Setting("GlowMultiplier", 3.6f, 0.0f, 10.0f));
     public Setting<Float> range = register(new Setting("RangeBetween", 46.0f, 46.0f, 100.0f));
     boolean once = false;
-    int dragX, dragY = 0;
-    boolean mousestate = false;
-    float posX, posY = 0;
     private final Setting<mode2> colorType = register(new Setting("Mode", mode2.Astolfo));
 
     public Indicators() {
-        super("WexIndicators", "Индикаторы как в вексайде-(из вексайда)", Category.HUD);
+        super("WexIndicators", "Индикаторы как в вексайде-(из вексайда)", 150,50);
     }
 
     public static float[] getRG(double input) {
@@ -148,41 +146,10 @@ public class Indicators extends Module {
 
     @SubscribeEvent
     public void onRender2D(Render2DEvent e) {
-        posX = e.scaledResolution.getScaledWidth() * pos.getValue().getX();
-        posY = e.scaledResolution.getScaledHeight() * pos.getValue().getY();
-        if (mc.currentScreen instanceof GuiChat || mc.currentScreen instanceof HudEditorGui || mc.currentScreen instanceof ThunderGui2) {
-            if (isHovering(e.scaledResolution)) {
-                if (Mouse.isButtonDown(0) && mousestate) {
-                    pos.getValue().setX((float) (normaliseX() - dragX) / e.scaledResolution.getScaledWidth());
-                    pos.getValue().setY((float) (normaliseY(e.scaledResolution) - dragY) / e.scaledResolution.getScaledHeight());
-                }
-            }
-        }
-
-        if (Mouse.isButtonDown(0) && isHovering(e.scaledResolution)) {
-            if (!mousestate) {
-                dragX = (int) (normaliseX() - (pos.getValue().getX() * e.scaledResolution.getScaledWidth()));
-                dragY = (int) (normaliseY(e.scaledResolution) - (pos.getValue().getY() * e.scaledResolution.getScaledHeight()));
-            }
-            mousestate = true;
-        } else {
-            mousestate = false;
-        }
-
+        super.onRender2D(e);
         draw(e.scaledResolution);
     }
 
-    public int normaliseX() {
-        return (int) ((Mouse.getX() / 2f));
-    }
-
-    public int normaliseY(ScaledResolution sr) {
-        return (((-Mouse.getY() + sr.getScaledHeight()) + sr.getScaledHeight()) / 2);
-    }
-
-    public boolean isHovering(ScaledResolution sr) {
-        return normaliseX() > posX && normaliseX() < posX + 150 && normaliseY(sr) > posY && normaliseY(sr) < posY + 50;
-    }
 
     @Override
     public void onUpdate() {
@@ -197,7 +164,7 @@ public class Indicators extends Module {
 
     public void draw(ScaledResolution sr) {
         GL11.glPushMatrix();
-        GL11.glTranslated(pos.getValue().x * sr.getScaledWidth(), pos.getValue().y * sr.getScaledHeight(), 0);
+        GL11.glTranslated(getX() * sr.getScaledWidth(), getY() * sr.getScaledHeight(), 0);
 
         List<Indicator> enabledIndicators = new ArrayList();
         for (Indicator indicator : indicators) {

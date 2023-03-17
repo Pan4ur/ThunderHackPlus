@@ -1,7 +1,6 @@
 package com.mrzak34.thunderhack.manager;
 
 import com.mrzak34.thunderhack.events.PacketEvent;
-import com.mrzak34.thunderhack.modules.Feature;
 import com.mrzak34.thunderhack.util.Timer;
 import com.mrzak34.thunderhack.util.Util;
 import com.mrzak34.thunderhack.util.math.MathUtil;
@@ -13,7 +12,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import java.util.ArrayDeque;
 import java.util.Objects;
 
-public class ServerManager extends Feature {
+public class ServerManager {
 
     private final Timer timeDelay;
     private final ArrayDeque<Float> tpsResult;

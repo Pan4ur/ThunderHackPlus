@@ -1,7 +1,7 @@
 package com.mrzak34.thunderhack.util.phobos;
 
 import com.mrzak34.thunderhack.events.GameZaloopEvent;
-import com.mrzak34.thunderhack.modules.Feature;
+import com.mrzak34.thunderhack.util.Util;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
@@ -12,7 +12,7 @@ import java.util.Queue;
 /**
  * Helps with scheduling Tasks.
  */
-public class Scheduler extends Feature {
+public class Scheduler {
     private static final Scheduler INSTANCE = new Scheduler();
 
     private final Queue<Runnable> scheduled = new LinkedList<>();
@@ -41,7 +41,7 @@ public class Scheduler extends Feature {
 
     @SubscribeEvent
     public void onGameZaloop(GameZaloopEvent e) {
-        gameLoop = ((InterfaceMinecraft) mc).getGameLoop();
+        gameLoop = ((InterfaceMinecraft) Util.mc).getGameLoop();
 
         executing = true;
         CollectionUtil.emptyQueue(scheduled, Runnable::run);
@@ -51,20 +51,20 @@ public class Scheduler extends Feature {
     }
 
     public void scheduleAsynchronously(Runnable runnable) {
-        mc.addScheduledTask(() -> schedule(runnable, false));
+        Util.mc.addScheduledTask(() -> schedule(runnable, false));
     }
 
 
     public void schedule(Runnable runnable, boolean checkGameLoop) {
-        if (mc.isCallingFromMinecraftThread()) {
+        if (Util.mc.isCallingFromMinecraftThread()) {
             if (executing || checkGameLoop
-                    && gameLoop != ((InterfaceMinecraft) mc).getGameLoop()) {
+                    && gameLoop != ((InterfaceMinecraft) Util.mc).getGameLoop()) {
                 toSchedule.add(runnable);
             } else {
                 scheduled.add(runnable);
             }
         } else {
-            mc.addScheduledTask(runnable);
+            Util.mc.addScheduledTask(runnable);
         }
     }
 

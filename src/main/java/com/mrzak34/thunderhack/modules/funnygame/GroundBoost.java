@@ -17,6 +17,8 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
+import static com.mrzak34.thunderhack.modules.Module.fullNullCheck;
+
 public class GroundBoost extends Module {
 
     public Setting<Integer> ticks = this.register(new Setting<>("RbandDelay", 2, 2, 40));
@@ -110,7 +112,7 @@ public class GroundBoost extends Module {
 
     @SubscribeEvent
     public void onMoveEvent(EventMove event) {
-        if (nullCheck()) return;
+        if (fullNullCheck()) return;
         if (mc.player.isElytraFlying() || mc.player.fallDistance >= 4.0f) return;
         if (mc.player.isInWater() || mc.player.isInLava()) return;
 

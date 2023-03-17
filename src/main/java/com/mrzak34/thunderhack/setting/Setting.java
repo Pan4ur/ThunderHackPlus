@@ -1,6 +1,7 @@
 package com.mrzak34.thunderhack.setting;
 
-import com.mrzak34.thunderhack.modules.Feature;
+
+import com.mrzak34.thunderhack.modules.Module;
 
 import java.util.function.Predicate;
 
@@ -17,7 +18,7 @@ public class Setting<T> {
     private boolean hasRestriction;
     private Predicate<T> visibility;
     private String description;
-    private Feature feature;
+    private Module module;
 
     public Setting(String name, T defaultValue) {
         this.name = name;
@@ -98,10 +99,6 @@ public class Setting<T> {
         return 0;
     }
 
-    public T getPlannedValue() {
-        return this.plannedValue;
-    }
-
     public void setPlannedValue(T value) {
         this.plannedValue = value;
     }
@@ -122,20 +119,16 @@ public class Setting<T> {
         this.max = max;
     }
 
-    public Feature getFeature() {
-        return this.feature;
+    public Module getModule() {
+        return this.module;
     }
 
-    public void setFeature(Feature feature) {
-        this.feature = feature;
+    public void setModule(Module module) {
+        this.module = module;
     }
 
     public String currentEnumName() {
         return EnumConverter.getProperName((Enum) this.value);
-    }
-
-    public int getEnumInt() {
-        return EnumConverter.getEnumInt((Enum) this.value);
     }
 
     public String[] getModes() {
@@ -154,10 +147,6 @@ public class Setting<T> {
     public void setEnumByNumber(int id) {
         this.plannedValue = (T) EnumConverter.setEnumInt((Enum) this.value, id);
         this.value = this.plannedValue;
-    }
-
-    public void naoborotEnum() {
-        this.plannedValue = (T) EnumConverter.naoborot((Enum) this.value);
     }
 
 

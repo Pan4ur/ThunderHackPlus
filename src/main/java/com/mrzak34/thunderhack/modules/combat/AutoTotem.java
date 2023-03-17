@@ -575,6 +575,7 @@ public class AutoTotem extends Module {
                     if (itemSlot != -1) {
                         if (!isOffhand(mc.player.inventoryContainer.getSlot(itemSlot).getStack()) && timer.passedMs(200)) {
                             timer.reset();
+                            mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.OPEN_INVENTORY));
                             mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.STOP_SPRINTING));
                             mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.STOP_SPRINTING));
                             mc.playerController.windowClick(0, itemSlot, 0, ClickType.PICKUP, mc.player);
@@ -639,6 +640,8 @@ public class AutoTotem extends Module {
                             }
                         }
                         if (itemSlot != -1) {
+                            mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.OPEN_INVENTORY));
+
                             mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.STOP_SPRINTING));
                             mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.STOP_SPRINTING));
                             mc.playerController.windowClick(0, itemSlot, 0, ClickType.PICKUP, mc.player);

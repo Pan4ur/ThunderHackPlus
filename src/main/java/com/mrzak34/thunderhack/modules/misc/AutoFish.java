@@ -32,7 +32,7 @@ public class AutoFish extends Module {
 
     @Override
     public void onEnable() {
-        if (nullCheck()) {
+        if (fullNullCheck()) {
             toggle();
             return;
         }

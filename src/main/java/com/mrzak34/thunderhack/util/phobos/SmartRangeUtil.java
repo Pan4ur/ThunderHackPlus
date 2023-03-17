@@ -19,8 +19,7 @@ public class SmartRangeUtil {
         double y = entity.posY + entity.motionY * smartTicks;
         double z = entity.posZ + entity.motionZ * smartTicks;
 
-        return DistanceUtil.distanceSq(crystalX, crystalY, crystalZ, x, y, z)
-                < rangeSq;
+        return distanceSq(crystalX, crystalY, crystalZ, x, y, z) < rangeSq;
     }
 
     // TODO: we could try to calculate the violation level?
@@ -48,4 +47,14 @@ public class SmartRangeUtil {
         return x * x + y * y + z * z <= rangeSq;
     }
 
+    public static double distanceSq(double x, double y, double z, Entity entity) {
+        return distanceSq(x, y, z, entity.posX, entity.posY, entity.posZ);
+    }
+
+    public static double distanceSq(double x, double y, double z, double x1, double y1, double z1) {
+        double xDist = x - x1;
+        double yDist = y - y1;
+        double zDist = z - z1;
+        return xDist * xDist + yDist * yDist + zDist * zDist;
+    }
 }

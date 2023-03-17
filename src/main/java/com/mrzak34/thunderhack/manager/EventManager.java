@@ -5,10 +5,9 @@ import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.events.*;
 import com.mrzak34.thunderhack.gui.fontstuff.FontRender;
-import com.mrzak34.thunderhack.gui.hud.RadarRewrite;
+import com.mrzak34.thunderhack.gui.hud.elements.RadarRewrite;
 import com.mrzak34.thunderhack.gui.thundergui2.ThunderGui2;
 import com.mrzak34.thunderhack.macro.Macro;
-import com.mrzak34.thunderhack.modules.Feature;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.modules.client.ClickGui;
 import com.mrzak34.thunderhack.modules.misc.Macros;
@@ -44,9 +43,10 @@ import org.lwjgl.opengl.GL11;
 import java.awt.*;
 
 import static com.mrzak34.thunderhack.modules.misc.Timer.TwoColoreffect;
+import static com.mrzak34.thunderhack.util.Util.mc;
 import static org.lwjgl.opengl.GL11.*;
 
-public class EventManager extends Feature {
+public class EventManager {
     public static Module hoveredModule;
     public static boolean serversprint = false;
     public static int backX, backY, backZ;
@@ -170,8 +170,8 @@ public class EventManager extends Feature {
     }
 
     public void updateRotations() {
-        this.yaw = EventManager.mc.player.rotationYaw;
-        this.pitch = EventManager.mc.player.rotationPitch;
+        this.yaw = mc.player.rotationYaw;
+        this.pitch = mc.player.rotationPitch;
         prevVisualPitch = visualPitch;
         prevVisualYaw = visualYaw;
     }
@@ -179,9 +179,9 @@ public class EventManager extends Feature {
     public void restoreRotations() {
         visualPitch = mc.player.rotationPitch;
         visualYaw = mc.player.rotationYaw;
-        EventManager.mc.player.rotationYaw = this.yaw;
-        EventManager.mc.player.rotationYawHead = this.yaw;
-        EventManager.mc.player.rotationPitch = this.pitch;
+        mc.player.rotationYaw = this.yaw;
+        mc.player.rotationYawHead = this.yaw;
+        mc.player.rotationPitch = this.pitch;
     }
 
     @SubscribeEvent
@@ -333,5 +333,9 @@ public class EventManager extends Feature {
         double d0 = mc.player.posX - bp.getX();
         double d2 = mc.player.posZ - bp.getZ();
         return (int) (MathHelper.sqrt(d0 * d0 + d2 * d2));
+    }
+
+    public static boolean fullNullCheck() {
+        return mc.player == null || mc.world == null;
     }
 }

@@ -366,7 +366,7 @@ public class InteractionUtil {
         }
     }
 
-    private static float[] getAnglesToBlock(BlockPos pos, EnumFacing facing) {
+    public static float[] getAnglesToBlock(BlockPos pos, EnumFacing facing) {
         Vec3d diff = new Vec3d(pos.getX() + 0.5 - mc.player.posX + facing.getXOffset() / 2.0, pos.getY() + 0.5, pos.getZ() + 0.5 - mc.player.posZ + facing.getZOffset() / 2.0);
         double distance = Math.sqrt(diff.x * diff.x + diff.z * diff.z);
         float yaw = (float) (Math.atan2(diff.z, diff.x) * 180.0 / Math.PI - 90.0);

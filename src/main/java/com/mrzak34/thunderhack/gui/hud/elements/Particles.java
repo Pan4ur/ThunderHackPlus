@@ -1,4 +1,4 @@
-package com.mrzak34.thunderhack.gui.hud;
+package com.mrzak34.thunderhack.gui.hud.elements;
 
 import net.minecraft.client.renderer.GlStateManager;
 import org.lwjgl.opengl.GL11;

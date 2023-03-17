@@ -2,7 +2,7 @@ package com.mrzak34.thunderhack.mixin.mixins;
 
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.events.RenderAttackIndicatorEvent;
-import com.mrzak34.thunderhack.gui.hud.Potions;
+import com.mrzak34.thunderhack.gui.hud.elements.Potions;
 import com.mrzak34.thunderhack.modules.funnygame.AntiTittle;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiIngame;

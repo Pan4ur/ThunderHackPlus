@@ -60,14 +60,14 @@ public class BreakHighLight extends Module {
 
     @SubscribeEvent
     public void onRender3D(Render3DEvent event) {
+        if (mc.player == null || mc.world == null) return;
+        GL11.glPushMatrix();
+        GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
         GlStateManager.disableTexture2D();
-        GlStateManager.enableBlend();
         GlStateManager.disableAlpha();
         GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
         GlStateManager.shadeModel(7425);
         GlStateManager.disableDepth();
-
-        if (mc.player == null || mc.world == null) return;
 
         if (mc.playerController.getIsHittingBlock()) {
             float progress = ((IPlayerControllerMP) mc.playerController).getCurBlockDamageMP();
@@ -128,14 +128,8 @@ public class BreakHighLight extends Module {
             }
 
         }));
-
-        GlStateManager.shadeModel(7424);
-        GlStateManager.disableBlend();
-        GlStateManager.enableAlpha();
-        GlStateManager.enableDepth();
-        GlStateManager.depthMask(true);
-        GlStateManager.enableTexture2D();
-        GlStateManager.enableBlend();
+        GL11.glPopAttrib();
+        GL11.glPopMatrix();
     }
 
     private void renderGlobalBreakage(DestroyBlockProgress destroyBlockProgress) {

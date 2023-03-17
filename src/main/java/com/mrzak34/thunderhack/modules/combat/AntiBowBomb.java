@@ -27,7 +27,7 @@ public class AntiBowBomb extends Module {
     }
 
     @Override
-    public void onToggle() {
+    public void onDisable() {
         b = false;
         old = -1;
         target = null;

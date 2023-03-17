@@ -1,7 +1,6 @@
 package com.mrzak34.thunderhack.manager;
 
 import com.mrzak34.thunderhack.events.PacketEvent;
-import com.mrzak34.thunderhack.modules.Feature;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityTracker;
@@ -15,12 +14,15 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
+import static com.mrzak34.thunderhack.manager.EventManager.fullNullCheck;
+import static com.mrzak34.thunderhack.util.Util.mc;
+
 /**
  * Manages the last position that has been
  * reported to or, via SPacketPlayerPosLook,
  * by the server.
  */
-public class PositionManager extends Feature {
+public class PositionManager{
 
     private boolean blocking;
     private volatile int teleportID;

@@ -1,7 +1,6 @@
 package com.mrzak34.thunderhack.util.phobos;
 
 import com.mrzak34.thunderhack.events.PostWorldTick;
-import com.mrzak34.thunderhack.modules.Feature;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -12,13 +11,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import static com.mrzak34.thunderhack.util.Util.mc;
+
 /**
  * Makes snapshots of {@link WorldClient#loadedEntityList} and
  * {@link WorldClient#playerEntities} so you can access them
  * on another thread.
  */
 @SuppressWarnings("unused")
-public class EntityProvider extends Feature {
+public class EntityProvider{
     private volatile List<EntityPlayer> players;
     private volatile List<Entity> entities;
 

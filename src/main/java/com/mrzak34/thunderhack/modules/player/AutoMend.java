@@ -3,7 +3,6 @@ package com.mrzak34.thunderhack.modules.player;
 import com.mrzak34.thunderhack.events.EventPostMotion;
 import com.mrzak34.thunderhack.events.EventPreMotion;
 import com.mrzak34.thunderhack.events.Render2DEvent;
-import com.mrzak34.thunderhack.mixin.mixins.IMinecraft;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.setting.SubBind;
@@ -20,9 +19,6 @@ import net.minecraft.item.ItemExpBottle;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.client.CPacketHeldItemChange;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.input.Keyboard;
 
@@ -45,9 +41,6 @@ public class AutoMend extends Module {
     private final Timer timer2 = new Timer();
     int arm1,arm2,arm3,arm4,totalarmor,prev_item;
     public static boolean isMending = false;
-
-
-
 
 
     @SubscribeEvent
@@ -169,7 +162,6 @@ public class AutoMend extends Module {
 
             float progress = (float) (arm1 + arm3 + arm4 + arm2) / 400;
 
-
             final int expCount = this.getExpCount();
 
             AutoMend.mc.getRenderItem().renderItemIntoGUI(new ItemStack(Items.EXPERIENCE_BOTTLE), waterMarkZ2.getValue() + 70 + 11, waterMarkZ1.getValue() + 17);
@@ -183,24 +175,22 @@ public class AutoMend extends Module {
             int width = waterMarkZ2.getValue() + -12;
             int height = waterMarkZ1.getValue() + 17;
             GlStateManager.enableTexture2D();
-            int i = width;
             int iteration = 0;
-            int y = height;
             for (ItemStack is : mc.player.inventory.armorInventory) {
                 iteration++;
                 if (is.isEmpty())
                     continue;
-                int x = i - 90 + (9 - iteration) * 20 + 2;
+                int x = width - 90 + (9 - iteration) * 20 + 2;
                 GlStateManager.enableDepth();
                 RenderUtil.itemRender.zLevel = 200.0F;
-                RenderUtil.itemRender.renderItemAndEffectIntoGUI(is, x, y);
-                RenderUtil.itemRender.renderItemOverlayIntoGUI(mc.fontRenderer, is, x, y, "");
+                RenderUtil.itemRender.renderItemAndEffectIntoGUI(is, x, height);
+                RenderUtil.itemRender.renderItemOverlayIntoGUI(mc.fontRenderer, is, x, height, "");
                 RenderUtil.itemRender.zLevel = 0.0F;
                 GlStateManager.enableTexture2D();
                 GlStateManager.disableLighting();
                 GlStateManager.disableDepth();
                 String s = (is.getCount() > 1) ? (is.getCount() + "") : "";
-                mc.fontRenderer.drawStringWithShadow(s, (x + 19 - 2 - mc.fontRenderer.getStringWidth(s)), (y + 9), 16777215);
+                mc.fontRenderer.drawStringWithShadow(s, (x + 19 - 2 - mc.fontRenderer.getStringWidth(s)), (height + 9), 16777215);
             }
             GlStateManager.enableDepth();
             GlStateManager.disableLighting();

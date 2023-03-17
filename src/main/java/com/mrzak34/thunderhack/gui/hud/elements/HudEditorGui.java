@@ -1,4 +1,4 @@
-package com.mrzak34.thunderhack.gui.hud;
+package com.mrzak34.thunderhack.gui.hud.elements;
 
 import com.google.common.collect.Lists;
 import com.mrzak34.thunderhack.Thunderhack;

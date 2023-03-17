@@ -1,5 +1,7 @@
 package com.mrzak34.thunderhack.mixin.mixins;
 
+import com.mrzak34.thunderhack.Thunderhack;
+import com.mrzak34.thunderhack.modules.client.MainSettings;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelPlayer;
@@ -28,13 +30,10 @@ public class MixinPlayerModel extends ModelBiped {
 
     @Inject(at = @At("TAIL"), method = "Lnet/minecraft/client/model/ModelPlayer;setRotationAngles(FFFFFFLnet/minecraft/entity/Entity;)V")
     public void setRotationAngles(float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scaleFactor, Entity entityIn, CallbackInfo ci) {
-
-        if (entityIn instanceof EntityPlayerSP) {
-
+        if (entityIn instanceof EntityPlayerSP && Thunderhack.moduleManager.getModuleByClass(MainSettings.class).eatAnim.getValue()) {
             eatingAnimationRightHand(EnumHand.MAIN_HAND, (EntityPlayerSP) entityIn, ageInTicks);
             eatingAnimationLeftHand(EnumHand.OFF_HAND, (EntityPlayerSP) entityIn, ageInTicks);
         }
-        //this.do3rdPersonMapFilledAnim(Hand.MAIN_HAND, entityIn);
     }
 
     public void eatingAnimationRightHand(EnumHand hand, EntityPlayerSP entity, float ageInTicks) {
@@ -44,14 +43,11 @@ public class MixinPlayerModel extends ModelBiped {
             bipedRightArm.rotateAngleY = -0.5F;
             bipedRightArm.rotateAngleX = -1.3F;
             bipedRightArm.rotateAngleZ = MathHelper.cos(ageInTicks) * 0.1F;
-            //this.bipedRightArmwear.copyModelAngles(bipedRightArm);
             copyModelAngles2(bipedRightArm, bipedRightArmwear);
 
             bipedHead.rotateAngleX = MathHelper.cos(ageInTicks) * 0.2F;
             bipedHead.rotateAngleY = bipedHeadwear.rotateAngleY;
             copyModelAngles2(bipedHead, bipedHeadwear);
-
-            // this.bipedHeadwear.copyModelAngles(bipedHead);
         }
     }
 

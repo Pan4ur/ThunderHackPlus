@@ -3,17 +3,15 @@ package com.mrzak34.thunderhack.manager;
 import com.mojang.realmsclient.gui.ChatFormatting;
 import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.command.commands.*;
-import com.mrzak34.thunderhack.modules.Feature;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
 
-public class CommandManager extends Feature {
+public class CommandManager {
     private final ArrayList<Command> commands = new ArrayList();
     private String prefix = ".";
 
     public CommandManager() {
-        super("Command");
         this.commands.add(new TpCommand());
         this.commands.add(new BackCommand());
         this.commands.add(new MacroCommand());

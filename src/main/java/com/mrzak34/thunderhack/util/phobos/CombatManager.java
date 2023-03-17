@@ -1,7 +1,6 @@
 package com.mrzak34.thunderhack.util.phobos;
 
 import com.mrzak34.thunderhack.events.PacketEvent;
-import com.mrzak34.thunderhack.modules.Feature;
 import com.mrzak34.thunderhack.util.Timer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -12,7 +11,9 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class CombatManager extends Feature {
+import static com.mrzak34.thunderhack.util.Util.mc;
+
+public class CombatManager  {
     private final Map<EntityPlayer, PopCounter> pops =
             new ConcurrentHashMap<>();
 
@@ -30,7 +31,7 @@ public class CombatManager extends Feature {
 
     @SubscribeEvent
     public void onPacketReceive(PacketEvent.Receive e) {
-        if (fullNullCheck()) return;
+        if (mc.player == null || mc.world == null) return;
         if (e.getPacket() instanceof SPacketEntityStatus) {
             switch (((SPacketEntityStatus) e.getPacket()).getOpCode()) {
                 case 3:

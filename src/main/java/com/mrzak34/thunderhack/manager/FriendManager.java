@@ -1,7 +1,6 @@
 package com.mrzak34.thunderhack.manager;
 
 import com.mrzak34.thunderhack.command.Command;
-import com.mrzak34.thunderhack.modules.Feature;
 import com.mrzak34.thunderhack.util.ThunderUtils;
 import net.minecraft.entity.player.EntityPlayer;
 
@@ -9,12 +8,8 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FriendManager extends Feature {
+public class FriendManager {
     public static List<String> friends = new ArrayList<>();
-
-    public FriendManager() {
-        super("Friends");
-    }
 
     public static void loadFriends() {
         try {

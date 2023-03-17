@@ -4,6 +4,7 @@ import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.events.EventPreMotion;
 import com.mrzak34.thunderhack.events.Render3DEvent;
 import com.mrzak34.thunderhack.gui.fontstuff.FontRender;
+import com.mrzak34.thunderhack.mixin.ducks.IEntityPlayerSP;
 import com.mrzak34.thunderhack.mixin.ducks.IPlayerControllerMP;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
@@ -14,10 +15,14 @@ import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.entity.item.EntityItem;
+import net.minecraft.entity.item.EntityXPOrb;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.MobEffects;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.play.client.CPacketAnimation;
 import net.minecraft.network.play.client.CPacketEntityAction;
 import net.minecraft.network.play.client.CPacketHeldItemChange;
 import net.minecraft.network.play.client.CPacketPlayerDigging;
@@ -25,7 +30,9 @@ import net.minecraft.util.CombatRules;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.Explosion;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -36,15 +43,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import static com.mrzak34.thunderhack.util.InteractionUtil.getAnglesToBlock;
+
 
 public class C4Aura extends Module {
 
     public static EntityPlayer target = null;
     public Setting<Float> mindmg = this.register(new Setting<>("mindmg", 6.0f, 0.0f, 20.0f));
-    public Setting<Float> maxself = this.register(new Setting<>("maxselfdmg", 6.0f, 0.0f, 20.0f));
     public Setting<Float> stophp = this.register(new Setting<>("StopHp", 6.0f, 0.0f, 20.0f));
-    public Setting<Float> ddd2 = this.register(new Setting<>("TrgtRange", 1.0f, 3f, 15.0f));
-    public Setting<Float> rang = this.register(new Setting<>("Range", 1.0f, 0.1f, 10.0f));
+    public Setting<Float> targetRange = this.register(new Setting<>("TargetRange", 8.0f, 3f, 15.0f));
+    public Setting<Float> placeRange = this.register(new Setting<>("Range", 4.2f, 0.1f, 10.0f));
     public Setting<Integer> placedelay = this.register(new Setting<>("PlaceDelay", 100, 0, 1000));
     public Setting<Boolean> placeinside = register(new Setting<>("placeInside", true));
     public Setting<Boolean> autoBurrow = register(new Setting<>("AutoBurrow", true));
@@ -54,21 +62,14 @@ public class C4Aura extends Module {
     Timer getpostim = new Timer();
     List<BlockPos> positions = null;
     BlockPos renderblockpos;
-    boolean sneak_fix;
 
     public C4Aura() {
         super("C4Aura", "Ставит с4", Category.FUNNYGAME);
     }
 
-    public static boolean stopSneaking(boolean isSneaking) {
-        if (isSneaking && EntityUtil.mc.player != null) {
-            EntityUtil.mc.player.connection.sendPacket(new CPacketEntityAction(EntityUtil.mc.player, CPacketEntityAction.Action.STOP_SNEAKING));
-        }
-        return false;
-    }
 
     @SubscribeEvent
-    public void onUpdateWalkingPlayerPre(EventPreMotion e) {
+    public void onEntitySync(EventPreMotion e) {
         if (fullNullCheck()) return;
         if (autoBurrow.getValue() && mc.player.isSneaking()) {
             if (findC4() != -1) {
@@ -88,35 +89,23 @@ public class C4Aura extends Module {
         if (findC4() == -1) {
             return;
         }
-
         target = findTarget();
-
         if (getpostim.passedMs(300)) {
-            positions = getPositions(mc.player, rang.getValue());
+            positions = getPositions(mc.player, placeRange.getValue());
             getpostim.reset();
         }
-
         if (target != null && positions != null) {
             if (getBestPos(positions, target) != null) {
                 BlockPos blockoftheblocks = getBestPos(positions, target);
-                placeC4(blockoftheblocks, e);
+
+                placeC4(blockoftheblocks);
+
             }
         } else {
             renderblockpos = null;
         }
-        sneak_fix = stopSneaking(sneak_fix);
     }
 
-    public void placeC4(BlockPos bp, EventPreMotion ed) {
-        mc.player.inventory.currentItem = findC4();
-        ((IPlayerControllerMP)mc.playerController).syncItem();
-        renderblockpos = bp;
-        if (placeTimer.passedMs(placedelay.getValue())) {
-            sneak_fix = BlockUtils.placeBlockSmartRotate(bp, EnumHand.MAIN_HAND, true, false, sneak_fix, ed);
-            placeTimer.reset();
-        }
-        mc.player.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.START_DESTROY_BLOCK, new BlockPos(mc.player.posX, mc.player.posY, mc.player.posZ), EnumFacing.UP));
-    }
 
     private List<BlockPos> getPositions(Entity entity2, float range) {
         ArrayList<BlockPos> arrayList = new ArrayList<>();
@@ -141,107 +130,24 @@ public class C4Aura extends Module {
 
 
     private boolean canPlaceC4(BlockPos bp) {
-        if (mc.player.getDistance(bp.getX(), bp.getY(), bp.getZ()) > rang.getValue()) {
+        if (mc.player.getDistanceSq(bp.getX(), bp.getY(), bp.getZ()) > placeRange.getPow2Value()) {
             return false;
         }
-        /*
-        if(!rtx(bp.add(0,-1,0)) && rtxxx.getValue()){
-            return false;
-        }
-
-         */
         if (target != null) {
             BlockPos jew = new BlockPos(target);
-
             if (Objects.equals(bp, jew) && !placeinside.getValue()) {
                 return false;
             }
-
             if (Objects.equals(bp, jew.add(0, 1, 0))) {
                 return false;
             }
         }
-        if (CrystalUtils.calculateDamage2(bp, mc.player) > maxself.getValue()) {
+        if(!mc.world.getBlockState(bp).getMaterial().isReplaceable()){
             return false;
         }
-
-        if (mc.world.getBlockState(bp).getBlock() == Blocks.SNOW_LAYER) {
-            return true;
-        }
-
-        if (mc.world.getBlockState(bp.add(0, -1, 0)).getBlock() == Blocks.DOUBLE_PLANT) {
-            return false;
-        }
-
-        if (mc.world.getBlockState(bp).getBlock() == Blocks.SKULL) {
-            return false;
-        }
-        if (mc.world.getBlockState(bp.add(0, -1, 0)).getBlock() == Blocks.SKULL) {
-            return false;
-        }
-
-        if (mc.world.getBlockState(bp.add(0, -1, 0)).getBlock() == Blocks.AIR) {
-            return false;
-        }
-
-        if (mc.world.getBlockState(bp.add(0, -1, 0)).getBlock() == Blocks.TALLGRASS) {
-            return false;
-        }
-        if (mc.world.getBlockState(bp.add(0, 1, 0)).getBlock() == Blocks.SKULL) {
-            return false;
-        }
-        if (mc.world.getBlockState(bp.add(0, -1, 0)).getBlock() == Blocks.FLOWER_POT) {
-            return false;
-        }
-        if (mc.world.getBlockState(bp.add(0, -1, 0)).getBlock() == Blocks.RED_FLOWER) {
-            return false;
-        }
-        if (mc.world.getBlockState(bp.add(0, -1, 0)).getBlock() == Blocks.CHORUS_FLOWER) {
-            return false;
-        }
-        if (mc.world.getBlockState(bp.add(0, -1, 0)).getBlock() == Blocks.CHORUS_PLANT) {
-            return false;
-        }
-        if (mc.world.getBlockState(bp.add(0, -1, 0)).getBlock() == Blocks.YELLOW_FLOWER) {
-            return false;
-        }
-        if (mc.world.getBlockState(bp).getBlock() == Blocks.PORTAL) {
-            return false;
-        }
-        if (mc.world.getBlockState(bp).getBlock() == Blocks.HEAVY_WEIGHTED_PRESSURE_PLATE) {
-            return false;
-        }
-        if (mc.world.getBlockState(bp).getBlock() == Blocks.LIGHT_WEIGHTED_PRESSURE_PLATE) {
-            return false;
-        }
-        if (mc.world.getBlockState(bp).getBlock() == Blocks.STONE_PRESSURE_PLATE) {
-            return false;
-        }
-        if (mc.world.getBlockState(bp).getBlock() == Blocks.WOODEN_PRESSURE_PLATE) {
-            return false;
-        }
-        if (mc.world.getBlockState(bp.add(0, -1, 0)).getBlock() == Blocks.WATER) {
-            if (mc.world.getBlockState(bp.add(0, -2, 0)).getBlock() == Blocks.WATER) {
-                return false;
-            }
-        }
-
-        if (mc.world.getBlockState(bp.add(0, -1, 0)).getBlock() == Blocks.LAVA) {
-            return false;
-        }
-        if (mc.world.getBlockState(bp).getBlock() == Blocks.LADDER) {
-            return false;
-        }
-        if (mc.world.getBlockState(bp).getBlock() == Blocks.TALLGRASS) {
-            return true;
-        }
-        return mc.world.getBlockState(bp).getBlock() == Blocks.AIR;
+        return mc.world.getBlockState(bp).getBlock() == Blocks.AIR && mc.world.getBlockState(bp.down()).getBlock() != Blocks.AIR;
     }
 
-
-    private float getDifDamage(float f) {
-        return Math.min(f / 2.0f + 1.0f, f);
-    }
 
     public float getDamage(double d7, double d2, double d3, EntityLivingBase entityLivingBase) {
         float f;
@@ -249,7 +155,7 @@ public class C4Aura extends Module {
         double d6 = entityLivingBase.world.getBlockDensity(new Vec3d(d7, d2, d3), entityLivingBase.getEntityBoundingBox());
         d5 = (1.0 - d5) * d6;
         f = (int) ((d5 * d5 + d5) / 2.0 * 7.0 * 12.0 + 1.0);
-        f = getDifDamage(f);
+        f = Math.min(f / 2.0f + 1.0f, f);
         DamageSource dmgg = DamageSource.causeExplosionDamage(new Explosion(mc.world, mc.player, d7, d2, d3, 6.0f, false, true));
         f = CombatRules.getDamageAfterAbsorb(f, (float) entityLivingBase.getTotalArmorValue(), (float) entityLivingBase.getEntityAttribute(SharedMonsterAttributes.ARMOR_TOUGHNESS).getAttributeValue());
         int n = EnchantmentHelper.getEnchantmentModifierDamage(entityLivingBase.getArmorInventoryList(), dmgg);
@@ -279,7 +185,7 @@ public class C4Aura extends Module {
 
     public EntityPlayer findTarget() {
         EntityPlayer target = null;
-        double distance = ddd2.getValue() * ddd2.getValue();
+        double distance = targetRange.getPow2Value();
         for (EntityPlayer entity : mc.world.playerEntities) {
             if (entity == mc.player) {
                 continue;
@@ -302,69 +208,69 @@ public class C4Aura extends Module {
             return;
         }
         if (renderblockpos != null && target != null) {
-            renderdmg(renderblockpos, target);
-        }
-    }
-
-    public void renderdmg(BlockPos aboba, EntityPlayer target) {
-        try {
-            DecimalFormat df = new DecimalFormat("0.0");
-            RenderUtil.drawBlockOutline(aboba, new Color(0x05FDCE), 3f, true, 0);
-
-
-            GlStateManager.pushMatrix();
-            GlStateManager.disableDepth();
-            GlStateManager.disableLighting();
             try {
-                RenderUtil.glBillboardDistanceScaled((float) aboba.getX() + 0.5f, (float) aboba.getY() + 0.5f, (float) aboba.getZ() + 0.5f, mc.player, 1);
-            } catch (Exception ignored) {
-            }
-            FontRender.drawString3(df.format(getDamage(aboba.getX(), aboba.getY(), aboba.getZ(), target)), (int) -(FontRender.getStringWidth(df.format(getDamage(aboba.getX(), aboba.getY() + 1, aboba.getZ(), target))) / 2.0D), -4, -1);
-            GlStateManager.enableLighting();
-            GlStateManager.enableDepth();
-            GlStateManager.popMatrix();
-        } catch (Exception ignored) {
+                DecimalFormat df = new DecimalFormat("0.0");
+                RenderUtil.drawBlockOutline(renderblockpos, new Color(0x05FDCE), 3f, true, 0);
 
+
+                GlStateManager.pushMatrix();
+                GlStateManager.disableDepth();
+                GlStateManager.disableLighting();
+                RenderUtil.glBillboardDistanceScaled((float) renderblockpos.getX() + 0.5f, (float) renderblockpos.getY() + 0.5f, (float) renderblockpos.getZ() + 0.5f, mc.player, 1);
+                FontRender.drawString3(df.format(getDamage(renderblockpos.getX(), renderblockpos.getY(), renderblockpos.getZ(), target)), (int) -(FontRender.getStringWidth(df.format(getDamage(renderblockpos.getX(), renderblockpos.getY() + 1, renderblockpos.getZ(), target))) / 2.0D), -4, -1);
+                GlStateManager.enableLighting();
+                GlStateManager.enableDepth();
+                GlStateManager.popMatrix();
+            } catch (Exception ignored) {
+
+            }
         }
     }
+
+
 
     private int findC4() {
         for (int i = 0; i < 9; ++i) {
-            ItemStack itemStack = Util.mc.player.inventory.getStackInSlot(i);
-            if (!(itemStack.getItem().getItemStackDisplayName(itemStack).contains("Рычаг")) && !(itemStack.getItem().getItemStackDisplayName(itemStack).contains("Lever")))
-                continue;
+            ItemStack itemStack = mc.player.inventory.getStackInSlot(i);
+            if (itemStack.getItem() != Item.getItemFromBlock(Blocks.LEVER)) continue;
+            if (!(itemStack.getDisplayName().contains("C4"))) continue;
             return i;
         }
         return -1;
     }
 
-
-    /*
-    private boolean rtx(BlockPos bp){
-        // Центр
-        RayTraceResult result1 = mc.world.rayTraceBlocks(getEyePos(mc.player), new Vec3d(bp.getX() + 0.5, bp.getY(), bp.getZ() + 0.5), false, true, false);
-
-        // Угол 0 0
-        RayTraceResult result2 = mc.world.rayTraceBlocks(getEyePos(mc.player), new Vec3d(bp.getX(), bp.getY(), bp.getZ()), false, true, false);
-
-        // Угол 1 0
-        RayTraceResult result3 = mc.world.rayTraceBlocks(getEyePos(mc.player), new Vec3d(bp.getX() + 1, bp.getY(), bp.getZ()), false, true, false);
-
-        // Угол 1 1
-        RayTraceResult result4 = mc.world.rayTraceBlocks(getEyePos(mc.player), new Vec3d(bp.getX() + 1, bp.getY(), bp.getZ() + 1), false, true, false);
-
-        // Угол 0 1
-        RayTraceResult result5 = mc.world.rayTraceBlocks(getEyePos(mc.player), new Vec3d(bp.getX(), bp.getY(), bp.getZ() + 1), false, true, false);
-
-
-        return (result1 != null && result1.typeOfHit == RayTraceResult.Type.BLOCK && result1.getBlockPos().equals(bp))
-                || (result2 != null && result2.typeOfHit == RayTraceResult.Type.BLOCK && result2.getBlockPos().equals(bp))
-                || (result3 != null && result3.typeOfHit == RayTraceResult.Type.BLOCK && result3.getBlockPos().equals(bp))
-                || (result4 != null && result4.typeOfHit == RayTraceResult.Type.BLOCK && result4.getBlockPos().equals(bp))
-                || (result5 != null && result5.typeOfHit == RayTraceResult.Type.BLOCK && result5.getBlockPos().equals(bp));
+    public void placeC4(BlockPos position) {
+        mc.player.inventory.currentItem = findC4();
+        ((IPlayerControllerMP)mc.playerController).syncItem();
+        renderblockpos = position;
+        if (placeTimer.passedMs(placedelay.getValue())) {
+            mc.player.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.START_DESTROY_BLOCK, new BlockPos(mc.player.posX, mc.player.posY, mc.player.posZ), EnumFacing.UP));
+            for (EnumFacing direction : EnumFacing.values()) {
+                BlockPos directionOffset = position.offset(direction);
+                EnumFacing oppositeFacing = direction.getOpposite();
+                if (!InteractionUtil.getVisibleSides(directionOffset).contains(direction.getOpposite())) continue;
+                if (mc.world.getBlockState(directionOffset).getMaterial().isReplaceable()) continue;
+                float[] angle = getAnglesToBlock(directionOffset, oppositeFacing);
+                mc.player.rotationYaw = angle[0];
+                mc.player.rotationPitch = angle[1];
+                Vec3d interactVector = null;
+                RayTraceResult result = InteractionUtil.getTraceResult(mc.playerController.getBlockReachDistance(), angle[0], angle[1]);
+                if (result != null && result.typeOfHit.equals(RayTraceResult.Type.BLOCK)) {
+                    interactVector = result.hitVec;
+                }
+                if (interactVector == null) {
+                    interactVector = new Vec3d(directionOffset).add(0.5, 0.5, 0.5);
+                }
+                Vec3d finalInteractVector = interactVector;
+                ((IEntityPlayerSP )mc.player).setAuraCallback(()->{
+                    mc.playerController.processRightClickBlock(mc.player, mc.world, directionOffset, direction.getOpposite(), finalInteractVector, EnumHand.MAIN_HAND);
+                    mc.player.connection.sendPacket(new CPacketAnimation(EnumHand.MAIN_HAND));
+                });
+                break;
+            }
+            placeTimer.reset();
+        }
     }
-
-     */
 }
 
 

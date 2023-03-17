@@ -1,6 +1,8 @@
-package com.mrzak34.thunderhack.gui.hud;
+package com.mrzak34.thunderhack.gui.hud.elements;
 
 import com.mrzak34.thunderhack.events.Render2DEvent;
+import com.mrzak34.thunderhack.gui.hud.HudElement;
+import com.mrzak34.thunderhack.gui.hud.elements.HudEditorGui;
 import com.mrzak34.thunderhack.gui.thundergui2.ThunderGui2;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.ColorSetting;
@@ -22,29 +24,20 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class PvPResources extends Module {
+public class PvPResources extends HudElement {
     public final Setting<ColorSetting> shadowColor = this.register(new Setting<>("ShadowColor", new ColorSetting(0xFF101010)));
     public final Setting<ColorSetting> color2 = this.register(new Setting<>("Color", new ColorSetting(0xFF101010)));
     public final Setting<ColorSetting> color3 = this.register(new Setting<>("Color2", new ColorSetting(0xC59B9B9B)));
-    private final Setting<PositionSetting> pos = this.register(new Setting<>("Position", new PositionSetting(0.5f, 0.5f)));
-    float x1 = 0;
-    float y1 = 0;
-    int dragX, dragY = 0;
-    boolean mousestate = false;
-
     public PvPResources() {
-        super("PvPResources", "PvPResources", Module.Category.HUD);
+        super("PvPResources", "PvPResources", 42,42);
     }
 
     @SubscribeEvent
     public void onRender2D(Render2DEvent e) {
+        super.onRender2D(e);
 
-        y1 = e.scaledResolution.getScaledHeight() * pos.getValue().getY();
-        x1 = e.scaledResolution.getScaledWidth() * pos.getValue().getX();
-
-
-        RenderUtil.drawBlurredShadow(x1, y1, 42, 42, 20, shadowColor.getValue().getColorObject());
-        RoundedShader.drawRound(x1, y1, 42, 42, 7f, color2.getValue().getColorObject());
+        RenderUtil.drawBlurredShadow(getPosX(), getPosY(), 42, 42, 20, shadowColor.getValue().getColorObject());
+        RoundedShader.drawRound(getPosX(), getPosY(), 42, 42, 7f, color2.getValue().getColorObject());
 
 
         int n2 = Method492(Items.TOTEM_OF_UNDYING);
@@ -77,47 +70,19 @@ public class PvPResources extends Module {
             GlStateManager.disableAlpha();
             GlStateManager.enableDepth();
             GlStateManager.disableCull();
-            int n7 = (int) x1;
-            int n8 = (int) y1;
+            int n7 = (int) getPosX();
+            int n8 = (int) getPosY();
             ItemStack itemStack = list.get(i);
             n7 = i % 2 * 20;
             n8 = i / 2 * 20;
-            mc.getRenderItem().renderItemAndEffectIntoGUI(itemStack, (int) (x1 + n7 + 2), (int) (y1 + n8 + 2));
-            mc.getRenderItem().renderItemOverlays(mc.fontRenderer, itemStack, (int) (x1 + n7 + 2), (int) (y1 + n8 + 2));
+            mc.getRenderItem().renderItemAndEffectIntoGUI(itemStack, (int) (getPosX() + n7 + 2), (int) (getPosY() + n8 + 2));
+            mc.getRenderItem().renderItemOverlays(mc.fontRenderer, itemStack, (int) (getPosX() + n7 + 2), (int) (getPosY() + n8 + 2));
             mc.getRenderItem().zLevel = 0.0f;
             RenderHelper.disableStandardItemLighting();
             GlStateManager.enableCull();
             GlStateManager.enableAlpha();
             GlStateManager.popMatrix();
         }
-
-        if (mc.currentScreen instanceof GuiChat || mc.currentScreen instanceof HudEditorGui || mc.currentScreen instanceof ThunderGui2) {
-            if (isHovering()) {
-                if (Mouse.isButtonDown(0) && mousestate) {
-                    pos.getValue().setX((float) (normaliseX() - dragX) / e.scaledResolution.getScaledWidth());
-                    pos.getValue().setY((float) (normaliseY() - dragY) / e.scaledResolution.getScaledHeight());
-                }
-            }
-        }
-
-        if (Mouse.isButtonDown(0) && isHovering()) {
-            if (!mousestate) {
-                dragX = (int) (normaliseX() - (pos.getValue().getX() * e.scaledResolution.getScaledWidth()));
-                dragY = (int) (normaliseY() - (pos.getValue().getY() * e.scaledResolution.getScaledHeight()));
-            }
-            mousestate = true;
-        } else {
-            mousestate = false;
-        }
-    }
-
-    public int normaliseX() {
-        return (int) ((Mouse.getX() / 2f));
-    }
-
-    public int normaliseY() {
-        ScaledResolution sr = new ScaledResolution(mc);
-        return (((-Mouse.getY() + sr.getScaledHeight()) + sr.getScaledHeight()) / 2);
     }
 
     public int Method492(Item item) {
@@ -132,9 +97,5 @@ public class PvPResources extends Module {
             n += itemStack.getCount();
         }
         return n;
-    }
-
-    public boolean isHovering() {
-        return normaliseX() > x1 && normaliseX() < x1 + 42 && normaliseY() > y1 && normaliseY() < y1 + 42;
     }
 }

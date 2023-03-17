@@ -4,7 +4,6 @@ import com.mrzak34.thunderhack.events.EventPostMotion;
 import com.mrzak34.thunderhack.events.EventPreMotion;
 import com.mrzak34.thunderhack.events.NoMotionUpdateEvent;
 import com.mrzak34.thunderhack.events.PacketEvent;
-import com.mrzak34.thunderhack.modules.Feature;
 import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -14,7 +13,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
  * if onUpdateWalkingPlayer is called,
  * but no CPacketPlayer is sent.
  */
-public class NoMotionUpdateService extends Feature {
+public class NoMotionUpdateService  {
     private boolean awaiting;
 
     public NoMotionUpdateService() {

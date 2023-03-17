@@ -1,8 +1,9 @@
-package com.mrzak34.thunderhack.gui.hud;
+package com.mrzak34.thunderhack.gui.hud.elements;
 
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.events.Render2DEvent;
 import com.mrzak34.thunderhack.gui.fontstuff.FontRender;
+import com.mrzak34.thunderhack.gui.hud.HudElement;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.setting.Setting;
@@ -12,14 +13,16 @@ import com.mrzak34.thunderhack.util.render.RenderUtil;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
-public class WaterMark extends Module {
+import static com.mrzak34.thunderhack.util.Util.mc;
+
+public class WaterMark extends HudElement {
     public final Setting<ColorSetting> color1 = this.register(new Setting<>("TextColor", new ColorSetting(-1)));
     public final Setting<ColorSetting> color2 = this.register(new Setting<>("Color", new ColorSetting(0xFF101010)));
     public final Setting<ColorSetting> shadowColor = this.register(new Setting<>("ShadowColor", new ColorSetting(0xFF101010)));
     public Timer timer = new Timer();
     int i = 0;
     public WaterMark() {
-        super("WaterMark", "WaterMark", Module.Category.HUD);
+        super("WaterMark", "WaterMark", 200,20);
     }
 
     public static void setColor(int color) {
@@ -28,7 +31,7 @@ public class WaterMark extends Module {
 
     @SubscribeEvent
     public void onRender2D(Render2DEvent e) {
-
+        super.onRender2D(e);
         RenderUtil.drawBlurredShadow(4, 4, FontRender.getStringWidth6("ThunderHack" + "  |  " + mc.player.getName() + "  |  " + Thunderhack.serverManager.getPing() + " ms  |  " + (mc.getCurrentServerData() == null ? "SinglePlayer" : mc.getCurrentServerData().serverIP)) + 29, 12, 10, shadowColor.getValue().getColorObject());
         RoundedShader.drawRound(4, 4, FontRender.getStringWidth6("ThunderHack" + "  |  " + mc.player.getName() + "  |  " + Thunderhack.serverManager.getPing() + " ms  |  " + (mc.getCurrentServerData() == null ? "SinglePlayer" : mc.getCurrentServerData().serverIP)) + 30, 13, 2f, color2.getValue().getColorObject());
 

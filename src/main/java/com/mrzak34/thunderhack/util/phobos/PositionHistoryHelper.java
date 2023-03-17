@@ -3,7 +3,6 @@ package com.mrzak34.thunderhack.util.phobos;
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.events.ConnectToServerEvent;
 import com.mrzak34.thunderhack.events.PacketEvent;
-import com.mrzak34.thunderhack.modules.Feature;
 import com.mrzak34.thunderhack.util.RotationUtil;
 import net.minecraft.entity.Entity;
 import net.minecraft.network.play.client.CPacketPlayer;
@@ -15,7 +14,9 @@ import java.util.Deque;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentLinkedDeque;
 
-public class PositionHistoryHelper extends Feature {
+import static com.mrzak34.thunderhack.util.Util.mc;
+
+public class PositionHistoryHelper {
     private static final int REMOVE_TIME = 1000;
 
     private final Deque<RotationHistory> packets;

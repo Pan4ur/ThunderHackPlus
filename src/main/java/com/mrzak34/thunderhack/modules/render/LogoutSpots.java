@@ -48,7 +48,6 @@ public class LogoutSpots extends Module {
 
     @Override
     public void onEnable() {
-        super.onToggle();
         playerCache.clear();
         logoutCache.clear();
     }

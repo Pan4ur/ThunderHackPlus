@@ -1,9 +1,10 @@
 package com.mrzak34.thunderhack.util.phobos;
 
+import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.events.ConnectToServerEvent;
 import com.mrzak34.thunderhack.events.EventPreMotion;
 import com.mrzak34.thunderhack.events.PacketEvent;
-import com.mrzak34.thunderhack.modules.Feature;
+import com.mrzak34.thunderhack.modules.combat.AutoCrystal;
 import com.mrzak34.thunderhack.util.math.MathUtil;
 import io.netty.util.internal.ConcurrentSet;
 import net.minecraft.entity.Entity;
@@ -21,14 +22,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static com.mrzak34.thunderhack.util.Util.mc;
+
 /**
  * Manages entities that have been set dead manually.
  */
-public class SetDeadManager extends Feature {
-    // private static final SettingCache<Integer, NumberSetting<Integer>, Management> DEATH_TIME = Caches.getSetting(Management.class, Setting.class, "DeathTime", 500);
-    //private static final SettingCache<Boolean, BooleanSetting, Management> SOUND_REMOVE = Caches.getSetting(Management.class, BooleanSetting.class, "SoundRemove", true);
-
-    private final Map<Integer, EntityTime> killed;
+public class SetDeadManager {
+  private final Map<Integer, EntityTime> killed;
     private final Set<SoundObserver> observers;
 
     public SetDeadManager() {
@@ -128,7 +128,7 @@ public class SetDeadManager extends Feature {
             if (!entry.getValue().isValid()) {
                 entry.getValue().getEntity().setDead();
                 killed.remove(entry.getKey());
-            } else if (entry.getValue().passed(500)) //DEATH
+            } else if (entry.getValue().passed(Thunderhack.moduleManager.getModuleByClass(AutoCrystal.class).deathTime.getValue()))
             {
                 Entity entity = entry.getValue().getEntity();
                 entity.isDead = false;
@@ -238,7 +238,7 @@ public class SetDeadManager extends Feature {
     }
 
     private boolean shouldRemove() {
-        if (false) //tru
+        if (Thunderhack.moduleManager.getModuleByClass(AutoCrystal.class).soundRemove.getValue())
         {
             return false;
         }

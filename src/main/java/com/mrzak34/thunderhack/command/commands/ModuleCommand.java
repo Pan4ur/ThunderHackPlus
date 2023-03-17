@@ -6,19 +6,17 @@ import com.google.gson.JsonParser;
 import com.mojang.realmsclient.gui.ChatFormatting;
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.command.Command;
-import com.mrzak34.thunderhack.modules.Feature;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.*;
 
 import java.util.Objects;
 
-public class ModuleCommand
-        extends Command {
+public class ModuleCommand extends Command {
     public ModuleCommand() {
         super("module");
     }
 
-    public static void setCommandValue(Feature feature, Setting setting, JsonElement element) {
+    public static void setCommandValue(Module feature, Setting setting, JsonElement element) {
         String str;
         for (Setting setting2 : feature.getSettings()) {
             if (Objects.equals(setting.getName(), setting2.getName())) {

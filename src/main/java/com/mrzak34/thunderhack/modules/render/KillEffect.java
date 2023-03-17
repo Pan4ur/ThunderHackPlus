@@ -21,7 +21,7 @@ public class KillEffect extends Module {
 
     @SubscribeEvent
     public void onDeath(DeathEvent event) {
-        if (!nullCheck() && event.player != null) {
+        if (!fullNullCheck() && event.player != null) {
             Entity entity = event.player;
             if (entity != null) {
                 if (entity.isDead || ((EntityPlayer) entity).getHealth() <= 0 && timer.passedMs(1500)) {

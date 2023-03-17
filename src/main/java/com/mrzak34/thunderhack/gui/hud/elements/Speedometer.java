@@ -1,9 +1,11 @@
-package com.mrzak34.thunderhack.gui.hud;
+package com.mrzak34.thunderhack.gui.hud.elements;
 
 import com.mojang.realmsclient.gui.ChatFormatting;
 import com.mrzak34.thunderhack.events.EventPreMotion;
 import com.mrzak34.thunderhack.events.Render2DEvent;
 import com.mrzak34.thunderhack.gui.fontstuff.FontRender;
+import com.mrzak34.thunderhack.gui.hud.HudElement;
+import com.mrzak34.thunderhack.gui.hud.elements.HudEditorGui;
 import com.mrzak34.thunderhack.gui.thundergui2.ThunderGui2;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.ColorSetting;
@@ -18,63 +20,24 @@ import org.lwjgl.input.Mouse;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-public class Speedometer extends Module {
+public class Speedometer extends HudElement {
     public final Setting<ColorSetting> color = this.register(new Setting<>("Color", new ColorSetting(0x8800FF00)));
-    private final Setting<PositionSetting> pos = this.register(new Setting<>("Position", new PositionSetting(0.5f, 0.5f)));
     public double speedometerCurrentSpeed = 0.0;
-    float x1 = 0;
-    float y1 = 0;
-    int dragX, dragY = 0;
-    boolean mousestate = false;
     private final Setting<Boolean> bps = this.register(new Setting<>("BPS", false));
     public Speedometer() {
-        super("Speedometer", "Speedometer", Module.Category.HUD);
+        super("Speedometer", "Speedometer", 50,10);
     }
 
     @SubscribeEvent
     public void onRender2D(Render2DEvent e) {
-        ScaledResolution sr = new ScaledResolution(mc);
+        super.onRender2D(e);
         String str = "";
         if (!bps.getValue()) {
             str = "Speed " + ChatFormatting.WHITE + round(getSpeedKpH()) + " km/h";
         } else {
             str = String.format("Speed " + ChatFormatting.WHITE + round(getSpeedMpS()) + " b/s");
         }
-        y1 = sr.getScaledHeight() * pos.getValue().getY();
-        x1 = sr.getScaledWidth() * pos.getValue().getX();
-
-        FontRender.drawString6(str, x1, y1, color.getValue().getRawColor(), true);
-        if (mc.currentScreen instanceof GuiChat || mc.currentScreen instanceof HudEditorGui || mc.currentScreen instanceof ThunderGui2) {
-            if (isHovering()) {
-                if (Mouse.isButtonDown(0) && mousestate) {
-                    pos.getValue().setX((float) (normaliseX() - dragX) / sr.getScaledWidth());
-                    pos.getValue().setY((float) (normaliseY() - dragY) / sr.getScaledHeight());
-                }
-            }
-        }
-
-        if (Mouse.isButtonDown(0) && isHovering()) {
-            if (!mousestate) {
-                dragX = (int) (normaliseX() - (pos.getValue().getX() * sr.getScaledWidth()));
-                dragY = (int) (normaliseY() - (pos.getValue().getY() * sr.getScaledHeight()));
-            }
-            mousestate = true;
-        } else {
-            mousestate = false;
-        }
-    }
-
-    public int normaliseX() {
-        return (int) ((Mouse.getX() / 2f));
-    }
-
-    public int normaliseY() {
-        ScaledResolution sr = new ScaledResolution(mc);
-        return (((-Mouse.getY() + sr.getScaledHeight()) + sr.getScaledHeight()) / 2);
-    }
-
-    public boolean isHovering() {
-        return normaliseX() > x1 - 10 && normaliseX() < x1 + 50 && normaliseY() > y1 && normaliseY() < y1 + 10;
+        FontRender.drawString6(str, getPosX(), getPosY(), color.getValue().getRawColor(), true);
     }
 
     private float round(double value) {

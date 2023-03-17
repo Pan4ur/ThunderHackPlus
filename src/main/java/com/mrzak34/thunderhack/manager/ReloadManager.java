@@ -4,19 +4,19 @@ import com.mojang.realmsclient.gui.ChatFormatting;
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.events.PacketEvent;
-import com.mrzak34.thunderhack.modules.Feature;
 import net.minecraft.network.play.client.CPacketChatMessage;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-public class ReloadManager
-        extends Feature {
+import static com.mrzak34.thunderhack.modules.Module.fullNullCheck;
+
+public class ReloadManager{
     public String prefix;
 
     public void init(String prefix) {
         this.prefix = prefix;
         MinecraftForge.EVENT_BUS.register(this);
-        if (!ReloadManager.fullNullCheck()) {
+        if (!fullNullCheck()) {
             Command.sendMessage(ChatFormatting.RED + "Тандерхак отключен! напиши " + prefix + "reload чтобы включить");
         }
     }

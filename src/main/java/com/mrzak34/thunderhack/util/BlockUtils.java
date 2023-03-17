@@ -312,25 +312,6 @@ public class BlockUtils {
         return null;
     }
 
-    public static int isPositionPlaceable(BlockPos pos, boolean rayTrace) {
-        return isPositionPlaceable(pos, rayTrace, true);
-    }
-
-    public static int isPositionPlaceable(BlockPos pos, boolean rayTrace, boolean entityCheck) {
-        Block block = mc.world.getBlockState(pos).getBlock();
-        if (!(block instanceof BlockAir || block instanceof BlockLiquid || block instanceof BlockTallGrass || block instanceof BlockFire || block instanceof BlockDeadBush || block instanceof BlockSnow)) {
-            return 0;
-        }
-        if (!rayTracePlaceCheck(pos, rayTrace, 0.0f)) {
-            return -1;
-        }
-        for (EnumFacing side : getPossibleSides(pos)) {
-            if (!canBeClicked(pos.offset(side))) continue;
-            return 3;
-        }
-        return 2;
-    }
-
     public static void rightClickBlock2(BlockPos pos, Vec3d vec, EnumHand hand, EnumFacing direction, boolean packet) {
         if (packet) {
             float f = (float) (vec.x - (double) pos.getX());
@@ -396,10 +377,6 @@ public class BlockUtils {
         return sphere;
     }
 
-    public static boolean canBeClicked(BlockPos pos) {
-        return getBlock(pos).canCollideCheck(getState(pos), false);
-    }
-
     public static Block getBlock(BlockPos pos) {
         return getState(pos).getBlock();
     }
@@ -424,11 +401,6 @@ public class BlockUtils {
             return false;
         }
         return dirnumber != 3 || (double) pos.getX() - mc.player.getPositionVector().x >= 0.0;
-    }
-
-
-    public static boolean rayTracePlaceCheck(BlockPos pos, boolean shouldCheck, float height) {
-        return !shouldCheck || mc.world.rayTraceBlocks(new Vec3d(mc.player.posX, mc.player.posY + (double) mc.player.getEyeHeight(), mc.player.posZ), new Vec3d(pos.getX(), (float) pos.getY() + height, pos.getZ()), false, true, false) == null;
     }
 
     public static class ClickLocation {

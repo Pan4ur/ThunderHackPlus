@@ -1,7 +1,9 @@
-package com.mrzak34.thunderhack.gui.hud;
+package com.mrzak34.thunderhack.gui.hud.elements;
 
 import com.mrzak34.thunderhack.events.Render2DEvent;
 import com.mrzak34.thunderhack.gui.fontstuff.FontRender;
+import com.mrzak34.thunderhack.gui.hud.HudElement;
+import com.mrzak34.thunderhack.gui.hud.elements.HudEditorGui;
 import com.mrzak34.thunderhack.gui.thundergui2.ThunderGui2;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.ColorSetting;
@@ -27,12 +29,7 @@ import org.lwjgl.input.Mouse;
 import java.awt.*;
 import java.util.ArrayList;
 
-public class Potions extends Module {
-    private final Setting<PositionSetting> pos = this.register(new Setting<>("Position", new PositionSetting(0.5f, 0.5f)));
-    float x1 = 0;
-    float y1 = 0;
-    int dragX, dragY = 0;
-    boolean mousestate = false;
+public class Potions extends HudElement {
     int zLevel = 0;
     private final Setting<Modes> mode = register(new Setting("Mode", Modes.New));
     public final Setting<ColorSetting> color = this.register(new Setting<>("WexColor", new ColorSetting(0x8800FF00), v -> mode.getValue() != Modes.New));
@@ -46,7 +43,7 @@ public class Potions extends Module {
 
 
     public Potions() {
-        super("Potions", "Potions", Module.Category.HUD);
+        super("Potions", "Potions", 100,100);
     }
 
     public static String getDuration(PotionEffect potionEffect) {
@@ -59,33 +56,11 @@ public class Potions extends Module {
 
     @SubscribeEvent
     public void onRender2D(Render2DEvent e) {
-        y1 = e.scaledResolution.getScaledHeight() * pos.getValue().getY();
-        x1 = e.scaledResolution.getScaledWidth() * pos.getValue().getX();
-
-
+        super.onRender2D(e);
         if (mode.getValue() == Modes.New) {
             drawNew();
         } else {
             drawWexside(e);
-        }
-
-        if (mc.currentScreen instanceof GuiChat || mc.currentScreen instanceof HudEditorGui || mc.currentScreen instanceof ThunderGui2) {
-            if (isHovering()) {
-                if (Mouse.isButtonDown(0) && mousestate) {
-                    pos.getValue().setX((float) (normaliseX() - dragX) / e.scaledResolution.getScaledWidth());
-                    pos.getValue().setY((float) (normaliseY() - dragY) / e.scaledResolution.getScaledHeight());
-                }
-            }
-        }
-
-        if (Mouse.isButtonDown(0) && isHovering()) {
-            if (!mousestate) {
-                dragX = (int) (normaliseX() - (pos.getValue().getX() * e.scaledResolution.getScaledWidth()));
-                dragY = (int) (normaliseY() - (pos.getValue().getY() * e.scaledResolution.getScaledHeight()));
-            }
-            mousestate = true;
-        } else {
-            mousestate = false;
         }
     }
 
@@ -103,12 +78,12 @@ public class Potions extends Module {
 
         GlStateManager.pushMatrix();
 
-        RenderUtil.drawBlurredShadow(x1, y1, 100, 20 + y_offset1, 20, shadowColor.getValue().getColorObject());
+        RenderUtil.drawBlurredShadow(getPosX(), getPosY(), 100, 20 + y_offset1, 20, shadowColor.getValue().getColorObject());
 
 
-        RoundedShader.drawRound(x1, y1, 100, 20 + y_offset1, 7f, color2.getValue().getColorObject());
-        FontRender.drawCentString6("Potions", x1 + 50, y1 + 5, textColor.getValue().getColor());
-        RoundedShader.drawRound(x1 + 2, y1 + 13, 96, 1, 0.5f, color3.getValue().getColorObject());
+        RoundedShader.drawRound(getPosX(), getPosY(), 100, 20 + y_offset1, 7f, color2.getValue().getColorObject());
+        FontRender.drawCentString6("Potions", getPosX() + 50, getPosY() + 5, textColor.getValue().getColor());
+        RoundedShader.drawRound(getPosX() + 2, getPosY() + 13, 96, 1, 0.5f, color3.getValue().getColorObject());
 
         int y_offset = 0;
 
@@ -133,7 +108,7 @@ public class Potions extends Module {
 
             GlStateManager.pushMatrix();
             GlStateManager.resetColor();
-            FontRender.drawString6(s + "  " + s2, x1 + 5, y1 + 20 + y_offset, oncolor.getValue().getColor(), false);
+            FontRender.drawString6(s + "  " + s2, getPosX() + 5, getPosY() + 20 + y_offset, oncolor.getValue().getColor(), false);
             GlStateManager.resetColor();
             GlStateManager.popMatrix();
             y_offset += 10;
@@ -171,14 +146,10 @@ public class Potions extends Module {
             }
             String s = I18n.format(potionEffect.getPotion().getName()) + " " + power;
             String s2 = getDuration(potionEffect) + "";
-            float maxWidth = Math.max(FontRender.getStringWidth6(s), FontRender.getStringWidth6(s2))
-                    + 32;
-
+            float maxWidth = Math.max(FontRender.getStringWidth6(s), FontRender.getStringWidth6(s2)) + 32;
 
             DrawHelper.drawRectWithGlow(i + 2, j + 5, maxWidth - 4 + i + 2, 18.5f + j + 5, grange.getValue(), gmult.getValue(), color.getValue().getColorObject());
-
-
-            this.mc.getTextureManager().bindTexture(GuiContainer.INVENTORY_BACKGROUND);
+            mc.getTextureManager().bindTexture(GuiContainer.INVENTORY_BACKGROUND);
             if (potion.hasStatusIcon()) {
                 int i1 = potion.getStatusIconIndex();
                 drawTexturedModalRect(i + 5, j + 7, i1 % 8 * 18, 198 + i1 / 8 * 18, 18, 18);
@@ -189,22 +160,7 @@ public class Potions extends Module {
         }
     }
 
-    public int normaliseX() {
-        return (int) ((Mouse.getX() / 2f));
-    }
-
-    public int normaliseY() {
-        ScaledResolution sr = new ScaledResolution(mc);
-        return (((-Mouse.getY() + sr.getScaledHeight()) + sr.getScaledHeight()) / 2);
-    }
-
-    public boolean isHovering() {
-        return normaliseX() > x1 && normaliseX() < x1 + 100 && normaliseY() > y1 && normaliseY() < y1 + 100;
-    }
-
     public void drawTexturedModalRect(int x, int y, int textureX, int textureY, int width, int height) {
-        float f = 0.00390625F;
-        float f1 = 0.00390625F;
         Tessellator tessellator = Tessellator.getInstance();
         BufferBuilder bufferbuilder = tessellator.getBuffer();
         bufferbuilder.begin(7, DefaultVertexFormats.POSITION_TEX);

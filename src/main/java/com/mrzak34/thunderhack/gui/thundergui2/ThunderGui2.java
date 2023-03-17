@@ -5,7 +5,7 @@ import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.gui.clickui.ColorUtil;
 import com.mrzak34.thunderhack.gui.fontstuff.FontRender;
-import com.mrzak34.thunderhack.gui.hud.Particles;
+import com.mrzak34.thunderhack.gui.hud.elements.Particles;
 import com.mrzak34.thunderhack.gui.thundergui2.components.*;
 import com.mrzak34.thunderhack.manager.ConfigManager;
 import com.mrzak34.thunderhack.modules.Module;
@@ -32,7 +32,7 @@ import java.util.ArrayList;
 import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import static com.mrzak34.thunderhack.gui.hud.TargetHud.sizeAnimation;
+import static com.mrzak34.thunderhack.gui.hud.elements.TargetHud.sizeAnimation;
 
 
 public class ThunderGui2 extends GuiScreen {
@@ -55,6 +55,7 @@ public class ThunderGui2 extends GuiScreen {
     public final CopyOnWriteArrayList<ConfigComponent> configs = new CopyOnWriteArrayList<>();
     public final CopyOnWriteArrayList<FriendComponent> friends = new CopyOnWriteArrayList<>();
     private final int main_width = 400;
+
     /**
      * Кто спиздит у того мать у меня под столом
      *

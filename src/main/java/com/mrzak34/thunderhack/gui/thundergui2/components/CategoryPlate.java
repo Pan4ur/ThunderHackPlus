@@ -1,7 +1,7 @@
 package com.mrzak34.thunderhack.gui.thundergui2.components;
 
 import com.mrzak34.thunderhack.gui.fontstuff.FontRender;
-import com.mrzak34.thunderhack.gui.hud.Particles;
+import com.mrzak34.thunderhack.gui.hud.elements.Particles;
 import com.mrzak34.thunderhack.gui.thundergui2.ThunderGui2;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.util.RoundedShader;

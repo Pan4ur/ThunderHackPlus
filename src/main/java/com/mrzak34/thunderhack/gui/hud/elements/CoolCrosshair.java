@@ -1,4 +1,4 @@
-package com.mrzak34.thunderhack.gui.hud;
+package com.mrzak34.thunderhack.gui.hud.elements;
 
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.events.Render2DEvent;
@@ -94,6 +94,8 @@ public class CoolCrosshair extends Module {
 
     @SubscribeEvent
     public void onRender2D(Render2DEvent event) {
+        super.onRender2D(event);
+
         float x1 = (float) (event.scaledResolution.getScaledWidth_double() / 2F);
         float y1 = (float) (event.scaledResolution.getScaledHeight_double() / 2F);
 

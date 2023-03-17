@@ -3,16 +3,15 @@ package com.mrzak34.thunderhack.util.phobos;
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.events.UpdateEntitiesEvent;
 import com.mrzak34.thunderhack.mixin.ducks.IEntityPlayer;
-import com.mrzak34.thunderhack.modules.Feature;
 import com.mrzak34.thunderhack.modules.combat.AutoCrystal;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 
-public class ExtrapolationHelper extends Feature {
-    private final AutoCrystal module;
+import static com.mrzak34.thunderhack.util.Util.mc;
+
+public class ExtrapolationHelper {
 
     public ExtrapolationHelper(AutoCrystal module) {
-        this.module = module;
     }
 
     public static void onUpdateEntity(UpdateEntitiesEvent e) {

@@ -10,8 +10,8 @@ import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.Util;
 import com.mrzak34.thunderhack.util.math.AstolfoAnimation;
 import com.mrzak34.thunderhack.util.render.PaletteHelper;
-import com.mrzak34.thunderhack.util.render.RectHelper;
 import com.mrzak34.thunderhack.util.render.RenderHelper;
+import com.mrzak34.thunderhack.util.render.RenderUtil;
 import net.minecraft.client.renderer.GLAllocation;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
@@ -114,14 +114,14 @@ public class ItemESP extends Module {
                     double endPosY = position.w;
 
                     if (Mode.getValue() == mode.render2D) {
-                        RectHelper.drawRect(posX - 1F, posY, posX + 0.5, endPosY + 0.5, black);
-                        RectHelper.drawRect(posX - 1F, posY - 0.5, endPosX + 0.5, posY + 0.5 + 0.5, black);
-                        RectHelper.drawRect(endPosX - 0.5 - 0.5, posY, endPosX + 0.5, endPosY + 0.5, black);
-                        RectHelper.drawRect(posX - 1, endPosY - 0.5 - 0.5, endPosX + 0.5, endPosY + 0.5, black);
-                        RectHelper.drawRect(posX - 0.5, posY, posX + 0.5 - 0.5, endPosY, color);
-                        RectHelper.drawRect(posX, endPosY - 0.5, endPosX, endPosY, color);
-                        RectHelper.drawRect(posX - 0.5, posY, endPosX, posY + 0.5, color);
-                        RectHelper.drawRect(endPosX - 0.5, posY, endPosX, endPosY, color);
+                        RenderUtil.drawRect(posX - 1F, posY, posX + 0.5, endPosY + 0.5, black);
+                        RenderUtil.drawRect(posX - 1F, posY - 0.5, endPosX + 0.5, posY + 0.5 + 0.5, black);
+                        RenderUtil.drawRect(endPosX - 0.5 - 0.5, posY, endPosX + 0.5, endPosY + 0.5, black);
+                        RenderUtil.drawRect(posX - 1, endPosY - 0.5 - 0.5, endPosX + 0.5, endPosY + 0.5, black);
+                        RenderUtil.drawRect(posX - 0.5, posY, posX + 0.5 - 0.5, endPosY, color);
+                        RenderUtil.drawRect(posX, endPosY - 0.5, endPosX, endPosY, color);
+                        RenderUtil.drawRect(posX - 0.5, posY, endPosX, posY + 0.5, color);
+                        RenderUtil.drawRect(endPosX - 0.5, posY, endPosX, endPosY, color);
                     }
 
                     float diff = (float) (endPosX - posX) / 2;

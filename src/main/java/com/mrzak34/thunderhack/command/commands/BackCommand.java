@@ -7,6 +7,8 @@ import com.mrzak34.thunderhack.modules.client.MainSettings;
 import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraft.util.math.BlockPos;
 
+import static com.mrzak34.thunderhack.util.Util.mc;
+
 public class BackCommand extends Command {
     public BackCommand() {
         super("back");
@@ -21,7 +23,7 @@ public class BackCommand extends Command {
         BlockPos pos = new BlockPos(EventManager.backX, EventManager.backY, EventManager.backZ);
 
         for (int i = 0; i < 10; ++i) {
-            this.mc.player.connection.sendPacket(new CPacketPlayer.Position(pos.getX(), 1 + pos.getY(), pos.getZ(), false));
+            mc.player.connection.sendPacket(new CPacketPlayer.Position(pos.getX(), 1 + pos.getY(), pos.getZ(), false));
         }
         mc.player.setPosition(pos.getX(), pos.getY() + 1, pos.getZ());
 

@@ -18,6 +18,7 @@ import com.mrzak34.thunderhack.util.InventoryUtil;
 import com.mrzak34.thunderhack.util.Timer;
 import com.mrzak34.thunderhack.util.math.MathUtil;
 import com.mrzak34.thunderhack.util.phobos.*;
+import com.mrzak34.thunderhack.util.render.RenderUtil;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.GlStateManager;

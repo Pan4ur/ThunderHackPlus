@@ -3,14 +3,16 @@ package com.mrzak34.thunderhack.manager;
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.mixin.mixins.IEntityPlayerSP;
-import com.mrzak34.thunderhack.modules.Feature;
 import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraft.network.play.server.SPacketPlayerPosLook;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
+import static com.mrzak34.thunderhack.modules.Module.fullNullCheck;
+import static com.mrzak34.thunderhack.util.Util.mc;
 
-public class RotationManager extends Feature {
+
+public class RotationManager{
 
     private boolean blocking;
     private volatile float last_yaw;

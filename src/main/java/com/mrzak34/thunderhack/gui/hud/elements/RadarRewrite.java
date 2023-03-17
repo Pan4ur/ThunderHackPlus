@@ -1,26 +1,22 @@
-package com.mrzak34.thunderhack.gui.hud;
+package com.mrzak34.thunderhack.gui.hud.elements;
 
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.events.Render2DEvent;
 import com.mrzak34.thunderhack.gui.clickui.ColorUtil;
-import com.mrzak34.thunderhack.gui.thundergui2.ThunderGui2;
-import com.mrzak34.thunderhack.modules.Module;
+import com.mrzak34.thunderhack.gui.hud.HudElement;
 import com.mrzak34.thunderhack.setting.ColorSetting;
-import com.mrzak34.thunderhack.setting.PositionSetting;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.math.AstolfoAnimation;
 import com.mrzak34.thunderhack.util.render.DrawHelper;
 import com.mrzak34.thunderhack.util.render.Drawable;
 import com.mrzak34.thunderhack.util.render.PaletteHelper;
 import com.mrzak34.thunderhack.util.render.RenderHelper;
-import net.minecraft.client.gui.GuiChat;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
@@ -28,12 +24,11 @@ import java.awt.*;
 import static org.lwjgl.opengl.GL11.*;
 
 
-public class RadarRewrite extends Module {
+public class RadarRewrite extends HudElement {
 
     public static AstolfoAnimation astolfo = new AstolfoAnimation();
     public Setting<Boolean> glow = register(new Setting("TracerGlow", false));
-    int dragX, dragY = 0;
-    boolean mousestate = false;
+
     float xOffset2 = 0;
     float yOffset2 = 0;
     private final Setting<Float> width = register(new Setting<>("TracerHeight", 2.28f, 0.1f, 5f));
@@ -45,7 +40,6 @@ public class RadarRewrite extends Module {
     private final Setting<Integer> glowa = register(new Setting<>("GlowAlpha", 170, 0, 255));
     private final Setting<triangleModeEn> triangleMode = register(new Setting<>("TracerCMode", triangleModeEn.Astolfo));
     private final Setting<mode2> Mode2 = register(new Setting<>("CircleCMode", mode2.Astolfo));
-    private final Setting<PositionSetting> pos = this.register(new Setting<>("Position", new PositionSetting(0.5f, 0.78f)));
     private final Setting<Float> CRadius = register(new Setting<>("CompasRadius", 47F, 0.1F, 70.0F));
     private final Setting<Integer> fsef = register(new Setting<>("Correct", 12, -90, 90));
     private final Setting<ColorSetting> cColor = this.register(new Setting<>("CompassColor", new ColorSetting(0x2250b4b4)));
@@ -54,7 +48,7 @@ public class RadarRewrite extends Module {
     private final Setting<ColorSetting> colors = this.register(new Setting<>("TracerColor", new ColorSetting(0x2250b4b4)));
 
     public RadarRewrite() {
-        super("AkrienRadar", "стрелочки", Category.RENDER);
+        super("AkrienRadar", "стрелочки", 50,50);
     }
 
     public static float clamp2(float num, float min, float max) {
@@ -89,15 +83,6 @@ public class RadarRewrite extends Module {
         return (float) -(Math.atan2(x, z) * (180 / Math.PI));
     }
 
-    public int normaliseX() {
-        return (int) ((Mouse.getX() / 2f));
-    }
-
-    public int normaliseY() {
-        ScaledResolution sr = new ScaledResolution(mc);
-        return (((-Mouse.getY() + sr.getScaledHeight()) + sr.getScaledHeight()) / 2);
-    }
-
     public boolean isHovering() {
         return normaliseX() > xOffset2 - 50 && normaliseX() < xOffset2 + 50 && normaliseY() > yOffset2 - 50 && normaliseY() < yOffset2 + 50;
     }
@@ -109,32 +94,13 @@ public class RadarRewrite extends Module {
 
     @SubscribeEvent
     public void onRender2D(Render2DEvent event) {
-        if (mc.currentScreen instanceof GuiChat || mc.currentScreen instanceof HudEditorGui || mc.currentScreen instanceof ThunderGui2) {
-            if (isHovering()) {
-                if (Mouse.isButtonDown(0) && mousestate) {
-                    pos.getValue().setX((float) (normaliseX() - dragX) / event.scaledResolution.getScaledWidth());
-                    pos.getValue().setY((float) (normaliseY() - dragY) / event.scaledResolution.getScaledHeight());
-                }
-
-            }
-        }
-
-        if (Mouse.isButtonDown(0) && isHovering()) {
-            if (!mousestate) {
-                dragX = (int) (normaliseX() - (pos.getValue().getX() * event.scaledResolution.getScaledWidth()));
-                dragY = (int) (normaliseY() - (pos.getValue().getY() * event.scaledResolution.getScaledHeight()));
-            }
-            mousestate = true;
-        } else {
-            mousestate = false;
-        }
-
+        super.onRender2D(event);
         GlStateManager.pushMatrix();
         rendercompass();
         GlStateManager.popMatrix();
 
-        xOffset2 = (event.scaledResolution.getScaledWidth() * pos.getValue().getX());
-        yOffset2 = (event.scaledResolution.getScaledHeight() * pos.getValue().getY());
+        xOffset2 = (event.scaledResolution.getScaledWidth() * getX());
+        yOffset2 = (event.scaledResolution.getScaledHeight() * getY());
 
         int color = 0;
         switch (triangleMode.getValue()) {
@@ -148,8 +114,8 @@ public class RadarRewrite extends Module {
                 color = DrawHelper.rainbow(300, 1, 1).getRGB();
                 break;
         }
-        float xOffset = event.scaledResolution.getScaledWidth() * pos.getValue().getX();
-        float yOffset = event.scaledResolution.getScaledHeight() * pos.getValue().getY();
+        float xOffset = event.scaledResolution.getScaledWidth() * getX();
+        float yOffset = event.scaledResolution.getScaledHeight() * getY();
 
         GlStateManager.pushMatrix();
         GlStateManager.translate(xOffset2, yOffset2, 0);
@@ -182,8 +148,8 @@ public class RadarRewrite extends Module {
 
     public void rendercompass() {
         ScaledResolution sr = new ScaledResolution(mc);
-        float x = sr.getScaledWidth() * pos.getValue().getX();
-        float y = sr.getScaledHeight() * pos.getValue().getY();
+        float x = sr.getScaledWidth() * getX();
+        float y = sr.getScaledHeight() * getY();
 
         float nigga = Math.abs(90f / clamp2(mc.player.rotationPitch, maxup2.getValue(), 90f));
 

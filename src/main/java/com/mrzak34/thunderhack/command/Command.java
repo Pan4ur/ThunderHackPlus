@@ -2,20 +2,23 @@ package com.mrzak34.thunderhack.command;
 
 import com.mojang.realmsclient.gui.ChatFormatting;
 import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.modules.Feature;
+import com.mrzak34.thunderhack.util.Util;
+import net.minecraft.client.Minecraft;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentBase;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public abstract class Command extends Feature {
-    protected String name;
+import static com.mrzak34.thunderhack.modules.Module.fullNullCheck;
 
+public abstract class Command  {
+    protected String name;
+    public Minecraft mc;
 
     public Command(String name) {
-        super(name);
         this.name = name;
+        mc = Util.mc;
     }
 
     public static void sendMessage(String message) {
@@ -27,17 +30,17 @@ public abstract class Command extends Feature {
     }
 
     public static void sendSilentMessage(String message) {
-        if (Command.nullCheck()) {
+        if (fullNullCheck()) {
             return;
         }
-        Command.mc.player.sendMessage(new ChatMessage(message));
+        Util.mc.player.sendMessage(new ChatMessage(message));
     }
 
     public static void sendIText(ITextComponent message) {
-        if (Command.nullCheck()) {
+        if (fullNullCheck()) {
             return;
         }
-        Command.mc.player.sendMessage(message);
+        Util.mc.player.sendMessage(message);
     }
 
     public static String getCommandPrefix() {
@@ -47,7 +50,7 @@ public abstract class Command extends Feature {
 
     public abstract void execute(String[] var1);
 
-    @Override
+
     public String getName() {
         return this.name;
     }

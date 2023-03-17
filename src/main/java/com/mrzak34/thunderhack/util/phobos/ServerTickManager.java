@@ -3,7 +3,6 @@ package com.mrzak34.thunderhack.util.phobos;
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.events.ConnectToServerEvent;
 import com.mrzak34.thunderhack.events.PacketEvent;
-import com.mrzak34.thunderhack.modules.Feature;
 import com.mrzak34.thunderhack.util.Timer;
 import net.minecraft.network.play.server.SPacketSpawnObject;
 import net.minecraft.network.play.server.SPacketTimeUpdate;
@@ -15,20 +14,18 @@ import java.util.ArrayDeque;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.mrzak34.thunderhack.util.Util.mc;
+
 
 /**
  * @author megyn
  * fixed bugs with old version, now accurate within ~5 ms if start of tick is counted as when the time update packet is sent
  * TODO: use average time between packets being sent to more accurately approximate TPS, this will increase accuracy
  */
-public class ServerTickManager extends Feature {
+public class ServerTickManager {
 
     private final Timer serverTickTimer = new Timer();
     private final ArrayDeque<Integer> spawnObjectTimes = new ArrayDeque<>();
-    private final Map<BlockPos, Long> timeMap = new HashMap<>();
-    private final boolean flag = true;
-    private int serverTicks;
-    private boolean initialized = false; // will be used for checks in the future
     private int averageSpawnObjectTime; // around 8-9 in vanilla
 
     public ServerTickManager() {
@@ -57,13 +54,12 @@ public class ServerTickManager extends Feature {
 
     @SubscribeEvent
     public void onConnect(ConnectToServerEvent e) {
-        initialized = false;
         resetTickManager();
     }
 
     @SubscribeEvent
     public void onPacketReceive(PacketEvent.Receive e) {
-        if (fullNullCheck()) return;
+        if (mc.player == null || mc.world == null) return;
         if (e.getPacket() instanceof SPacketTimeUpdate) {
             if (mc.world != null
                     && mc.world.isRemote) {
@@ -114,7 +110,6 @@ public class ServerTickManager extends Feature {
     public void resetTickManager() {
         serverTickTimer.reset();
         serverTickTimer.adjust(Thunderhack.serverManager.getPing() / 2);
-        initialized = true;
     }
 
     public int getServerTickLengthMS() {

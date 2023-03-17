@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import static com.mrzak34.thunderhack.modules.Feature.fullNullCheck;
+import static com.mrzak34.thunderhack.util.Util.mc;
 
 
 @Mixin(value = {NetworkManager.class})
@@ -41,7 +41,7 @@ public class MixinNetworkManager {
 
     @Inject(method = {"channelRead0"}, at = {@At(value = "RETURN")}, cancellable = true)
     private void onChannelReadPost(ChannelHandlerContext context, Packet<?> packet, CallbackInfo info) {
-        if (!fullNullCheck()) {
+        if (!(mc.player == null || mc.world == null)) {
             PacketEvent.ReceivePost event = new PacketEvent.ReceivePost(packet);
             MinecraftForge.EVENT_BUS.post(event);
             if (event.isCanceled()) {
@@ -52,7 +52,7 @@ public class MixinNetworkManager {
 
     @Inject(method = {"channelRead0"}, at = {@At(value = "HEAD")}, cancellable = true)
     private void onChannelReadPre(ChannelHandlerContext context, Packet<?> packet, CallbackInfo info) {
-        if (!fullNullCheck()) {
+        if (!(mc.player == null || mc.world == null)) {
             if (packet instanceof SPacketEntityStatus && ((SPacketEntityStatus) packet).getOpCode() == 35) {
                 Entity entity = ((SPacketEntityStatus) packet).getEntity(Util.mc.world);
                 if (entity != null && entity.equals(Util.mc.player)) {

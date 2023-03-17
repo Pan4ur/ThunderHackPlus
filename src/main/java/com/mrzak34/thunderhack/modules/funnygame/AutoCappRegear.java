@@ -9,6 +9,9 @@ import net.minecraft.client.gui.GuiChat;
 import net.minecraft.inventory.ClickType;
 import org.lwjgl.input.Keyboard;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class AutoCappRegear extends Module {
     public Timer timer = new Timer();
     public Setting<SubBind> aboba = this.register(new Setting<>("BuyBind", new SubBind(Keyboard.KEY_O)));
@@ -19,6 +22,9 @@ public class AutoCappRegear extends Module {
     public AutoCappRegear() {
         super("CappRegear", "регирит каппучино-по бинду", Category.FUNNYGAME);
     }
+
+
+
 
     @Override
     public void onUpdate() {

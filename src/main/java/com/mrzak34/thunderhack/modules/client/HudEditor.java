@@ -1,6 +1,6 @@
 package com.mrzak34.thunderhack.modules.client;
 
-import com.mrzak34.thunderhack.gui.hud.HudEditorGui;
+import com.mrzak34.thunderhack.gui.hud.elements.HudEditorGui;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.util.Util;
 

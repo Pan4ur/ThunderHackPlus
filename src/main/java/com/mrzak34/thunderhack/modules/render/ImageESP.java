@@ -9,8 +9,8 @@ import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.PNGtoResourceLocation;
 import com.mrzak34.thunderhack.util.Util;
 import com.mrzak34.thunderhack.util.render.PaletteHelper;
-import com.mrzak34.thunderhack.util.render.RectHelper;
 import com.mrzak34.thunderhack.util.render.RenderHelper;
+import com.mrzak34.thunderhack.util.render.RenderUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GLAllocation;
 import net.minecraft.client.renderer.GlStateManager;
@@ -37,7 +37,6 @@ public class ImageESP extends Module {
     private final Setting<ColorSetting> cc = this.register(new Setting<>("CustomColor", new ColorSetting(0x8800FF00)));
 
 
-    // public Setting <Integer> cca = this.register ( new Setting <> ( "CustomA", 255, 0, 255));
     public Setting<Float> scalefactor = register(new Setting("Raytrace", Float.valueOf(2.0F), Float.valueOf(0.1F), Float.valueOf(4.0F)));
     public Setting<Boolean> wtf = register(new Setting("Not done", false));
     public Setting<Float> scalefactor1 = register(new Setting("X", Float.valueOf(0.0F), Float.valueOf(-6.0F), Float.valueOf(6.0F)));
@@ -108,23 +107,21 @@ public class ImageESP extends Module {
                         double endPosY = position.w;
 
                         if (wtf.getValue()) {
-                            RectHelper.drawRect(posX - 1F, posY, posX + 0.5, endPosY + 0.5, black);
-                            RectHelper.drawRect(posX - 1F, posY - 0.5, endPosX + 0.5, posY + 0.5 + 0.5, black);
-                            RectHelper.drawRect(endPosX - 0.5 - 0.5, posY, endPosX + 0.5, endPosY + 0.5, black);
-                            RectHelper.drawRect(posX - 1, endPosY - 0.5 - 0.5, endPosX + 0.5, endPosY + 0.5, black);
-                            RectHelper.drawRect(posX - 0.5, posY, posX + 0.5 - 0.5, endPosY, color);
-                            RectHelper.drawRect(posX, endPosY - 0.5, endPosX, endPosY, color);
-                            RectHelper.drawRect(posX - 0.5, posY, endPosX, posY + 0.5, color);
-                            RectHelper.drawRect(endPosX - 0.5, posY, endPosX, endPosY, color);
+                            RenderUtil.drawRect(posX - 1F, posY, posX + 0.5, endPosY + 0.5, black);
+                            RenderUtil.drawRect(posX - 1F, posY - 0.5, endPosX + 0.5, posY + 0.5 + 0.5, black);
+                            RenderUtil.drawRect(endPosX - 0.5 - 0.5, posY, endPosX + 0.5, endPosY + 0.5, black);
+                            RenderUtil.drawRect(posX - 1, endPosY - 0.5 - 0.5, endPosX + 0.5, endPosY + 0.5, black);
+                            RenderUtil.drawRect(posX - 0.5, posY, posX + 0.5 - 0.5, endPosY, color);
+                            RenderUtil.drawRect(posX, endPosY - 0.5, endPosX, endPosY, color);
+                            RenderUtil.drawRect(posX - 0.5, posY, endPosX, posY + 0.5, color);
+                            RenderUtil.drawRect(endPosX - 0.5, posY, endPosX, endPosY, color);
                         }
-                        RectHelper.drawRect(posX, posY, posX, posY, color);
+                        RenderUtil.drawRect(posX, posY, posX, posY, color);
 
                         if (Mode3.getValue() == mode3.CAT) {
                             Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation("textures/image9.png"));
                         }
-                        if (Mode3.getValue() == mode3.MrZak) {
-                            Minecraft.getMinecraft().getTextureManager().bindTexture(new ResourceLocation("textures/image10.png"));
-                        }
+
                         if (Mode3.getValue() == mode3.Custom1) {
                             if (customImg == null) {
                                 if (PNGtoResourceLocation.getCustomImg("esp1", "png") != null) {
@@ -184,10 +181,10 @@ public class ImageESP extends Module {
 
     public enum mode2 {
         Custom, Rainbow, Astolfo
-    }///What the FUCK!!!! the fuck
+    }
 
     public enum mode3 {
-        CAT, MrZak, Custom1, Custom2, Custom3
+        CAT, Custom1, Custom2, Custom3
     }
 
 }

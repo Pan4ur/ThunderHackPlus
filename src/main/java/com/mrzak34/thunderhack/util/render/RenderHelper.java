@@ -18,7 +18,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
 
-import static com.mrzak34.thunderhack.gui.hud.RadarRewrite.astolfo;
+import static com.mrzak34.thunderhack.gui.hud.elements.RadarRewrite.astolfo;
 import static com.mrzak34.thunderhack.modules.render.ItemESP.astolfo2;
 import static com.mrzak34.thunderhack.util.Util.mc;
 import static org.lwjgl.opengl.GL11.*;

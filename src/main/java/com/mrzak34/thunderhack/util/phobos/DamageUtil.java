@@ -27,11 +27,6 @@ import net.minecraft.world.IBlockAccess;
 import static com.mrzak34.thunderhack.util.Util.mc;
 
 public class DamageUtil {
-    public static boolean isSharper(ItemStack stack, int level) {
-        return EnchantmentHelper.getEnchantmentLevel(
-                Enchantments.SHARPNESS, stack) > level;
-    }
-
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public static boolean canBreakWeakness(boolean checkStack) {
         if (!mc.player.isPotionActive(MobEffects.WEAKNESS)) {
@@ -53,50 +48,6 @@ public class DamageUtil {
         return checkStack && canBreakWeakness(mc.player.getHeldItemMainhand());
     }
 
-    /**
-     * Access PotionMap safely from a separate thread.
-     *
-     * @return not {@link DamageUtil#canBreakWeakness(boolean)}}, caught.
-     */
-    public static boolean isWeaknessed() {
-        try {
-            return !canBreakWeakness(true);
-        } catch (Throwable t) {
-            return true;
-        }
-    }
-
-    /**
-     * Attempts to cache the lowest Armor Percentage for
-     * this Entity via {@link IEntityLivingBase#setLowestDura(float)}.
-     *
-     * @param base the entity whose lowest Armor Percentage to cache.
-     * @return <tt>true</tt> if the Entity wears no armor.
-     */
-    public static boolean cacheLowestDura(EntityLivingBase base) {
-        IEntityLivingBase access = (IEntityLivingBase) base;
-        float before = access.getLowestDurability();
-        access.setLowestDura(Float.MAX_VALUE);
-
-        try {
-            boolean isNaked = true;
-            for (ItemStack stack : base.getArmorInventoryList()) {
-                if (!stack.isEmpty()) {
-                    isNaked = false;
-                    float damage = getPercent(stack);
-                    if (damage < access.getLowestDurability()) {
-                        access.setLowestDura(damage);
-                    }
-                }
-            }
-
-            return isNaked;
-        } catch (Throwable t) {
-            t.printStackTrace();
-            access.setLowestDura(before);
-            return false;
-        }
-    }
 
     public static boolean canBreakWeakness(ItemStack stack) {
         if (stack.getItem() instanceof ItemSword) {
@@ -144,40 +95,9 @@ public class DamageUtil {
      * @param stack the stack.
      * @return durability% of the stack.
      */
-    public static float getPercent(ItemStack stack) {
-        return (getDamage(stack) / (float) stack.getMaxDamage()) * 100.0f;
-    }
 
 
-    public static float calculate(Entity crystal) {
-        return calculate(crystal.posX, crystal.posY, crystal.posZ, mc.player);
-    }
 
-    public static float calculate(Entity crystal, EntityLivingBase player, IBlockAccess world) {
-        return calculate(crystal.posX, crystal.posY, crystal.posZ, player.getEntityBoundingBox(), player, world, false, false);
-    }
-
-    public static float calculate(BlockPos pos) {
-        return calculate(pos.getX() + 0.5f, pos.getY() + 1, pos.getZ() + 0.5f, mc.player);
-    }
-
-
-    public static float calculate(BlockPos p, EntityLivingBase base) {
-        return calculate(p.getX() + 0.5f, p.getY() + 1, p.getZ() + 0.5f, base);
-    }
-
-
-    public static float calculate(BlockPos p, EntityLivingBase base, IBlockAccess world) {
-        return calculate(p.getX() + 0.5f, p.getY() + 1, p.getZ() + 0.5f, base.getEntityBoundingBox(), base, world, false);
-    }
-
-    public static float calculate(Entity crystal, EntityLivingBase base) {
-        return calculate(crystal.posX, crystal.posY, crystal.posZ, base);
-    }
-
-    public static float calculate(double x, double y, double z, EntityLivingBase base) {
-        return calculate(x, y, z, base.getEntityBoundingBox(), base);
-    }
 
     public static float calculate(double x, double y, double z, AxisAlignedBB bb, EntityLivingBase base) {
         return calculate(x, y, z, bb, base, false);
@@ -197,51 +117,6 @@ public class DamageUtil {
 
 
     public static float calculate(double x, double y, double z, AxisAlignedBB bb, EntityLivingBase base, IBlockAccess world, boolean terrainCalc, boolean anvils, float power) {
-        /*
-        double bX = bb.minX + (bb.maxX - bb.minX) * 0.5;
-        double bZ = bb.minZ + (bb.maxZ - bb.minZ) * 0.5;
-        double distance = Math.sqrt(DistanceUtil.distanceSq(x, y, z, bX, bb.minY, bZ)) / 12.0;
-        if (distance > 1.0)
-        {
-            return 0.0F;
-        }
-
-        double density = getBlockDensity(new Vec3d(x, y, z), bb, world, true, true, terrainCalc, anvils);
-
-        double densityDistance = distance = (1.0 - distance) * density;
-        float damage = getDifficultyMultiplier((float) ((densityDistance * densityDistance + distance) / 2.0 * 7.0 * 12.0 + 1.0));
-
-        DamageSource damageSource = DamageSource.causeExplosionDamage(new Explosion(mc.world, mc.player, x, y, z, power, false, true));
-
-        ICachedDamage cache = (ICachedDamage) base;
-        int armorValue = cache.getArmorValue();
-        float toughness = cache.getArmorToughness();
-
-        damage = CombatRules.getDamageAfterAbsorb(damage, armorValue, toughness);
-
-        PotionEffect resistance = base.getActivePotionEffect(MobEffects.RESISTANCE);
-
-        if (resistance != null)
-        {
-            damage = damage * ((float) (25 - (resistance.getAmplifier() + 1) * 5)) / 25.0f;
-        }
-
-        if (damage <= 0.0f)
-        {
-            return 0.0f;
-        }
-
-        int modifierDamage = cache.getExplosionModifier(damageSource);
-        if (modifierDamage > 0)
-        {
-            damage = CombatRules
-                    .getDamageAfterMagicAbsorb(damage, modifierDamage);
-        }
-
-        return Math.max(damage, 0.0f);
-
-         */
-
         float f = 12.0f;
         double d5 = base.getDistance(x, y, z) / 12.0;
         if (d5 > 1.0) {
@@ -284,22 +159,7 @@ public class DamageUtil {
 
 
 
-    /*
-    public static float getDifficultyMultiplier(float distance)
-    {
-        switch (mc.world.getDifficulty())
-        {
-            case PEACEFUL:
-                return 0.0F;
-            case EASY:
-                return Math.min(distance / 2.0f + 1.0f, distance);
-            case HARD:
-                return distance * 3.0f / 2.0f;
-        }
 
-        return distance;
-    }
-    */
 
 
     public static float getBlockDensity(Vec3d vec, AxisAlignedBB bb, IBlockAccess world, boolean ignoreWebs, boolean ignoreBeds, boolean terrainCalc, boolean anvils) {

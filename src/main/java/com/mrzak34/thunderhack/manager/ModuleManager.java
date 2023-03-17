@@ -4,9 +4,8 @@ import com.mrzak34.thunderhack.events.Render2DEvent;
 import com.mrzak34.thunderhack.events.Render3DEvent;
 import com.mrzak34.thunderhack.gui.clickui.ClickUI;
 import com.mrzak34.thunderhack.gui.fontstuff.FontRender;
-import com.mrzak34.thunderhack.gui.hud.*;
+import com.mrzak34.thunderhack.gui.hud.elements.*;
 import com.mrzak34.thunderhack.gui.thundergui2.ThunderGui2;
-import com.mrzak34.thunderhack.modules.Feature;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.modules.client.Particles;
 import com.mrzak34.thunderhack.modules.client.*;
@@ -28,7 +27,9 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class ModuleManager extends Feature {
+import static com.mrzak34.thunderhack.util.Util.mc;
+
+public class ModuleManager {
     public ArrayList<Module> modules = new ArrayList<>();
     public List<Module> sortedModules = new ArrayList<Module>();
 
@@ -202,7 +203,7 @@ public class ModuleManager extends Feature {
         this.modules.add(new Strafe());
         this.modules.add(new MultiConnect());
         this.modules.add(new RadarRewrite());
-        this.modules.add(new com.mrzak34.thunderhack.gui.hud.ArrayList());
+        this.modules.add(new com.mrzak34.thunderhack.gui.hud.elements.ArrayList());
         this.modules.add(new Coords());
         this.modules.add(new DiscordWebhook());
         this.modules.add(new KillEffect());
@@ -319,11 +320,11 @@ public class ModuleManager extends Feature {
     }
 
     public void onUpdate() {
-        this.modules.stream().filter(Feature::isEnabled).forEach(Module::onUpdate);
+        this.modules.stream().filter(Module::isEnabled).forEach(Module::onUpdate);
     }
 
     public void onTick() {
-        this.modules.stream().filter(Feature::isEnabled).forEach(Module::onTick);
+        this.modules.stream().filter(Module::isEnabled).forEach(Module::onTick);
         this.modules.forEach(module -> {
             if (!PlayerUtils.isKeyDown(module.getBind().getKey()) && module.isEnabled() && module.getBind().isHold()) {
                 module.disable();
@@ -332,11 +333,11 @@ public class ModuleManager extends Feature {
     }
 
     public void onRender2D(Render2DEvent event) {
-        this.modules.stream().filter(Feature::isEnabled).forEach(module -> module.onRender2D(event));
+        this.modules.stream().filter(Module::isEnabled).forEach(module -> module.onRender2D(event));
     }
 
     public void onRender3D(Render3DEvent event) {
-        this.modules.stream().filter(Feature::isEnabled).forEach(module -> module.onRender3D(event));
+        this.modules.stream().filter(Module::isEnabled).forEach(module -> module.onRender3D(event));
     }
 
     public void sortModules(boolean reverse) {
@@ -364,7 +365,7 @@ public class ModuleManager extends Feature {
     }
 
     public void onKeyPressed(int eventKey) {
-        if (eventKey == 0 || !Keyboard.getEventKeyState() || ModuleManager.mc.currentScreen instanceof ClickUI || ModuleManager.mc.currentScreen instanceof ThunderGui2) {
+        if (eventKey == 0 || !Keyboard.getEventKeyState() || mc.currentScreen instanceof ClickUI || mc.currentScreen instanceof ThunderGui2) {
             return;
         }
         this.modules.forEach(module -> {
