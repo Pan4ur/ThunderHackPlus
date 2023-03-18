@@ -88,9 +88,7 @@ public class MiddleClick extends Module {
             if (epSlot != -1) {
                 mc.player.inventory.currentItem = epSlot;
                 mc.player.connection.sendPacket(new CPacketHeldItemChange(epSlot));
-
                 mc.playerController.processRightClick(mc.player, mc.world, EnumHand.MAIN_HAND);
-
                 mc.player.inventory.currentItem = originalSlot;
                 mc.player.connection.sendPacket(new CPacketHeldItemChange(originalSlot));
             }

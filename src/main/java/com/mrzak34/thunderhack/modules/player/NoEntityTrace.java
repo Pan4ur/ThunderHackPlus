@@ -15,16 +15,13 @@ public class NoEntityTrace extends Module {
         NoEntityTrace.INSTANCE = new NoEntityTrace();
     }
 
-    public Setting<Boolean> pick;
-    public Setting<Boolean> gap;
-    public Setting<Boolean> obby;
+    public Setting<Boolean> pick = this.register(new Setting<>("Pick", true));
+    public Setting<Boolean> gap =  this.register(new Setting<>("Gap", false));
+    public Setting<Boolean> obby = this.register(new Setting<>("Obby", false));
     public boolean noTrace;
 
     public NoEntityTrace() {
         super("NoEntityTrace", "копать сквозь игроков", Module.Category.PLAYER);
-        this.pick = (Setting<Boolean>) this.register(new Setting("Pick", true));
-        this.gap = (Setting<Boolean>) this.register(new Setting("Gap", false));
-        this.obby = (Setting<Boolean>) this.register(new Setting("Obby", false));
         this.setInstance();
     }
 
@@ -39,6 +36,7 @@ public class NoEntityTrace extends Module {
         NoEntityTrace.INSTANCE = this;
     }
 
+    @Override
     public void onUpdate() {
         final Item item = NoEntityTrace.mc.player.getHeldItemMainhand().getItem();
         if (item instanceof ItemPickaxe && this.pick.getValue()) {

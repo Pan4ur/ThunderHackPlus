@@ -19,7 +19,6 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.math.Vec3i;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.util.ArrayList;
@@ -40,7 +39,7 @@ public class AutoMine extends Module {
         super("AutoMine", "AutoMine", Category.PLAYER);
     }
 
-    //rhf
+
     public static List<BlockPos> blockPosList(BlockPos blockPos) {
         ArrayList<BlockPos> arrayList = new ArrayList<BlockPos>();
         arrayList.add(blockPos.add(1, 0, 0));
@@ -50,12 +49,12 @@ public class AutoMine extends Module {
         return arrayList;
     }
 
-    //rhC
+
     public static Vec3d vec3dPosition() {
         return new Vec3d(mc.player.posX, mc.player.posY + (double) mc.player.getEyeHeight(), mc.player.posZ);
     }
 
-    //rhX
+
     public static float[] shitMethod(Vec3d vec3d) {
         Vec3d vec3d2 = vec3dPosition();
         Vec3d vec3d3 = vec3d;
@@ -73,7 +72,7 @@ public class AutoMine extends Module {
         return fArray;
     }
 
-    //rhm
+
     public static float[] shitMethod2(BlockPos blockPos) {
         Vec3d vec3d = vec3dPosition();
         Vec3d vec3d2 = new Vec3d(blockPos).add(0.5, 0.5, 0.5);
@@ -89,7 +88,7 @@ public class AutoMine extends Module {
         return shitMethod(vec3d2);
     }
 
-    //rhb
+
     public static EnumFacing getFacing(BlockPos blockPos) {
         Vec3d vec3d = vec3dPosition();
         Vec3d vec3d2 = new Vec3d(blockPos).add(0.5, 0.5, 0.5);
@@ -99,8 +98,6 @@ public class AutoMine extends Module {
         int n2 = 0;
         if (0 < n) {
             EnumFacing enumFacing = enumFacingArray[n2];
-            // missing code?
-            // по крайней мере ни кфр ни фернфловер тут нихуя не нашли
             return enumFacing;
         }
         return EnumFacing.UP;
@@ -129,9 +126,7 @@ public class AutoMine extends Module {
 
     @SubscribeEvent
     public void onPreMotion(EventPreMotion event) {
-
         if (mode.getValue() == Mode.CONTINIOUS) return;
-
         if (!switchbool.getValue() || checkPickaxe()) {
             if (blockpos != null) {
                 if (mc.world.getBlockState(blockpos).getBlock().equals(Blocks.AIR)) {
@@ -146,9 +141,7 @@ public class AutoMine extends Module {
 
             BlockPos blockpos2 = null;
             for (Entity obj : mc.world.playerEntities.stream().filter(player ->
-            {
-                return player != mc.player && !Thunderhack.friendManager.isFriend(player.getName()) && Float.compare(mc.player.getDistance(player), 7.0f) < 0;
-            }).collect(Collectors.toList())) {
+                    player != mc.player && !Thunderhack.friendManager.isFriend(player.getName()) && Float.compare(mc.player.getDistance(player), 7.0f) < 0).collect(Collectors.toList())) {
                 BlockPos pos = new BlockPos(obj.getPositionVector());
                 if (!checkBlockPos(pos)) continue;
 
@@ -197,13 +190,11 @@ public class AutoMine extends Module {
                 item.equals(Items.WOODEN_PICKAXE);
     }
 
-    // AUTISM BELOW
-    //rhd
+
     public boolean checkValidBlock(Block block) {
         return block.equals(Blocks.OBSIDIAN) || block.equals(Blocks.BEDROCK);
     }
 
-    //rhn
     public boolean checkBlockPos(BlockPos blockPos) {
         Block block = mc.world.getBlockState(blockPos.add(0, -1, 0)).getBlock();
         Block block2 = mc.world.getBlockState(blockPos.add(0, 0, -1)).getBlock();

@@ -130,7 +130,6 @@ public class Module  {
         if ((Objects.equals(this.getDisplayName(), "ThunderGui") || (Objects.equals(this.getDisplayName(), "ClickGUI")))) {
         } else {
             mc.world.playSound(getPlayerPos(), SoundEvents.BLOCK_NOTE_XYLOPHONE, SoundCategory.AMBIENT, 150.0f, 1.0F, true);
-
         }
 
         this.enabled.setValue(false);
