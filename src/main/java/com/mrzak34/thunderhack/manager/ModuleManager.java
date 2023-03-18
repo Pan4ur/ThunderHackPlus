@@ -41,6 +41,7 @@ public class ModuleManager {
         this.modules.add(new AimAssist());
         this.modules.add(new AutoBuy());
         this.modules.add(new AutoTotem());
+        this.modules.add(new AutoAuth());
         this.modules.add(new AutoBuff());
         this.modules.add(new DiscordEmbeds());
         this.modules.add(new Welcomer());

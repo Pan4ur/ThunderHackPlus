@@ -12,30 +12,8 @@ public interface IEntityRenderer {
     @Invoker(value = "orientCamera")
     void orientCam(float var1);
 
-    @Invoker(value = "applyBobbing")
-    void viewBob(float var1);
-
-    @Accessor(value = "lightmapColors")
-    int[] getLightmapColors();
-
-    @Accessor(value = "lightmapTexture")
-    DynamicTexture getLightmapTexture();
-
-    @Accessor(value = "torchFlickerX")
-    float getTorchFlickerX();
-
-    @Accessor(value = "bossColorModifier")
-    float getBossColorModifier();
-
-    @Accessor(value = "bossColorModifierPrev")
-    float getBossColorModifierPrev();
-
-    @Invoker(value = "getNightVisionBrightness")
-    float invokeGetNightVisionBrightness(EntityLivingBase var1, float var2);
-
     @Invoker(value = "setupCameraTransform")
     void invokeSetupCameraTransform(float var1, int var2);
-
 
     @Accessor("rendererUpdateCount")
     int getRendererUpdateCount();
@@ -45,6 +23,4 @@ public interface IEntityRenderer {
 
     @Accessor("rainYCoords")
     float[] getRainYCoords();
-
-
 }

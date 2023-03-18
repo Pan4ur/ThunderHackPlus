@@ -35,34 +35,22 @@ public class Tracers extends Module {
         GL11.glDisable(GL11.GL_TEXTURE_2D);
         GL11.glDisable(GL11.GL_DEPTH_TEST);
         GL11.glDepthMask(false);
-
         GL11.glColor4f(((color >> 16) & 0xFF) / 255F, ((color >> 8) & 0xFF) / 255F, ((color) & 0xFF) / 255F, ((color >> 24) & 0xFF) / 255F);
         GlStateManager.disableLighting();
         GL11.glLoadIdentity();
-
         ((IEntityRenderer) mc.entityRenderer).orientCam(mc.getRenderPartialTicks());
-
         GL11.glEnable(GL11.GL_LINE_SMOOTH);
-
         GL11.glBegin(GL11.GL_LINES);
         GL11.glVertex3d(x, y, z);
         GL11.glVertex3d(x2, y2, z2);
         GL11.glVertex3d(x2, y2, z2);
         GL11.glEnd();
-
-        GL11.glDisable(GL11.GL_LINE_SMOOTH);
-
-        GL11.glEnable(GL11.GL_TEXTURE_2D);
-        GL11.glEnable(GL11.GL_DEPTH_TEST);
-        GL11.glDepthMask(true);
-        GL11.glDisable(GL11.GL_BLEND);
-        GL11.glColor3d(1d, 1d, 1d);
-        GlStateManager.enableLighting();
     }
 
     @SubscribeEvent
     public void onRender3D(Render3DEvent event) {
         if (fullNullCheck()) return;
+        GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
         for (Entity e : mc.world.loadedEntityList) {
             if (e instanceof EntityPlayer && e != mc.player) {
                 if (mc.player.getDistance(e) <= tracerRange.getValue()) {
@@ -82,27 +70,14 @@ public class Tracers extends Module {
                     mc.gameSettings.viewBobbing = false;
                     Color color;
                     color = (Thunderhack.friendManager.isFriend(e.getName()) && showFriends.getValue()) ? (fcolorSetting.getValue().getColorObject()) : (colorSetting.getValue().getColorObject());
-
-                    Vec3d eyes = new Vec3d(0, 0, 1)
-                            .rotatePitch(-(float) Math
-                                    .toRadians(mc.player.rotationPitch))
-                            .rotateYaw(-(float) Math
-                                    .toRadians(mc.player.rotationYaw));
-
-                    renderTracer(eyes.x, eyes.y + mc.player.getEyeHeight(), eyes.z,
-                            pos.x - ((IRenderManager) mc.getRenderManager()).getRenderPosX(),
-                            pos.y - ((IRenderManager) mc.getRenderManager()).getRenderPosY(),
-                            pos.z - ((IRenderManager) mc.getRenderManager()).getRenderPosZ(),
-                            color.getRGB());
-
+                    Vec3d eyes = new Vec3d(0, 0, 1).rotatePitch(-(float) Math.toRadians(mc.player.rotationPitch)).rotateYaw(-(float) Math.toRadians(mc.player.rotationYaw));
+                    renderTracer(eyes.x, eyes.y + mc.player.getEyeHeight(), eyes.z, pos.x - ((IRenderManager) mc.getRenderManager()).getRenderPosX(), pos.y - ((IRenderManager) mc.getRenderManager()).getRenderPosY(), pos.z - ((IRenderManager) mc.getRenderManager()).getRenderPosZ(), color.getRGB());
                     mc.gameSettings.viewBobbing = bobbing;
-                    GlStateManager.enableCull();
-                    GlStateManager.depthMask(true);
-                    GlStateManager.enableTexture2D();
-                    GlStateManager.enableBlend();
-                    GlStateManager.enableDepth();
+                    GlStateManager.disableBlend();
+
                 }
             }
         }
+        GL11.glPopAttrib();
     }
 }

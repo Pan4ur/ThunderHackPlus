@@ -88,7 +88,6 @@ public class EventManager {
     @SubscribeEvent
     public void onClientConnect(FMLNetworkEvent.ClientConnectedToServerEvent event) {
         Thunderhack.moduleManager.onLogin();
-
     }
 
     @SubscribeEvent
@@ -205,7 +204,6 @@ public class EventManager {
     public void onWorldRender(RenderWorldLastEvent event) {
         if (event.isCanceled())
             return;
-        mc.profiler.startSection("thunderhack");
         glPushAttrib(GL_ALL_ATTRIB_BITS);
         GL11.glDisable(GL11.GL_CULL_FACE);
         GL11.glDisable(GL11.GL_TEXTURE_2D);
@@ -216,7 +214,6 @@ public class EventManager {
         Thunderhack.moduleManager.onRender3D(render3dEvent);
         GlStateManager.glLineWidth(1.0F);
         glPopAttrib();
-        mc.profiler.endSection();
     }
 
     @SubscribeEvent

@@ -8,6 +8,7 @@ import com.mrzak34.thunderhack.mixin.mixins.ICPacketPlayer;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.Util;
+import com.mrzak34.thunderhack.util.math.MathUtil;
 import net.minecraft.entity.Entity;
 import net.minecraft.init.MobEffects;
 import net.minecraft.network.play.client.CPacketPlayer;
@@ -186,6 +187,8 @@ public class GroundBoost extends Module {
                 moveForward = -1.0f;
         }
 
+        moveStrafe = MathUtil.clamp(moveStrafe, -1, 1);
+
         double motionX = Math.cos(Math.toRadians(rotationYaw + 90.0f));
         double motionZ = Math.sin(Math.toRadians(rotationYaw + 90.0f));
 
@@ -236,6 +239,9 @@ public class GroundBoost extends Module {
             else if (moveForward < 0.0f)
                 moveForward = -1.0f;
         }
+
+        moveStrafe = MathUtil.clamp(moveStrafe, -1, 1);
+
 
         double motionX = Math.cos(Math.toRadians(rotationYaw + 90.0f));
         double motionZ = Math.sin(Math.toRadians(rotationYaw + 90.0f));

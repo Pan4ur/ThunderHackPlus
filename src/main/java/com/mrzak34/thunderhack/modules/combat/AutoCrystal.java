@@ -15,9 +15,11 @@ import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.setting.SubBind;
 import com.mrzak34.thunderhack.util.EntityUtil;
 import com.mrzak34.thunderhack.util.InventoryUtil;
+import com.mrzak34.thunderhack.util.TessellatorUtil;
 import com.mrzak34.thunderhack.util.Timer;
 import com.mrzak34.thunderhack.util.math.MathUtil;
 import com.mrzak34.thunderhack.util.phobos.*;
+import com.mrzak34.thunderhack.util.render.BlockRenderUtil;
 import com.mrzak34.thunderhack.util.render.RenderUtil;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -74,11 +76,6 @@ import static org.lwjgl.opengl.GL11.*;
 public class AutoCrystal extends Module {
     public static final PositionHistoryHelper POSITION_HISTORY = new PositionHistoryHelper();
 
-
-
-
-
-
     /*
 
      * This file is part of the 3arthh4ck distribution (https://github.com/3arthqu4ke/3arthh4ck).
@@ -97,10 +94,7 @@ public class AutoCrystal extends Module {
         MinecraftForge.EVENT_BUS.register(POSITION_HISTORY);
     }
 
-    /* ----------------  BLYA ---------------*/
-    public final Setting<ColorSetting> boxColor = this.register(new Setting<>("Box", new ColorSetting(0x50bf40bf)));
-    public final Setting<ColorSetting> outLine = this.register(new Setting<>("Outline", new ColorSetting(0x50bf40bf)));
-    public final Setting<ColorSetting> indicatorColor = this.register(new Setting<>("IndicatorColor", new ColorSetting(0x50bf40bf)));
+
     /* ---------------- Fields -------------- */
     public final Map<BlockPos, CrystalTimeStamp> placed = new ConcurrentHashMap<>();
     public final HelperSequential sequentialHelper = new HelperSequential(this);
@@ -415,6 +409,11 @@ public class AutoCrystal extends Module {
     public Setting<Boolean> debugAntiPlaceFail = register(new Setting<Boolean>("DebugAntiPlaceFail", false, v -> page.getValue() == pages.Dev)); //DEV
     public Setting<Boolean> alwaysBomb = register(new Setting<Boolean>("Always-Bomb", false, v -> page.getValue() == pages.Dev && settingType.getValue() == settingtypeEn.Hacker));
     public Setting<Integer> removeTime = register(new Setting<>("Remove-Time", 1000, 0, 2500, v -> page.getValue() == pages.Dev && settingType.getValue() == settingtypeEn.Hacker));
+    /* ----------------  BLYA ---------------*/
+    public final Setting<ColorSetting> boxColor = this.register(new Setting<>("Box", new ColorSetting(0x50bf40bf)));
+    public final Setting<ColorSetting> outLine = this.register(new Setting<>("Outline", new ColorSetting(0x50bf40bf)));
+    public final Setting<ColorSetting> indicatorColor = this.register(new Setting<>("IndicatorColor", new ColorSetting(0x50bf40bf)));
+
     public ListenerSound soundObserver = new ListenerSound(this);
     public AtomicInteger motionID = new AtomicInteger();
     public Timer renderTimer = new Timer();
@@ -511,12 +510,12 @@ public class AutoCrystal extends Module {
 
     public static AxisAlignedBB interpolatePos(BlockPos pos, float height) {
         return new AxisAlignedBB(
-                pos.getX() - mc.getRenderManager().viewerPosX,
-                pos.getY() - mc.getRenderManager().viewerPosY,
-                pos.getZ() - mc.getRenderManager().viewerPosZ,
-                pos.getX() - mc.getRenderManager().viewerPosX + 1,
-                pos.getY() - mc.getRenderManager().viewerPosY + height,
-                pos.getZ() - mc.getRenderManager().viewerPosZ + 1);
+                pos.getX(),
+                pos.getY(),
+                pos.getZ(),
+                pos.getX()  + 1,
+                pos.getY()  + height,
+                pos.getZ() + 1);
     }
 
     public boolean isNotCheckingRotations() {
@@ -1457,10 +1456,9 @@ public class AutoCrystal extends Module {
                 : damage;
     }
 
+
     @SubscribeEvent
     public void onRender3D(Render3DEvent event) {
-        glPushAttrib(GL_ALL_ATTRIB_BITS);
-
         if (this.render.getValue() && this.box.getValue() && this.fade.getValue()) {
             for (Map.Entry<BlockPos, Long> set : fadeList.entrySet()) {
                 if (this.getRenderPos() == set.getKey()) {
@@ -1476,21 +1474,32 @@ public class AutoCrystal extends Module {
                 final int fadeBoxAlpha = MathHelper.clamp((int) (alphaBoxAmount * (set.getValue() + this.fadeTime.getValue() - System.currentTimeMillis())), 0, (int) maxBoxAlpha);
                 final int fadeOutlineAlpha = MathHelper.clamp((int) (alphaOutlineAmount * (set.getValue() + this.fadeTime.getValue() - System.currentTimeMillis())), 0, (int) maxOutlineAlpha);
 
-                if (this.box.getValue())
-                    RenderUtil.renderBox(
-                            interpolatePos(set.getKey(), 1.0f),
-                            new Color(boxColor.getRed(), boxColor.getGreen(), boxColor.getBlue(), fadeBoxAlpha),
-                            new Color(outlineColor.getRed(), outlineColor.getGreen(), outlineColor.getBlue(), fadeOutlineAlpha),
-                            1.5f);
+                if (this.box.getValue()) {
 
+                    BlockRenderUtil.prepareGL();
+                    TessellatorUtil.drawBox(interpolatePos(set.getKey(), 1.0f), new Color(boxColor.getRed(), boxColor.getGreen(), boxColor.getBlue(), fadeBoxAlpha));
+                    BlockRenderUtil.releaseGL();
+
+                    BlockRenderUtil.prepareGL();
+                    TessellatorUtil.drawBoundingBox(interpolatePos(set.getKey(), 1.0f), 1.5f, new Color(outlineColor.getRed(), outlineColor.getGreen(), outlineColor.getBlue(), fadeOutlineAlpha));
+                    BlockRenderUtil.releaseGL();
+
+                }
             }
         }
 
         BlockPos pos;
         if (this.render.getValue() && (pos = this.getRenderPos()) != null) {
             if (!this.fade.getValue()) {
-                if (this.box.getValue())
-                    RenderUtil.renderBox(interpolatePos(pos, 1.0f), this.boxColor.getValue().getColorObject(), this.outLine.getValue().getColorObject(), 1.5f);
+                if (this.box.getValue()) {
+                    BlockRenderUtil.prepareGL();
+                    TessellatorUtil.drawBox(interpolatePos(pos, 1.0f), this.boxColor.getValue().getColorObject());
+                    BlockRenderUtil.releaseGL();
+
+                    BlockRenderUtil.prepareGL();
+                    TessellatorUtil.drawBoundingBox(interpolatePos(pos, 1.0f), 1.5f, this.outLine.getValue().getColorObject());
+                    BlockRenderUtil.releaseGL();
+                }
             }
             if (renderDamage.getValue() != RenderDamagePos.None)
                 renderDamage(pos);
@@ -1499,9 +1508,7 @@ public class AutoCrystal extends Module {
                 fadeList.put(pos, System.currentTimeMillis());
         }
 
-        fadeList.entrySet().removeIf(e ->
-                e.getValue() + this.fadeTime.getValue()
-                        < System.currentTimeMillis());
+        fadeList.entrySet().removeIf(e -> e.getValue() + this.fadeTime.getValue() < System.currentTimeMillis());
 
 
         if (this.renderExtrapolation.getValue()) {
@@ -1556,10 +1563,13 @@ public class AutoCrystal extends Module {
                 //   RenderUtil.endRender();
             }
         }
-        glPopAttrib();
     }
 
     private void renderDamage(BlockPos pos) {
+        GL11.glEnable(GL11.GL_CULL_FACE);
+        GL11.glEnable(GL11.GL_TEXTURE_2D);
+        GL11.glDisable(GL_BLEND);
+        GL11.glEnable(GL11.GL_DEPTH_TEST);
         String text = this.damage;
         GlStateManager.pushMatrix();
         enableStandardItemLighting();
@@ -1590,11 +1600,7 @@ public class AutoCrystal extends Module {
         GlStateManager.scale(scaleD, scaleD, scaleD);
         GlStateManager.translate(-(FontRender.getStringWidth6(text) / 2.0), 0, 0);
 
-        boolean alpha1 = GL11.glIsEnabled(GL11.GL_ALPHA_TEST);
-        GlStateManager.disableAlpha();
         FontRender.drawString6(text, 0, 0, -1, false);
-        if (alpha1)
-            GlStateManager.enableAlpha();
 
         GlStateManager.disablePolygonOffset();
         GlStateManager.doPolygonOffset(1.0f, 1500000.0f);

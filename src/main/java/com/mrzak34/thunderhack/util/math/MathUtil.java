@@ -172,6 +172,10 @@ public class MathUtil
                 forward = -1.0f;
             }
         }
+
+        side = MathUtil.clamp(side, -1, 1);
+
+
         double sin = Math.sin(Math.toRadians(yaw + 90.0f));
         double cos = Math.cos(Math.toRadians(yaw + 90.0f));
         double posX = (double) forward * speed * cos + (double) side * speed * sin;

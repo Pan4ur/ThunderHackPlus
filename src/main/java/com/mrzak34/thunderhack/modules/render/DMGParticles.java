@@ -1,16 +1,23 @@
 package com.mrzak34.thunderhack.modules.render;
 
 import com.mrzak34.thunderhack.events.PreRenderEvent;
+import com.mrzak34.thunderhack.events.Render3DEvent;
+import com.mrzak34.thunderhack.gui.fontstuff.FontRender;
 import com.mrzak34.thunderhack.mixin.mixins.IRenderManager;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.EntityUtil;
+import com.mrzak34.thunderhack.util.Util;
+import com.mrzak34.thunderhack.util.render.RenderUtil;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.util.math.MathHelper;
+import net.minecraftforge.client.event.RenderWorldLastEvent;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
@@ -18,6 +25,7 @@ import java.text.DecimalFormat;
 import java.util.*;
 
 import static com.mrzak34.thunderhack.util.render.RenderUtil.interpolate;
+import static org.lwjgl.opengl.GL11.*;
 
 
 public class DMGParticles extends Module {
@@ -64,7 +72,7 @@ public class DMGParticles extends Module {
 
 
     @SubscribeEvent
-    public void onRender(PreRenderEvent event) {
+    public void onRender3D(Render3DEvent event) {
         synchronized (this.particles) {
             for (Marker marker : this.particles) {
                 RenderManager renderManager = mc.getRenderManager();
@@ -77,15 +85,19 @@ public class DMGParticles extends Module {
                 GlStateManager.enablePolygonOffset();
                 GlStateManager.doPolygonOffset(1.0f, -1500000.0f);
                 GlStateManager.translate(x, y, z);
+                GL11.glEnable(GL11.GL_CULL_FACE);
+                GL11.glEnable(GL11.GL_TEXTURE_2D);
+                GL11.glDisable(GL_BLEND);
+                GL11.glEnable(GL11.GL_DEPTH_TEST);
                 GlStateManager.rotate(-renderManager.playerViewY, 0.0f, 1.0f, 0.0f);
                 double textY = mc.gameSettings.thirdPersonView == 2 ? -1.0 : 1.0;
                 GlStateManager.rotate(renderManager.playerViewX, (float)textY, 0.0f, 0.0f);
                 GlStateManager.scale(-size, -size, size);
                 GL11.glDepthMask(false);
                 int color = marker.getHp() > 0 ? color1.getValue().getColor() : color2.getValue().getColor();
-                GlStateManager.enableTexture2D();
                 DecimalFormat decimalFormat = new DecimalFormat( "#.#" );
-                mc.fontRenderer.drawStringWithShadow(decimalFormat.format(marker.getHp()), -((float)mc.fontRenderer.getStringWidth(marker.getHp() + "") / 2.0f), -(mc.fontRenderer.FONT_HEIGHT - 1), color);
+                Util.fr.drawStringWithShadow(decimalFormat.format(marker.getHp()), -((float)mc.fontRenderer.getStringWidth(marker.getHp() + "") / 2.0f), -(mc.fontRenderer.FONT_HEIGHT - 1), color);
+                GlStateManager.disableBlend();
                 GlStateManager.color(1.0f, 1.0f, 1.0f, 1.0f);
                 GL11.glDepthMask(true);
                 GlStateManager.doPolygonOffset(1.0f, 1500000.0f);

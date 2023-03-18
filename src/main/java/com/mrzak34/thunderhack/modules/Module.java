@@ -224,7 +224,6 @@ public class Module  {
         return setting;
     }
 
-
     public Setting getSettingByName(String name) {
         for (Setting setting : this.settings) {
             if (!setting.getName().equalsIgnoreCase(name)) continue;

@@ -27,15 +27,17 @@ import java.awt.*;
 import static com.mrzak34.thunderhack.util.render.RenderUtil.TwoColoreffect;
 
 public class ArrayList extends HudElement {
-    public final Setting<ColorSetting> color = register(new Setting<>("Color", new ColorSetting(0x8800FF00)));
-    public Setting<Float> rainbowSpeed = register(new Setting("Speed", 10.0f, 1.0f, 20.0f));
-    public Setting<Float> saturation = register(new Setting("Saturation", 0.5f, 0.1f, 1.0f));
-    public Setting<Integer> gste = register(new Setting("GS", 30, 10, 50));
+    private final Setting<ColorSetting> color = register(new Setting<>("Color", new ColorSetting(0x8800FF00)));
+    private final Setting<Float> rainbowSpeed = register(new Setting("Speed", 10.0f, 1.0f, 20.0f));
+    private final Setting<Float> saturation = register(new Setting("Saturation", 0.5f, 0.1f, 1.0f));
+    private final Setting<Integer> gste = register(new Setting("GS", 30, 10, 50));
     private final Setting<Boolean> glow = register(new Setting<>("glow", true));
     private final Setting<Boolean> shadoiw = register(new Setting<>("shadow", true));
     private final Setting<cMode> cmode = register(new Setting<>("ColorMode", cMode.Rainbow));
-
+    private final Setting<Boolean> hrender = register(new Setting<>("HideHud", true));
+    private final Setting<Boolean> hhud = register(new Setting<>("HideRender", true));
     private final Setting<ColorSetting> color2 = this.register(new Setting<>("Color2", new ColorSetting(-2353224)));
+
     public ArrayList() {super("ArrayList", "arraylist",50,30);}
 
     boolean reverse;
@@ -88,6 +90,12 @@ public class ArrayList extends HudElement {
         for (int k = 0; k < Thunderhack.moduleManager.sortedModules.size(); k++) {
             Module module = Thunderhack.moduleManager.sortedModules.get(k);
             if (!module.isDrawn()) {
+                continue;
+            }
+            if(hrender.getValue() && module.getCategory() == Category.RENDER){
+                continue;
+            }
+            if(hhud.getValue() && module.getCategory() == Category.HUD){
                 continue;
             }
             Color color1 = null;
