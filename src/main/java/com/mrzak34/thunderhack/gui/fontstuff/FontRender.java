@@ -5,6 +5,8 @@ import com.mrzak34.thunderhack.util.Util;
 import net.minecraft.client.renderer.GlStateManager;
 import org.lwjgl.opengl.GL11;
 
+import java.awt.*;
+
 
 public class FontRender {
     public static boolean isCustomFontEnabled() {
@@ -56,7 +58,15 @@ public class FontRender {
         return Thunderhack.icons.drawString(id, x, y, color);
     }
 
-    public static float drawMidIcon(String id, int x, int y, int color) {
+    public static float drawIconF(String id, float x, float y, int color) {
+        return Thunderhack.icons.drawString(id, x, y, color);
+    }
+
+    public static float drawMidIcon(String id, float x, float y, int color) {
+        return Thunderhack.middleicons.drawString(id, x, y, color);
+    }
+
+    public static float drawMidIconF(String id, int x, int y, int color) {
         return Thunderhack.middleicons.drawString(id, x, y, color);
     }
 
@@ -169,5 +179,6 @@ public class FontRender {
     public static int getFontHeight5() {
         return Thunderhack.fontRenderer5.getHeight() + 2;
     }
+
 
 }

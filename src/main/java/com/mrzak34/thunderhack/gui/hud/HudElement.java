@@ -20,6 +20,12 @@ public class HudElement extends Module {
         this.width = width;
     }
 
+    public HudElement(String name, String description, String eng_description,int width, int height) {
+        super(name, description,eng_description, Category.HUD);
+        this.height = height;
+        this.width = width;
+    }
+
     private final Setting<PositionSetting> pos = this.register(new Setting<>("Position", new PositionSetting(0.5f, 0.5f)));
 
     int height;

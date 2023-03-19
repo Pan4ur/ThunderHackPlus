@@ -7,6 +7,7 @@ import com.mrzak34.thunderhack.util.Timer;
  */
 public interface IEntity extends Dummy {
 
+    void setInPortal(boolean bool);
 
     boolean isPseudoDeadT();
 

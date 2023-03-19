@@ -164,6 +164,7 @@ public class ModuleManager {
         this.modules.add(new LegitStrafe());
         this.modules.add(new BackTrack());
         this.modules.add(new NameProtect());
+        this.modules.add(new Radar());
         this.modules.add(new FogColor());
         this.modules.add(new LegitScaff());
         this.modules.add(new PopChams());

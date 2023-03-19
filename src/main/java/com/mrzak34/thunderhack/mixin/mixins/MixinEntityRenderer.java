@@ -151,12 +151,6 @@ public abstract class MixinEntityRenderer {
         return entityPlayerSP.prevTimeInPortal;
     }
 
-    @Inject(method = {"setupFog"}, at = {@At("HEAD")}, cancellable = true)
-    public void setupFogHook(final int startCoords, final float partialTicks, final CallbackInfo info) {
-        if (NoRender.getInstance().isOn() && NoRender.getInstance().fog.getValue() == NoRender.Fog.NOFOG) {
-            info.cancel();
-        }
-    }
 
     /*
     @Redirect(method = {"setupFog"}, at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/ActiveRenderInfo;getBlockStateAtEntityViewpoint(Lnet/minecraft/world/World;Lnet/minecraft/entity/Entity;F)Lnet/minecraft/block/state/IBlockState;"))

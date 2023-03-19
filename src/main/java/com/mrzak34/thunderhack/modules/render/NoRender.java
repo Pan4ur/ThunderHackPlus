@@ -5,6 +5,7 @@ import com.mrzak34.thunderhack.mixin.mixins.IGuiBossOverlay;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.Pair;
+import com.mrzak34.thunderhack.util.phobos.IEntity;
 import net.minecraft.client.gui.BossInfoClient;
 import net.minecraft.client.gui.GuiBossOverlay;
 import net.minecraft.client.gui.ScaledResolution;
@@ -45,7 +46,7 @@ class NoRender extends Module {
     public Setting<Boolean> hurtcam = this.register(new Setting<>("HurtCam", false));
     public Setting<Boolean> explosions = this.register(new Setting<>("Explosions", false));
     public Setting<Boolean> lightning = this.register(new Setting<>("Lightning", false));
-    public Setting<Fog> fog = this.register(new Setting<>("Fog", Fog.NONE));
+    public Setting<Boolean> fog = this.register(new Setting<>("NoFog", false));
     public Setting<Boolean> noWeather = this.register(new Setting<>("Weather", false));
     public Setting<Boss> boss = this.register(new Setting<>("BossBars", Boss.NONE));
     public Setting<Float> scale = this.register(new Setting<>("Scale", 0.5f, 0.5f, 1.0f, v -> this.boss.getValue() == Boss.MINIMIZE || this.boss.getValue() == Boss.STACK));
@@ -63,6 +64,9 @@ class NoRender extends Module {
         this.setInstance();
     }
 
+
+
+
     public static NoRender getInstance() {
         if (NoRender.INSTANCE == null) {
             NoRender.INSTANCE = new NoRender();
@@ -76,6 +80,9 @@ class NoRender extends Module {
 
     @Override
     public void onUpdate() {
+        if(portal.getValue()){
+            ((IEntity)mc.player).setInPortal(false);
+        }
         if (this.items.getValue()) {
             NoRender.mc.world.loadedEntityList.stream().filter(EntityItem.class::isInstance).map(EntityItem.class::cast).forEach(Entity::setDead);
         }

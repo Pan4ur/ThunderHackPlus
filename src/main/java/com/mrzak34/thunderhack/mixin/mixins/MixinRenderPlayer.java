@@ -63,7 +63,6 @@ public class MixinRenderPlayer {
             renderPitch = entity.rotationPitch;
             renderYaw = entity.rotationYaw;
             renderHeadYaw = entity.rotationYawHead;
-
             float interpYaw = (float) interp(EventManager.visualYaw, EventManager.prevVisualYaw);
             float interpPitch = (float) interp(EventManager.visualPitch, EventManager.prevVisualPitch);
             entity.rotationPitch = interpPitch;
@@ -71,7 +70,6 @@ public class MixinRenderPlayer {
             entity.rotationYaw = interpYaw;
             entity.rotationYawHead = interpYaw;
             entity.prevRotationYawHead = interpYaw;
-
         }
     }
 

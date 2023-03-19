@@ -1,4 +1,4 @@
-package com.mrzak34.thunderhack.modules.render;
+package com.mrzak34.thunderhack.gui.hud.elements;
 
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.events.Render3DEvent;
@@ -47,7 +47,7 @@ public class PyroRadar extends Module {
     public Setting<Integer> greenF = register(new Setting("Green", 120, 0, 255));
     public Setting<Integer> blueF = register(new Setting("Blue", 0, 0, 255));
     public PyroRadar() {
-        super("Radar", "радар из пайро", Category.HUD);
+        super("PyroRadar", "радар из пайро", Category.HUD);
 
     }
 

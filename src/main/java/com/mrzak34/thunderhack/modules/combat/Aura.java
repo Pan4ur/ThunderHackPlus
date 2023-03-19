@@ -134,7 +134,7 @@ public class Aura extends Module {
     public final Setting<Boolean> targetesp = register(new Setting<>("Target Esp", true)).withParent(render);//(visual);
     public final Setting<Float> circleStep1 = register(new Setting("CircleSpeed", 0.15f, 0.1f, 1.0f)).withParent(render);
     public final Setting<Float> circleHeight = register(new Setting("CircleHeight", 0.15f, 0.1f, 1.0f)).withParent(render);
-    public final Setting<Integer> colorOffset1 = register(new Setting("ColorOffset", 60, 1, 20)).withParent(render);
+    public final Setting<Integer> colorOffset1 = register(new Setting("ColorOffset", 10, 1, 20)).withParent(render);
     public final Setting<ColorSetting> shitcollor = this.register(new Setting<>("TargetColor", new ColorSetting(-2009289807))).withParent(render);
     public final Setting<ColorSetting> shitcollor2 = this.register(new Setting<>("TargetColor2", new ColorSetting(-2009289807))).withParent(render);
     /*-------------------------------------*/

@@ -77,6 +77,8 @@ public abstract class MixinEntity implements IEntity {
     @Accessor(value = "isInWeb")
     public abstract boolean isInWeb();
 
+
+
     @Shadow
     public abstract boolean isSneaking();
 
@@ -123,6 +125,8 @@ public abstract class MixinEntity implements IEntity {
     public abstract String getName();
 
 
+    @Shadow protected boolean inPortal;
+
     @Override
     public boolean isPseudoDeadT() {
         if (pseudoDead && !isDead && pseudoTimer.passedMs(500)) {
@@ -138,6 +142,11 @@ public abstract class MixinEntity implements IEntity {
         if (pseudoDead) {
             pseudoTimer.reset();
         }
+    }
+
+    @Override
+    public void setInPortal(boolean bool){
+        this.inPortal = bool;
     }
 
     @Override
