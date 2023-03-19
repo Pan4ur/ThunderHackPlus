@@ -11,7 +11,7 @@
 - Default prefix  - **"."**
 - Middle click on module to bind
 - [Client Showcase (by Ai_24)](https://www.youtube.com/watch?v=yVtTL7taDDI)
-- [2.40 Update Showcase (by Ai_24)]([https://www.youtube.com/watch?v=yVtTL7taDDI](https://www.youtube.com/watch?v=N47y84Eiqi0))
+- [2.40 Update Showcase (by Ai_24)](https://www.youtube.com/watch?v=N47y84Eiqi0)
 
 
 [![Discord](https://img.shields.io/discord/995440739125301338?color=5a08bf&label=Discord&logo=discord&logoColor=ffffff&style=for-the-badge)](https://discord.gg/uMqM8EhM34)
