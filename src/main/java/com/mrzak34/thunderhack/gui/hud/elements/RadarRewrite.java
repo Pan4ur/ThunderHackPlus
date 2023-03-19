@@ -42,7 +42,11 @@ public class RadarRewrite extends HudElement {
     private final Setting<mode2> Mode2 = register(new Setting<>("CircleCMode", mode2.Astolfo));
     private final Setting<Float> CRadius = register(new Setting<>("CompasRadius", 47F, 0.1F, 70.0F));
     private final Setting<Integer> fsef = register(new Setting<>("Correct", 12, -90, 90));
+
+    public final Setting<Integer> colorOffset1 = register(new Setting("ColorOffset", 10, 1, 20));
+    public final Setting<ColorSetting> cColor2 = this.register(new Setting<>("CompassColor2", new ColorSetting(0x2250b4b4)));
     private final Setting<ColorSetting> cColor = this.register(new Setting<>("CompassColor", new ColorSetting(0x2250b4b4)));
+
     private final Setting<ColorSetting> ciColor = this.register(new Setting<>("CircleColor", new ColorSetting(0x2250b4b4)));
     private final Setting<ColorSetting> colorf = this.register(new Setting<>("FriendColor", new ColorSetting(0x2250b4b4)));
     private final Setting<ColorSetting> colors = this.register(new Setting<>("TracerColor", new ColorSetting(0x2250b4b4)));
@@ -154,18 +158,23 @@ public class RadarRewrite extends HudElement {
         float nigga = Math.abs(90f / clamp2(mc.player.rotationPitch, maxup2.getValue(), 90f));
 
         if (Mode2.getValue() == mode2.Custom) {
-            RenderHelper.drawEllipsCompas(-(int) mc.player.rotationYaw, x, y, nigga, 1f, CRadius.getValue() - 2, ciColor.getValue().getColorObject(), false);
-            RenderHelper.drawEllipsCompas(-(int) mc.player.rotationYaw, x, y, nigga, 1f, CRadius.getValue() - 2.5f, ciColor.getValue().getColorObject(), false);
+            RenderHelper.drawEllipsCompas(-(int) mc.player.rotationYaw, x, y, nigga, 1f, CRadius.getValue() - 2, ciColor.getValue().getColorObject(), false,Mode2.getValue());
+            RenderHelper.drawEllipsCompas(-(int) mc.player.rotationYaw, x, y, nigga, 1f, CRadius.getValue() - 2.5f, ciColor.getValue().getColorObject(), false,Mode2.getValue());
         }
         if (Mode2.getValue() == mode2.Rainbow) {
-            RenderHelper.drawEllipsCompas(-(int) mc.player.rotationYaw, x, y, nigga, 1f, CRadius.getValue() - 2, PaletteHelper.rainbow(300, 1, 1), false);
-            RenderHelper.drawEllipsCompas(-(int) mc.player.rotationYaw, x, y, nigga, 1f, CRadius.getValue() - 2.5f, PaletteHelper.rainbow(300, 1, 1), false);
+            RenderHelper.drawEllipsCompas(-(int) mc.player.rotationYaw, x, y, nigga, 1f, CRadius.getValue() - 2, PaletteHelper.rainbow(300, 1, 1), false,Mode2.getValue());
+            RenderHelper.drawEllipsCompas(-(int) mc.player.rotationYaw, x, y, nigga, 1f, CRadius.getValue() - 2.5f, PaletteHelper.rainbow(300, 1, 1), false,Mode2.getValue());
         }
         if (Mode2.getValue() == mode2.Astolfo) {
-            RenderHelper.drawEllipsCompas(-(int) mc.player.rotationYaw, x, y, nigga, 1f, CRadius.getValue() - 2, null, false);
-            RenderHelper.drawEllipsCompas(-(int) mc.player.rotationYaw, x, y, nigga, 1f, CRadius.getValue() - 2.5f, null, false);
+            RenderHelper.drawEllipsCompas(-(int) mc.player.rotationYaw, x, y, nigga, 1f, CRadius.getValue() - 2, ciColor.getValue().getColorObject(), false,Mode2.getValue());
+            RenderHelper.drawEllipsCompas(-(int) mc.player.rotationYaw, x, y, nigga, 1f, CRadius.getValue() - 2.5f, ciColor.getValue().getColorObject(), false,Mode2.getValue());
         }
-        RenderHelper.drawEllipsCompas(-(int) mc.player.rotationYaw, x, y, nigga, 1f, CRadius.getValue(), cColor.getValue().getColorObject(), true);
+        if (Mode2.getValue() == mode2.TwoColor) {
+            RenderHelper.drawEllipsCompas(-(int) mc.player.rotationYaw, x, y, nigga, 1f, CRadius.getValue() - 2, ciColor.getValue().getColorObject(), false,Mode2.getValue());
+            RenderHelper.drawEllipsCompas(-(int) mc.player.rotationYaw, x, y, nigga, 1f, CRadius.getValue() - 2.5f, ciColor.getValue().getColorObject(), false,Mode2.getValue());
+        }
+
+        RenderHelper.drawEllipsCompas(-(int) mc.player.rotationYaw, x, y, nigga, 1f, CRadius.getValue(), cColor.getValue().getColorObject(), true,mode2.Custom);
     }
 
     public void drawTracerPointer(float x, float y, float size, int color) {
@@ -220,7 +229,7 @@ public class RadarRewrite extends HudElement {
     }
 
     public enum mode2 {
-        Custom, Rainbow, Astolfo
+        Custom, Rainbow, Astolfo,TwoColor
     }
 
     public enum triangleModeEn {

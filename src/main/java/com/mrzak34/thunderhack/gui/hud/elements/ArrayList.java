@@ -103,7 +103,7 @@ public class ArrayList extends HudElement {
             if(cmode.getValue() == cMode.Rainbow){
                 color1 = PaletteHelper.astolfo(offset, yTotal, saturation.getValue(), rainbowSpeed.getValue());
             } else if(cmode.getValue() == cMode.DoubleColor){
-                color1 = TwoColoreffect(color.getValue().getColorObject(), color2.getValue().getColorObject(), Math.abs(System.currentTimeMillis() / 10) / 100.0 + offset * (20f - rainbowSpeed.getValue()));
+                color1 = TwoColoreffect(color.getValue().getColorObject(), color2.getValue().getColorObject(), Math.abs(System.currentTimeMillis() / 10) / 100.0 + offset * ((20f - rainbowSpeed.getValue()) / 200) );
             } else {
                 color1 = new Color(color.getValue().getColor()).darker();
             }

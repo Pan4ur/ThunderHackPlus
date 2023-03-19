@@ -150,35 +150,6 @@ public class RenderUtil implements Util {
         GL11.glEnd();
     }
 
-    public static void drawCircleWithTexture(float cX, float cY, int start, int end, float radius, ResourceLocation res, int color) {
-        double radian, x, y, tx, ty, xsin, ycos;
-        GL11.glPushMatrix();
-        // GL11.glEnable(GL11.GL_TEXTURE_2D);
-        mc.getTextureManager().bindTexture(res);
-        GL11.glEnable(GL11.GL_POLYGON_SMOOTH);
-        GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-        colorflux(color);
-        GL11.glBegin(GL11.GL_POLYGON);
-        for (int i = start; i < end; ++i) {
-            radian = i * (Math.PI / 180.0f);
-            xsin = Math.sin(radian);
-            ycos = Math.cos(radian);
-
-            x = xsin * radius;
-            y = ycos * radius;
-
-            tx = xsin * 0.5 + 0.5;
-            ty = ycos * 0.5 + 0.5;
-
-            GL11.glTexCoord2d(cX + tx, cY + ty);
-            GL11.glVertex2d(cX + x, cY + y);
-        }
-        GL11.glEnd();
-        GL11.glDisable(GL11.GL_POLYGON_SMOOTH);
-        // GL11.glDisable(GL11.GL_TEXTURE_2D);
-        GL11.glPopMatrix();
-    }
-
     public static void glColor(int hex) {
         float alpha = (hex >> 24 & 0xFF) / 255.0F;
         float red = (hex >> 16 & 0xFF) / 255.0F;

@@ -1,6 +1,8 @@
 package com.mrzak34.thunderhack.util.render;
 
+import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.gui.fontstuff.FontRender;
+import com.mrzak34.thunderhack.gui.hud.elements.RadarRewrite;
 import com.mrzak34.thunderhack.mixin.mixins.IRenderManager;
 import com.mrzak34.thunderhack.util.Util;
 import com.mrzak34.thunderhack.util.gaussianblur.GaussianFilter;
@@ -21,6 +23,7 @@ import java.util.HashMap;
 import static com.mrzak34.thunderhack.gui.hud.elements.RadarRewrite.astolfo;
 import static com.mrzak34.thunderhack.modules.render.ItemESP.astolfo2;
 import static com.mrzak34.thunderhack.util.Util.mc;
+import static com.mrzak34.thunderhack.util.render.RenderUtil.TwoColoreffect;
 import static org.lwjgl.opengl.GL11.*;
 
 public class RenderHelper {
@@ -260,7 +263,7 @@ public class RenderHelper {
     }
 
 
-    public static void drawElipse(float x, float y, float rx, float ry, float start, float end, float radius, Color color, int stage1) {
+    public static void drawElipse(float x, float y, float rx, float ry, float start, float end, float radius, Color color, int stage1, RadarRewrite.mode2 cmode) {
         float sin;
         float cos;
         float i;
@@ -274,21 +277,32 @@ public class RenderHelper {
         GlStateManager.enableBlend();
         GlStateManager.disableTexture2D();
         GlStateManager.tryBlendFuncSeparate(770, 771, 1, 0);
-        if (color != null)
-            setColor(color.getRGB());
         GL11.glEnable(GL11.GL_LINE_SMOOTH);
         GL11.glLineWidth(2);
         glBegin(GL11.GL_LINE_STRIP);
-        for (i = start; i <= end; i += 5) {
-            if (color == null) {
-                double stage = (i - start) / 360;
-                int clr = astolfo.getColor(stage);
-                int red = ((clr >> 16) & 255);
-                int green = ((clr >> 8) & 255);
-                int blue = ((clr & 255));
+        for (i = start; i <= end; i += 2) {
 
-                GL11.glColor4f(red / 255f, green / 255f, blue / 255f, 1);
-            }
+                double stage = (i - start) / 360;
+                Color clr = null;
+
+                if(cmode == RadarRewrite.mode2.Astolfo) {
+                   clr = new Color(astolfo.getColor(stage));
+                }else if(cmode == RadarRewrite.mode2.Rainbow){
+                    clr = color;
+                }  else if(cmode == RadarRewrite.mode2.Custom){
+                    clr = color;
+                } else {
+                    clr = TwoColoreffect(color, Thunderhack.moduleManager.getModuleByClass(RadarRewrite.class).cColor2.getValue().getColorObject(), Math.abs(System.currentTimeMillis() / 10) / 100.0 + i * ((20f - Thunderhack.moduleManager.getModuleByClass(RadarRewrite.class).colorOffset1.getValue()) / 200) );
+                }
+
+            int clr2 = clr.getRGB();
+            int red = ((clr2 >> 16) & 255);
+            int green = ((clr2 >> 8) & 255);
+            int blue = ((clr2 & 255));
+
+            GL11.glColor4f(red / 255f, green / 255f, blue / 255f, 1);
+
+
 
             cos = (float) Math.cos(i * Math.PI / 180) * (radius / ry);
             sin = (float) Math.sin(i * Math.PI / 180) * (radius / rx);
@@ -329,17 +343,17 @@ public class RenderHelper {
         drawCircle(x, y, 0, 360, radius, filled, color);
     }
 
-    public static void drawEllipsCompas(int yaw, float x, float y, float x2, float y2, float radius, Color color, boolean Dir) {
+    public static void drawEllipsCompas(int yaw, float x, float y, float x2, float y2, float radius, Color color, boolean Dir, RadarRewrite.mode2 mode) {
         if (Dir) {
-            drawElipse(x, y, x2, y2, 15 + yaw, 75 + yaw, radius, color, 0);
-            drawElipse(x, y, x2, y2, 105 + yaw, 165 + yaw, radius, color, 1);
-            drawElipse(x, y, x2, y2, 195 + yaw, 255 + yaw, radius, color, 2);
-            drawElipse(x, y, x2, y2, 285 + yaw, 345 + yaw, radius, color, 3);
+            drawElipse(x, y, x2, y2, 15 + yaw, 75 + yaw, radius, color, 0,mode);
+            drawElipse(x, y, x2, y2, 105 + yaw, 165 + yaw, radius, color, 1,mode);
+            drawElipse(x, y, x2, y2, 195 + yaw, 255 + yaw, radius, color, 2,mode);
+            drawElipse(x, y, x2, y2, 285 + yaw, 345 + yaw, radius, color, 3,mode);
         } else {
-            drawElipse(x, y, x2, y2, 15 + yaw, 75 + yaw, radius, color, -1);
-            drawElipse(x, y, x2, y2, 105 + yaw, 165 + yaw, radius, color, -1);
-            drawElipse(x, y, x2, y2, 195 + yaw, 255 + yaw, radius, color, -1);
-            drawElipse(x, y, x2, y2, 285 + yaw, 345 + yaw, radius, color, -1);
+            drawElipse(x, y, x2, y2, 15 + yaw, 75 + yaw, radius, color, -1,mode);
+            drawElipse(x, y, x2, y2, 105 + yaw, 165 + yaw, radius, color, -1,mode);
+            drawElipse(x, y, x2, y2, 195 + yaw, 255 + yaw, radius, color, -1,mode);
+            drawElipse(x, y, x2, y2, 285 + yaw, 345 + yaw, radius, color, -1,mode);
         }
     }
 

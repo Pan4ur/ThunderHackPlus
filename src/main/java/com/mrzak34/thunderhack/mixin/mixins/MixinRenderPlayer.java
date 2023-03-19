@@ -22,6 +22,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import static com.mrzak34.thunderhack.gui.hud.elements.RadarRewrite.interp;
+import static com.mrzak34.thunderhack.modules.Module.mc;
 
 @Mixin({RenderPlayer.class})
 public class MixinRenderPlayer {
@@ -56,6 +57,7 @@ public class MixinRenderPlayer {
     @Inject(method = "doRender", at = @At("HEAD"))
     private void rotateBegin(AbstractClientPlayer entity, double x, double y, double z, float entityYaw, float partialTicks, CallbackInfo ci) {
         if (Thunderhack.moduleManager.getModuleByClass(MainSettings.class).renderRotations.getValue() && entity == Minecraft.getMinecraft().player) {
+            if(Minecraft.getMinecraft().player.getRidingEntity() != null) return;
             prevRenderHeadYaw = entity.prevRotationYawHead;
             prevRenderPitch = entity.prevRotationPitch;
             renderPitch = entity.rotationPitch;
@@ -76,6 +78,7 @@ public class MixinRenderPlayer {
     @Inject(method = "doRender", at = @At("RETURN"))
     private void rotateEnd(AbstractClientPlayer entity, double x, double y, double z, float entityYaw, float partialTicks, CallbackInfo ci) {
         if (Thunderhack.moduleManager.getModuleByClass(MainSettings.class).renderRotations.getValue() && entity == Minecraft.getMinecraft().player) {
+            if(Minecraft.getMinecraft().player.getRidingEntity() != null) return;
             entity.rotationPitch = renderPitch;
             entity.rotationYaw = renderYaw;
             entity.rotationYawHead = renderHeadYaw;

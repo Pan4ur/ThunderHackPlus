@@ -63,8 +63,10 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Random;
 
+import static com.mrzak34.thunderhack.gui.clickui.ColorUtil.interpolateColorC;
 import static com.mrzak34.thunderhack.modules.funnygame.EffectsRemover.jboost;
 import static com.mrzak34.thunderhack.modules.funnygame.EffectsRemover.nig;
+import static com.mrzak34.thunderhack.util.render.RenderUtil.TwoColoreffect;
 import static net.minecraft.util.math.MathHelper.clamp;
 import static net.minecraft.util.math.MathHelper.wrapDegrees;
 
@@ -130,7 +132,11 @@ public class Aura extends Module {
     public final Setting<Parent> render = register(new Setting<>("Render", new Parent(false)));
     public final Setting<Boolean> RTXVisual = register(new Setting<>("RTXVisual", false)).withParent(render);
     public final Setting<Boolean> targetesp = register(new Setting<>("Target Esp", true)).withParent(render);//(visual);
+    public final Setting<Float> circleStep1 = register(new Setting("CircleSpeed", 0.15f, 0.1f, 1.0f)).withParent(render);
+    public final Setting<Float> circleHeight = register(new Setting("CircleHeight", 0.15f, 0.1f, 1.0f)).withParent(render);
+    public final Setting<Integer> colorOffset1 = register(new Setting("ColorOffset", 60, 1, 20)).withParent(render);
     public final Setting<ColorSetting> shitcollor = this.register(new Setting<>("TargetColor", new ColorSetting(-2009289807))).withParent(render);
+    public final Setting<ColorSetting> shitcollor2 = this.register(new Setting<>("TargetColor2", new ColorSetting(-2009289807))).withParent(render);
     /*-------------------------------------*/
     private final Timer oldTimer = new Timer();
     private final Timer hitttimer = new Timer();
@@ -311,7 +317,7 @@ public class Aura extends Module {
     public void onUpdate() {
         if (targetesp.getValue()) {
             prevCircleStep = circleStep;
-            circleStep += 0.15;
+            circleStep += circleStep1.getValue();
         }
     }
 
@@ -321,7 +327,7 @@ public class Aura extends Module {
             EntityLivingBase entity = Aura.target;
             if (entity != null) {
                 double cs = prevCircleStep + (circleStep - prevCircleStep) * mc.getRenderPartialTicks();
-                double prevSinAnim = absSinAnimation(cs - 0.15);
+                double prevSinAnim = absSinAnimation(cs - circleHeight.getValue());
                 double sinAnim = absSinAnimation(cs);
                 double x = entity.lastTickPosX + (entity.posX - entity.lastTickPosX) * mc.getRenderPartialTicks() - ((IRenderManager)mc.getRenderManager()).getRenderPosX();
                 double y = entity.lastTickPosY + (entity.posY - entity.lastTickPosY) * mc.getRenderPartialTicks() - ((IRenderManager)mc.getRenderManager()).getRenderPosY() + prevSinAnim * 1.4f;
@@ -347,13 +353,11 @@ public class Aura extends Module {
 
                 GL11.glBegin(GL11.GL_QUAD_STRIP);
                 for (int i = 0; i <= 360; i++) {
-                    int clr = shitcollor.getValue().getColor();
-                    int red = ((clr >> 16) & 255);
-                    int green = ((clr >> 8) & 255);
-                    int blue = ((clr & 255));
-                    GL11.glColor4f(red, green, blue, 0.6F);
+                    Color clr = getTargetColor(shitcollor.getValue().getColorObject(),shitcollor2.getValue().getColorObject(),i);
+                    GL11.glColor4f(clr.getRed() / 255f, clr.getGreen() / 255f, clr.getBlue() / 255f, 0.6F);
                     GL11.glVertex3d(x + Math.cos(Math.toRadians(i)) * entity.width * 0.8, nextY, z + Math.sin(Math.toRadians(i)) * entity.width * 0.8);
-                    GL11.glColor4f(red, green, blue, 0.01F);
+
+                    GL11.glColor4f(clr.getRed() / 255f, clr.getGreen() / 255f, clr.getBlue() / 255f, 0.01F);
                     GL11.glVertex3d(x + Math.cos(Math.toRadians(i)) * entity.width * 0.8, y, z + Math.sin(Math.toRadians(i)) * entity.width * 0.8);
                 }
 
@@ -361,11 +365,8 @@ public class Aura extends Module {
                 GL11.glEnable(GL11.GL_LINE_SMOOTH);
                 GL11.glBegin(GL11.GL_LINE_LOOP);
                 for (int i = 0; i <= 360; i++) {
-                    int clr = shitcollor.getValue().getColor();
-                    int red = ((clr >> 16) & 255);
-                    int green = ((clr >> 8) & 255);
-                    int blue = ((clr & 255));
-                    GL11.glColor4f(red, green, blue, 0.8F);
+                    Color clr = getTargetColor(shitcollor.getValue().getColorObject(),shitcollor2.getValue().getColorObject(),i);
+                    GL11.glColor4f(clr.getRed() / 255f, clr.getGreen() / 255f, clr.getBlue() / 255f, 0.8F);
                     GL11.glVertex3d(x + Math.cos(Math.toRadians(i)) * entity.width * 0.8, nextY, z + Math.sin(Math.toRadians(i)) * entity.width * 0.8);
                 }
                 GL11.glEnd();
@@ -915,6 +916,12 @@ public class Aura extends Module {
             }
         }
     }
+
+    private Color getTargetColor(Color color1, Color color2, int offset){
+        return TwoColoreffect(color1, color2, Math.abs(System.currentTimeMillis() / 10) / 100.0 + offset * ((20f - colorOffset1.getValue()) / 200) );
+    }
+
+
 
     public enum rotmod {
         Matrix, AAC, FunnyGame, Matrix2, SunRise, Matrix3
