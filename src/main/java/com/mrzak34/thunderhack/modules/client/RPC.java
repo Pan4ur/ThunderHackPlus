@@ -41,7 +41,7 @@ class RPC extends Module {
 
     public String out = "";
     public enum mode {
-        Konas, Custom, Thlogo, Unknown, minecraft,thbeta,cat,newver,pic,SlivSRC,Astolfo,MegaCute;
+        Konas, Custom, Thlogo, Unknown, minecraft,thbeta,cat,newver,pic,SlivSRC,Astolfo,MegaCute,Hunger;
     }
 
     public RPC() {
