@@ -8,6 +8,7 @@ import net.minecraft.block.BlockEnderChest;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.init.Enchantments;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.play.client.CPacketHeldItemChange;
 import net.minecraft.util.math.BlockPos;
 
 import java.util.ArrayList;
@@ -17,40 +18,39 @@ public class AutoTool extends Module {
 
     public Setting<Boolean> swapBack = register(new Setting<>("SwapBack", true));
     public Setting<Boolean> saveItem = register(new Setting<>("SaveItem", true));
-    // public Setting<Boolean> silent = register(new Setting<>("Silent", false)); //TODO later
+    public Setting<Boolean> silent = register(new Setting<>("Silent", false));
     public Setting<Boolean> echestSilk = register(new Setting<>("EchestSilk", true));
     public int itemIndex;
     private boolean swap;
     private long swapDelay;
-    private final ItemStack swapedItem = null;
     private final List<Integer> lastItem = new ArrayList<>();
     public AutoTool() {
-        super("AutoTool", "Автоматом свапается на-луший инструмент", Category.PLAYER);
+        super("AutoTool", "Автоматом свапается на-лучший инструмент", Category.PLAYER);
     }
 
     @Override
     public void onUpdate() {
+        if (mc.objectMouseOver == null) return;
         if (mc.objectMouseOver.getBlockPos() == null) return;
         if (getTool(mc.objectMouseOver.getBlockPos()) != -1 && ((IKeyBinding)mc.gameSettings.keyBindAttack).isPressed()) {
-            if (mc.player.inventory.getCurrentItem() != swapedItem) {
-                lastItem.add(mc.player.inventory.currentItem);
+            lastItem.add(mc.player.inventory.currentItem);
 
-                //  if (silent.getValue())
-                //       mc.player.connection.sendPacket(new CPacketHeldItemChange(getTool(mc.objectMouseOver.getBlockPos())));
-                //   else
+            if (silent.getValue())
+                mc.player.connection.sendPacket(new CPacketHeldItemChange(getTool(mc.objectMouseOver.getBlockPos())));
+            else
                 mc.player.inventory.currentItem = getTool(mc.objectMouseOver.getBlockPos());
 
-                itemIndex = getTool(mc.objectMouseOver.getBlockPos());
-                swap = true;
-            }
+            itemIndex = getTool(mc.objectMouseOver.getBlockPos());
+            swap = true;
+
             swapDelay = System.currentTimeMillis();
 
         } else if (swap && !lastItem.isEmpty() && System.currentTimeMillis() >= swapDelay + 300 && swapBack.getValue()) {
 
-            //   if (silent.getValue())
-            //      mc.player.connection.sendPacket(new CPacketHeldItemChange(lastItem.get(0)));
-            //   else
-            mc.player.inventory.currentItem = lastItem.get(0);
+            if (silent.getValue())
+                mc.player.connection.sendPacket(new CPacketHeldItemChange(lastItem.get(0)));
+            else
+                mc.player.inventory.currentItem = lastItem.get(0);
 
             itemIndex = lastItem.get(0);
             lastItem.clear();

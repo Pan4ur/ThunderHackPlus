@@ -2,7 +2,9 @@ package com.mrzak34.thunderhack.mixin.mixins;
 
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.events.*;
+import com.mrzak34.thunderhack.modules.misc.NoGlitchBlock;
 import com.mrzak34.thunderhack.modules.render.NoRender;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityFireworkRocket;
 import net.minecraft.util.math.BlockPos;
@@ -101,6 +103,15 @@ public class MixinWorld {
         nigga1 = entityIn.posX;
         nigga2 = entityIn.posY;
         nigga3 = entityIn.posZ;
+    }
+
+    @Inject(method={"setBlockState(Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/state/IBlockState;I)Z"}, at={@At(value="HEAD")}, cancellable=true)
+    private void setBlockState(BlockPos pos, IBlockState newState, int flags, CallbackInfoReturnable<Boolean> cir) {
+        NoGlitchBlock noGlitchBlock = Thunderhack.moduleManager.getModuleByClass(NoGlitchBlock.class);
+        if (noGlitchBlock.isEnabled() && flags != 3) {
+            cir.cancel();
+            cir.setReturnValue(false);
+        }
     }
 }
 

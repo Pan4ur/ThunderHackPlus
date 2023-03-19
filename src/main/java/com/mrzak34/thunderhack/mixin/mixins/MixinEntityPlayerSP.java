@@ -25,6 +25,9 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import java.util.ArrayDeque;
+import java.util.Deque;
+
 import static com.mrzak34.thunderhack.util.Util.mc;
 
 
@@ -158,10 +161,11 @@ public abstract class MixinEntityPlayerSP extends AbstractClientPlayer implement
         ((com.mrzak34.thunderhack.mixin.mixins.IEntityPlayerSP) mc.player).setServerSprintState(pre_sprint_state);
         EventManager.lock_sprint = false;
 
-
-        if (auraCallBack != null) {
-            auraCallBack.run();
-            auraCallBack = null;
+        if (!postEvents.isEmpty()) {
+            for (Runnable runnable : postEvents) {
+                Minecraft.getMinecraft().addScheduledTask(runnable);
+                postEvents.removeFirst();
+            }
         }
 
         EventPostMotion event = new EventPostMotion();
@@ -174,6 +178,11 @@ public abstract class MixinEntityPlayerSP extends AbstractClientPlayer implement
         }
     }
 
+    private final Deque<Runnable> postEvents = new ArrayDeque<>();
+
+    public void addAuraCallback(Runnable auraCallBack) {
+        postEvents.add(auraCallBack);
+    }
     public void setAuraCallback(Runnable auraCallBack) {
         this.auraCallBack = auraCallBack;
     }

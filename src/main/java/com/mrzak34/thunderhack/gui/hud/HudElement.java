@@ -78,7 +78,6 @@ public class HudElement extends Module {
         return pos.getValue().y;
     }
 
-
     public void setHeight(int h){
         this.height = h;
     }

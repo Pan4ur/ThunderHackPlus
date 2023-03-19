@@ -12,6 +12,7 @@ public
 class RPC extends Module {
 
     public static RPC INSTANCE;
+    public Setting<mode> Mode = register(new Setting("Picture", mode.MegaCute));
     public Setting < Boolean > showIP = this.register ( new Setting <> ( "ShowIP" , true  ) );
     public Setting < Boolean > queue = this.register ( new Setting <> ( "Queue" , true  ) );
     public Setting < String > state = this.register ( new Setting <> ( "State" , "ThunderHack+" ));
@@ -20,22 +21,16 @@ class RPC extends Module {
     public static boolean inQ = false;
     public static String position = "";
 
-
-
     @SubscribeEvent
     public void onPacketReceive(PacketEvent.Receive e){
         if(fullNullCheck())return;
-        if(e.getPacket() instanceof SPacketChat){
+        if(e.getPacket() instanceof SPacketChat && queue.getValue()){
             SPacketChat packchat = e.getPacket();
             String wtf = packchat.getChatComponent().getUnformattedText();
             position= StringUtils.substringBetween(wtf, "Position in queue: ", "\nYou can purchase");
-            if(wtf.contains("Position in queue")){
-                inQ = true;
-            }
+            if(wtf.contains("Position in queue")) inQ = true;
         }
-        if( mc.player.posY < 63f || mc.player.posY > 64f ){
-            inQ = false;
-        }
+        if( mc.player.posY < 63f || mc.player.posY > 64f ) inQ = false;
     }
 
     @Override
@@ -44,37 +39,21 @@ class RPC extends Module {
         position = "";
     }
 
-
-
-    public Setting<mode> Mode = register(new Setting("Picture", mode.MegaCute));
     public String out = "";
     public enum mode {
         Konas, Custom, Thlogo, Unknown, minecraft,thbeta,cat,newver,pic,SlivSRC,Astolfo,MegaCute;
     }
 
-    public RPC( ) {
+    public RPC() {
         super ( "DiscordRPC" , "крутая рпс" , Category.CLIENT );
         INSTANCE = this;
     }
 
     @Override
-    public void onEnable ( ) {
-        Discord.start ( );
-    }
-
+    public void onUpdate(){if(!Discord.started) Discord.start();}
 
     @Override
-    public void onUpdate(){
-        if(!Discord.started) {
-            Discord.start();
-        }
-
-    } //§7§6Position in queue: §r§6§l45§r
-
-
-    @Override
-    public
-    void onDisable ( ) {
-        Discord.stop ( );
+    public void onDisable() {
+        Discord.stop();
     }
 }

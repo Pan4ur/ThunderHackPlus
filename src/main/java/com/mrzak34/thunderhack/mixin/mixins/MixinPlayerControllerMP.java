@@ -1,7 +1,9 @@
 package com.mrzak34.thunderhack.mixin.mixins;
 
+import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.events.*;
 import com.mrzak34.thunderhack.mixin.ducks.IPlayerControllerMP;
+import com.mrzak34.thunderhack.modules.misc.NoGlitchBlock;
 import com.mrzak34.thunderhack.modules.player.Reach;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.multiplayer.PlayerControllerMP;
@@ -43,17 +45,9 @@ public abstract class MixinPlayerControllerMP implements IPlayerControllerMP {
         }
     }
 
-    @Shadow
-    public abstract void syncCurrentPlayItem();
-
     @Override
     @Invoker(value = "syncCurrentPlayItem")
     public abstract void syncItem();
-
-    @Override
-    @Accessor(value = "currentPlayerItem")
-    public abstract int getItem();
-
 
     @Inject(method = "attackEntity", at = @At(value = "HEAD"), cancellable = true)
     public void attackEntityPre(EntityPlayer playerIn, Entity targetEntity, CallbackInfo info) {
@@ -109,11 +103,11 @@ public abstract class MixinPlayerControllerMP implements IPlayerControllerMP {
 
     @Inject(method = "onPlayerDestroyBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/World;playEvent(ILnet/minecraft/util/math/BlockPos;I)V"), cancellable = true)
     private void onPlayerDestroyBlock(BlockPos pos, CallbackInfoReturnable<Boolean> callbackInfoReturnable) {
-        // noGlitchBlock noGlitchBlock = ModuleManager.getModule(noGlitchBlock.class);
-        //  if ( noGlitchBlock.isEnabled() && noGlitchBlock.breakBlock.getValue()) {
-        //  callbackInfoReturnable.cancel();
-        //  callbackInfoReturnable.setReturnValue(false);
-        // }
+        NoGlitchBlock noGlitchBlock = Thunderhack.moduleManager.getModuleByClass(NoGlitchBlock.class);
+        if ( noGlitchBlock.isEnabled()) {
+            callbackInfoReturnable.cancel();
+            callbackInfoReturnable.setReturnValue(false);
+        }
         MinecraftForge.EVENT_BUS.post(new DestroyBlockEvent(pos));
     }
 

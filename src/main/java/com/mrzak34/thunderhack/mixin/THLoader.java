@@ -7,8 +7,7 @@ import org.spongepowered.asm.mixin.Mixins;
 
 import java.util.Map;
 
-public class THLoader
-        implements IFMLLoadingPlugin {
+public class THLoader implements IFMLLoadingPlugin {
 
     public THLoader() {
         MixinBootstrap.init();
@@ -28,13 +27,10 @@ public class THLoader
         return null;
     }
 
-    public void injectData(Map<String, Object> data) {
-    }
+    public void injectData(Map<String, Object> data) {}
 
     public String getAccessTransformerClass() {
         return null;
     }
-
-
 }
 

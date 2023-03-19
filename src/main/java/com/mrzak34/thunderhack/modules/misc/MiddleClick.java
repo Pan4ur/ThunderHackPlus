@@ -5,16 +5,23 @@ import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.events.ClickMiddleEvent;
 import com.mrzak34.thunderhack.events.EventPostMotion;
 import com.mrzak34.thunderhack.events.EventPreMotion;
+import com.mrzak34.thunderhack.mixin.mixins.IMinecraft;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.InventoryUtil;
 import com.mrzak34.thunderhack.util.Timer;
+import net.minecraft.block.material.Material;
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemFood;
 import net.minecraft.network.play.client.CPacketHeldItemChange;
+import net.minecraft.network.play.client.CPacketPlayerTryUseItemOnBlock;
+import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.input.Mouse;
 
@@ -23,6 +30,8 @@ public class MiddleClick extends Module {
     public Setting<Boolean> friend = register(new Setting<>("Friend", true));
     public Setting<Boolean> rocket = register(new Setting<>("Rocket", false));
     public Setting<Boolean> ep = register(new Setting<>("Pearl", true));
+    public Setting<Boolean> silentPearl = register(new Setting<>("SilentPearl", true,v-> ep.getValue()));
+    public Setting<Integer> swapDelay = this.register(new Setting<>("SwapDelay", 100, 0, 1000));
     public Setting<Boolean> xp = register(new Setting<>("XP", false));
     public Setting<Boolean> feetExp = register(new Setting<>("FeetXP", false));
     public Setting<Boolean> silent = register(new Setting<>("SilentXP", true));
@@ -41,6 +50,7 @@ public class MiddleClick extends Module {
         if (mc.player == null || mc.world == null) return;
 
         if (feetExp.getValue() && Mouse.isButtonDown(2)) {
+            if (!xp.getValue()) return;
             mc.player.rotationPitch = 90f;
         }
 
@@ -80,19 +90,27 @@ public class MiddleClick extends Module {
                 return;
             }
         }
-
         if (ep.getValue() && timr.passedMs(500) && mc.currentScreen == null) {
             if (!Mouse.isButtonDown(2)) return;
-            int epSlot = findEPSlot();
-            int originalSlot = mc.player.inventory.currentItem;
-            if (epSlot != -1) {
-                mc.player.inventory.currentItem = epSlot;
-                mc.player.connection.sendPacket(new CPacketHeldItemChange(epSlot));
-                mc.playerController.processRightClick(mc.player, mc.world, EnumHand.MAIN_HAND);
-                mc.player.inventory.currentItem = originalSlot;
-                mc.player.connection.sendPacket(new CPacketHeldItemChange(originalSlot));
+            if(silentPearl.getValue()) {
+                int epSlot = findEPSlot();
+                int originalSlot = mc.player.inventory.currentItem;
+                if (epSlot != -1) {
+                    mc.player.inventory.currentItem = epSlot;
+                    mc.player.connection.sendPacket(new CPacketHeldItemChange(epSlot));
+                    ((IMinecraft)mc).invokeRightClick();
+                    mc.player.inventory.currentItem = originalSlot;
+                    mc.player.connection.sendPacket(new CPacketHeldItemChange(originalSlot));
+                }
+            } else {
+                int epSlot = findEPSlot();
+                int originalSlot = mc.player.inventory.currentItem;
+                if (epSlot != -1) {
+                    new PearlThread(mc.player, epSlot, originalSlot,swapDelay.getValue()).start();
+                }
             }
             timr.reset();
+
         }
 
     }
@@ -169,6 +187,30 @@ public class MiddleClick extends Module {
             if (slot != -1 && slot != -2 && slot != mc.player.inventory.currentItem) {
                 event.setCanceled(true);
             }
+        }
+    }
+
+    public class PearlThread extends Thread {
+        public EntityPlayerSP player;
+        int epSlot,originalSlot,delay;
+
+        public PearlThread(EntityPlayerSP entityPlayerSP, int epSlot, int originalSlot,int delay) {
+            this.player = entityPlayerSP;
+            this.epSlot = epSlot;
+            this.originalSlot = originalSlot;
+            this.delay = delay;
+        }
+
+        @Override
+        public void run() {
+            mc.player.inventory.currentItem = epSlot;
+            mc.player.connection.sendPacket(new CPacketHeldItemChange(epSlot));
+            try {sleep(delay);} catch (Exception ignored) {}
+            ((IMinecraft)mc).invokeRightClick();
+            try {sleep(delay);} catch (Exception ignored) {}
+            mc.player.inventory.currentItem = originalSlot;
+            mc.player.connection.sendPacket(new CPacketHeldItemChange(originalSlot));
+            super.run();
         }
     }
 }

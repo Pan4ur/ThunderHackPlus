@@ -25,8 +25,8 @@ import static com.mrzak34.thunderhack.util.PlayerUtils.getPlayerPos;
 
 public class AutoPot extends Module {
     public static int neededCap = 0;
-    public Setting<Integer> triggerhealth = this.register(new Setting<Integer>("TriggerHealth", 10, 1, 36));
-    public Setting<Integer> delay = this.register(new Setting<Integer>("delay", 200, 1, 2000));
+    public Setting<Integer> triggerhealth = this.register(new Setting<>("TriggerHealth", 10, 1, 36));
+    public Setting<Integer> delay = this.register(new Setting<>("delay", 200, 1, 2000));
     public Setting<Boolean> animation = register(new Setting<>("Animation", true));
     public Timer timer = new Timer();
     public Timer alerttimer = new Timer();

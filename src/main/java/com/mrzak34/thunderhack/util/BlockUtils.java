@@ -45,15 +45,19 @@ public class BlockUtils {
             mc.playerController.processRightClickBlock(mc.player, mc.world, pos, direction, vec, hand);
             mc.player.swingArm(hand);
         }
-        // ((IMinecraft) mc).setRightClickDelayTimer(4); //? // ? // тоже не ебу
+        ((IMinecraft) mc).setRightClickDelayTimer(4);
     }
+
 
     public static Optional<ClickLocation> generateClickLocation(BlockPos pos) {
-        return generateClickLocation(pos, false, false);
+        return generateClickLocation(pos, false,false,false);
+    }
+    public static Optional<ClickLocation> generateClickLocation(BlockPos pos, boolean ignoreEntities, boolean noPistons) {
+        return generateClickLocation(pos, ignoreEntities, noPistons, false);
     }
 
-    public static Optional<ClickLocation> generateClickLocation(BlockPos pos, boolean ignoreEntities, boolean noPistons) {
-        return generateClickLocation(pos, ignoreEntities, false, false);
+    public static double[] calculateLookAt(double x, double y, double z, EnumFacing facing, EntityPlayer me) {
+        return PlayerUtils.calculateLookAt(x + 0.5 + facing.getDirectionVec().getX() * 0.5, y + 0.5 + facing.getDirectionVec().getY() * 0.5, z + 0.5 + facing.getDirectionVec().getZ() * 0.5, me);
     }
 
     public static Optional<ClickLocation> generateClickLocation(BlockPos pos, boolean ignoreEntities, boolean noPistons, boolean onlyCrystals) {
@@ -103,9 +107,6 @@ public class BlockUtils {
         return Optional.of(new ClickLocation(neighbour, opposite));
     }
 
-    public static double[] calculateLookAt(double x, double y, double z, EnumFacing facing, EntityPlayer me) {
-        return PlayerUtils.calculateLookAt(x + 0.5 + facing.getDirectionVec().getX() * 0.5, y + 0.5 + facing.getDirectionVec().getY() * 0.5, z + 0.5 + facing.getDirectionVec().getZ() * 0.5, me);
-    }
 
     public static boolean shouldSneakWhileRightClicking(BlockPos blockPos) {
         Block block = mc.world.getBlockState(blockPos).getBlock();
@@ -402,6 +403,10 @@ public class BlockUtils {
         }
         return dirnumber != 3 || (double) pos.getX() - mc.player.getPositionVector().x >= 0.0;
     }
+
+
+
+
 
     public static class ClickLocation {
         public final BlockPos neighbour;

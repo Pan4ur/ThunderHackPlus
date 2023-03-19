@@ -5,10 +5,15 @@ import net.minecraft.block.BlockAir;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.play.client.CPacketPlayer;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 
 
 public class PlayerUtils {
@@ -18,6 +23,53 @@ public class PlayerUtils {
 
     public static boolean isPlayerMoving() {
         return mc.gameSettings.keyBindForward.isKeyDown() || mc.gameSettings.keyBindBack.isKeyDown() || mc.gameSettings.keyBindRight.isKeyDown() || mc.gameSettings.keyBindLeft.isKeyDown();
+    }
+
+    public static double getDistance(BlockPos pos)
+    {
+        return mc.player.getDistance(pos.getX() , pos.getY() , pos.getZ());
+    }
+
+    public static double getDistance(EntityPlayer pos)
+    {
+        return mc.player.getDistance(pos);
+    }
+
+    public static EntityPlayer getLookingPlayer(double range) {
+        List<EntityPlayer> players = new ArrayList<>(mc.world.playerEntities);
+        for(int i = 0; i < players.size(); i++)
+        {
+            if(getDistance(players.get(i)) > range)
+                players.remove(i);
+        }
+        players.remove(mc.player);
+        EntityPlayer target = null;
+        Vec3d positionEyes = mc.player.getPositionEyes(mc.getRenderPartialTicks());
+        Vec3d rotationEyes = mc.player.getLook(mc.getRenderPartialTicks());
+        int precision = 2;
+        for (int i = 0; i < (int) range; i++) {
+            for (int j = precision; j > 0; j--) {
+                for (EntityPlayer targetTemp : players) {
+                    AxisAlignedBB playerBox = targetTemp.getEntityBoundingBox();
+                    double xArray = positionEyes.x + (rotationEyes.x * i) + rotationEyes.x / j;
+                    double yArray = positionEyes.y + (rotationEyes.y * i) + rotationEyes.y / j;
+                    double zArray = positionEyes.z + (rotationEyes.z * i) + rotationEyes.z / j;
+                    if (playerBox.maxY >= yArray && playerBox.minY <= yArray && playerBox.maxX >= xArray && playerBox.minX <= xArray && playerBox.maxZ >= zArray && playerBox.minZ <= zArray) {
+                        target = targetTemp;
+                    }
+                }
+            }
+        }
+
+        return target;
+    }
+
+    public static EntityPlayer getNearestPlayer(double range)
+    {
+        return mc.world.playerEntities.stream().filter(p -> mc.player.getDistance(p) <= range)
+                .filter(p -> mc.player.getEntityId() != p.getEntityId())
+                .min(Comparator.comparing(p -> mc.player.getDistance(p)))
+                .orElse(null);
     }
 
     public static double[] directionSpeed(double speed) {

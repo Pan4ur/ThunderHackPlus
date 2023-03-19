@@ -40,6 +40,7 @@ public class ModuleManager {
         this.modules.add(new AutoSoup());
         this.modules.add(new AimAssist());
         this.modules.add(new AutoBuy());
+        this.modules.add(new NoGlitchBlock());
         this.modules.add(new AutoTotem());
         this.modules.add(new AutoAuth());
         this.modules.add(new AutoBuff());
@@ -158,7 +159,6 @@ public class ModuleManager {
         this.modules.add(new Player());
         this.modules.add(new Speedometer());
         this.modules.add(new ArmorHud());
-        this.modules.add(new HighJump());
         this.modules.add(new Surround());
         this.modules.add(new LogoutSpots());
         this.modules.add(new LegitStrafe());

@@ -8,7 +8,6 @@ public class DestroyBlockEvent extends Event {
     private BlockPos blockPos;
 
     public DestroyBlockEvent(BlockPos blockPos) {
-        super();
         this.blockPos = blockPos;
     }
 

@@ -68,6 +68,18 @@ public class SilentRotationUtil {
         return new float[]{(float) MathHelper.wrapDegrees(Math.toDegrees(Math.atan2(difZ, difX)) - 90.0), (float) MathHelper.wrapDegrees(Math.toDegrees(Math.atan2(difY, dist)))};
     }
 
+
+    public static float[] calcAngle(BlockPos to) {
+        if (to == null) {
+            return null;
+        }
+        double difX = to.getX() - mc.player.getPositionEyes(1).x;
+        double difY = (to.getY() - mc.player.getPositionEyes(1).y) * -1.0;
+        double difZ = to.getZ() - mc.player.getPositionEyes(1).z;
+        double dist = MathHelper.sqrt(difX * difX + difZ * difZ);
+        return new float[]{(float) MathHelper.wrapDegrees(Math.toDegrees(Math.atan2(difZ, difX)) - 90.0), (float) MathHelper.wrapDegrees(Math.toDegrees(Math.atan2(difY, dist)))};
+    }
+
     public static float[] calcAngle(Vec3d from, Vec3d to) {
         double difX = to.x - from.x;
         double difY = (to.y - from.y) * -1.0;
