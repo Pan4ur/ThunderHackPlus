@@ -16,7 +16,9 @@ import org.lwjgl.opengl.GL11;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
+import static com.mrzak34.thunderhack.gui.hud.elements.RadarRewrite.interp;
 import static org.lwjgl.opengl.GL11.*;
 
 public class Particles extends Module {
@@ -27,7 +29,7 @@ public class Particles extends Module {
     public Setting<Float> scale1 = register(new Setting("Scale", 5.0F, 0.1F, 30.0F));
     public Setting<Float> linet = register(new Setting("lineT", 1f, 0.1F, 10.0F));
     public Setting<Integer> dist = this.register(new Setting<Object>("Dist ", 50, 1, 500));
-    private final List<Particle> particleList = new ArrayList<>();
+    private final List<Particle> particleList = new CopyOnWriteArrayList<>();
 
 
     public Particles() {
@@ -116,10 +118,11 @@ public class Particles extends Module {
                 }
             }
 
+
             if (nearestParticle != null) {
-                drawGradientLine(particle.getX(), particle.getY(), nearestParticle.getX(), nearestParticle.getY(), linet.getValue(), particle.getColor(), nearestParticle.getColor());
+                drawGradientLine((float) interp(particle.getX(),particle.get_prevX()), (float) interp(particle.getY(),particle.get_prevY()), (float) interp(nearestParticle.getX(),nearestParticle.get_prevX()), (float) interp(nearestParticle.getY(),nearestParticle.get_prevY()), linet.getValue(), particle.getColor(), nearestParticle.getColor());
             }
-            RenderHelper.drawCircle(particle.getX(), particle.getY(), particle.getSize(), true, particle.getColor());
+            RenderHelper.drawCircle((float) interp(particle.getX(),particle.get_prevX()), (float) interp(particle.getY(),particle.get_prevY()), particle.getSize(), true, particle.getColor());
         }
     }
 }

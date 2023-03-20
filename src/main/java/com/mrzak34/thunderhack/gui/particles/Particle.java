@@ -23,6 +23,8 @@ public class Particle {
     };
     private final Color color;
     private final Vector2f pos;
+    private final Vector2f prev_pos;
+
     private Vector2f velocity;
     private float size;
     private float alpha;
@@ -31,6 +33,7 @@ public class Particle {
         this.velocity = velocity;
         this.color = color;
         this.pos = new Vector2f(x, y);
+        this.prev_pos = new Vector2f(x, y);
         this.size = size;
     }
 
@@ -64,12 +67,20 @@ public class Particle {
         return pos.getX();
     }
 
-    public void setX(float x) {
-        this.pos.setX(x);
-    }
-
     public float getY() {
         return pos.getY();
+    }
+
+    public float get_prevX() {
+        return prev_pos.getX();
+    }
+
+    public float get_prevY() {
+        return prev_pos.getY();
+    }
+
+    public void setX(float x) {
+        this.pos.setX(x);
     }
 
     public void setY(float y) {
@@ -88,10 +99,13 @@ public class Particle {
 
         ScaledResolution sr = new ScaledResolution(mc);
 
+        prev_pos.x = pos.x;
+        prev_pos.y = pos.y;
         pos.x += velocity.getX() * delta * speed;
         pos.y += velocity.getY() * delta * speed;
-        if (alpha < 255.0f) this.alpha += 0.05f * delta;
 
+
+        if (alpha < 255.0f) this.alpha += 0.05f * delta;
         if (pos.getX() + Particles.getInstance().scale1.getValue() > sr.getScaledWidth())
             velocity = new Vector2f(-velocity.x, velocity.y);
         if (pos.getX() - Particles.getInstance().scale1.getValue() < 0)
