@@ -1,5 +1,6 @@
 package com.mrzak34.thunderhack.gui.hud;
 
+import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.events.Render2DEvent;
 import com.mrzak34.thunderhack.gui.hud.elements.HudEditorGui;
 import com.mrzak34.thunderhack.gui.thundergui2.ThunderGui2;
@@ -14,6 +15,14 @@ import org.lwjgl.input.Mouse;
 import java.awt.*;
 
 public class HudElement extends Module {
+
+    int height;
+    int width;
+    int dragX, dragY = 0;
+    private boolean mousestate = false;
+    float x1 = 0;
+    float y1 = 0;
+
     public HudElement(String name, String description,int width, int height) {
         super(name, description, Category.HUD);
         this.height = height;
@@ -28,12 +37,15 @@ public class HudElement extends Module {
 
     private final Setting<PositionSetting> pos = this.register(new Setting<>("Position", new PositionSetting(0.5f, 0.5f)));
 
-    int height;
-    int width;
-    int dragX, dragY = 0;
-    private boolean mousestate = false;
-    float x1 = 0;
-    float y1 = 0;
+
+
+/*    public int normaliseX() {
+        return  Mouse.getX() / 2;
+    }
+
+    public int normaliseY() {
+        return  sr.getScaledHeight() - Mouse.getY() / 2;
+    }*/
 
     public int normaliseX() {
         return (int) ((Mouse.getX() / 2f));
@@ -51,6 +63,52 @@ public class HudElement extends Module {
     public void onRender2D(Render2DEvent e) {
         y1 = e.scaledResolution.getScaledHeight() * pos.getValue().getY();
         x1 = e.scaledResolution.getScaledWidth() * pos.getValue().getX();
+
+        /*if (mc.currentScreen instanceof GuiChat) {
+            if (Mouse.isButtonDown(0) && mousestate) {
+                pos.getValue().setX((float) (normaliseX() - dragX) / e.scaledResolution.getScaledWidth());
+                pos.getValue().setY((float) (normaliseY() - dragY) / e.scaledResolution.getScaledHeight());
+            }
+            if (Mouse.isButtonDown(0)) {
+                if (!mousestate && isHovering()) {
+                    dragX = (int) (normaliseX() - (pos.getValue().getX() * e.scaledResolution.getScaledWidth()));
+                    dragY = (int) (normaliseY() - (pos.getValue().getY() * e.scaledResolution.getScaledHeight()));
+                    mousestate = true;
+                }
+            } else {
+                mousestate = false;
+            }
+        } else if( mc.currentScreen instanceof HudEditorGui ){
+            if(mousestate && HudEditorGui.mouse_state){
+                pos.getValue().setX((float) (HudEditorGui.mouse_x - dragX) / e.scaledResolution.getScaledWidth());
+                pos.getValue().setY((float) (HudEditorGui.mouse_y - dragY) / e.scaledResolution.getScaledHeight());
+            }
+            if(HudEditorGui.mouse_state){
+                if(!mousestate && isHovering()) {
+                    dragX = (int) (HudEditorGui.mouse_x - (pos.getValue().getX() * e.scaledResolution.getScaledWidth()));
+                    dragY = (int) (HudEditorGui.mouse_y - (pos.getValue().getY() * e.scaledResolution.getScaledHeight()));
+                    mousestate = true;
+                }
+            } else {
+                mousestate = false;
+            }
+        } else if(mc.currentScreen instanceof ThunderGui2){
+            if(mousestate && ThunderGui2.mouse_state){
+                pos.getValue().setX((float) (ThunderGui2.mouse_x - dragX) / e.scaledResolution.getScaledWidth());
+                pos.getValue().setY((float) (ThunderGui2.mouse_y - dragY) / e.scaledResolution.getScaledHeight());
+            }
+            if(ThunderGui2.mouse_state){
+                if(!mousestate && isHovering()) {
+                    dragX = (int) (ThunderGui2.mouse_x - (pos.getValue().getX() * e.scaledResolution.getScaledWidth()));
+                    dragY = (int) (ThunderGui2.mouse_y - (pos.getValue().getY() * e.scaledResolution.getScaledHeight()));
+                    mousestate = true;
+                }
+            } else {
+                mousestate = false;
+            }
+        }*/
+
+
         if (mc.currentScreen instanceof GuiChat || mc.currentScreen instanceof HudEditorGui || mc.currentScreen instanceof ThunderGui2) {
             if (Mouse.isButtonDown(0) && mousestate) {
                 pos.getValue().setX((float) (normaliseX() - dragX) / e.scaledResolution.getScaledWidth());

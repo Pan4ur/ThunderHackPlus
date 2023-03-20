@@ -31,20 +31,18 @@ import java.util.stream.Collectors;
 
 public class StaffBoard extends HudElement {
     private static final Pattern validUserPattern = Pattern.compile("^\\w{3,16}$");
-    static boolean yt2 = false;
     public final Setting<ColorSetting> shadowColor = this.register(new Setting<>("ShadowColor", new ColorSetting(0xFF101010)));
     public final Setting<ColorSetting> color2 = this.register(new Setting<>("Color", new ColorSetting(0xFF101010)));
     public final Setting<ColorSetting> color3 = this.register(new Setting<>("Color2", new ColorSetting(0xC59B9B9B)));
     public final Setting<ColorSetting> textColor = this.register(new Setting<>("TextColor", new ColorSetting(0xBEBEBE)));
     private final Setting<Float> psize = this.register(new Setting<>("Size", 1f, 0.1f, 2f));
-    public Setting<Boolean> yt = register(new Setting<>("YT", true));
     List<String> players = new java.util.ArrayList<>();
     List<String> notSpec = new java.util.ArrayList<>();
     private final LinkedHashMap<UUID, String> nameMap = new LinkedHashMap<>();
 
 
     public StaffBoard() {
-        super("StaffBoard", "StaffBoard", 50,50);
+        super("StaffBoard", "StaffBoard", 50, 50);
     }
 
     public static void size(double width, double height, double animation) {
@@ -62,19 +60,14 @@ public class StaffBoard extends HudElement {
     }
 
     public static List<String> getOnlinePlayerD() {
-        List<String> S = new java.util.ArrayList<>();
+        List<String> S = new ArrayList<>();
         for (NetworkPlayerInfo player : mc.player.connection.getPlayerInfoMap()) {
             if (mc.isSingleplayer() || player.getPlayerTeam() == null) break;
             String prefix = player.getPlayerTeam().getPrefix();
-
             if (check(ChatFormatting.stripFormatting(prefix).toLowerCase())
                     || StaffCommand.staffNames.toString().toLowerCase().contains(player.getGameProfile().getName().toLowerCase())
-                    || player.getGameProfile().getName().toLowerCase().contains("1danil_mansoru1")
-                    || player.getPlayerTeam().getPrefix().contains("YT")
-                    || player.getGameProfile().getName().toLowerCase().contains("vas371")
-                    || player.getGameProfile().getName().toLowerCase().contains("barslan_")
-                    || (player.getPlayerTeam().getPrefix().contains("Y") && player.getPlayerTeam().getPrefix().contains("T") && yt2)
-            ) {
+                    || player.getGameProfile().getName().toLowerCase().contains("1danil_mansoru1") || player.getPlayerTeam().getPrefix().contains("YT")
+                    || (player.getPlayerTeam().getPrefix().contains("Y") && player.getPlayerTeam().getPrefix().contains("T"))) {
                 String name = Arrays.asList(player.getPlayerTeam().getMembershipCollection().stream().toArray()).toString().replace("[", "").replace("]", "");
 
                 if (player.getGameType() == GameType.SPECTATOR) {
@@ -87,13 +80,30 @@ public class StaffBoard extends HudElement {
         return S;
     }
 
-    public static boolean check(String name) {
-        String ip = (mc.getCurrentServerData() == null ? "SinglePlayer" : mc.getCurrentServerData().serverIP);
-        if (Objects.equals(ip, "mcfunny.su")) {
-            return name.contains("helper") || name.contains("moder") || name.contains("хелпер");
+    public List<String> getVanish() {
+        List<String> list = new ArrayList<>();
+        for (ScorePlayerTeam s : mc.world.getScoreboard().getTeams()) {
+            if (s.getPrefix().length() == 0 || mc.isSingleplayer()) continue;
+            String name = Arrays.asList(s.getMembershipCollection().stream().toArray()).toString().replace("[", "").replace("]", "");
+
+            if (getOnlinePlayer().contains(name) || name.isEmpty())
+                continue;
+            if (StaffCommand.staffNames.toString().toLowerCase().contains(name.toLowerCase())
+                    && check(s.getPrefix().toLowerCase())
+                    || check(s.getPrefix().toLowerCase())
+                    || name.toLowerCase().contains("1danil_mansoru1")
+                    || s.getPrefix().contains("YT")
+                    || (s.getPrefix().contains("Y") && s.getPrefix().contains("T"))
+            )
+                list.add(s.getPrefix() + name + ":vanish");
         }
-        return name.contains("helper") || name.contains("moder") || name.contains("admin") || name.contains("owner") || name.contains("curator") || name.contains("хелпер") || name.contains("модер") || name.contains("админ") || name.contains("куратор");
+        return list;
     }
+
+    public static boolean check(String name) {
+        return name.contains("helper") || name.contains("moder") || name.contains("admin") || name.contains("owner") || name.contains("curator") || name.contains("куратор") || name.contains("модер") || name.contains("админ") || name.contains("хелпер");
+    }
+
 
     @SubscribeEvent
     public void onRender2D(Render2DEvent e) {
@@ -135,22 +145,9 @@ public class StaffBoard extends HudElement {
             GlStateManager.popMatrix();
             y_offset += 13;
         }
-
         GlStateManager.popMatrix();
     }
 
-    public int normaliseX() {
-        return (int) ((Mouse.getX() / 2f));
-    }
-
-    public int normaliseY() {
-        ScaledResolution sr = new ScaledResolution(mc);
-        return (((-Mouse.getY() + sr.getScaledHeight()) + sr.getScaledHeight()) / 2);
-    }
-
-    public boolean isHovering() {
-        return normaliseX() > getPosX() - 10 && normaliseX() < getPosX() + 100 && normaliseY() > getPosY() && normaliseY() < getPosY() + 100;
-    }
 
     @Override
     public void onDisable() {
@@ -159,7 +156,6 @@ public class StaffBoard extends HudElement {
 
     @Override
     public void onUpdate() {
-        yt2 = yt.getValue();
         if (mc.player.ticksExisted % 10 == 0) {
             players = getVanish();
             notSpec = getOnlinePlayerD();
@@ -167,21 +163,4 @@ public class StaffBoard extends HudElement {
             notSpec.sort(String::compareTo);
         }
     }
-
-    public List<String> getVanish() {
-        List<String> list = new ArrayList<>();
-        for (ScorePlayerTeam s : mc.world.getScoreboard().getTeams()) {
-            if (s.getPrefix().length() == 0 || mc.isSingleplayer()) continue;
-            String name = Arrays.asList(s.getMembershipCollection().stream().toArray()).toString().replace("[", "").replace("]", "");
-
-            if (getOnlinePlayer().contains(name) || name.isEmpty())
-                continue;
-
-            if (StaffCommand.staffNames.toString().toLowerCase().contains(name.toLowerCase()) && check(s.getPrefix().toLowerCase()) || StaffCommand.staffNames.toString().toLowerCase().contains(name.toLowerCase()) && check(s.getPrefix().toLowerCase()) || name.toLowerCase().contains("1danil_mansoru1") || name.toLowerCase().contains("vas371") || name.toLowerCase().contains("barslan_") || s.getPrefix().contains("YT") || (s.getPrefix().contains("Y") && s.getPrefix().contains("T") && yt.getValue()))
-                list.add(s.getPrefix() + name + ":vanish");
-        }
-        return list;
-    }
-
-
 }

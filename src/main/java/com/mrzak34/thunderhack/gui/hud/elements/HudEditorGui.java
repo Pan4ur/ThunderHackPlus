@@ -26,7 +26,11 @@ public class HudEditorGui extends GuiScreen {
     private double scrollSpeed;
     private boolean firstOpen;
     private double dWheel;
-    private double mamer;
+
+    public static boolean mouse_state;
+    public static int mouse_x;
+    public static int mouse_y;
+
 
     public HudEditorGui() {
         windows = Lists.newArrayList();
@@ -92,6 +96,8 @@ public class HudEditorGui extends GuiScreen {
 
         dWheel = Mouse.getDWheel();
 
+        mouse_x = mouseX;
+        mouse_y = mouseY;
 
         if (dWheel > 0)
             scrollSpeed += 14;
@@ -152,12 +158,14 @@ public class HudEditorGui extends GuiScreen {
                     w1.dragging = false;
             });
         });
+        mouse_state = true;
         super.mouseClicked(mouseX, mouseY, button);
     }
 
     @Override
     public void mouseReleased(int mouseX, int mouseY, int button) {
         windows.forEach(w -> w.mouseReleased(mouseX, mouseY, button));
+        mouse_state = false;
         super.mouseReleased(mouseX, mouseY, button);
     }
 

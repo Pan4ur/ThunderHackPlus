@@ -86,6 +86,10 @@ public class ThunderGui2 extends GuiScreen {
     private String friend_string = "Add friend";
     private CurrentMode prevMode = CurrentMode.Modules;
 
+    public static boolean mouse_state;
+    public static int mouse_x;
+    public static int mouse_y;
+
     public ThunderGui2() {
         this.setInstance();
         this.load();
@@ -171,6 +175,8 @@ public class ThunderGui2 extends GuiScreen {
 
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         GlStateManager.pushMatrix();
+        mouse_x = mouseX;
+        mouse_y = mouseY;
         sizeAnimation(main_posX + main_width / 2f, main_posY + main_height / 2f, open_animation.getAnimationd());
         if (open_animation.getAnimationd() > 0) {
             renderGui(mouseX, mouseY, partialTicks);
@@ -473,6 +479,7 @@ public class ThunderGui2 extends GuiScreen {
     }
 
     public void mouseClicked(int mouseX, int mouseY, int clickedButton) {
+        mouse_state = true;
         if (isHoveringItem(main_posX + 368, main_posY + 17, 20, 6, mouseX, mouseY)) {
             if (listening_config) {
                 ConfigManager.save(config_string);
@@ -541,6 +548,7 @@ public class ThunderGui2 extends GuiScreen {
     }
 
     public void mouseReleased(int mouseX, int mouseY, int releaseButton) {
+        mouse_state = false;
         dragging = false;
         rescale = false;
         settings.forEach(settingElement -> settingElement.mouseReleased(mouseX, mouseY, releaseButton));

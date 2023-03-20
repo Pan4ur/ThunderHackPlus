@@ -163,6 +163,7 @@ public class ModuleManager {
         this.modules.add(new LogoutSpots());
         this.modules.add(new LegitStrafe());
         this.modules.add(new BackTrack());
+        this.modules.add(new XCarry());
         this.modules.add(new NameProtect());
         this.modules.add(new Radar());
         this.modules.add(new FogColor());

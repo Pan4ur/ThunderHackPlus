@@ -7,9 +7,10 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class NotificationManager extends Module {
-    private static final List<Notification> notificationsnew = new ArrayList<>();
+    private static final List<Notification> notificationsnew = new CopyOnWriteArrayList<>();
     private final Setting<Float> position = this.register(new Setting<>("Position", 1f, 0f, 1f));
 
     public NotificationManager() {

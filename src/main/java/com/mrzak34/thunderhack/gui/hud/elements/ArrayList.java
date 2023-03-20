@@ -27,16 +27,21 @@ import java.awt.*;
 import static com.mrzak34.thunderhack.util.render.RenderUtil.TwoColoreffect;
 
 public class ArrayList extends HudElement {
+    private final Setting<Mode> mode = register(new Setting<>("Mode", Mode.ColorText));
     private final Setting<ColorSetting> color = register(new Setting<>("Color", new ColorSetting(0x8800FF00)));
     private final Setting<Float> rainbowSpeed = register(new Setting("Speed", 10.0f, 1.0f, 20.0f));
     private final Setting<Float> saturation = register(new Setting("Saturation", 0.5f, 0.1f, 1.0f));
-    private final Setting<Integer> gste = register(new Setting("GS", 30, 10, 50));
-    private final Setting<Boolean> glow = register(new Setting<>("glow", true));
-    private final Setting<Boolean> shadoiw = register(new Setting<>("shadow", true));
+    private final Setting<Integer> gste = register(new Setting("GS", 30, 1, 50));
+    private final Setting<Boolean> glow = register(new Setting<>("glow", false));
     private final Setting<cMode> cmode = register(new Setting<>("ColorMode", cMode.Rainbow));
     private final Setting<Boolean> hrender = register(new Setting<>("HideHud", true));
     private final Setting<Boolean> hhud = register(new Setting<>("HideRender", true));
-    private final Setting<ColorSetting> color2 = this.register(new Setting<>("Color2", new ColorSetting(-2353224)));
+    private final Setting<ColorSetting> color2 = this.register(new Setting<>("Color2", new ColorSetting(237176633)));
+    private final Setting<ColorSetting> color3 = this.register(new Setting<>("RectColor", new ColorSetting(-16777216)));
+    private final Setting<ColorSetting> color4 = this.register(new Setting<>("SideRectColor", new ColorSetting(-16777216)));
+
+
+
 
     public ArrayList() {super("ArrayList", "arraylist",50,30);}
 
@@ -108,24 +113,44 @@ public class ArrayList extends HudElement {
                 color1 = new Color(color.getValue().getColor()).darker();
             }
 
-            if (!reverse) {
-                stringWidth = FontRender.getStringWidth6(module.getDisplayName() + ChatFormatting.GRAY + ((module.getDisplayInfo() != null) ? (" [" + ChatFormatting.WHITE + module.getDisplayInfo() + ChatFormatting.GRAY + "]") : "")) + 3;
-                if (glow.getValue()) {
-                    RenderHelper.drawBlurredShadow(getPosX() - 3, getPosY() + (float) offset - 1, (float) stringWidth + 4.0f, 9.0f, gste.getValue(), color1);
+            if(mode.getValue() == Mode.ColorRect) {
+                if (!reverse) {
+                    stringWidth = FontRender.getStringWidth6(module.getDisplayName() + ChatFormatting.GRAY + ((module.getDisplayInfo() != null) ? (" [" + ChatFormatting.WHITE + module.getDisplayInfo() + ChatFormatting.GRAY + "]") : "")) + 3;
+                    if (glow.getValue()) {
+                        RenderHelper.drawBlurredShadow(getPosX() - 3, getPosY() + (float) offset - 1, (float) stringWidth + 4.0f, 9.0f, gste.getValue(), color1);
+                    }
+                    drawRect(getPosX(), getPosY() + (float) offset, getPosX() + (float) stringWidth + 1.0f, getPosY() + (float) offset + 8.0f, color1.getRGB());
+                    drawRect(getPosX() - 2.0f, getPosY() + (float) offset, getPosX() + 1.0f, getPosY() + (float) offset + 8.0f, color4.getValue().getColor());
+                    FontRender.drawString6(module.getDisplayName() + ChatFormatting.GRAY + ((module.getDisplayInfo() != null) ? (" [" + ChatFormatting.WHITE + module.getDisplayInfo() + ChatFormatting.GRAY + "]") : ""), getPosX() + 3.0f, getPosY() + 2.0f + (float) offset, -1, false);
                 }
-                drawRect(getPosX(), getPosY() + (float) offset, getPosX() + (float) stringWidth + 1.0f, getPosY() + (float) offset + 8.0f, color1.getRGB());
-                drawRect(getPosX() - 2.0f, getPosY() + (float) offset, getPosX() + 1.0f, getPosY() + (float) offset + 8.0f, -1);
-                FontRender.drawString6(module.getDisplayName() + ChatFormatting.GRAY + ((module.getDisplayInfo() != null) ? (" [" + ChatFormatting.WHITE + module.getDisplayInfo() + ChatFormatting.GRAY + "]") : ""), getPosX() + 3.0f, getPosY() + 2.0f + (float) offset, -1, shadoiw.getValue());
-            }
-            if (reverse) {
-                stringWidth = FontRender.getStringWidth6(module.getDisplayName() + ChatFormatting.GRAY + ((module.getDisplayInfo() != null) ? (" [" + ChatFormatting.WHITE + module.getDisplayInfo() + ChatFormatting.GRAY + "]") : "")) + 3;
-                if (glow.getValue()) {
-                    RenderHelper.drawBlurredShadow(getPosX() - (float) stringWidth - 3, getPosY() + (float) offset - 1, stringWidth + 4, 9f, gste.getValue(), color1);
+                if (reverse) {
+                    stringWidth = FontRender.getStringWidth6(module.getDisplayName() + ChatFormatting.GRAY + ((module.getDisplayInfo() != null) ? (" [" + ChatFormatting.WHITE + module.getDisplayInfo() + ChatFormatting.GRAY + "]") : "")) + 3;
+                    if (glow.getValue()) {
+                        RenderHelper.drawBlurredShadow(getPosX() - (float) stringWidth - 3, getPosY() + (float) offset - 1, stringWidth + 4, 9f, gste.getValue(), color1);
+                    }
+                    drawRect(getPosX() - (float) stringWidth, getPosY() + (float) offset, getPosX() + 1.0f, getPosY() + (float) offset + 8.0f, color1.getRGB());
+                    drawRect(getPosX() + 1f, getPosY() + (float) offset, getPosX() + 4.0f, getPosY() + (float) offset + 8.0f, color4.getValue().getColor());
+                    FontRender.drawString6(module.getDisplayName() + ChatFormatting.GRAY + ((module.getDisplayInfo() != null) ? (" [" + ChatFormatting.WHITE + module.getDisplayInfo() + ChatFormatting.GRAY + "]") : ""), getPosX() - stringWidth + 2.0f, getPosY() + 2.0f + (float) offset, -1, false);
                 }
-                drawRect(getPosX() - (float) stringWidth, getPosY() + (float) offset, getPosX() + 1.0f, getPosY() + (float) offset + 8.0f, color1.getRGB());
-                drawRect(getPosX() + 1f, getPosY() + (float) offset, getPosX() + 4.0f, getPosY() + (float) offset + 8.0f, -1);
-                FontRender.drawString6(module.getDisplayName() + ChatFormatting.GRAY + ((module.getDisplayInfo() != null) ? (" [" + ChatFormatting.WHITE + module.getDisplayInfo() + ChatFormatting.GRAY + "]") : ""), getPosX() - stringWidth + 2.0f, getPosY() + 2.0f + (float) offset, -1, shadoiw.getValue());
-
+            } else {
+                if (!reverse) {
+                    stringWidth = FontRender.getStringWidth6(module.getDisplayName() + ChatFormatting.GRAY + ((module.getDisplayInfo() != null) ? (" [" + ChatFormatting.WHITE + module.getDisplayInfo() + ChatFormatting.GRAY + "]") : "")) + 3;
+                    if (glow.getValue()) {
+                        RenderHelper.drawBlurredShadow(getPosX() - 3, getPosY() + (float) offset - 1, (float) stringWidth + 4.0f, 9.0f, gste.getValue(), color1);
+                    }
+                    drawRect(getPosX(), getPosY() + (float) offset, getPosX() + (float) stringWidth + 1.0f, getPosY() + (float) offset + 8.0f, color3.getValue().getColor());
+                    drawRect(getPosX() - 2.0f, getPosY() + (float) offset, getPosX() + 1.0f, getPosY() + (float) offset + 8.0f, color4.getValue().getColor());
+                    FontRender.drawString6(module.getDisplayName() + ChatFormatting.GRAY + ((module.getDisplayInfo() != null) ? (" [" + ChatFormatting.WHITE + module.getDisplayInfo() + ChatFormatting.GRAY + "]") : ""), getPosX() + 3.0f, getPosY() + 2.0f + (float) offset, color1.getRGB(), false);
+                }
+                if (reverse) {
+                    stringWidth = FontRender.getStringWidth6(module.getDisplayName() + ChatFormatting.GRAY + ((module.getDisplayInfo() != null) ? (" [" + ChatFormatting.WHITE + module.getDisplayInfo() + ChatFormatting.GRAY + "]") : "")) + 3;
+                    if (glow.getValue()) {
+                        RenderHelper.drawBlurredShadow(getPosX() - (float) stringWidth - 3, getPosY() + (float) offset - 1, stringWidth + 4, 9f, gste.getValue(), color1);
+                    }
+                    drawRect(getPosX() - (float) stringWidth, getPosY() + (float) offset, getPosX() + 1.0f, getPosY() + (float) offset + 8.0f, color3.getValue().getColor());
+                    drawRect(getPosX() + 1f, getPosY() + (float) offset, getPosX() + 4.0f, getPosY() + (float) offset + 8.0f, color4.getValue().getColor());
+                    FontRender.drawString6(module.getDisplayName() + ChatFormatting.GRAY + ((module.getDisplayInfo() != null) ? (" [" + ChatFormatting.WHITE + module.getDisplayInfo() + ChatFormatting.GRAY + "]") : ""), getPosX() - stringWidth + 2.0f, getPosY() + 2.0f + (float) offset, color1.getRGB(), false);
+                }
             }
             offset += 8;
         }
@@ -135,4 +160,7 @@ public class ArrayList extends HudElement {
         Rainbow, Custom,DoubleColor
     }
 
+    private enum Mode {
+        ColorText, ColorRect
+    }
 }

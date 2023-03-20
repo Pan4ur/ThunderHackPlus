@@ -50,41 +50,25 @@ public class Search extends Module {
         }
     }
 
-    private static Block getRegisteredBlock(String blockName) {
-        Block block = Block.REGISTRY.getObject(new ResourceLocation(blockName));
-        return block;
-    }
-
     public static void renderTracer(double x, double y, double z, double x2, double y2, double z2, int color) {
+        GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
         GL11.glBlendFunc(770, 771);
         GL11.glEnable(GL11.GL_BLEND);
         GL11.glLineWidth(1.5f);
         GL11.glDisable(GL11.GL_TEXTURE_2D);
         GL11.glDisable(GL11.GL_DEPTH_TEST);
         GL11.glDepthMask(false);
-
         GL11.glColor4f(((color >> 16) & 0xFF) / 255F, ((color >> 8) & 0xFF) / 255F, ((color) & 0xFF) / 255F, ((color >> 24) & 0xFF) / 255F);
         GlStateManager.disableLighting();
         GL11.glLoadIdentity();
-
         ((IEntityRenderer) mc.entityRenderer).orientCam(mc.getRenderPartialTicks());
-
         GL11.glEnable(GL11.GL_LINE_SMOOTH);
-
         GL11.glBegin(GL11.GL_LINES);
         GL11.glVertex3d(x, y, z);
         GL11.glVertex3d(x2, y2, z2);
         GL11.glVertex3d(x2, y2, z2);
         GL11.glEnd();
-
-        GL11.glDisable(GL11.GL_LINE_SMOOTH);
-
-        GL11.glEnable(GL11.GL_TEXTURE_2D);
-        GL11.glEnable(GL11.GL_DEPTH_TEST);
-        GL11.glDepthMask(true);
-        GL11.glDisable(GL11.GL_BLEND);
-        GL11.glColor3d(1d, 1d, 1d);
-        GlStateManager.enableLighting();
+        GL11.glPopAttrib();
     }
 
     public void onEnable() {
