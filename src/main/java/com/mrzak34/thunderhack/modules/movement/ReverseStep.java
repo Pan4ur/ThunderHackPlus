@@ -1,7 +1,7 @@
 package com.mrzak34.thunderhack.modules.movement;
 
 import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.events.EventPreMotion;
+import com.mrzak34.thunderhack.events.EventSync;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.phobos.IEntity;
@@ -22,7 +22,7 @@ public class ReverseStep extends Module {
     }
 
     @SubscribeEvent
-    public void onEntitySync(EventPreMotion eventPlayerUpdateWalking) {
+    public void onEntitySync(EventSync eventPlayerUpdateWalking) {
         if (Thunderhack.moduleManager.getModuleByClass(PacketFly.class).isEnabled() || Thunderhack.moduleManager.getModuleByClass(PacketFly2.class).isEnabled()) {
             return;
         }

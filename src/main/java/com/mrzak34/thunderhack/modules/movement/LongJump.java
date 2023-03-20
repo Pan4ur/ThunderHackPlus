@@ -3,7 +3,7 @@ package com.mrzak34.thunderhack.modules.movement;
 
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.events.EventMove;
-import com.mrzak34.thunderhack.events.EventPostMotion;
+import com.mrzak34.thunderhack.events.EventPostSync;
 import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.mixin.mixins.ISPacketPlayerPosLook;
 import com.mrzak34.thunderhack.modules.Module;
@@ -196,7 +196,7 @@ public class LongJump extends Module {
     }
 
     @SubscribeEvent
-    public void onUpdateWalkingPlayerPost(EventPostMotion f4u2) {
+    public void onUpdateWalkingPlayerPost(EventPostSync f4u2) {
         if (Mode.getValue() == ModeEn.Default) {
             DefaultOnPreMotion(f4u2);
         } else if (Mode.getValue() == ModeEn.FunnyGame) {
@@ -204,7 +204,7 @@ public class LongJump extends Module {
         }
     }
 
-    public void DefaultOnPreMotion(EventPostMotion f4u2) {
+    public void DefaultOnPreMotion(EventPostSync f4u2) {
         double d = mc.player.posX - mc.player.prevPosX;
         double d2 = mc.player.posZ - mc.player.prevPosZ;
         this.Field1991 = Math.sqrt(d * d + d2 * d2);
@@ -376,7 +376,7 @@ public class LongJump extends Module {
         }
     }
 
-    public void FGPostMotion(EventPostMotion f4u2) {
+    public void FGPostMotion(EventPostSync f4u2) {
         if (startY > mc.player.posY) {
             Thunderhack.TICK_TIMER = 1f;
             toggle();

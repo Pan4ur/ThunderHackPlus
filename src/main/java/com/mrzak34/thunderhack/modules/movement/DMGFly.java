@@ -1,7 +1,7 @@
 package com.mrzak34.thunderhack.modules.movement;
 
 import com.mrzak34.thunderhack.events.EventMove;
-import com.mrzak34.thunderhack.events.EventPreMotion;
+import com.mrzak34.thunderhack.events.EventSync;
 import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import net.minecraft.network.play.server.SPacketEntityVelocity;
@@ -59,7 +59,7 @@ public class DMGFly extends Module {
     }
 
     @SubscribeEvent
-    public void onUpdateWalkingPlayer(EventPreMotion e) {
+    public void onUpdateWalkingPlayer(EventSync e) {
         if (System.currentTimeMillis() - lastVelocityTime < 1350) {
             mc.player.setSprinting(!mc.player.isSprinting());
         }

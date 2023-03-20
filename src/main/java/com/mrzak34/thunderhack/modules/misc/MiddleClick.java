@@ -3,25 +3,20 @@ package com.mrzak34.thunderhack.modules.misc;
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.events.ClickMiddleEvent;
-import com.mrzak34.thunderhack.events.EventPostMotion;
-import com.mrzak34.thunderhack.events.EventPreMotion;
+import com.mrzak34.thunderhack.events.EventPostSync;
+import com.mrzak34.thunderhack.events.EventSync;
 import com.mrzak34.thunderhack.mixin.mixins.IMinecraft;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.InventoryUtil;
 import com.mrzak34.thunderhack.util.Timer;
-import net.minecraft.block.material.Material;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemFood;
 import net.minecraft.network.play.client.CPacketHeldItemChange;
-import net.minecraft.network.play.client.CPacketPlayerTryUseItemOnBlock;
-import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RayTraceResult;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.input.Mouse;
 
@@ -46,7 +41,7 @@ public class MiddleClick extends Module {
     }
 
     @SubscribeEvent
-    public void onPreMotion(EventPreMotion event) {
+    public void onPreMotion(EventSync event) {
         if (mc.player == null || mc.world == null) return;
 
         if (feetExp.getValue() && Mouse.isButtonDown(2)) {
@@ -116,7 +111,7 @@ public class MiddleClick extends Module {
     }
 
     @SubscribeEvent
-    public void onPostMotion(EventPostMotion event) {
+    public void onPostMotion(EventPostSync event) {
         if (xp.getValue()) {
             if (Mouse.isButtonDown(2) && (whileEating.getValue() || !(mc.player.getActiveItemStack().getItem() instanceof ItemFood))) {
                 int slot = InventoryUtil.findItemAtHotbar(Items.EXPERIENCE_BOTTLE);

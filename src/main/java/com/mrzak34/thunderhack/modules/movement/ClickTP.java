@@ -1,6 +1,6 @@
 package com.mrzak34.thunderhack.modules.movement;
 
-import com.mrzak34.thunderhack.events.EventPreMotion;
+import com.mrzak34.thunderhack.events.EventSync;
 import com.mrzak34.thunderhack.events.Render3DEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
@@ -29,7 +29,7 @@ public class ClickTP extends Module {
     }
 
     @SubscribeEvent
-    public void onMotion(EventPreMotion e) {
+    public void onMotion(EventSync e) {
         if (Mouse.isButtonDown(1)) {
             RayTraceResult ray = mc.player.rayTrace(256, mc.getRenderPartialTicks());
             int i;

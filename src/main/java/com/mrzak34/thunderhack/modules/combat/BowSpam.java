@@ -1,6 +1,6 @@
 package com.mrzak34.thunderhack.modules.combat;
 
-import com.mrzak34.thunderhack.events.EventPreMotion;
+import com.mrzak34.thunderhack.events.EventSync;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.Timer;
@@ -28,7 +28,7 @@ public class BowSpam
 
 
     @SubscribeEvent
-    public void onPlayerPre(EventPreMotion event) {
+    public void onPlayerPre(EventSync event) {
         if (this.mode.getValue() == Mode.FAST && (this.offhand || BowSpam.mc.player.inventory.getCurrentItem().getItem() instanceof ItemBow) && BowSpam.mc.player.isHandActive()) {
             if (BowSpam.mc.player.getItemInUseMaxCount() >= this.ticks.getValue()) {
                 BowSpam.mc.player.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.RELEASE_USE_ITEM, BlockPos.ORIGIN, BowSpam.mc.player.getHorizontalFacing()));

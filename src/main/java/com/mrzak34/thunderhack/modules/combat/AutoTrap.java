@@ -2,8 +2,8 @@ package com.mrzak34.thunderhack.modules.combat;
 
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.command.Command;
-import com.mrzak34.thunderhack.events.EventPostMotion;
-import com.mrzak34.thunderhack.events.EventPreMotion;
+import com.mrzak34.thunderhack.events.EventPostSync;
+import com.mrzak34.thunderhack.events.EventSync;
 import com.mrzak34.thunderhack.events.Render3DEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.modules.movement.PacketFly;
@@ -77,7 +77,7 @@ public class AutoTrap
     }
 
     @SubscribeEvent
-    public void onUpdateWalkingPlayerPre(EventPreMotion event) {
+    public void onUpdateWalkingPlayerPre(EventSync event) {
         if (placement != null) {
             lastPlacement = placement;
             lastPlacementTimer.reset();
@@ -143,7 +143,7 @@ public class AutoTrap
     }
 
     @SubscribeEvent
-    public void onPlayerPost(EventPostMotion event) {
+    public void onPlayerPost(EventPostSync event) {
 
         if (placement != null && playerPos != null && itemSlot != -1) {
             boolean changeItem = mc.player.inventory.currentItem != itemSlot;

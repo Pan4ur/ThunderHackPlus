@@ -2,7 +2,7 @@ package com.mrzak34.thunderhack.modules.combat;
 
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.command.Command;
-import com.mrzak34.thunderhack.events.EventPreMotion;
+import com.mrzak34.thunderhack.events.EventSync;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.Timer;
@@ -28,7 +28,7 @@ public class AntiBot extends Module {
     }
 
     @SubscribeEvent
-    public void onUpdateWalkingPlayerPre(EventPreMotion e) {
+    public void onUpdateWalkingPlayerPre(EventSync e) {
 
         if (!onlyAura.getValue()) {
             for (EntityPlayer player : AntiBot.mc.world.playerEntities) {

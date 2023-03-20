@@ -1,6 +1,6 @@
 package com.mrzak34.thunderhack.util;
 
-import com.mrzak34.thunderhack.events.EventPreMotion;
+import com.mrzak34.thunderhack.events.EventSync;
 import com.mrzak34.thunderhack.mixin.mixins.IEntityPlayerSP;
 import net.minecraft.block.*;
 import net.minecraft.block.state.IBlockState;
@@ -57,7 +57,7 @@ public class InteractionUtil {
         return true;
     }
 
-    public static Placement preparePlacement(BlockPos pos, boolean rotate, EventPreMotion e) {
+    public static Placement preparePlacement(BlockPos pos, boolean rotate, EventSync e) {
         return preparePlacement(pos, rotate, false, e);
     }
 
@@ -66,15 +66,15 @@ public class InteractionUtil {
         return true;
     }
 
-    public static Placement preparePlacement(BlockPos pos, boolean rotate, boolean instant, EventPreMotion e) {
+    public static Placement preparePlacement(BlockPos pos, boolean rotate, boolean instant, EventSync e) {
         return preparePlacement(pos, rotate, instant, false, e);
     }
 
-    public static Placement preparePlacement(BlockPos pos, boolean rotate, boolean instant, boolean strictDirection, EventPreMotion e) {
+    public static Placement preparePlacement(BlockPos pos, boolean rotate, boolean instant, boolean strictDirection, EventSync e) {
         return preparePlacement(pos, rotate, instant, strictDirection, false, e);
     }
 
-    public static Placement preparePlacement(BlockPos pos, boolean rotate, boolean instant, boolean strictDirection, boolean rayTrace, EventPreMotion e) {
+    public static Placement preparePlacement(BlockPos pos, boolean rotate, boolean instant, boolean strictDirection, boolean rayTrace, EventSync e) {
         EnumFacing side = null;
         Vec3d hitVec = null;
         double dist = 69420D;

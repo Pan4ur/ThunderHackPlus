@@ -1,7 +1,7 @@
 package com.mrzak34.thunderhack.util.phobos;
 
-import com.mrzak34.thunderhack.events.EventPostMotion;
-import com.mrzak34.thunderhack.events.EventPreMotion;
+import com.mrzak34.thunderhack.events.EventPostSync;
+import com.mrzak34.thunderhack.events.EventSync;
 import com.mrzak34.thunderhack.events.NoMotionUpdateEvent;
 import com.mrzak34.thunderhack.events.PacketEvent;
 import net.minecraft.network.play.client.CPacketPlayer;
@@ -45,7 +45,7 @@ public class NoMotionUpdateService  {
     }
 
     @SubscribeEvent
-    public void onMotion(EventPreMotion e) {
+    public void onMotion(EventSync e) {
         if (e.isCanceled()) {
             return;
         }
@@ -55,7 +55,7 @@ public class NoMotionUpdateService  {
 
 
     @SubscribeEvent
-    public void onPost(EventPostMotion e) {
+    public void onPost(EventPostSync e) {
         if (e.isCanceled()) {
             return;
         }

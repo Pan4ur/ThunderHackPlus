@@ -106,7 +106,7 @@ public class CombatManager  {
         }
 
         public long lastPop() {
-            return timer.getTime();
+            return timer.getTimeMs();
         }
     }
 

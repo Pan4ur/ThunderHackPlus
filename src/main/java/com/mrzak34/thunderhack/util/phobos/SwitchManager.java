@@ -54,7 +54,7 @@ public class SwitchManager{
      * {@link CPacketHeldItemChange} has been send.
      */
     public long getLastSwitch() {
-        return timer.getTime();
+        return timer.getTimeMs();
     }
 
     /**

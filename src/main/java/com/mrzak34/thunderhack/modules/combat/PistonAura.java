@@ -2,8 +2,8 @@ package com.mrzak34.thunderhack.modules.combat;
 
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.command.Command;
-import com.mrzak34.thunderhack.events.EventPostMotion;
-import com.mrzak34.thunderhack.events.EventPreMotion;
+import com.mrzak34.thunderhack.events.EventPostSync;
+import com.mrzak34.thunderhack.events.EventSync;
 import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.events.Render3DEvent;
 import com.mrzak34.thunderhack.mixin.mixins.IEntityPlayerSP;
@@ -17,7 +17,6 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
 import net.minecraft.block.BlockDirectional;
 import net.minecraft.block.BlockPistonBase;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityEnderCrystal;
 import net.minecraft.entity.player.EntityPlayer;
@@ -36,7 +35,6 @@ import net.minecraft.util.math.*;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -570,7 +568,7 @@ public class PistonAura extends Module {
     }
 
     @SubscribeEvent
-    public void onEntitySync(EventPreMotion event) {
+    public void onEntitySync(EventSync event) {
         if (tickCounter < actionInterval.getValue()) {
             tickCounter++;
         }
@@ -589,7 +587,7 @@ public class PistonAura extends Module {
     }
 
     @SubscribeEvent
-    public void postEntitySync(EventPostMotion event) {
+    public void postEntitySync(EventPostSync event) {
         if (postAction != null) {
             actionTimer.reset();
             tickCounter = 0;

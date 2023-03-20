@@ -1,7 +1,7 @@
 package com.mrzak34.thunderhack.modules.render;
 
 import com.mojang.realmsclient.gui.ChatFormatting;
-import com.mrzak34.thunderhack.events.EventPreMotion;
+import com.mrzak34.thunderhack.events.EventSync;
 import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.events.Render2DEvent;
 import com.mrzak34.thunderhack.events.Render3DEvent;
@@ -81,7 +81,7 @@ public class XRay extends Module {
     }
 
     @SubscribeEvent
-    public void onUpdateWalkingPlayerPre(EventPreMotion event) {
+    public void onUpdateWalkingPlayerPre(EventSync event) {
         for (int i = 0; i < this.checkSpeed.getValue(); ++i) {
             if (this.toCheck.size() < 1) {
                 return;

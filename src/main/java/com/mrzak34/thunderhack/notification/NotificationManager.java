@@ -3,6 +3,7 @@ package com.mrzak34.thunderhack.notification;
 import com.mrzak34.thunderhack.events.Render2DEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
+import com.mrzak34.thunderhack.util.SoundUtil;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.util.ArrayList;
@@ -19,6 +20,12 @@ public class NotificationManager extends Module {
 
     public static void publicity(String content, int second, Notification.Type type) {
         notificationsnew.add(new Notification(content, type, second * 1000));
+        if(type == Notification.Type.SUCCESS){
+            SoundUtil.playSound(SoundUtil.ThunderSound.SUCCESS);
+        }
+        if(type == Notification.Type.ERROR){
+            SoundUtil.playSound(SoundUtil.ThunderSound.ERROR);
+        }
     }
 
 

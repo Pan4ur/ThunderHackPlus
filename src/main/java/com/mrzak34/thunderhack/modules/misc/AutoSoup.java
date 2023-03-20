@@ -1,6 +1,6 @@
 package com.mrzak34.thunderhack.modules.misc;
 
-import com.mrzak34.thunderhack.events.EventPreMotion;
+import com.mrzak34.thunderhack.events.EventSync;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.InventoryUtil;
@@ -18,7 +18,7 @@ public class AutoSoup extends Module {
     }
 
     @SubscribeEvent
-    public void onUpdateWalkingPlayer(EventPreMotion event) {
+    public void onUpdateWalkingPlayer(EventSync event) {
         if (mc.player.getHealth() <= thealth.getValue()) {
             int soupslot = InventoryUtil.findSoupAtHotbar();
             int currentslot = mc.player.inventory.currentItem;

@@ -80,8 +80,8 @@ public class ServerTickManager {
      * @return time into the current server tick
      */
     public int getTickTime() {
-        if (serverTickTimer.getTime() < 50) return (int) serverTickTimer.getTime();
-        return (int) (serverTickTimer.getTime() % getServerTickLengthMS());
+        if (serverTickTimer.getTimeMs() < 50) return (int) serverTickTimer.getTimeMs();
+        return (int) (serverTickTimer.getTimeMs() % getServerTickLengthMS());
     }
 
     /**

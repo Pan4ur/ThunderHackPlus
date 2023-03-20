@@ -1,6 +1,6 @@
 package com.mrzak34.thunderhack.modules.combat;
 
-import com.mrzak34.thunderhack.events.EventPreMotion;
+import com.mrzak34.thunderhack.events.EventSync;
 import com.mrzak34.thunderhack.events.StopUsingItemEvent;
 import com.mrzak34.thunderhack.mixin.mixins.IEntityPlayerSP;
 import com.mrzak34.thunderhack.modules.Module;
@@ -33,7 +33,7 @@ public class Quiver extends Module {
     }
 
     @SubscribeEvent
-    public void onUpdateWalkingPlayer(EventPreMotion event) {
+    public void onUpdateWalkingPlayer(EventSync event) {
         if (mc.player == null || mc.world == null) return;
 
         if (!timer.passedMs(2500)) return;

@@ -128,7 +128,7 @@ public class EventManager {
     }
 
     @SubscribeEvent
-    public void onPlayer(EventPreMotion event) {
+    public void onPlayer(EventSync event) {
         if (fullNullCheck())
             return;
         updateRotations();
@@ -162,7 +162,7 @@ public class EventManager {
     }
 
     @SubscribeEvent
-    public void onUpdateWalkingPlayer(EventPostMotion event) {
+    public void onUpdateWalkingPlayer(EventPostSync event) {
         if (fullNullCheck())
             return;
         restoreRotations();

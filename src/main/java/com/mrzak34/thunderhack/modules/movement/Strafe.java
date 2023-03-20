@@ -307,7 +307,7 @@ public class Strafe extends Module {
     }
 
     @SubscribeEvent
-    public void updateValues(EventPreMotion e) {
+    public void updateValues(EventSync e) {
         double distTraveledLastTickX = mc.player.posX - mc.player.prevPosX;
         double distTraveledLastTickZ = mc.player.posZ - mc.player.prevPosZ;
         oldSpeed = (Math.sqrt(distTraveledLastTickX * distTraveledLastTickX + distTraveledLastTickZ * distTraveledLastTickZ)) * contextFriction;

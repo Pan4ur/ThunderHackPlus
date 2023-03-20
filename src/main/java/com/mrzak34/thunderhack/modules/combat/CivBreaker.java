@@ -1,7 +1,7 @@
 package com.mrzak34.thunderhack.modules.combat;
 
 import com.mrzak34.thunderhack.command.Command;
-import com.mrzak34.thunderhack.events.EventPreMotion;
+import com.mrzak34.thunderhack.events.EventSync;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.InteractionUtil;
@@ -67,7 +67,7 @@ public class CivBreaker extends Module {
 
 
     @SubscribeEvent
-    public void onEntitySync(EventPreMotion ev) {
+    public void onEntitySync(EventSync ev) {
         final int pix = findItem(Items.DIAMOND_PICKAXE);
         final int crystal = findItem(Items.END_CRYSTAL);
         final int obby = findMaterials();

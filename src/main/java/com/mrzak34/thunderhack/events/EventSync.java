@@ -4,12 +4,12 @@ import net.minecraftforge.fml.common.eventhandler.Cancelable;
 import net.minecraftforge.fml.common.eventhandler.Event;
 
 @Cancelable
-public class EventPreMotion extends Event {
+public class EventSync extends Event {
 
     float yaw;
     float pitch;
 
-    public EventPreMotion(float yaw, float pitch) {
+    public EventSync(float yaw, float pitch) {
         this.yaw = yaw;
         this.pitch = pitch;
     }

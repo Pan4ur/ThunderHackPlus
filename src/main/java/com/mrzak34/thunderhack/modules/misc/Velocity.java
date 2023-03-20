@@ -2,7 +2,7 @@ package com.mrzak34.thunderhack.modules.misc;
 
 
 import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.events.EventPreMotion;
+import com.mrzak34.thunderhack.events.EventSync;
 import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.events.PushEvent;
 import com.mrzak34.thunderhack.mixin.mixins.ISPacketEntityVelocity;
@@ -130,7 +130,7 @@ public class Velocity
     }
 
     @SubscribeEvent
-    public void onPreMotion(EventPreMotion var1) {
+    public void onPreMotion(EventSync var1) {
         if (mode.getValue() == modeEn.Matrix) {
             if (mc.player.hurtTime > 0 && !mc.player.onGround) {
                 double var3 = mc.player.rotationYaw * 0.017453292F;

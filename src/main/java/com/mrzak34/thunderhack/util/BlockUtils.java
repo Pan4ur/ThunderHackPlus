@@ -1,6 +1,6 @@
 package com.mrzak34.thunderhack.util;
 
-import com.mrzak34.thunderhack.events.EventPreMotion;
+import com.mrzak34.thunderhack.events.EventSync;
 import com.mrzak34.thunderhack.mixin.mixins.IMinecraft;
 import com.mrzak34.thunderhack.util.math.MathUtil;
 import net.minecraft.block.*;
@@ -326,7 +326,7 @@ public class BlockUtils {
         ((IMinecraft)mc).setRightClickDelayTimer(4);
     }
 
-    public static boolean placeBlockSmartRotate(BlockPos pos, EnumHand hand, boolean rotate, boolean packet, boolean isSneaking, EventPreMotion ev) {
+    public static boolean placeBlockSmartRotate(BlockPos pos, EnumHand hand, boolean rotate, boolean packet, boolean isSneaking, EventSync ev) {
         boolean sneaking = false;
         EnumFacing side = getFirstFacing(pos);
         if (side == null) {

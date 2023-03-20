@@ -57,6 +57,10 @@ public class Timer implements Passable {
         return System.currentTimeMillis() - this.time >= delay;
     }
 
+    public long getTimeMs() {
+        return getMs(System.nanoTime() - this.time);
+    }
+
     public long getTime() {
         return System.nanoTime() - this.time;
     }

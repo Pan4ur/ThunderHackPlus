@@ -1,18 +1,13 @@
 package com.mrzak34.thunderhack.modules.player;
 
-import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.events.DestroyBlockEvent;
-import com.mrzak34.thunderhack.events.EventPreMotion;
+import com.mrzak34.thunderhack.events.EventSync;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.InventoryUtil;
 import com.mrzak34.thunderhack.util.MovementUtil;
-import com.mrzak34.thunderhack.util.Timer;
 import com.mrzak34.thunderhack.util.math.MathUtil;
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
-import net.minecraft.block.BlockEnderChest;
-import net.minecraft.block.BlockHopper;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Enchantments;
@@ -20,7 +15,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.client.CPacketHeldItemChange;
 import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -47,7 +41,7 @@ public class NoClip extends Module {
     }
 
     @SubscribeEvent
-    public void onPreSync(EventPreMotion e) {
+    public void onPreSync(EventSync e) {
         if (mode.getValue() == Mode.SunriseBypass && (mc.player.collidedHorizontally || playerInsideBlock()) && !mc.player.isInWater() && !mc.player.isInLava()) {
             double[] dir = MovementUtil.forward(0.5);
 

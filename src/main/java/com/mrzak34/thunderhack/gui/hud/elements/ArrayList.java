@@ -85,12 +85,41 @@ public class ArrayList extends HudElement {
         int stringWidth;
         reverse = getPosX() > (float) (e.getScreenWidth() / 2);
         int offset = 0;
+        int offset2 = 0;
+
         int yTotal = 0;
         for (int i = 0; i < Thunderhack.moduleManager.sortedModules.size(); ++i) {
             yTotal += FontRender.getFontHeight6() + 3;
         }
         setHeight(yTotal);
 
+        // Если режим - ЦветнойТекст, то мы рендерим сначала эффект свечения, а затем плитки
+        if(mode.getValue() == Mode.ColorText) {
+            for (int k = 0; k < Thunderhack.moduleManager.sortedModules.size(); k++) {
+                Module module = Thunderhack.moduleManager.sortedModules.get(k);
+                if (!module.isDrawn()) {continue;}
+                if (hrender.getValue() && module.getCategory() == Category.RENDER) {continue;}
+                if (hhud.getValue() && module.getCategory() == Category.HUD) {continue;}
+                Color color1 = null;
+                if (cmode.getValue() == cMode.Rainbow) {
+                    color1 = PaletteHelper.astolfo(offset2, yTotal, saturation.getValue(), rainbowSpeed.getValue());
+                } else if (cmode.getValue() == cMode.DoubleColor) {
+                    color1 = TwoColoreffect(color.getValue().getColorObject(), color2.getValue().getColorObject(), Math.abs(System.currentTimeMillis() / 10) / 100.0 + offset2 * ((20f - rainbowSpeed.getValue()) / 200));
+                } else {
+                    color1 = new Color(color.getValue().getColor()).darker();
+                }
+                if (!reverse) {
+                    stringWidth = FontRender.getStringWidth6(module.getDisplayName() + ChatFormatting.GRAY + ((module.getDisplayInfo() != null) ? (" [" + ChatFormatting.WHITE + module.getDisplayInfo() + ChatFormatting.GRAY + "]") : "")) + 3;
+                    if (glow.getValue()) RenderHelper.drawBlurredShadow(getPosX() - 3, getPosY() + (float) offset2 - 1, (float) stringWidth + 4.0f, 9.0f, gste.getValue(), color1);
+                }
+                if (reverse) {
+                    stringWidth = FontRender.getStringWidth6(module.getDisplayName() + ChatFormatting.GRAY + ((module.getDisplayInfo() != null) ? (" [" + ChatFormatting.WHITE + module.getDisplayInfo() + ChatFormatting.GRAY + "]") : "")) + 3;
+                    if (glow.getValue()) RenderHelper.drawBlurredShadow(getPosX() - (float) stringWidth - 3, getPosY() + (float) offset2 - 1, stringWidth + 4, 9f, gste.getValue(), color1);
+                }
+                offset2 += 8;
+            }
+        }
+        //
 
         for (int k = 0; k < Thunderhack.moduleManager.sortedModules.size(); k++) {
             Module module = Thunderhack.moduleManager.sortedModules.get(k);
@@ -135,20 +164,14 @@ public class ArrayList extends HudElement {
             } else {
                 if (!reverse) {
                     stringWidth = FontRender.getStringWidth6(module.getDisplayName() + ChatFormatting.GRAY + ((module.getDisplayInfo() != null) ? (" [" + ChatFormatting.WHITE + module.getDisplayInfo() + ChatFormatting.GRAY + "]") : "")) + 3;
-                    if (glow.getValue()) {
-                        RenderHelper.drawBlurredShadow(getPosX() - 3, getPosY() + (float) offset - 1, (float) stringWidth + 4.0f, 9.0f, gste.getValue(), color1);
-                    }
                     drawRect(getPosX(), getPosY() + (float) offset, getPosX() + (float) stringWidth + 1.0f, getPosY() + (float) offset + 8.0f, color3.getValue().getColor());
-                    drawRect(getPosX() - 2.0f, getPosY() + (float) offset, getPosX() + 1.0f, getPosY() + (float) offset + 8.0f, color4.getValue().getColor());
+                    drawRect(getPosX() - 2.0f, getPosY() + (float) offset, getPosX() + 1.0f, getPosY() + (float) offset + 8.0f, color1.getRGB());
                     FontRender.drawString6(module.getDisplayName() + ChatFormatting.GRAY + ((module.getDisplayInfo() != null) ? (" [" + ChatFormatting.WHITE + module.getDisplayInfo() + ChatFormatting.GRAY + "]") : ""), getPosX() + 3.0f, getPosY() + 2.0f + (float) offset, color1.getRGB(), false);
                 }
                 if (reverse) {
                     stringWidth = FontRender.getStringWidth6(module.getDisplayName() + ChatFormatting.GRAY + ((module.getDisplayInfo() != null) ? (" [" + ChatFormatting.WHITE + module.getDisplayInfo() + ChatFormatting.GRAY + "]") : "")) + 3;
-                    if (glow.getValue()) {
-                        RenderHelper.drawBlurredShadow(getPosX() - (float) stringWidth - 3, getPosY() + (float) offset - 1, stringWidth + 4, 9f, gste.getValue(), color1);
-                    }
                     drawRect(getPosX() - (float) stringWidth, getPosY() + (float) offset, getPosX() + 1.0f, getPosY() + (float) offset + 8.0f, color3.getValue().getColor());
-                    drawRect(getPosX() + 1f, getPosY() + (float) offset, getPosX() + 4.0f, getPosY() + (float) offset + 8.0f, color4.getValue().getColor());
+                    drawRect(getPosX() + 1f, getPosY() + (float) offset, getPosX() + 4.0f, getPosY() + (float) offset + 8.0f, color1.getRGB());
                     FontRender.drawString6(module.getDisplayName() + ChatFormatting.GRAY + ((module.getDisplayInfo() != null) ? (" [" + ChatFormatting.WHITE + module.getDisplayInfo() + ChatFormatting.GRAY + "]") : ""), getPosX() - stringWidth + 2.0f, getPosY() + 2.0f + (float) offset, color1.getRGB(), false);
                 }
             }

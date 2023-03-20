@@ -1,7 +1,7 @@
 package com.mrzak34.thunderhack.modules.combat;
 
 import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.events.EventPreMotion;
+import com.mrzak34.thunderhack.events.EventSync;
 import com.mrzak34.thunderhack.events.Render3DEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
@@ -53,7 +53,7 @@ public class AimAssist extends Module {
     }
 
     @SubscribeEvent
-    public void onPreMotion(EventPreMotion event) {
+    public void onPreMotion(EventSync event) {
 
         target = getClosest(range.getValue());
 

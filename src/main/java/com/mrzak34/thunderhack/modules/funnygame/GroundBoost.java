@@ -2,14 +2,13 @@ package com.mrzak34.thunderhack.modules.funnygame;
 
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.events.EventMove;
-import com.mrzak34.thunderhack.events.EventPreMotion;
+import com.mrzak34.thunderhack.events.EventSync;
 import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.mixin.mixins.ICPacketPlayer;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.Util;
 import com.mrzak34.thunderhack.util.math.MathUtil;
-import net.minecraft.entity.Entity;
 import net.minecraft.init.MobEffects;
 import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraft.network.play.server.SPacketPlayerPosLook;
@@ -17,8 +16,6 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-
-import static com.mrzak34.thunderhack.modules.Module.fullNullCheck;
 
 public class GroundBoost extends Module {
 
@@ -100,7 +97,7 @@ public class GroundBoost extends Module {
     }
 
     @SubscribeEvent
-    public void onUpdateWalkingPlayer(EventPreMotion e) {
+    public void onUpdateWalkingPlayer(EventSync e) {
         if (startY > mc.player.posY) {
             startY = 0;
             toggle();

@@ -9,6 +9,7 @@ import com.mrzak34.thunderhack.notification.Notification;
 import com.mrzak34.thunderhack.notification.NotificationManager;
 import com.mrzak34.thunderhack.setting.Bind;
 import com.mrzak34.thunderhack.setting.Setting;
+import com.mrzak34.thunderhack.util.SoundUtil;
 import com.mrzak34.thunderhack.util.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.init.SoundEvents;
@@ -108,7 +109,8 @@ public class Module  {
 
         if ((Objects.equals(this.getDisplayName(), "ThunderGui") || (Objects.equals(this.getDisplayName(), "ClickGUI")))) {
         } else {
-            mc.world.playSound(getPlayerPos(), SoundEvents.BLOCK_NOTE_XYLOPHONE, SoundCategory.AMBIENT, 150.0f, 2.0F, true);
+          //  mc.world.playSound(getPlayerPos(), SoundEvents.BLOCK_NOTE_XYLOPHONE, SoundCategory.AMBIENT, 150.0f, 2.0F, true);
+            SoundUtil.playSound(SoundUtil.ThunderSound.ON);
         }
         if ((!Objects.equals(this.getDisplayName(), "ElytraSwap") && (!Objects.equals(this.getDisplayName(), "ClickGui")) && (!Objects.equals(this.getDisplayName(), "ThunderGui")) && (!Objects.equals(this.getDisplayName(), "Windows")))) {
             NotificationManager.publicity(this.getDisplayName() + " was enabled!", 2, Notification.Type.ENABLED);
@@ -129,7 +131,8 @@ public class Module  {
         }
         if ((Objects.equals(this.getDisplayName(), "ThunderGui") || (Objects.equals(this.getDisplayName(), "ClickGUI")))) {
         } else {
-            mc.world.playSound(getPlayerPos(), SoundEvents.BLOCK_NOTE_XYLOPHONE, SoundCategory.AMBIENT, 150.0f, 1.0F, true);
+         //   mc.world.playSound(getPlayerPos(), SoundEvents.BLOCK_NOTE_XYLOPHONE, SoundCategory.AMBIENT, 150.0f, 1.0F, true);
+            SoundUtil.playSound(SoundUtil.ThunderSound.OFF);
         }
 
         this.enabled.setValue(false);

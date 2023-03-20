@@ -1,6 +1,6 @@
 package com.mrzak34.thunderhack.modules.movement;
 
-import com.mrzak34.thunderhack.events.EventPreMotion;
+import com.mrzak34.thunderhack.events.EventSync;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import net.minecraft.item.ItemFood;
@@ -35,7 +35,7 @@ public class NoSlow extends Module {
     }
 
     @SubscribeEvent
-    public void onPreMotion(EventPreMotion event) {
+    public void onPreMotion(EventSync event) {
         if (mc.player.isHandActive()) {
             if (mc.player.onGround) {
                 if (mc.player.ticksExisted % 2 == 0) {

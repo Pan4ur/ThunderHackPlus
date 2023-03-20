@@ -3,7 +3,7 @@ package com.mrzak34.thunderhack.modules.movement;
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.events.EventPlayerTravel;
-import com.mrzak34.thunderhack.events.EventPreMotion;
+import com.mrzak34.thunderhack.events.EventSync;
 import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.events.TurnEvent;
 import com.mrzak34.thunderhack.mixin.mixins.ISPacketPlayerPosLook;
@@ -126,7 +126,7 @@ public class ElytraFly2b2tNew extends Module {
     }
 
     @SubscribeEvent
-    public void updateValues(EventPreMotion e) {
+    public void updateValues(EventSync e) {
         double distTraveledLastTickX = mc.player.posX - mc.player.prevPosX;
         double distTraveledLastTickZ = mc.player.posZ - mc.player.prevPosZ;
         current_speed = (Math.sqrt(distTraveledLastTickX * distTraveledLastTickX + distTraveledLastTickZ * distTraveledLastTickZ));
@@ -177,7 +177,7 @@ public class ElytraFly2b2tNew extends Module {
     }
 
     @SubscribeEvent
-    public void Skid(EventPreMotion e) {
+    public void Skid(EventSync e) {
         mc.player.rotationPitch = -2.3f;
     }
 

@@ -1,7 +1,7 @@
 package com.mrzak34.thunderhack.modules.combat;
 
 import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.events.EventPreMotion;
+import com.mrzak34.thunderhack.events.EventSync;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.setting.SubBind;
@@ -49,7 +49,7 @@ public class AutoExplosion extends Module {
     }
 
     @SubscribeEvent
-    public void onPlayerPre(EventPreMotion e) {
+    public void onPlayerPre(EventSync e) {
         if (targetMode.getValue() == TargetMode.Aura) {
             offAura.setValue(false);
         }
@@ -65,7 +65,7 @@ public class AutoExplosion extends Module {
         }
     }
 
-    public void Semi(EventPreMotion e) {
+    public void Semi(EventSync e) {
         if (Mouse.isButtonDown(1)) {
             if (offAura.getValue() && Thunderhack.moduleManager.getModuleByClass(Aura.class).isEnabled()) {
                 Thunderhack.moduleManager.getModuleByClass(Aura.class).disable();
@@ -116,7 +116,7 @@ public class AutoExplosion extends Module {
         }
     }
 
-    public void FullAuto(EventPreMotion e) {
+    public void FullAuto(EventSync e) {
         for (Entity ent : mc.world.loadedEntityList) {
             if (ent instanceof EntityEnderCrystal) {
                 if (mc.player.getDistance(ent) < 5f) {
@@ -201,7 +201,7 @@ public class AutoExplosion extends Module {
         }
     }
 
-    public void onBind(EventPreMotion e) {
+    public void onBind(EventSync e) {
         for (Entity ent : mc.world.loadedEntityList) {
             if (ent instanceof EntityEnderCrystal) {
                 if (mc.player.getDistance(ent) < 5f) {

@@ -1,7 +1,7 @@
 package com.mrzak34.thunderhack.modules.combat;
 
 import com.mrzak34.thunderhack.command.Command;
-import com.mrzak34.thunderhack.events.EventPreMotion;
+import com.mrzak34.thunderhack.events.EventSync;
 import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
@@ -54,7 +54,7 @@ public class Surround extends Module {
         super("Surround", "Защищает тебя от-кристаллов", Module.Category.COMBAT);
     }
 
-    public static void rotateTo(Vec3d vec, EventPreMotion event) {
+    public static void rotateTo(Vec3d vec, EventSync event) {
         float[] rotations = getNeededRotations2(vec);
         mc.player.rotationYaw = (rotations[0]);
         mc.player.rotationPitch = ((float) MathHelper.normalizeAngle((int) rotations[1], 360));
@@ -112,7 +112,7 @@ public class Surround extends Module {
     }
 
     @SubscribeEvent
-    public void onUpdateWalkingPlayer(EventPreMotion event) {
+    public void onUpdateWalkingPlayer(EventSync event) {
         if (mc.player == null || mc.world == null || lookDown == -1)
             return;
         mc.player.rotationPitch = (90);
@@ -136,7 +136,7 @@ public class Surround extends Module {
     }
 
     @SubscribeEvent
-    public void onUpdate(EventPreMotion e) {
+    public void onUpdate(EventSync e) {
 
         if (mc.player == null || mc.world == null)
             return;

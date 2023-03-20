@@ -1,7 +1,7 @@
 package com.mrzak34.thunderhack.modules.combat;
 
-import com.mrzak34.thunderhack.events.EventPostMotion;
-import com.mrzak34.thunderhack.events.EventPreMotion;
+import com.mrzak34.thunderhack.events.EventPostSync;
+import com.mrzak34.thunderhack.events.EventSync;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.EntityUtil;
@@ -80,7 +80,7 @@ public class AutoBuff extends Module {
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
-    public void onEvent(EventPreMotion event) {
+    public void onEvent(EventSync event) {
         if (Aura.target != null && mc.player.getCooledAttackStrength(1) > 0.5f)
             return;
         boolean shouldThrow = (!mc.player.isPotionActive(MobEffects.SPEED) && isPotionOnHotBar(Potions.SPEED) && speed.getValue())
@@ -93,7 +93,7 @@ public class AutoBuff extends Module {
     }
 
     @SubscribeEvent
-    public void onPostMotion(EventPostMotion e) {
+    public void onPostMotion(EventPostSync e) {
         if (Aura.target != null && mc.player.getCooledAttackStrength(1) > 0.5f)
             return;
         e.addPostEvent(() -> {

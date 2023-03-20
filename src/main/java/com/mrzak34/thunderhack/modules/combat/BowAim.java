@@ -2,7 +2,7 @@ package com.mrzak34.thunderhack.modules.combat;
 
 
 import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.events.EventPostMotion;
+import com.mrzak34.thunderhack.events.EventPostSync;
 import com.mrzak34.thunderhack.events.Render3DEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
@@ -35,7 +35,7 @@ public class BowAim extends Module {
     }
 
     @SubscribeEvent
-    public void onMotionUpdate(EventPostMotion event) {
+    public void onMotionUpdate(EventPostSync event) {
         if (mc.player.getHeldItemMainhand().getItem() instanceof ItemBow && mc.player.isHandActive()
                 && mc.player.getItemInUseMaxCount() > 0) {
             target = findTarget();

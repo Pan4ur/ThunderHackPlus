@@ -1,7 +1,7 @@
 package com.mrzak34.thunderhack.modules.combat;
 
 import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.events.EventPreMotion;
+import com.mrzak34.thunderhack.events.EventSync;
 import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.events.Render3DEvent;
 import com.mrzak34.thunderhack.mixin.mixins.IRenderManager;
@@ -14,7 +14,6 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.network.play.server.SPacketEntityVelocity;
-import net.minecraft.network.play.server.SPacketSoundEffect;
 import net.minecraft.potion.Potion;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
@@ -113,7 +112,7 @@ public class TargetStrafe extends Module {
     }
 
     @SubscribeEvent
-    public void onUpdateWalkingPlayerPre(EventPreMotion event) {
+    public void onUpdateWalkingPlayerPre(EventSync event) {
         if (strafeTarget == null)
             return;
         if (mc.player.getDistanceSq(strafeTarget) < 0.2) {

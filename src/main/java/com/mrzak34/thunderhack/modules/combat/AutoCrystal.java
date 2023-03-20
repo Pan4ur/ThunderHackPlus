@@ -30,7 +30,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.EnumAction;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemPickaxe;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.client.CPacketPlayer;
@@ -1074,7 +1073,7 @@ public class AutoCrystal extends Module {
     }
 
     @SubscribeEvent
-    public void nigga(EventPreMotion event) {
+    public void nigga(EventSync event) {
 
         if (!multiThread.getValue()
                 && motionCalc.getValue()
@@ -1145,7 +1144,7 @@ public class AutoCrystal extends Module {
     }
 
     @SubscribeEvent
-    public void onPostMotion(EventPostMotion e) {
+    public void onPostMotion(EventPostSync e) {
         motionID.incrementAndGet();
         synchronized (post) {
             runPost();

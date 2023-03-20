@@ -1,6 +1,6 @@
 package com.mrzak34.thunderhack.modules.funnygame;
 
-import com.mrzak34.thunderhack.events.EventPreMotion;
+import com.mrzak34.thunderhack.events.EventSync;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.Timer;
@@ -33,7 +33,7 @@ public class AutoFlyme extends Module {
 
 
     @SubscribeEvent
-    public void onUpdateWalkingPlayer(final EventPreMotion event) {
+    public void onUpdateWalkingPlayer(final EventSync event) {
         if (!instantSpeed.getValue() || !mc.player.capabilities.isFlying) return;
         final double[] dir = MathUtil.directionSpeed(1.05f);
         if (mc.player.movementInput.moveStrafe != 0.0f || mc.player.movementInput.moveForward != 0.0f) {

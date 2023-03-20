@@ -1,7 +1,7 @@
 package com.mrzak34.thunderhack.modules.player;
 
 import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.events.EventPreMotion;
+import com.mrzak34.thunderhack.events.EventSync;
 import com.mrzak34.thunderhack.mixin.mixins.AccessorMinecraft;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
@@ -125,7 +125,7 @@ public class AutoMine extends Module {
     }
 
     @SubscribeEvent
-    public void onPreMotion(EventPreMotion event) {
+    public void onPreMotion(EventSync event) {
         if (mode.getValue() == Mode.CONTINIOUS) return;
         if (!switchbool.getValue() || checkPickaxe()) {
             if (blockpos != null) {

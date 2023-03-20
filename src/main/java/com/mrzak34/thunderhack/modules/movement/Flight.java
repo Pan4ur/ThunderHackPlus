@@ -1,6 +1,6 @@
 package com.mrzak34.thunderhack.modules.movement;
 
-import com.mrzak34.thunderhack.events.EventPreMotion;
+import com.mrzak34.thunderhack.events.EventSync;
 import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.mixin.mixins.ICPacketPlayer;
 import com.mrzak34.thunderhack.modules.Module;
@@ -30,7 +30,7 @@ public class Flight extends Module {
     }
 
     @SubscribeEvent
-    public void onUpdateWalkingPlayer(final EventPreMotion event) {
+    public void onUpdateWalkingPlayer(final EventSync event) {
         if (mode.getValue() == Mode.Vanilla) {
 
             Flight.mc.player.setVelocity(0.0, 0.0, 0.0);

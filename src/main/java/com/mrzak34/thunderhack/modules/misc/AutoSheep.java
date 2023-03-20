@@ -1,6 +1,6 @@
 package com.mrzak34.thunderhack.modules.misc;
 
-import com.mrzak34.thunderhack.events.EventPreMotion;
+import com.mrzak34.thunderhack.events.EventSync;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import net.minecraft.entity.Entity;
@@ -30,7 +30,7 @@ public class AutoSheep extends Module {
     }
 
     @SubscribeEvent
-    public void onUpdateWalkingPlayerPre(EventPreMotion p_Event) {
+    public void onUpdateWalkingPlayerPre(EventSync p_Event) {
         if (!(mc.player.getHeldItemMainhand().getItem() instanceof ItemShears))
             return;
 

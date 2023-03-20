@@ -2,7 +2,7 @@ package com.mrzak34.thunderhack.modules.movement;
 
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.events.EventMove;
-import com.mrzak34.thunderhack.events.EventPreMotion;
+import com.mrzak34.thunderhack.events.EventSync;
 import com.mrzak34.thunderhack.events.MatrixMove;
 import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.mixin.mixins.IKeyBinding;
@@ -80,7 +80,7 @@ public class Speed extends Module {
     }
 
     @SubscribeEvent
-    public void onUpdateWalkingPlayerPre(EventPreMotion event) {
+    public void onUpdateWalkingPlayerPre(EventSync event) {
         if (Mode.getValue() == mode.MatrixJumpBoost) {
             if (MovementUtil.isMoving() && !mc.world.getCollisionBoxes(mc.player, mc.player.getEntityBoundingBox().expand(0.5, 0.0, 0.5).offset(0.0, -1.0, 0.0)).isEmpty() && !nexus_flip) {
                 mc.player.onGround = true;

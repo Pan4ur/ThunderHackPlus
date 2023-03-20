@@ -1,7 +1,7 @@
 package com.mrzak34.thunderhack.modules.movement;
 
 import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.events.EventPreMotion;
+import com.mrzak34.thunderhack.events.EventSync;
 import com.mrzak34.thunderhack.events.HandleLiquidJumpEvent;
 import com.mrzak34.thunderhack.events.JesusEvent;
 import com.mrzak34.thunderhack.events.PacketEvent;
@@ -153,7 +153,7 @@ public class Jesus extends Module {
     }
 
     @SubscribeEvent
-    public void onWalkingPlayerUpdatePre(EventPreMotion event) {
+    public void onWalkingPlayerUpdatePre(EventSync event) {
         if (mc.world.getBlockState(new BlockPos(mc.player.posX, mc.player.posY - 0.25, mc.player.posZ)).getBlock() instanceof BlockLiquid) {
             if (mode.getValue() == Mode.NexusCrit) {
                 if (mc.player.isInWater()) {

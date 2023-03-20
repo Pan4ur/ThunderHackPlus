@@ -1,6 +1,7 @@
 package com.mrzak34.thunderhack.modules.combat;
 
 import com.mrzak34.thunderhack.Thunderhack;
+import com.mrzak34.thunderhack.events.EventPostSync;
 import com.mrzak34.thunderhack.mixin.mixins.IKeyBinding;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
@@ -13,6 +14,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemBow;
 import net.minecraft.item.ItemShield;
 import net.minecraft.util.EnumHand;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class AntiBowBomb extends Module {
 
@@ -49,8 +51,8 @@ public class AntiBowBomb extends Module {
         return currentTarget;
     }
 
-    @Override
-    public void onTick() {
+    @SubscribeEvent
+    public void pnPostSync(EventPostSync e) {
         target = getTarget(range.getValue());
 
         if (target == null) {

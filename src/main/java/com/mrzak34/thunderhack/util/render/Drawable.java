@@ -15,6 +15,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
 
+import static com.mrzak34.thunderhack.util.render.RenderUtil.glColor;
 import static org.lwjgl.opengl.GL11.glDisable;
 
 public class Drawable {
@@ -25,31 +26,23 @@ public class Drawable {
         drawTexture(texture, x, y, width, height, Color.WHITE);
     }
 
-    public static void drawTexture(ResourceLocation texture, double x, double y, double width, double height,
-                                   Color color) {
+    public static void drawTexture(ResourceLocation texture, double x, double y, double width, double height, Color color) {
         Util.mc.getTextureManager().bindTexture(texture);
-
+        glColor(color);
         BufferBuilder bufferBuilder = Tessellator.getInstance().getBuffer();
         bufferBuilder.begin(GL11.GL_TRIANGLES, DefaultVertexFormats.POSITION_TEX_COLOR);
-        bufferBuilder.pos(x + width, y, 0).tex(1, 0)
-                .color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
-        bufferBuilder.pos(x, y, 0).tex(0, 0).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha())
-                .endVertex();
-        bufferBuilder.pos(x, y + height, 0).tex(0, 1)
-                .color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
-        bufferBuilder.pos(x, y + height, 0).tex(0, 1)
-                .color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
-        bufferBuilder.pos(x + width, y + height, 0).tex(1, 1)
-                .color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
-        bufferBuilder.pos(x + width, y, 0).tex(1, 0)
-                .color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+        bufferBuilder.pos(x + width, y, 0).tex(1, 0).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+        bufferBuilder.pos(x, y, 0).tex(0, 0).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+        bufferBuilder.pos(x, y + height, 0).tex(0, 1).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+        bufferBuilder.pos(x, y + height, 0).tex(0, 1).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+        bufferBuilder.pos(x + width, y + height, 0).tex(1, 1).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
+        bufferBuilder.pos(x + width, y, 0).tex(1, 0).color(color.getRed(), color.getGreen(), color.getBlue(), color.getAlpha()).endVertex();
         draw(true);
+        GlStateManager.resetColor();
 
     }
 
     public static void draw(boolean texture) {
-        GlStateManager.color(1, 1, 1, 1);
-
         GlStateManager.disableDepth();
         GlStateManager.enableBlend();
         GlStateManager.blendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);

@@ -1,7 +1,7 @@
 package com.mrzak34.thunderhack.modules.player;
 
-import com.mrzak34.thunderhack.events.EventPostMotion;
-import com.mrzak34.thunderhack.events.EventPreMotion;
+import com.mrzak34.thunderhack.events.EventPostSync;
+import com.mrzak34.thunderhack.events.EventSync;
 import com.mrzak34.thunderhack.events.Render2DEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
@@ -44,7 +44,7 @@ public class AutoMend extends Module {
 
 
     @SubscribeEvent
-    public void onEntitySync(EventPreMotion event) {
+    public void onEntitySync(EventSync event) {
         if (PlayerUtils.isKeyDown(subBind.getValue().getKey())) {
             mc.player.rotationPitch = 90;
             isMending = true;
@@ -54,7 +54,7 @@ public class AutoMend extends Module {
     }
 
     @SubscribeEvent
-    public void postEntitySync(EventPostMotion e) {
+    public void postEntitySync(EventPostSync e) {
         if (fullNullCheck()) return;
         if (
                 PlayerUtils.isKeyDown(subBind.getValue().getKey()) && (

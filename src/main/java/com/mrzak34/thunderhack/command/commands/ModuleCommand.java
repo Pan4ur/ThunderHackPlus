@@ -63,8 +63,7 @@ public class ModuleCommand extends Command {
                             EnumConverter converter = new EnumConverter(((Enum) setting2.getValue()).getClass());
                             Enum value = converter.doBackward(element);
                             setting2.setValue((value == null) ? setting2.getDefaultValue() : value);
-                        } catch (Exception ignored) {
-                        }
+                        } catch (Exception ignored) {}
                 }
             }
         }

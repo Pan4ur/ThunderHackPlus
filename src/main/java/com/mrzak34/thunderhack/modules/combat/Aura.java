@@ -5,7 +5,6 @@ import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.events.*;
 import com.mrzak34.thunderhack.manager.EventManager;
-import com.mrzak34.thunderhack.mixin.mixins.IEntityPlayer;
 import com.mrzak34.thunderhack.mixin.mixins.IRenderManager;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.modules.player.AutoGApple;
@@ -63,7 +62,6 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Random;
 
-import static com.mrzak34.thunderhack.gui.clickui.ColorUtil.interpolateColorC;
 import static com.mrzak34.thunderhack.modules.funnygame.EffectsRemover.jboost;
 import static com.mrzak34.thunderhack.modules.funnygame.EffectsRemover.nig;
 import static com.mrzak34.thunderhack.util.render.RenderUtil.TwoColoreffect;
@@ -304,7 +302,7 @@ public class Aura extends Module {
     }
 
     @SubscribeEvent
-    public void onRotate(EventPreMotion e) {
+    public void onRotate(EventSync e) {
         if (target != null) {
             mc.player.rotationYaw = rotationYaw;
             mc.player.rotationPitch = rotationPitch;
@@ -497,7 +495,7 @@ public class Aura extends Module {
     }
 
     @SubscribeEvent
-    public void onPostAttack(EventPostMotion e) {
+    public void onPostAttack(EventPostSync e) {
         if (firstAxe.getValue() && InventoryUtil.getBestSword() != -1 && swapBack) {
             if (autoswitch.getValue() == AutoSwitch.Default) {
                 mc.player.inventory.currentItem = InventoryUtil.getBestSword();

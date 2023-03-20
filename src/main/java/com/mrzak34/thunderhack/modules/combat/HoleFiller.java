@@ -3,8 +3,8 @@ package com.mrzak34.thunderhack.modules.combat;
 import com.mojang.realmsclient.gui.ChatFormatting;
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.command.Command;
-import com.mrzak34.thunderhack.events.EventPostMotion;
-import com.mrzak34.thunderhack.events.EventPreMotion;
+import com.mrzak34.thunderhack.events.EventPostSync;
+import com.mrzak34.thunderhack.events.EventSync;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.notification.Notification;
 import com.mrzak34.thunderhack.notification.NotificationManager;
@@ -46,7 +46,7 @@ public class HoleFiller extends Module {
 
 
     @SubscribeEvent
-    public void onEntitySync(EventPreMotion e) {
+    public void onEntitySync(EventSync e) {
         Iterable<BlockPos> blocks = BlockPos.getAllInBox(mc.player.getPosition().add(-rangeXZ.getValue(), -rangeXZ.getValue(), -rangeXZ.getValue()), mc.player.getPosition().add(rangeXZ.getValue(), rangeXZ.getValue(), rangeXZ.getValue()));
         Holes.clear();
         for (BlockPos pos : blocks) {
@@ -87,7 +87,7 @@ public class HoleFiller extends Module {
     }
 
     @SubscribeEvent
-    public void postEntitySync(EventPostMotion e) {
+    public void postEntitySync(EventPostSync e) {
         if (targetPosition != null) {
             int obby_slot = InventoryUtil.findHotbarBlock(Blocks.OBSIDIAN);
             if (obby_slot == -1) {

@@ -1,7 +1,7 @@
 package com.mrzak34.thunderhack.modules.misc;
 
-import com.mrzak34.thunderhack.events.EventPostMotion;
-import com.mrzak34.thunderhack.events.EventPreMotion;
+import com.mrzak34.thunderhack.events.EventPostSync;
+import com.mrzak34.thunderhack.events.EventSync;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.InteractionUtil;
@@ -60,7 +60,7 @@ public class EChestFarmer extends Module {
     }
 
     @SubscribeEvent
-    public void onUpdateWalkingPlayer(EventPreMotion event) {
+    public void onUpdateWalkingPlayer(EventSync event) {
 
         placement = null;
         if (event.isCanceled() || !InteractionUtil.canPlaceNormally()) return;
@@ -128,7 +128,7 @@ public class EChestFarmer extends Module {
     }
 
     @SubscribeEvent
-    public void onUpdateWalkingPlayerPost(EventPostMotion event) {
+    public void onUpdateWalkingPlayerPost(EventPostSync event) {
         if (placement != null) {
             InteractionUtil.placeBlockSafely(placement, EnumHand.MAIN_HAND, false);
             breakTimer.reset();

@@ -2,7 +2,7 @@ package com.mrzak34.thunderhack.util.phobos;
 
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.events.ConnectToServerEvent;
-import com.mrzak34.thunderhack.events.EventPreMotion;
+import com.mrzak34.thunderhack.events.EventSync;
 import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.modules.combat.AutoCrystal;
 import com.mrzak34.thunderhack.util.math.MathUtil;
@@ -78,7 +78,7 @@ public class SetDeadManager {
     }
 
     @SubscribeEvent
-    public void onUpdate(EventPreMotion e) {
+    public void onUpdate(EventSync e) {
         updateKilled();
     }
 

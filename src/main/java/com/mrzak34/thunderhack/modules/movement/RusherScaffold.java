@@ -2,8 +2,8 @@ package com.mrzak34.thunderhack.modules.movement;
 
 
 import com.mrzak34.thunderhack.events.EventMove;
-import com.mrzak34.thunderhack.events.EventPostMotion;
-import com.mrzak34.thunderhack.events.EventPreMotion;
+import com.mrzak34.thunderhack.events.EventPostSync;
+import com.mrzak34.thunderhack.events.EventSync;
 import com.mrzak34.thunderhack.events.Render3DEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.ColorSetting;
@@ -12,7 +12,6 @@ import com.mrzak34.thunderhack.util.Timer;
 import com.mrzak34.thunderhack.util.render.RenderUtil;
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
@@ -24,7 +23,6 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.World;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
@@ -260,7 +258,7 @@ public class RusherScaffold extends Module {
     }
 
     @SubscribeEvent
-    public void onPre(EventPreMotion event) {
+    public void onPre(EventSync event) {
         BlockPos blockPos2;
         if (countValidBlocks() <= 0) {
             currentblock = null;
@@ -299,7 +297,7 @@ public class RusherScaffold extends Module {
     }
 
     @SubscribeEvent
-    public void onPost(EventPostMotion e) {
+    public void onPost(EventPostSync e) {
         if (this.currentblock == null) return;
         n = mc.player.inventory.currentItem;
         if (!(mc.player.getHeldItemMainhand().getItem() instanceof ItemBlock)) {

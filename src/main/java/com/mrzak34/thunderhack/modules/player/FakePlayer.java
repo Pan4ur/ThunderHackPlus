@@ -1,8 +1,8 @@
 package com.mrzak34.thunderhack.modules.player;
 
 import com.mojang.authlib.GameProfile;
-import com.mrzak34.thunderhack.events.EventPostMotion;
-import com.mrzak34.thunderhack.events.EventPreMotion;
+import com.mrzak34.thunderhack.events.EventPostSync;
+import com.mrzak34.thunderhack.events.EventSync;
 import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.events.TotemPopEvent;
 import com.mrzak34.thunderhack.modules.Module;
@@ -195,7 +195,7 @@ public class FakePlayer extends Module {
     }
 
     @SubscribeEvent
-    public void onMotionUpdateEvent(EventPreMotion event) {
+    public void onMotionUpdateEvent(EventSync event) {
         if (!record2.getValue()) {
             if (play.getValue()) {
                 if (positions.isEmpty()) {
@@ -223,7 +223,7 @@ public class FakePlayer extends Module {
     }
 
     @SubscribeEvent
-    public void onMotionUpdateEventPost(EventPostMotion event) {
+    public void onMotionUpdateEventPost(EventPostSync event) {
         if (record2.getValue()) {
             if (ticks++ % 2 == 0) {
                 positions.add(new PositionforFP(mc.player));

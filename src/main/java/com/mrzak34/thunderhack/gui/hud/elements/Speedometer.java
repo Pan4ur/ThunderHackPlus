@@ -1,21 +1,14 @@
 package com.mrzak34.thunderhack.gui.hud.elements;
 
 import com.mojang.realmsclient.gui.ChatFormatting;
-import com.mrzak34.thunderhack.events.EventPreMotion;
+import com.mrzak34.thunderhack.events.EventSync;
 import com.mrzak34.thunderhack.events.Render2DEvent;
 import com.mrzak34.thunderhack.gui.fontstuff.FontRender;
 import com.mrzak34.thunderhack.gui.hud.HudElement;
-import com.mrzak34.thunderhack.gui.hud.elements.HudEditorGui;
-import com.mrzak34.thunderhack.gui.thundergui2.ThunderGui2;
-import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.ColorSetting;
-import com.mrzak34.thunderhack.setting.PositionSetting;
 import com.mrzak34.thunderhack.setting.Setting;
-import net.minecraft.client.gui.GuiChat;
-import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import org.lwjgl.input.Mouse;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -47,7 +40,7 @@ public class Speedometer extends HudElement {
     }
 
     @SubscribeEvent
-    public void updateValues(EventPreMotion e) {
+    public void updateValues(EventSync e) {
         double distTraveledLastTickX = mc.player.posX - mc.player.prevPosX;
         double distTraveledLastTickZ = mc.player.posZ - mc.player.prevPosZ;
         this.speedometerCurrentSpeed = distTraveledLastTickX * distTraveledLastTickX + distTraveledLastTickZ * distTraveledLastTickZ;

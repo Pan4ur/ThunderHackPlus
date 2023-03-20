@@ -1,6 +1,6 @@
 package com.mrzak34.thunderhack.modules.funnygame;
 
-import com.mrzak34.thunderhack.events.EventPreMotion;
+import com.mrzak34.thunderhack.events.EventSync;
 import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.events.Render3DEvent;
 import com.mrzak34.thunderhack.modules.Module;
@@ -38,7 +38,7 @@ public class FunnyClicker extends Module {
     }
 
     @SubscribeEvent
-    public void onUpdateWalkingPlayerEvent(EventPreMotion event) {
+    public void onUpdateWalkingPlayerEvent(EventSync event) {
         for (final TileEntity tileEntity : mc.world.loadedTileEntityList) {
             if (mc.player.getDistanceSq(new BlockPos(tileEntity.getPos())) > 4) continue;
             if (((tileEntity instanceof TileEntityChest))) {

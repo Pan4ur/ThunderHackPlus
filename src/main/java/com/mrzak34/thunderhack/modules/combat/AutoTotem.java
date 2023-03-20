@@ -3,7 +3,7 @@ package com.mrzak34.thunderhack.modules.combat;
 import com.mojang.realmsclient.gui.ChatFormatting;
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.command.Command;
-import com.mrzak34.thunderhack.events.EventPostMotion;
+import com.mrzak34.thunderhack.events.EventPostSync;
 import com.mrzak34.thunderhack.events.GameZaloopEvent;
 import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.events.PlayerUpdateEvent;
@@ -487,7 +487,7 @@ public class AutoTotem extends Module {
     /*---------------------------------------------*/
 
     @SubscribeEvent
-    public void onPostMotion(EventPostMotion e) {
+    public void onPostMotion(EventPostSync e) {
         e.addPostEvent(() -> {
             if (mode.getValue() == ModeEn.Future) {
                 if (skip_tick) {

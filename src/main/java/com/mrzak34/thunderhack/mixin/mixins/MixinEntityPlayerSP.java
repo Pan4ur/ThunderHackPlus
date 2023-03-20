@@ -111,7 +111,7 @@ public abstract class MixinEntityPlayerSP extends AbstractClientPlayer implement
 
     @Inject(method = {"onUpdateWalkingPlayer"}, at = {@At(value = "HEAD")}, cancellable = true)
     private void preMotion(CallbackInfo info) {
-        EventPreMotion event = new EventPreMotion(rotationYaw, rotationPitch);
+        EventSync event = new EventSync(rotationYaw, rotationPitch);
         MinecraftForge.EVENT_BUS.post(event);
         EventSprint e = new EventSprint(isSprinting());
         MinecraftForge.EVENT_BUS.post(e);
@@ -161,14 +161,7 @@ public abstract class MixinEntityPlayerSP extends AbstractClientPlayer implement
         ((com.mrzak34.thunderhack.mixin.mixins.IEntityPlayerSP) mc.player).setServerSprintState(pre_sprint_state);
         EventManager.lock_sprint = false;
 
-        if (!postEvents.isEmpty()) {
-            for (Runnable runnable : postEvents) {
-                Minecraft.getMinecraft().addScheduledTask(runnable);
-                postEvents.removeFirst();
-            }
-        }
-
-        EventPostMotion event = new EventPostMotion();
+        EventPostSync event = new EventPostSync();
         MinecraftForge.EVENT_BUS.post(event);
 
         if (!event.getPostEvents().isEmpty()) {
@@ -178,11 +171,7 @@ public abstract class MixinEntityPlayerSP extends AbstractClientPlayer implement
         }
     }
 
-    private final Deque<Runnable> postEvents = new ArrayDeque<>();
 
-    public void addAuraCallback(Runnable auraCallBack) {
-        postEvents.add(auraCallBack);
-    }
     public void setAuraCallback(Runnable auraCallBack) {
         this.auraCallBack = auraCallBack;
     }

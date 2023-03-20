@@ -1,7 +1,7 @@
 package com.mrzak34.thunderhack.modules.combat;
 
 import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.events.EventPreMotion;
+import com.mrzak34.thunderhack.events.EventSync;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.Timer;
@@ -35,7 +35,7 @@ public class TriggerBot extends Module {
     }
 
     @SubscribeEvent
-    public void onPreMotion(EventPreMotion e) {
+    public void onPreMotion(EventSync e) {
         Entity entity = TriggerBot.mc.objectMouseOver.entityHit;
         if (canAttack(entity)) {
             TriggerBot.mc.playerController.attackEntity(TriggerBot.mc.player, entity);

@@ -1,6 +1,6 @@
 package com.mrzak34.thunderhack.modules.movement;
 
-import com.mrzak34.thunderhack.events.EventPreMotion;
+import com.mrzak34.thunderhack.events.EventSync;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import net.minecraft.block.state.IBlockState;
@@ -68,7 +68,7 @@ public class Spider extends Module {
 
 
     @SubscribeEvent
-    public void onMotion(EventPreMotion event) {
+    public void onMotion(EventSync event) {
         if (mc.gameSettings.keyBindJump.isKeyDown() && mc.player.motionY <= -0.3739040364667221 && a.getValue() == mode.MatrixNew) {
             mc.player.onGround = true;
             mc.player.motionY = 0.481145141919180;

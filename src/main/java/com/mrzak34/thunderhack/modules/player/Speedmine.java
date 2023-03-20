@@ -1,7 +1,7 @@
 package com.mrzak34.thunderhack.modules.player;
 
 import com.mrzak34.thunderhack.events.DamageBlockEvent;
-import com.mrzak34.thunderhack.events.EventPreMotion;
+import com.mrzak34.thunderhack.events.EventSync;
 import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.events.Render3DEvent;
 import com.mrzak34.thunderhack.mixin.mixins.IPlayerControllerMP;
@@ -248,7 +248,7 @@ public class Speedmine extends Module {
     }
 
     @SubscribeEvent
-    public void onEntitySync(EventPreMotion event) {
+    public void onEntitySync(EventSync event) {
         if (rotate.getValue()) {
             if (mineDamage > 0.95) {
                 if (minePosition != null) {

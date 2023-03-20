@@ -2,7 +2,7 @@ package com.mrzak34.thunderhack.modules.movement;
 
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.events.EventMove;
-import com.mrzak34.thunderhack.events.EventPreMotion;
+import com.mrzak34.thunderhack.events.EventSync;
 import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.mixin.mixins.ISPacketPlayerPosLook;
 import com.mrzak34.thunderhack.modules.Module;
@@ -224,7 +224,7 @@ public class PacketFly2 extends Module {
     }
 
     @SubscribeEvent
-    public void Method4278(EventPreMotion eventPlayerUpdateWalking) {
+    public void Method4278(EventSync eventPlayerUpdateWalking) {
         if ((double) (this.timer.getValue()) != 1.0) {
             Thunderhack.TICK_TIMER = ((this.timer.getValue()));
         }

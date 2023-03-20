@@ -2,8 +2,8 @@ package com.mrzak34.thunderhack.modules.combat;
 
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.command.Command;
-import com.mrzak34.thunderhack.events.EventPostMotion;
-import com.mrzak34.thunderhack.events.EventPreMotion;
+import com.mrzak34.thunderhack.events.EventPostSync;
+import com.mrzak34.thunderhack.events.EventSync;
 import com.mrzak34.thunderhack.events.Render3DEvent;
 import com.mrzak34.thunderhack.mixin.mixins.IEntityPlayerSP;
 import com.mrzak34.thunderhack.modules.Module;
@@ -236,7 +236,7 @@ public class CevBreaker extends Module {
     }
 
     @SubscribeEvent
-    public void onUpdateWalkingPlayerPre(EventPreMotion event) {
+    public void onUpdateWalkingPlayerPre(EventSync event) {
 
         if (playerPos != null) {
             if (canPlaceCrystal(playerPos.up().up()) && cryTimer.passedMs(crysDelay.getValue()) && searchCrystal(playerPos.up().up()) == null) {
@@ -335,7 +335,7 @@ public class CevBreaker extends Module {
     }
 
     @SubscribeEvent
-    public void onUpdateWalkingPlayerPost(EventPostMotion event) {
+    public void onUpdateWalkingPlayerPost(EventPostSync event) {
 
         if (!pausetimer.passedMs(pausedelay.getValue())) {
             return;
