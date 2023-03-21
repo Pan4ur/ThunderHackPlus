@@ -1,6 +1,8 @@
 package com.mrzak34.thunderhack.manager;
 
 import com.mrzak34.thunderhack.Thunderhack;
+import com.mrzak34.thunderhack.events.EventPostSync;
+import com.mrzak34.thunderhack.events.EventSync;
 import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.mixin.mixins.IEntityPlayerSP;
 import net.minecraft.network.play.client.CPacketPlayer;
@@ -18,12 +20,46 @@ public class RotationManager{
     private volatile float last_yaw;
     private volatile float last_pitch;
 
+    public  float visualYaw, visualPitch, prevVisualYaw, prevVisualPitch;
+    private float yaw, pitch;
+
+
     public void init() {
         MinecraftForge.EVENT_BUS.register(this);
     }
 
     public void unload() {
         MinecraftForge.EVENT_BUS.unregister(this);
+    }
+
+
+    @SubscribeEvent
+    public void onSync(EventSync event) {
+        if (fullNullCheck())
+            return;
+
+        // сохраняем углы поворота камеры
+        this.yaw = mc.player.rotationYaw;
+        this.pitch = mc.player.rotationPitch;
+
+        // сохраняем предыдущие углы визуальной ротации (от F5)
+        prevVisualPitch = visualPitch;
+        prevVisualYaw = visualYaw;
+    }
+
+    //  после сохраниения ротаци, мы меняем их в модулях
+    //  далее идет синхронизация в EntityPlayerSP UpdateWalkingPlayer
+    //  после чего восстанавливаем сохраненные углы, чтобы ротация была на стороне сервера
+
+    @SubscribeEvent
+    public void postSync(EventPostSync event) {
+        if (fullNullCheck())
+            return;
+        visualPitch = mc.player.rotationPitch;
+        visualYaw = mc.player.rotationYaw;
+        mc.player.rotationYaw = this.yaw;
+        mc.player.rotationYawHead = this.yaw;
+        mc.player.rotationPitch = this.pitch;
     }
 
     @SubscribeEvent

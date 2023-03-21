@@ -50,14 +50,12 @@ public class EventManager {
     public static Module hoveredModule;
     public static boolean serversprint = false;
     public static int backX, backY, backZ;
-    public static float visualYaw, visualPitch, prevVisualYaw, prevVisualPitch;
     public static boolean lock_sprint = false;
     public static BetterDynamicAnimation timerAnimation = new BetterDynamicAnimation();
     public static boolean isMacro = false;
     private final Timer chorusTimer = new Timer();
     com.mrzak34.thunderhack.util.Timer lastPacket = new com.mrzak34.thunderhack.util.Timer();
-    private float yaw;
-    private float pitch;
+
 
     public static void setColor(int color) {
         GL11.glColor4ub((byte) (color >> 16 & 0xFF), (byte) (color >> 8 & 0xFF), (byte) (color & 0xFF), (byte) (color >> 24 & 0xFF));
@@ -131,7 +129,6 @@ public class EventManager {
     public void onPlayer(EventSync event) {
         if (fullNullCheck())
             return;
-        updateRotations();
         if (!lastPacket.passedMs(100)) {
             Thunderhack.moduleManager.getModuleByClass(com.mrzak34.thunderhack.modules.misc.Timer.class).m();
         }
@@ -159,28 +156,6 @@ public class EventManager {
                 serversprint = false;
             }
         }
-    }
-
-    @SubscribeEvent
-    public void onUpdateWalkingPlayer(EventPostSync event) {
-        if (fullNullCheck())
-            return;
-        restoreRotations();
-    }
-
-    public void updateRotations() {
-        this.yaw = mc.player.rotationYaw;
-        this.pitch = mc.player.rotationPitch;
-        prevVisualPitch = visualPitch;
-        prevVisualYaw = visualYaw;
-    }
-
-    public void restoreRotations() {
-        visualPitch = mc.player.rotationPitch;
-        visualYaw = mc.player.rotationYaw;
-        mc.player.rotationYaw = this.yaw;
-        mc.player.rotationYawHead = this.yaw;
-        mc.player.rotationPitch = this.pitch;
     }
 
     @SubscribeEvent

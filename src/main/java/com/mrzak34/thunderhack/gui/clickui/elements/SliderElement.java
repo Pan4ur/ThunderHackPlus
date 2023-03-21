@@ -42,11 +42,15 @@ public class SliderElement extends AbstractElement {
         double currentPos = (((Number) setting.getValue()).floatValue() - min) / (max - min);
         stranimation = stranimation + (((Number) setting.getValue()).floatValue() * 100 / 100 - stranimation) / 2.0D;
         animation = RenderUtil.scrollAnimate(animation, (float) currentPos, .5f);
-
-
         super.render(mouseX, mouseY, delta);
 
-        String value = String.valueOf(MathUtil.round(stranimation, 2));
+        String value = "";
+
+        if (setting.getValue() instanceof Float)
+            value = String.valueOf(MathUtil.round((Float)setting.getValue(), 2));
+
+        if (setting.getValue() instanceof Integer)
+            value = String.valueOf(MathUtil.round((Integer)setting.getValue(), 2));
 
         if (!listening) {
             FontRender.drawString5(setting.getName(), (float) (x + 4), (float) (y + 4), -1);

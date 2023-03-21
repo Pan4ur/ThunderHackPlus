@@ -63,8 +63,8 @@ public class MixinRenderPlayer {
             renderPitch = entity.rotationPitch;
             renderYaw = entity.rotationYaw;
             renderHeadYaw = entity.rotationYawHead;
-            float interpYaw = (float) interp(EventManager.visualYaw, EventManager.prevVisualYaw);
-            float interpPitch = (float) interp(EventManager.visualPitch, EventManager.prevVisualPitch);
+            float interpYaw = (float) interp(Thunderhack.rotationManager.visualYaw, Thunderhack.rotationManager.prevVisualYaw);
+            float interpPitch = (float) interp(Thunderhack.rotationManager.visualPitch, Thunderhack.rotationManager.prevVisualPitch);
             entity.rotationPitch = interpPitch;
             entity.prevRotationPitch = interpPitch;
             entity.rotationYaw = interpYaw;

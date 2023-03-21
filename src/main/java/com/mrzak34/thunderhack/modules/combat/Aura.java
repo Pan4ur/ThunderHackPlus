@@ -679,7 +679,7 @@ public class Aura extends Module {
 
             if (pointsMode.getValue() == PointsMode.Angle) {
                 for (Vec3d point : points) {
-                    Vector2f r = getDeltaForCoord(new Vector2f(Thunderhack.rotationManager.getServerYaw(), Thunderhack.rotationManager.getServerPitch()), point);
+                    Vector2f r = getDeltaForCoord(new Vector2f(rotationYaw, rotationPitch), point);
                     float y = Math.abs(r.y);
                     if (y < best_angle) {
                         best_angle = y;
@@ -723,7 +723,7 @@ public class Aura extends Module {
 
                 if (pointsMode.getValue() == PointsMode.Angle) {
                     for (Vec3d point : points) {
-                        Vector2f r = getDeltaForCoord(new Vector2f(Thunderhack.rotationManager.getServerYaw(), Thunderhack.rotationManager.getServerPitch()), point);
+                        Vector2f r = getDeltaForCoord(new Vector2f(rotationYaw, rotationPitch), point);
                         float y = Math.abs(r.y);
                         if (y < best_angle) {
                             best_angle = y;
@@ -800,8 +800,8 @@ public class Aura extends Module {
 
         float sensitivity = 1.0001f;
 
-        float yawDelta = wrapDegrees(yawToTarget - Thunderhack.rotationManager.getServerYaw()) / sensitivity;
-        float pitchDelta = (pitchToTarget - Thunderhack.rotationManager.getServerPitch()) / sensitivity;
+        float yawDelta = wrapDegrees(yawToTarget - rotationYaw) / sensitivity;
+        float pitchDelta = (pitchToTarget - rotationPitch) / sensitivity;
 
 
         if (yawDelta > 180) {
@@ -823,8 +823,8 @@ public class Aura extends Module {
                         additionYaw = prevAdditionYaw + 3.1f;
                     }
 
-                    float newYaw = Thunderhack.rotationManager.getServerYaw() + (yawDelta > 0 ? additionYaw : -additionYaw) * sensitivity;
-                    float newPitch = clamp(Thunderhack.rotationManager.getServerPitch() + (pitchDelta > 0 ? additionPitch : -additionPitch) * sensitivity, -90, 90);
+                    float newYaw = rotationYaw + (yawDelta > 0 ? additionYaw : -additionYaw) * sensitivity;
+                    float newPitch = clamp(rotationPitch + (pitchDelta > 0 ? additionPitch : -additionPitch) * sensitivity, -90, 90);
 
                     rotationYaw = newYaw;
                     rotationPitch = newPitch;
@@ -842,15 +842,15 @@ public class Aura extends Module {
                     float deltaYaw = MathHelper.clamp(absoluteYaw + randomize, -60.0F + randomizeClamp, 60.0F + randomizeClamp);
                     float deltaPitch = MathHelper.clamp(pitchDelta + randomize, (-((sanik) ? 13 : 45)), (sanik) ? 13 : 45);
 
-                    float newYaw = Thunderhack.rotationManager.getServerYaw() + (yawDelta > 0 ? deltaYaw : -deltaYaw);
-                    float newPitch = MathHelper.clamp(Thunderhack.rotationManager.getServerPitch() + deltaPitch / (sanik ? 4.0F : 2.0F), -90.0F, 90.0F);
+                    float newYaw = rotationYaw + (yawDelta > 0 ? deltaYaw : -deltaYaw);
+                    float newPitch = MathHelper.clamp(rotationPitch + deltaPitch / (sanik ? 4.0F : 2.0F), -90.0F, 90.0F);
 
                     float gcdFix1 = mc.gameSettings.mouseSensitivity * 0.6F + 0.2F;
                     double gcdFix2 = Math.pow(gcdFix1, 3.0) * 8.0;
                     double gcdFix = gcdFix2 * 0.15000000596046448;
 
-                    rotationYaw = (float) (newYaw - (newYaw - Thunderhack.rotationManager.getServerYaw()) % gcdFix);
-                    rotationPitch = (float) (newPitch - (newPitch - Thunderhack.rotationManager.getServerPitch()) % gcdFix);
+                    rotationYaw = (float) (newYaw - (newYaw - rotationYaw) % gcdFix);
+                    rotationPitch = (float) (newPitch - (newPitch - rotationPitch) % gcdFix);
                     break;
                 }
                 case Matrix3: {
@@ -859,7 +859,7 @@ public class Aura extends Module {
                     float randomize = interpolateRandom(-2.0F, 2.0F);
                     float randomizeClamp = interpolateRandom(-5.0F, 5.0F);
 
-                    boolean looking_at_box = RayTracingUtils.getMouseOver(base, Thunderhack.rotationManager.getServerYaw(), Thunderhack.rotationManager.getServerPitch(), attackDistance.getValue() + rotateDistance.getValue(), ignoreWalls(base)) == base;
+                    boolean looking_at_box = RayTracingUtils.getMouseOver(base, rotationYaw, rotationPitch, attackDistance.getValue() + rotateDistance.getValue(), ignoreWalls(base)) == base;
 
                     if (looking_at_box) {
                         rotation_smoother = 15f;
@@ -873,15 +873,15 @@ public class Aura extends Module {
                     float deltaYaw = MathHelper.clamp(absoluteYaw + randomize, -yaw_speed + randomizeClamp, yaw_speed + randomizeClamp);
                     float deltaPitch = MathHelper.clamp(pitchDelta, -pitch_speed, pitch_speed);
 
-                    float newYaw = Thunderhack.rotationManager.getServerYaw() + (yawDelta > 0 ? deltaYaw : -deltaYaw);
-                    float newPitch = MathHelper.clamp(Thunderhack.rotationManager.getServerPitch() + deltaPitch, -90.0F, 90.0F);
+                    float newYaw = rotationYaw + (yawDelta > 0 ? deltaYaw : -deltaYaw);
+                    float newPitch = MathHelper.clamp(rotationPitch + deltaPitch, -90.0F, 90.0F);
 
                     float gcdFix1 = mc.gameSettings.mouseSensitivity * 0.6F + 0.2F;
                     double gcdFix2 = Math.pow(gcdFix1, 3.0) * 8.0;
                     double gcdFix = gcdFix2 * 0.15000000596046448;
 
-                    rotationYaw = (float) (newYaw - (newYaw - Thunderhack.rotationManager.getServerYaw()) % gcdFix);
-                    rotationPitch = (float) (newPitch - (newPitch - Thunderhack.rotationManager.getServerPitch()) % gcdFix);
+                    rotationYaw = (float) (newYaw - (newYaw - rotationYaw) % gcdFix);
+                    rotationPitch = (float) (newPitch - (newPitch - rotationPitch) % gcdFix);
                     break;
                 }
                 case FunnyGame: {
@@ -895,8 +895,8 @@ public class Aura extends Module {
                 case AAC: {
                     if (attackContext) {
                         int pitchDeltaAbs = (int) Math.abs(pitchDelta);
-                        float newYaw = Thunderhack.rotationManager.getServerYaw() + (yawDelta > 0 ? yawDeltaAbs : -yawDeltaAbs) * sensitivity;
-                        float newPitch = clamp(Thunderhack.rotationManager.getServerPitch() + (pitchDelta > 0 ? pitchDeltaAbs : -pitchDeltaAbs) * sensitivity, -90, 90);
+                        float newYaw = rotationYaw + (yawDelta > 0 ? yawDeltaAbs : -yawDeltaAbs) * sensitivity;
+                        float newPitch = clamp(rotationPitch + (pitchDelta > 0 ? pitchDeltaAbs : -pitchDeltaAbs) * sensitivity, -90, 90);
                         rotationYaw = newYaw;
                         rotationPitch = newPitch;
                     }

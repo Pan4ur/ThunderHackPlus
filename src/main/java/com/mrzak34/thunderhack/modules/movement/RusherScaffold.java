@@ -26,29 +26,22 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-import java.awt.*;
-
-
 public class RusherScaffold extends Module {
 
     public final Setting<ColorSetting> Color2 = this.register(new Setting<>("Color", new ColorSetting(0x8800FF00)));
-    private final Setting<Float> lineWidth = this.register(new Setting<Float>("LineWidth", 1.0f, 0.1f, 5.0f));
-    public Color color = new Color(Color.CYAN.getRed(), Color.CYAN.getGreen(), Color.CYAN.getBlue(), 50);
-    public Setting<Boolean> rotate = this.register(new Setting<Boolean>("Rotate", true));
-    public Setting<Boolean> autoswap = this.register(new Setting<Boolean>("AutoSwap", true));
-    public Setting<Boolean> tower = this.register(new Setting<Boolean>("Tower", true));
-    public Setting<Boolean> safewalk = this.register(new Setting<Boolean>("SafeWalk", true));
-    public Setting<Boolean> echestholding = this.register(new Setting<Boolean>("EchestHolding", false));
-    public Setting<Boolean> render = this.register(new Setting<Boolean>("Render", true));
-    public Setting<Boolean> nexusGrief = this.register(new Setting<Boolean>("NexusGrief", false));
-    int n;
-    BlockPos blockPos;
-    private final Timer timer;
+    private final Setting<Float> lineWidth = this.register(new Setting<>("LineWidth", 1.0f, 0.1f, 5.0f));
+    public Setting<Boolean> rotate = this.register(new Setting<>("Rotate", true));
+    public Setting<Boolean> autoswap = this.register(new Setting<>("AutoSwap", true));
+    public Setting<Boolean> tower = this.register(new Setting<>("Tower", true));
+    public Setting<Boolean> safewalk = this.register(new Setting<>("SafeWalk", true));
+    public Setting<Boolean> echestholding = this.register(new Setting<>("EchestHolding", false));
+    public Setting<Boolean> render = this.register(new Setting<>("Render", true));
+
+    private final Timer timer = new Timer();
     private BlockPosWithFacing currentblock;
 
     public RusherScaffold() {
         super("Scaffold", "лучший скафф", Module.Category.PLAYER);
-        timer = new Timer();
     }
 
     private boolean isBlockValid(Block block) {
@@ -66,7 +59,6 @@ public class RusherScaffold extends Module {
             return new BlockPosWithFacing(blockPos.add(0, 0, 1), EnumFacing.NORTH);
         else if (isBlockValid(mc.world.getBlockState(blockPos.add(0, 0, -1)).getBlock()))
             return new BlockPosWithFacing(blockPos.add(0, 0, -1), EnumFacing.SOUTH);
-
         return null;
     }
 
@@ -75,22 +67,16 @@ public class RusherScaffold extends Module {
             if (isBlockValid(((ItemBlock) mc.player.getHeldItemMainhand().getItem()).getBlock()))
                 return mc.player.inventory.currentItem;
         }
-
-        int n = 0;
-        int n2 = 0;
-
-        while (n2 < 9) {
-            if (mc.player.inventory.getStackInSlot(n).getCount() != 0) {
-                if (mc.player.inventory.getStackInSlot(n).getItem() instanceof ItemBlock) {
-                    if (!echestholding.getValue() || (echestholding.getValue() && !mc.player.inventory.getStackInSlot(n).getItem().equals(Item.getItemFromBlock(Blocks.ENDER_CHEST)))) {
-                        if (isBlockValid(((ItemBlock) mc.player.inventory.getStackInSlot(n).getItem()).getBlock()))
-                            return n;
+        for (int i = 0; i < 9; i++) {
+            if (mc.player.inventory.getStackInSlot(i).getCount() != 0) {
+                if (mc.player.inventory.getStackInSlot(i).getItem() instanceof ItemBlock) {
+                    if (!echestholding.getValue() || (echestholding.getValue() && !mc.player.inventory.getStackInSlot(i).getItem().equals(Item.getItemFromBlock(Blocks.ENDER_CHEST)))) {
+                        if (isBlockValid(((ItemBlock) mc.player.inventory.getStackInSlot(i).getItem()).getBlock()))
+                            return i;
                     }
                 }
             }
-            n2 = ++n;
         }
-
         return -1;
     }
 
@@ -244,13 +230,11 @@ public class RusherScaffold extends Module {
 
     @SubscribeEvent
     public void onRender3D(Render3DEvent event) {
-
         if (render.getValue() && currentblock != null) {
             GlStateManager.pushMatrix();
             RenderUtil.drawBlockOutline(currentblock.blockPos, Color2.getValue().getColorObject(), lineWidth.getValue(), false, 0);
             GlStateManager.popMatrix();
         }
-
     }
 
     private boolean isOffsetBBEmpty(double x, double z) {
@@ -259,57 +243,53 @@ public class RusherScaffold extends Module {
 
     @SubscribeEvent
     public void onPre(EventSync event) {
-        BlockPos blockPos2;
         if (countValidBlocks() <= 0) {
             currentblock = null;
             return;
         }
         if (mc.player.posY < 257d) {
-            if (autoswap.getValue()) {
-                currentblock = null;
-                if (mc.player.isSneaking()) return;
-                int n2 = findBlockToPlace();
-                if (n2 == -1) return;
-                Item item = mc.player.inventory.getStackInSlot(n2).getItem();
-                if (!(item instanceof ItemBlock)) return;
-                Block block = ((ItemBlock) item).getBlock();
-                boolean bl = block.getDefaultState().isFullBlock();
-                double d = bl ? 1.0 : 0.01;
-                blockPos2 = new BlockPos(mc.player.posX, mc.player.posY - d, mc.player.posZ);
-                if (!mc.world.getBlockState(blockPos2).getMaterial().isReplaceable()) return;
-                if (bl) {
-                    currentblock = this.checkNearBlocksExtended(blockPos2);
-                    if (currentblock != null) {
-                        if (this.rotate.getValue()) {
-                            float[] rotations = getRotations(currentblock.blockPos, currentblock.enumFacing);
-                            mc.player.rotationYaw = rotations[0];
-                            mc.player.renderYawOffset = rotations[0];
-                            mc.player.rotationPitch = rotations[1];
-                        }
-                    }
+            currentblock = null;
+
+            if (mc.player.isSneaking()) return;
+
+            int n2 = findBlockToPlace();
+            if (n2 == -1) return;
+
+            Item item = mc.player.inventory.getStackInSlot(n2).getItem();
+            if (!(item instanceof ItemBlock)) return;
+            Block block = ((ItemBlock) item).getBlock();
+
+            boolean fullBlock = block.getDefaultState().isFullBlock();
+
+            BlockPos blockPos2 = new BlockPos(mc.player.posX, mc.player.posY - (fullBlock ? 1.0 : 0.01), mc.player.posZ);
+            if (!mc.world.getBlockState(blockPos2).getMaterial().isReplaceable()) return;
+
+            currentblock = checkNearBlocksExtended(blockPos2);
+            if (currentblock != null) {
+                if (rotate.getValue()) {
+                    float[] rotations = getRotations(currentblock.blockPos, currentblock.enumFacing);
+                    mc.player.rotationYaw = rotations[0];
+                    mc.player.renderYawOffset = rotations[0];
+                    mc.player.rotationPitch = rotations[1];
                 }
             }
-        }
-        if (nexusGrief.getValue()) {
-            mc.player.motionX /= 1.7f;
-            mc.player.motionZ /= 1.7f;
         }
     }
 
     @SubscribeEvent
     public void onPost(EventPostSync e) {
-        if (this.currentblock == null) return;
-        n = mc.player.inventory.currentItem;
+        if (currentblock == null) return;
+        int prev_item = mc.player.inventory.currentItem;
         if (!(mc.player.getHeldItemMainhand().getItem() instanceof ItemBlock)) {
             if (autoswap.getValue()) {
-                int n3 = this.findBlockToPlace();
-                if (n3 != -1) {
-                    mc.player.inventory.currentItem = n3;
-                    mc.player.connection.sendPacket(new CPacketHeldItemChange(mc.player.inventory.currentItem));
+                int blockSlot = findBlockToPlace();
+                if (blockSlot != -1) {
+                    mc.player.inventory.currentItem = blockSlot;
+                    mc.player.connection.sendPacket(new CPacketHeldItemChange(blockSlot));
                 }
             }
         }
-        if (isBlockValid(((ItemBlock) mc.player.getHeldItemMainhand().getItem()).getBlock())) {
+        if ((mc.player.getHeldItemMainhand().getItem() instanceof ItemBlock) && isBlockValid(((ItemBlock) mc.player.getHeldItemMainhand().getItem()).getBlock())) {
             if (!mc.player.movementInput.jump || mc.player.moveForward != 0.0f || mc.player.moveStrafing != 0.0f || !tower.getValue()) {
                 timer.reset();
             } else {
@@ -319,21 +299,15 @@ public class RusherScaffold extends Module {
                     timer.reset();
                 }
             }
-            BlockPos blockPos3 = blockPos = currentblock.blockPos;
-            boolean bl = mc.world.getBlockState(blockPos).getBlock().onBlockActivated(mc.world, blockPos3, mc.world.getBlockState(blockPos3), mc.player, EnumHand.MAIN_HAND, EnumFacing.DOWN, 0.0f, 0.0f, 0.0f);
-            if (bl) {
+
+            boolean sneak = mc.world.getBlockState(currentblock.blockPos).getBlock().onBlockActivated(mc.world, currentblock.blockPos, mc.world.getBlockState(currentblock.blockPos), mc.player, EnumHand.MAIN_HAND, EnumFacing.DOWN, 0.0f, 0.0f, 0.0f);
+            if (sneak)
                 mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.START_SNEAKING));
-            }
-
-
-            mc.playerController.processRightClickBlock(mc.player, mc.world, blockPos, this.currentblock.enumFacing, new Vec3d((double) blockPos.getX() + Math.random(), mc.world.getBlockState(blockPos).getSelectedBoundingBox(mc.world, blockPos).maxY - 0.01, (double) blockPos.getZ() + Math.random()), EnumHand.MAIN_HAND);
+            mc.playerController.processRightClickBlock(mc.player, mc.world, currentblock.blockPos, this.currentblock.enumFacing, new Vec3d((double) currentblock.blockPos.getX() + Math.random(), mc.world.getBlockState(currentblock.blockPos).getSelectedBoundingBox(mc.world, currentblock.blockPos).maxY - 0.01, (double) currentblock.blockPos.getZ() + Math.random()), EnumHand.MAIN_HAND);
             mc.player.swingArm(EnumHand.MAIN_HAND);
-
-
-            if (bl) {
+            if (sneak)
                 mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.STOP_SNEAKING));
-            }
-            mc.player.inventory.currentItem = n;
+            mc.player.inventory.currentItem = prev_item;
             mc.player.connection.sendPacket(new CPacketHeldItemChange(mc.player.inventory.currentItem));
         }
     }

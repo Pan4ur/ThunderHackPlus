@@ -1,5 +1,6 @@
 package com.mrzak34.thunderhack.modules.movement;
 
+import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.events.*;
 import com.mrzak34.thunderhack.manager.EventManager;
 import com.mrzak34.thunderhack.mixin.mixins.IEntityPlayerSP;
@@ -334,6 +335,9 @@ public class Strafe extends Module {
             return false;
         }
         if (mc.player.isInLava()) {
+            return false;
+        }
+        if(Thunderhack.moduleManager.getModuleByClass(RusherScaffold.class).isEnabled()){
             return false;
         }
         if (mc.player.isInWater() || waterTicks > 0) {

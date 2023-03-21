@@ -6,13 +6,9 @@ import net.minecraft.util.math.Vec3d;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.Comparator;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.Map;
 
-public class MathUtil
-        implements Util {
+
+public class MathUtil implements Util {
 
 
     public static double random(double min, double max) {
@@ -49,9 +45,7 @@ public class MathUtil
         return Math.acos(arg) * 180.0f / Math.PI;
     }
 
-    /**
-     * Convenience method.
-     */
+
     public static Vec3d fromTo(Vec3d from, double x, double y, double z) {
         return fromTo(from.x, from.y, from.z, x, y, z);
     }
@@ -61,9 +55,7 @@ public class MathUtil
         return st + f * (en - st);
     }
 
-    /**
-     * Convenience method.
-     */
+
     public static Vec3d fromTo(double x, double y, double z, double x2, double y2, double z2) {
         return new Vec3d(x2 - x, y2 - y, z2 - z);
     }
@@ -113,16 +105,7 @@ public class MathUtil
         return bd.doubleValue();
     }
 
-    public static float wrap(float valI) {
-        float val = valI % 360.0f;
-        if (val >= 180.0f) {
-            val -= 360.0f;
-        }
-        if (val < -180.0f) {
-            val += 360.0f;
-        }
-        return val;
-    }
+
 
     public static Vec3d direction(float yaw) {
         return new Vec3d(Math.cos(MathUtil.degToRad(yaw + 90.0f)), 0.0, Math.sin(MathUtil.degToRad(yaw + 90.0f)));
@@ -133,23 +116,10 @@ public class MathUtil
             throw new IllegalArgumentException();
         }
         BigDecimal bd = BigDecimal.valueOf(value);
-        bd = bd.setScale(places, RoundingMode.FLOOR);
+        bd = bd.setScale(places, RoundingMode.HALF_UP);
         return bd.floatValue();
     }
 
-    public static <K, V extends Comparable<? super V>> Map<K, V> sortByValue(Map<K, V> map, boolean descending) {
-        LinkedList<Map.Entry<K, V>> list = new LinkedList<Map.Entry<K, V>>(map.entrySet());
-        if (descending) {
-            list.sort(Map.Entry.comparingByValue(Comparator.reverseOrder()));
-        } else {
-            list.sort(Map.Entry.comparingByValue());
-        }
-        LinkedHashMap result = new LinkedHashMap();
-        for (Map.Entry entry : list) {
-            result.put(entry.getKey(), entry.getValue());
-        }
-        return result;
-    }
 
     public static double degToRad(double deg) {
         return deg * 0.01745329238474369;
