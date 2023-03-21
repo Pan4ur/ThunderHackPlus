@@ -1,11 +1,12 @@
 package com.mrzak34.thunderhack.modules.funnygame;
 
 import com.mrzak34.thunderhack.Thunderhack;
+import com.mrzak34.thunderhack.events.EventPostSync;
 import com.mrzak34.thunderhack.events.EventSync;
 import com.mrzak34.thunderhack.events.Render3DEvent;
 import com.mrzak34.thunderhack.gui.fontstuff.FontRender;
-import com.mrzak34.thunderhack.mixin.ducks.IEntityPlayerSP;
 import com.mrzak34.thunderhack.mixin.ducks.IPlayerControllerMP;
+import com.mrzak34.thunderhack.mixin.mixins.IMinecraft;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.*;
@@ -21,15 +22,14 @@ import net.minecraft.init.MobEffects;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.client.CPacketAnimation;
+import net.minecraft.network.play.client.CPacketEntityAction;
 import net.minecraft.network.play.client.CPacketHeldItemChange;
 import net.minecraft.network.play.client.CPacketPlayerDigging;
 import net.minecraft.util.CombatRules;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.*;
 import net.minecraft.world.Explosion;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
@@ -39,28 +39,26 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static com.mrzak34.thunderhack.util.InteractionUtil.getAnglesToBlock;
+import static com.mrzak34.thunderhack.util.InteractionUtil.*;
 
 
 public class C4Aura extends Module {
 
-    public static EntityPlayer target = null;
-    public Setting<Float> mindmg = this.register(new Setting<>("mindmg", 6.0f, 0.0f, 20.0f));
+    public Setting<Float> mindmg = this.register(new Setting<>("MinDamage", 6.0f, 0.0f, 20.0f));
+    public Setting<Float> maxSelfDmg = this.register(new Setting<>("MaxSelfDamage", 6.0f, 0.0f, 20.0f));
     public Setting<Float> stophp = this.register(new Setting<>("StopHp", 6.0f, 0.0f, 20.0f));
     public Setting<Float> targetRange = this.register(new Setting<>("TargetRange", 8.0f, 3f, 15.0f));
-    public Setting<Float> placeRange = this.register(new Setting<>("Range", 4.2f, 0.1f, 10.0f));
-    public Setting<Integer> placedelay = this.register(new Setting<>("PlaceDelay", 100, 0, 1000));
     public Setting<Boolean> placeinside = register(new Setting<>("placeInside", true));
     public Setting<Boolean> autoBurrow = register(new Setting<>("AutoBurrow", true));
 
+    private List<BlockPos> positions = null;
+    private BlockPos renderblockpos;
+    private BlockPos postSyncPlace;
+    public static EntityPlayer target = null;
 
-    Timer placeTimer = new Timer();
-    Timer getpostim = new Timer();
-    List<BlockPos> positions = null;
-    BlockPos renderblockpos;
 
     public C4Aura() {
-        super("C4Aura", "Ставит с4", Category.FUNNYGAME);
+        super("C4Aura", "Ставит с4","mcfunny.su only", Category.FUNNYGAME);
     }
 
 
@@ -70,12 +68,8 @@ public class C4Aura extends Module {
         if (autoBurrow.getValue() && mc.player.isSneaking()) {
             if (findC4() != -1) {
                 if (!canPlaceC4(new BlockPos(mc.player))) return;
-                mc.player.inventory.currentItem = 0;
-                mc.player.connection.sendPacket(new CPacketHeldItemChange(findC4()));
                 mc.player.rotationPitch = 90;
                 PlayerUtils.centerPlayer(mc.player.getPositionVector());
-                BlockUtils.placeBlockSmartRotate(new BlockPos(mc.player), EnumHand.MAIN_HAND, false, true, false, null);
-                mc.player.connection.sendPacket(new CPacketHeldItemChange(0));
                 return;
             }
         }
@@ -86,36 +80,54 @@ public class C4Aura extends Module {
             return;
         }
         target = findTarget();
-        if (getpostim.passedMs(300)) {
-            positions = getPositions(mc.player, placeRange.getValue());
-            getpostim.reset();
+        if (mc.player.ticksExisted % 5 == 0) {
+            positions = getPositions(mc.player);
         }
         if (target != null && positions != null) {
-            if (getBestPos(positions, target) != null) {
-                BlockPos blockoftheblocks = getBestPos(positions, target);
-
-                placeC4(blockoftheblocks);
-
+            BlockPos bp = getBestPos(positions, target);
+            if (bp != null) {
+                placePre(bp);
+            }
+            if (mc.player.getHeldItemMainhand().getDisplayName().contains("C4") && !mc.player.getHeldItemMainhand().getDisplayName().contains("2")){
+                mc.player.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.START_DESTROY_BLOCK, new BlockPos(mc.player.posX, mc.player.posY, mc.player.posZ), EnumFacing.UP));
             }
         } else {
             renderblockpos = null;
         }
     }
 
+    @SubscribeEvent
+    public void postSync(EventPostSync event){
+        if (fullNullCheck()) return;
+        if (autoBurrow.getValue() && mc.player.isSneaking()) {
+            if (findC4() != -1) {
+                if (!canPlaceC4(new BlockPos(mc.player))) return;
+                mc.player.inventory.currentItem = 2;
+                mc.player.connection.sendPacket(new CPacketHeldItemChange(findC4()));
+                placePost(new BlockPos(mc.player));
+                mc.player.connection.sendPacket(new CPacketHeldItemChange(2));
+                return;
+            }
+        }
+        if(postSyncPlace != null){
+            placePost(postSyncPlace);
+        }
+    }
 
-    private List<BlockPos> getPositions(Entity entity2, float range) {
+
+    private List<BlockPos> getPositions(Entity entity2) {
         ArrayList<BlockPos> arrayList = new ArrayList<>();
         int playerX = (int) entity2.posX;
         int playerY = (int) entity2.posY;
         int playerZ = (int) entity2.posZ;
-        int n4 = (int) (range);
+        int n4 = 4;
         double playerX1 = entity2.posX - 0.5D;
         double playerY1 = entity2.posY + (double) entity2.getEyeHeight() - 1.0D;
         double playerZ1 = entity2.posZ - 0.5D;
         for (int n5 = playerX - n4; n5 <= playerX + n4; ++n5) {
             for (int n6 = playerZ - n4; n6 <= playerZ + n4; ++n6) {
                 for (int n8 = playerY - n4; n8 < playerY + n4; ++n8) {
-                    if (((double) n5 - playerX1) * ((double) n5 - playerX1) + ((double) n8 - playerY1) * ((double) n8 - playerY1) + ((double) n6 - playerZ1) * ((double) n6 - playerZ1) <= (double) (range * range) && canPlaceC4(new BlockPos(n5, n8, n6))) {
+                    if (((double) n5 - playerX1) * ((double) n5 - playerX1) + ((double) n8 - playerY1) * ((double) n8 - playerY1) + ((double) n6 - playerZ1) * ((double) n6 - playerZ1) <= (double) ((float) 4.0 * (float) 4.0) && canPlaceC4(new BlockPos(n5, n8, n6))) {
                         arrayList.add(new BlockPos(n5, n8, n6));
                     }
                 }
@@ -126,7 +138,7 @@ public class C4Aura extends Module {
 
 
     private boolean canPlaceC4(BlockPos bp) {
-        if (mc.player.getDistanceSq(bp.getX(), bp.getY(), bp.getZ()) > placeRange.getPow2Value()) {
+        if (mc.player.getDistanceSq(bp.getX(), bp.getY(), bp.getZ()) > 16) {
             return false;
         }
         if (target != null) {
@@ -138,7 +150,19 @@ public class C4Aura extends Module {
                 return false;
             }
         }
+        if(getDamage(bp.getX(),bp.getY(),bp.getZ(),mc.player) > maxSelfDmg.getValue()){
+            return false;
+        }
         if(!mc.world.getBlockState(bp).getMaterial().isReplaceable()){
+            return false;
+        }
+        if(mc.world.getBlockState(bp.down()).getBlock() == Blocks.SKULL ){
+            return false;
+        }
+        if(mc.world.getBlockState(bp.down()).getBlock() == Blocks.LEVER ){
+            return false;
+        }
+        if(mc.player.getHeldItemMainhand().getDisplayName().contains("C4") && mc.player.getHeldItemMainhand().getDisplayName().contains("0")){
             return false;
         }
         return mc.world.getBlockState(bp).getBlock() == Blocks.AIR && mc.world.getBlockState(bp.down()).getBlock() != Blocks.AIR;
@@ -208,7 +232,6 @@ public class C4Aura extends Module {
                 DecimalFormat df = new DecimalFormat("0.0");
                 RenderUtil.drawBlockOutline(renderblockpos, new Color(0x05FDCE), 3f, true, 0);
 
-
                 GlStateManager.pushMatrix();
                 GlStateManager.disableDepth();
                 GlStateManager.disableLighting();
@@ -223,8 +246,6 @@ public class C4Aura extends Module {
         }
     }
 
-
-
     private int findC4() {
         for (int i = 0; i < 9; ++i) {
             ItemStack itemStack = mc.player.inventory.getStackInSlot(i);
@@ -235,39 +256,70 @@ public class C4Aura extends Module {
         return -1;
     }
 
-    public void placeC4(BlockPos position) {
+    public void placePre(BlockPos position) {
         mc.player.inventory.currentItem = findC4();
         ((IPlayerControllerMP)mc.playerController).syncItem();
         renderblockpos = position;
-        if (placeTimer.passedMs(placedelay.getValue())) {
-            mc.player.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.START_DESTROY_BLOCK, new BlockPos(mc.player.posX, mc.player.posY, mc.player.posZ), EnumFacing.UP));
-            for (EnumFacing direction : EnumFacing.values()) {
-                BlockPos directionOffset = position.offset(direction);
-                EnumFacing oppositeFacing = direction.getOpposite();
-                if (!InteractionUtil.getVisibleSides(directionOffset).contains(direction.getOpposite())) continue;
-                if (mc.world.getBlockState(directionOffset).getMaterial().isReplaceable()) continue;
-                float[] angle = getAnglesToBlock(directionOffset, oppositeFacing);
-                mc.player.rotationYaw = angle[0];
-                mc.player.rotationPitch = angle[1];
-                Vec3d interactVector = null;
-                RayTraceResult result = InteractionUtil.getTraceResult(mc.playerController.getBlockReachDistance(), angle[0], angle[1]);
-                if (result != null && result.typeOfHit.equals(RayTraceResult.Type.BLOCK)) {
-                    interactVector = result.hitVec;
-                }
-                if (interactVector == null) {
-                    interactVector = new Vec3d(directionOffset).add(0.5, 0.5, 0.5);
-                }
-                Vec3d finalInteractVector = interactVector;
-                ((IEntityPlayerSP )mc.player).setAuraCallback(()->{
-                    mc.playerController.processRightClickBlock(mc.player, mc.world, directionOffset, direction.getOpposite(), finalInteractVector, EnumHand.MAIN_HAND);
-                    mc.player.connection.sendPacket(new CPacketAnimation(EnumHand.MAIN_HAND));
-                });
-                break;
+        for (EnumFacing direction : EnumFacing.values()) {
+            BlockPos directionOffset = position.offset(direction);
+            EnumFacing oppositeFacing = direction.getOpposite();
+            if (mc.world.getBlockState(directionOffset).getMaterial().isReplaceable()) continue;
+            float[] rotation = getAnglesToBlock(directionOffset, oppositeFacing);
+            Vec3d interactVector = null;
+            RayTraceResult result = getTraceResult(4f, rotation[0],rotation[1]);
+            if (result != null && result.typeOfHit.equals(RayTraceResult.Type.BLOCK)) {
+                interactVector = result.hitVec;
             }
-            placeTimer.reset();
+            if (interactVector == null) {
+                interactVector = new Vec3d(directionOffset).add(0.5, 0.5, 0.5);
+                rotation = calculateAngles(interactVector);
+            }
+            mc.player.rotationYaw = rotation[0];
+            mc.player.rotationPitch = rotation[1];
+            postSyncPlace = position;
+            break;
         }
     }
+
+
+    public void placePost(BlockPos position) {
+        for (EnumFacing direction : EnumFacing.values()) {
+            BlockPos directionOffset = position.offset(direction);
+            EnumFacing oppositeFacing = direction.getOpposite();
+            if (mc.world.getBlockState(directionOffset).getMaterial().isReplaceable()) continue;
+            boolean sprint = mc.player.isSprinting();
+            if (sprint) mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.STOP_SPRINTING));
+            boolean sneak = mc.world.getBlockState(directionOffset).getBlock().onBlockActivated(mc.world, directionOffset, mc.world.getBlockState(directionOffset), mc.player, EnumHand.MAIN_HAND, EnumFacing.DOWN, 0.0f, 0.0f, 0.0f);
+            if (sneak) mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.START_SNEAKING));
+            float[] rotation = getAnglesToBlock(directionOffset, oppositeFacing);
+            Vec3d interactVector = null;
+            RayTraceResult result = getTraceResult(4f, rotation[0],rotation[1]);
+            if (result != null && result.typeOfHit.equals(RayTraceResult.Type.BLOCK)) {
+                interactVector = result.hitVec;
+            }
+            if (interactVector == null) {
+                interactVector = new Vec3d(directionOffset).add(0.5, 0.5, 0.5);
+            }
+            mc.playerController.processRightClickBlock(mc.player, mc.world, directionOffset, direction.getOpposite(), interactVector, EnumHand.MAIN_HAND);
+            if (sneak) mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.STOP_SNEAKING));
+            if (sprint) mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.START_SPRINTING));
+            mc.player.connection.sendPacket(new CPacketAnimation(EnumHand.MAIN_HAND));
+            mc.player.connection.sendPacket(new CPacketPlayerDigging(CPacketPlayerDigging.Action.START_DESTROY_BLOCK, new BlockPos(mc.player.posX, mc.player.posY, mc.player.posZ), EnumFacing.UP));
+            ((IMinecraft) mc).setRightClickDelayTimer(4);
+            postSyncPlace = null;
+            break;
+        }
+    }
+
+
+    public static float[] calculateAngles(Vec3d to) {
+        float yaw = (float) (Math.toDegrees(Math.atan2(to.subtract(mc.player.getPositionEyes(1)).z, to.subtract(mc.player.getPositionEyes(1)).x)) - 90);
+        float pitch = (float) Math.toDegrees(-Math.atan2(to.subtract(mc.player.getPositionEyes(1)).y, Math.hypot(to.subtract(mc.player.getPositionEyes(1)).x, to.subtract(mc.player.getPositionEyes(1)).z)));
+        return new float[]{MathHelper.wrapDegrees(yaw), MathHelper.wrapDegrees(pitch)};
+    }
 }
+
+
 
 
 

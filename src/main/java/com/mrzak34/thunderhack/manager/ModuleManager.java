@@ -160,6 +160,7 @@ public class ModuleManager {
         this.modules.add(new Speedometer());
         this.modules.add(new ArmorHud());
         this.modules.add(new LagNotifier());
+        this.modules.add(new BreadCrumbs());
         this.modules.add(new Surround());
         this.modules.add(new LogoutSpots());
         this.modules.add(new LegitStrafe());

@@ -314,7 +314,7 @@ public class Aura extends Module {
                 GL11.glBegin(GL11.GL_LINE_LOOP);
                 for (int i = 0; i <= 360; i++) {
                     Color clr = getTargetColor(shitcollor.getValue().getColorObject(),shitcollor2.getValue().getColorObject(),i);
-                    GL11.glColor4f(clr.getRed() / 255f, clr.getGreen() / 255f, clr.getBlue() / 255f, 0.8F);
+                    GL11.glColor4f(clr.getRed() / 255f, clr.getGreen() / 255f, clr.getBlue() / 255f, 1F);
                     GL11.glVertex3d(x + Math.cos(Math.toRadians(i)) * entity.width * 0.8, nextY, z + Math.sin(Math.toRadians(i)) * entity.width * 0.8);
                 }
                 GL11.glEnd();

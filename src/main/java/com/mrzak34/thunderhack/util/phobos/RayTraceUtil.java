@@ -40,9 +40,6 @@ public class RayTraceUtil {
         return getRayTraceResult(yaw, pitch, mc.playerController.getBlockReachDistance());
     }
 
-    public static RayTraceResult getRayTraceResultWithEntity(float yaw, float pitch, Entity from) {
-        return getRayTraceResult(yaw, pitch, mc.playerController.getBlockReachDistance(), from);
-    }
 
     public static RayTraceResult getRayTraceResult(float yaw, float pitch, float distance) {
         return getRayTraceResult(yaw, pitch, distance, mc.player);
