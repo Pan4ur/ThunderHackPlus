@@ -149,63 +149,12 @@ public class Aura extends Module {
         super("Aura", "Запомните блядь-киллка тх не мисает-а дает шанс убежать", "attacks entities", Category.COMBAT);
     }
 
-    public static boolean isInLiquid() {
-        return mc.player.isInWater() || mc.player.isInLava();
-    }
-
-    public static double absSinAnimation(double input) {
-        return Math.abs(1 + Math.sin(input)) / 2;
-    }
-
-    public static boolean isBlockAboveHead() {
-        AxisAlignedBB axisAlignedBB = new AxisAlignedBB(mc.player.posX - 0.3, mc.player.posY + mc.player.getEyeHeight(),
-                mc.player.posZ + 0.3, mc.player.posX + 0.3, mc.player.posY + (!mc.player.onGround ? 1.5 : 2.5),
-                mc.player.posZ - 0.3);
-        return !mc.world.getCollisionBoxes(mc.player, axisAlignedBB).isEmpty();
-    }
-
-    public static Vector2f getDeltaForCoord(Vector2f rot, Vec3d point) {
-        EntityPlayerSP client = Minecraft.getMinecraft().player;
-        double x = point.x - client.posX;
-        double y = point.y - client.getPositionEyes(1).y;
-        double z = point.z - client.posZ;
-        double dst = Math.sqrt(Math.pow(x, 2) + Math.pow(z, 2));
-        float yawToTarget = (float) wrapDegrees(Math.toDegrees(Math.atan2(z, x)) - 90);
-        float pitchToTarget = (float) (-Math.toDegrees(Math.atan2(y, dst)));
-        float yawDelta = wrapDegrees(yawToTarget - rot.x);
-        float pitchDelta = (pitchToTarget - rot.y);
-        return new Vector2f(yawDelta, pitchDelta);
-    }
-
-    public static Vector2f getRotationForCoord(Vec3d point) {
-        double x = point.x - mc.player.posX;
-        double y = point.y - mc.player.getPositionEyes(1).y;
-        double z = point.z - mc.player.posZ;
-        double dst = Math.sqrt(Math.pow(x, 2) + Math.pow(z, 2));
-        float yawToTarget = (float) wrapDegrees(Math.toDegrees(Math.atan2(z, x)) - 90);
-        float pitchToTarget = (float) (-Math.toDegrees(Math.atan2(y, dst)));
-        return new Vector2f(yawToTarget, pitchToTarget);
-    }
-
-    public static boolean isActiveItemStackBlocking(EntityPlayer other, int time) {
-        if (other.isHandActive() && !other.getActiveItemStack().isEmpty()) {
-            Item item = other.getActiveItemStack().getItem();
-            if (item.getItemUseAction(other.getActiveItemStack()) != EnumAction.BLOCK) {
-                return false;
-            } else {
-                return item.getMaxItemUseDuration(other.getActiveItemStack()) - ((IEntityLivingBase)other).getActiveItemStackUseCount() >= time;
-            }
-        } else {
-            return false;
-        }
-    }
-
-    public static float interpolateRandom(float var0, float var1) {
-        return (float) (var0 + (var1 - var0) * Math.random());
-    }
-
     @SubscribeEvent
     public void onCalc(PlayerUpdateEvent e) {
+        if (targetesp.getValue()) {
+            prevCircleStep = circleStep;
+            circleStep += circleStep1.getValue();
+        }
         if (firstAxe.getValue() && hitttimer.passedMs(3000) && InventoryUtil.getBestAxe() != -1) {
             if (autoswitch.getValue() == AutoSwitch.Default) {
                 mc.player.inventory.currentItem = InventoryUtil.getBestAxe();
@@ -308,15 +257,16 @@ public class Aura extends Module {
             mc.player.rotationPitch = rotationPitch;
             mc.player.rotationYawHead = rotationYaw;
             mc.player.renderYawOffset = rotationYaw;
+        } else {
+            rotationYaw = mc.player.rotationYaw;
+            rotationPitch = mc.player.rotationPitch;
         }
     }
 
     @Override
-    public void onUpdate() {
-        if (targetesp.getValue()) {
-            prevCircleStep = circleStep;
-            circleStep += circleStep1.getValue();
-        }
+    public void onEnable(){
+        rotationYaw = mc.player.rotationYaw;
+        rotationPitch = mc.player.rotationPitch;
     }
 
     @SubscribeEvent
@@ -915,10 +865,64 @@ public class Aura extends Module {
         }
     }
 
+    public static boolean isInLiquid() {
+        return mc.player.isInWater() || mc.player.isInLava();
+    }
+
+    public static double absSinAnimation(double input) {
+        return Math.abs(1 + Math.sin(input)) / 2;
+    }
+
+    public static boolean isBlockAboveHead() {
+        AxisAlignedBB axisAlignedBB = new AxisAlignedBB(mc.player.posX - 0.3, mc.player.posY + mc.player.getEyeHeight(),
+                mc.player.posZ + 0.3, mc.player.posX + 0.3, mc.player.posY + (!mc.player.onGround ? 1.5 : 2.5),
+                mc.player.posZ - 0.3);
+        return !mc.world.getCollisionBoxes(mc.player, axisAlignedBB).isEmpty();
+    }
+
+    public static Vector2f getDeltaForCoord(Vector2f rot, Vec3d point) {
+        EntityPlayerSP client = Minecraft.getMinecraft().player;
+        double x = point.x - client.posX;
+        double y = point.y - client.getPositionEyes(1).y;
+        double z = point.z - client.posZ;
+        double dst = Math.sqrt(Math.pow(x, 2) + Math.pow(z, 2));
+        float yawToTarget = (float) wrapDegrees(Math.toDegrees(Math.atan2(z, x)) - 90);
+        float pitchToTarget = (float) (-Math.toDegrees(Math.atan2(y, dst)));
+        float yawDelta = wrapDegrees(yawToTarget - rot.x);
+        float pitchDelta = (pitchToTarget - rot.y);
+        return new Vector2f(yawDelta, pitchDelta);
+    }
+
+    public static Vector2f getRotationForCoord(Vec3d point) {
+        double x = point.x - mc.player.posX;
+        double y = point.y - mc.player.getPositionEyes(1).y;
+        double z = point.z - mc.player.posZ;
+        double dst = Math.sqrt(Math.pow(x, 2) + Math.pow(z, 2));
+        float yawToTarget = (float) wrapDegrees(Math.toDegrees(Math.atan2(z, x)) - 90);
+        float pitchToTarget = (float) (-Math.toDegrees(Math.atan2(y, dst)));
+        return new Vector2f(yawToTarget, pitchToTarget);
+    }
+
+    public static boolean isActiveItemStackBlocking(EntityPlayer other, int time) {
+        if (other.isHandActive() && !other.getActiveItemStack().isEmpty()) {
+            Item item = other.getActiveItemStack().getItem();
+            if (item.getItemUseAction(other.getActiveItemStack()) != EnumAction.BLOCK) {
+                return false;
+            } else {
+                return item.getMaxItemUseDuration(other.getActiveItemStack()) - ((IEntityLivingBase)other).getActiveItemStackUseCount() >= time;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    public static float interpolateRandom(float var0, float var1) {
+        return (float) (var0 + (var1 - var0) * Math.random());
+    }
+
     private Color getTargetColor(Color color1, Color color2, int offset){
         return TwoColoreffect(color1, color2, Math.abs(System.currentTimeMillis() / 10) / 100.0 + offset * ((20f - colorOffset1.getValue()) / 200) );
     }
-
 
 
     public enum rotmod {
