@@ -1,6 +1,9 @@
 package com.mrzak34.thunderhack.util.render;
 
+import com.mrzak34.thunderhack.mixin.ducks.IEntity;
 import com.mrzak34.thunderhack.mixin.mixins.IRenderManager;
+import com.mrzak34.thunderhack.modules.combat.BackTrack;
+import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.util.EntityUtil;
 import com.mrzak34.thunderhack.util.Util;
 import com.mrzak34.thunderhack.util.gaussianblur.GaussianFilter;
@@ -9,12 +12,15 @@ import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.model.ModelBase;
+import net.minecraft.client.model.ModelPlayer;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.renderer.culling.ICamera;
 import net.minecraft.client.renderer.texture.TextureUtil;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -53,9 +59,109 @@ public class RenderUtil implements Util {
     public static double interpolate(double current, double old, double scale) {
         return old + (current - old) * scale;
     }
+    public static double interpolate(double current, double old) {
+        return old + (current - old) * mc.getRenderPartialTicks();
+    }
 
     public static void bindTexture(int texture) {
         glBindTexture(GL_TEXTURE_2D, texture);
+    }
+
+    public static void renderEntity(BackTrack.Box entity, ModelBase modelBase, float limbSwing, float limbSwingAmount, float netHeadYaw, float headPitch, EntityLivingBase entityIn, Color color1) {
+
+        boolean texture = GL11.glIsEnabled(GL11.GL_TEXTURE_2D);
+        boolean blend = GL11.glIsEnabled(GL11.GL_BLEND);
+        boolean hz = GL11.glIsEnabled(2848);
+        GlStateManager.enableBlend();
+        GlStateManager.tryBlendFuncSeparate(770, 771, 0, 1);
+        GlStateManager.disableTexture2D();
+        GL11.glEnable(2848);
+        GL11.glHint(3154, 4354);
+        GlStateManager.color(color1.getRed() / 255f, color1.getGreen() / 255f, color1.getBlue() / 255f, color1.getAlpha() / 255f);
+        GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_FILL);
+
+        if (modelBase instanceof ModelPlayer) {
+            ModelPlayer modelPlayer = ((ModelPlayer) modelBase);
+            modelPlayer.bipedBodyWear.showModel = false;
+            modelPlayer.bipedLeftLegwear.showModel = false;
+            modelPlayer.bipedRightLegwear.showModel = false;
+            modelPlayer.bipedLeftArmwear.showModel = false;
+            modelPlayer.bipedRightArmwear.showModel = false;
+            modelPlayer.bipedHeadwear.showModel = true;
+            modelPlayer.bipedHead.showModel = false;
+        }
+
+
+        float partialTicks = mc.getRenderPartialTicks();
+        double x = entity.getPosition().x - mc.getRenderManager().viewerPosX;
+        double y = entity.getPosition().y - mc.getRenderManager().viewerPosY;
+        double z = entity.getPosition().z - mc.getRenderManager().viewerPosZ;
+
+        GlStateManager.pushMatrix();
+
+        GlStateManager.translate((float) x, (float) y, (float) z);
+        GlStateManager.rotate(180 - entity.getYaw(), 0, 1, 0);
+        float f4 = prepareScale(1);
+        float yaw = entity.getYaw();
+
+        boolean alpha = GL11.glIsEnabled(GL11.GL_ALPHA_TEST);
+        GlStateManager.enableAlpha();
+        modelBase.setLivingAnimations(entityIn, limbSwing, limbSwingAmount, partialTicks);
+        modelBase.setRotationAngles(limbSwing, limbSwingAmount, 0, yaw, entity.getPitch(), f4, entityIn);
+        modelBase.render(entityIn, limbSwing, limbSwingAmount, 0, yaw, entity.getPitch(), f4);
+
+        if (!alpha)
+            GlStateManager.disableAlpha();
+        GlStateManager.popMatrix();
+
+        GlStateManager.enableTexture2D();
+        if (!hz)
+            GL11.glDisable(2848);
+        if (texture)
+            GlStateManager.enableTexture2D();
+        if (!blend)
+            GlStateManager.disableBlend();
+    }
+
+    private static float prepareScale(float scale) {
+        GlStateManager.enableRescaleNormal();
+        GlStateManager.scale(-1.0F, -1.0F, 1.0F);
+        double widthX = 0.6f;
+        double widthZ = 0.6f;
+
+        GlStateManager.scale(scale + widthX, scale * 1.8f, scale + widthZ);
+        float f = 0.0625F;
+
+        GlStateManager.translate(0.0F, -1.501F, 0.0F);
+        return f;
+    }
+
+    public static void drawBoundingBox(BackTrack.Box box, double width, Color color) {
+        Tessellator tessellator = Tessellator.getInstance();
+        BufferBuilder bufferbuilder = tessellator.getBuffer();
+        GlStateManager.glLineWidth((float) width);
+        bufferbuilder.begin(GL11.GL_LINE_STRIP, DefaultVertexFormats.POSITION_COLOR);
+        colorVertex(box.getPosition().x - 0.3, box.getPosition().y, box.getPosition().z - 0.3, color, color.getAlpha(), bufferbuilder);
+        colorVertex(box.getPosition().x - 0.3, box.getPosition().y, box.getPosition().z + 0.3, color, color.getAlpha(), bufferbuilder);
+        colorVertex(box.getPosition().x + 0.3, box.getPosition().y, box.getPosition().z + 0.3, color, color.getAlpha(), bufferbuilder);
+        colorVertex(box.getPosition().x + 0.3, box.getPosition().y, box.getPosition().z - 0.3, color, color.getAlpha(), bufferbuilder);
+        colorVertex(box.getPosition().x - 0.3, box.getPosition().y, box.getPosition().z - 0.3, color, color.getAlpha(), bufferbuilder);
+        colorVertex(box.getPosition().x - 0.3, box.getPosition().y + 1.8f, box.getPosition().z - 0.3, color, color.getAlpha(), bufferbuilder);
+        colorVertex(box.getPosition().x - 0.3, box.getPosition().y + 1.8f, box.getPosition().z + 0.3, color, color.getAlpha(), bufferbuilder);
+        colorVertex(box.getPosition().x - 0.3, box.getPosition().y, box.getPosition().z + 0.3, color, color.getAlpha(), bufferbuilder);
+        colorVertex(box.getPosition().x + 0.3, box.getPosition().y, box.getPosition().z + 0.3, color, color.getAlpha(), bufferbuilder);
+        colorVertex(box.getPosition().x + 0.3, box.getPosition().y + 1.8f, box.getPosition().z + 0.3, color, color.getAlpha(), bufferbuilder);
+        colorVertex(box.getPosition().x - 0.3, box.getPosition().y + 1.8f, box.getPosition().z + 0.3, color, color.getAlpha(), bufferbuilder);
+        colorVertex(box.getPosition().x + 0.3, box.getPosition().y + 1.8f, box.getPosition().z + 0.3, color, color.getAlpha(), bufferbuilder);
+        colorVertex(box.getPosition().x + 0.3, box.getPosition().y + 1.8f, box.getPosition().z - 0.3, color, color.getAlpha(), bufferbuilder);
+        colorVertex(box.getPosition().x + 0.3, box.getPosition().y, box.getPosition().z - 0.3, color, color.getAlpha(), bufferbuilder);
+        colorVertex(box.getPosition().x + 0.3, box.getPosition().y + 1.8f, box.getPosition().z - 0.3, color, color.getAlpha(), bufferbuilder);
+        colorVertex(box.getPosition().x - 0.3, box.getPosition().y + 1.8f, box.getPosition().z - 0.3, color, color.getAlpha(), bufferbuilder);
+        tessellator.draw();
+    }
+
+    private static void colorVertex(double x, double y, double z, Color color, int alpha, BufferBuilder bufferbuilder) {
+        bufferbuilder.pos(x - mc.getRenderManager().viewerPosX, y - mc.getRenderManager().viewerPosY, z - mc.getRenderManager().viewerPosZ).color(color.getRed(), color.getGreen(), color.getBlue(), alpha).endVertex();
     }
 
     public static javax.vecmath.Vector3d vectorTo2D(int scaleFactor, double x, double y, double z) {

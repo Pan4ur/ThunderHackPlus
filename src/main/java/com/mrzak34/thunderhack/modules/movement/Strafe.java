@@ -9,7 +9,7 @@ import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.InventoryUtil;
 import com.mrzak34.thunderhack.util.Timer;
-import com.mrzak34.thunderhack.util.phobos.IEntity;
+import com.mrzak34.thunderhack.mixin.ducks.IEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;

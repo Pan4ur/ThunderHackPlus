@@ -6,7 +6,7 @@ import com.mrzak34.thunderhack.events.PostPlayerUpdateEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.Timer;
-import com.mrzak34.thunderhack.util.phobos.IEntity;
+import com.mrzak34.thunderhack.mixin.ducks.IEntity;
 import net.minecraft.network.play.server.SPacketPlayerPosLook;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 

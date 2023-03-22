@@ -94,6 +94,7 @@ public class NoClip extends Module {
     public int clipTimer;
 
     public boolean canNoClip() {
+        if(mode.getValue() == Mode.Default) return true;
         if(!waitBreak.getValue()) return true;
         return clipTimer != 0;
     }

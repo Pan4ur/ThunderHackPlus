@@ -5,7 +5,7 @@ import com.mrzak34.thunderhack.events.EventMove;
 import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
-import com.mrzak34.thunderhack.util.phobos.IEntity;
+import com.mrzak34.thunderhack.mixin.ducks.IEntity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.play.server.SPacketPlayerPosLook;
 import net.minecraft.util.math.BlockPos;

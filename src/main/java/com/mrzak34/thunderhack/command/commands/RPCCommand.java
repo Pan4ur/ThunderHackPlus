@@ -1,7 +1,7 @@
 package com.mrzak34.thunderhack.command.commands;
 
-import com.mrzak34.thunderhack.Discord;
 import com.mrzak34.thunderhack.command.Command;
+import com.mrzak34.thunderhack.modules.client.RPC;
 
 public class RPCCommand extends Command {
 
@@ -19,12 +19,12 @@ public class RPCCommand extends Command {
 
         }
         if (args.length == 2) {
-            Discord.WriteFile(args[0], "none");
+            RPC.WriteFile(args[0], "none");
             Command.sendMessage("Большая картинка RPC изменена на " + args[0]);
             return;
         }
         if (args.length >= 2) {
-            Discord.WriteFile(args[0], args[1]);
+            RPC.WriteFile(args[0], args[1]);
             Command.sendMessage("Большая картинка RPC изменена на " + args[0]);
             Command.sendMessage("Маленькая картинка RPC изменена на " + args[1]);
         }

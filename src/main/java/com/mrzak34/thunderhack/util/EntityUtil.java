@@ -1,6 +1,6 @@
 package com.mrzak34.thunderhack.util;
 
-import com.mrzak34.thunderhack.util.phobos.IEntity;
+import com.mrzak34.thunderhack.mixin.ducks.IEntity;
 import net.minecraft.block.*;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;

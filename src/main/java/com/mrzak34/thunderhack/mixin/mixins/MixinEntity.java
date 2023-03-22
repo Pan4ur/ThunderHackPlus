@@ -4,16 +4,17 @@ import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.events.PushEvent;
 import com.mrzak34.thunderhack.events.StepEvent;
 import com.mrzak34.thunderhack.events.TurnEvent;
+import com.mrzak34.thunderhack.modules.combat.BackTrack;
 import com.mrzak34.thunderhack.modules.combat.HitBoxes;
+import com.mrzak34.thunderhack.modules.render.PlayerTrails;
 import com.mrzak34.thunderhack.util.Timer;
-import com.mrzak34.thunderhack.util.phobos.IEntity;
+import com.mrzak34.thunderhack.mixin.ducks.IEntity;
 import com.mrzak34.thunderhack.util.phobos.IEntityNoInterp;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.MoverType;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fml.common.eventhandler.Event;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.gen.Accessor;
@@ -22,6 +23,9 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.mrzak34.thunderhack.util.Util.mc;
 
@@ -73,11 +77,13 @@ public abstract class MixinEntity implements IEntity {
     private boolean pseudoDead;
     private long stamp;
 
+    public List<PlayerTrails.Trail> trails = new ArrayList<>();
+    public List<BackTrack.Box> position_history = new ArrayList<>();
+
+
     @Override
     @Accessor(value = "isInWeb")
     public abstract boolean isInWeb();
-
-
 
     @Shadow
     public abstract boolean isSneaking();
@@ -152,6 +158,16 @@ public abstract class MixinEntity implements IEntity {
     @Override
     public Timer getPseudoTimeT() {
         return pseudoTimer;
+    }
+
+    @Override
+    public List<BackTrack.Box> getPosition_history(){
+        return position_history;
+    }
+
+    @Override
+    public List<PlayerTrails.Trail> getTrails(){
+        return trails;
     }
 
     @Override

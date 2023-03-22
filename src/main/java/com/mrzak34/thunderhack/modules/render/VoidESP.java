@@ -7,14 +7,15 @@ import com.mrzak34.thunderhack.util.BlockUtils;
 import com.mrzak34.thunderhack.util.render.RenderUtil;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
 public class VoidESP extends Module {
-    public Setting<Float> range = this.register(new Setting<Float>("Range", Float.valueOf(6.0f), Float.valueOf(3.0f), Float.valueOf(16.0f)));
-    public Setting<Boolean> down = this.register(new Setting<Boolean>("Up", false));
+    public Setting<Float> range = this.register(new Setting<>("Range",6.0f, 3.0f, 16.0f));
+    public Setting<Boolean> down = this.register(new Setting<>("Up", false));
     private List<BlockPos> holes = new ArrayList<BlockPos>();
 
 
@@ -22,18 +23,14 @@ public class VoidESP extends Module {
         super("VoidESP", "VoidESP", Module.Category.PLAYER);
     }
 
+    @Override
     public void onUpdate() {
-        if (this.mc.player == null || this.mc.world == null) {
-            return;
-        }
         this.holes = this.calcHoles();
     }
 
-    @Override
+    @SubscribeEvent
     public void onRender3D(Render3DEvent event) {
-        int size = this.holes.size();
-        for (int i = 0; i < size; ++i) {
-            BlockPos pos = this.holes.get(i);
+        for (BlockPos pos : this.holes) {
             RenderUtil.renderCrosses(this.down.getValue() ? pos.up() : pos, new Color(255, 255, 255), 2.0f);
         }
     }
@@ -41,10 +38,8 @@ public class VoidESP extends Module {
     public List<BlockPos> calcHoles() {
         ArrayList<BlockPos> voidHoles = new ArrayList<BlockPos>();
         List<BlockPos> positions = BlockUtils.getSphere(range.getValue(), false);
-        int size = positions.size();
-        for (int i = 0; i < size; ++i) {
-            BlockPos pos = positions.get(i);
-            if (pos.getY() != 0 || this.mc.world.getBlockState(pos).getBlock() == Blocks.BEDROCK) continue;
+        for (BlockPos pos : positions) {
+            if (pos.getY() != 0 || mc.world.getBlockState(pos).getBlock() == Blocks.BEDROCK) continue;
             voidHoles.add(pos);
         }
         return voidHoles;

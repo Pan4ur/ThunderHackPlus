@@ -1,6 +1,7 @@
 package com.mrzak34.thunderhack.util.phobos;
 
 import com.mrzak34.thunderhack.Thunderhack;
+import com.mrzak34.thunderhack.mixin.ducks.IEntity;
 import com.mrzak34.thunderhack.modules.combat.AutoCrystal;
 import com.mrzak34.thunderhack.util.EntityUtil;
 import com.mrzak34.thunderhack.util.InventoryUtil;

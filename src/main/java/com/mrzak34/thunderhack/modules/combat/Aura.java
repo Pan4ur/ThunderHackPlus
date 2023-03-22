@@ -5,6 +5,7 @@ import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.events.*;
 import com.mrzak34.thunderhack.manager.EventManager;
+import com.mrzak34.thunderhack.mixin.mixins.IKeyBinding;
 import com.mrzak34.thunderhack.mixin.mixins.IRenderManager;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.modules.player.AutoGApple;
@@ -17,7 +18,7 @@ import com.mrzak34.thunderhack.util.SilentRotationUtil;
 import com.mrzak34.thunderhack.util.Timer;
 import com.mrzak34.thunderhack.util.math.ExplosionBuilder;
 import com.mrzak34.thunderhack.util.math.MathUtil;
-import com.mrzak34.thunderhack.util.phobos.IEntity;
+import com.mrzak34.thunderhack.mixin.ducks.IEntity;
 import com.mrzak34.thunderhack.util.phobos.IEntityLivingBase;
 import com.mrzak34.thunderhack.util.rotations.CastHelper;
 import com.mrzak34.thunderhack.util.rotations.RayTracingUtils;
@@ -34,26 +35,19 @@ import net.minecraft.entity.*;
 import net.minecraft.entity.item.EntityEnderCrystal;
 import net.minecraft.entity.monster.EntitySlime;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.MobEffects;
-import net.minecraft.init.SoundEvents;
 import net.minecraft.item.*;
 import net.minecraft.network.play.client.CPacketEntityAction;
 import net.minecraft.network.play.client.CPacketEntityAction.Action;
 import net.minecraft.network.play.client.CPacketHeldItemChange;
 import net.minecraft.network.play.client.CPacketPlayerTryUseItem;
-import net.minecraft.network.play.server.SPacketEntityVelocity;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
-import net.minecraft.stats.StatList;
-import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
@@ -219,9 +213,8 @@ public class Aura extends Module {
                 for (EntityPlayer BTtarget : mc.world.playerEntities) {
                     if (mc.player.getDistanceSq(BTtarget) > 100) continue;
                     if (!isEntityValid(BTtarget, true)) continue;
-                    if (bt.entAndTrail.get(BTtarget) == null) continue;
-                    if (bt.entAndTrail.get(BTtarget).size() == 0) continue;
-                    for (BackTrack.Box box : bt.entAndTrail.get(BTtarget)) {
+                    if (((IEntity)BTtarget).getPosition_history().size() == 0) continue;
+                    for (BackTrack.Box box : ((IEntity)BTtarget).getPosition_history()) {
                         if (getDistanceBT(box) < best_distance) {
                             best_distance = getDistanceBT(box);
                             if (target != null && best_distance < mc.player.getDistanceSq(target)) {
@@ -242,6 +235,14 @@ public class Aura extends Module {
         if (weaponOnly.getValue() && !(mc.player.getHeldItemMainhand().getItem() instanceof ItemSword || mc.player.getHeldItemMainhand().getItem() instanceof ItemAxe)) {
             return;
         }
+
+        if(shiftTap.getValue())
+            if (!mc.player.onGround && mc.player.fallDistance > 0 && mc.player.fallDistance < 0.7) {
+                ((IKeyBinding) mc.gameSettings.keyBindSneak).setPressed(true);
+            } else {
+                ((IKeyBinding) mc.gameSettings.keyBindSneak).setPressed(false);
+            }
+
         rotatedBefore = false;
         attack(target);
         if (!rotatedBefore) {
@@ -257,11 +258,13 @@ public class Aura extends Module {
     @SubscribeEvent
     public void onRotate(EventSync e) {
         if (target != null) {
-            if (egravity.getValue() && !mc.player.onGround && mc.player.fallDistance > 0 && criticals.getValue()) mc.player.motionY -= 0.003;
-            mc.player.rotationYaw = rotationYaw;
-            mc.player.rotationPitch = rotationPitch;
-            mc.player.rotationYawHead = rotationYaw;
-            mc.player.renderYawOffset = rotationYaw;
+            if (egravity.getValue() && !mc.player.onGround && mc.player.fallDistance > 0 && criticals.getValue()) mc.player.motionY -= 0.03;
+            if(rotation.getValue() != rotmod.None) {
+                mc.player.rotationYaw = rotationYaw;
+                mc.player.rotationPitch = rotationPitch;
+                mc.player.rotationYawHead = rotationYaw;
+                mc.player.renderYawOffset = rotationYaw;
+            }
         } else {
             rotationYaw = mc.player.rotationYaw;
             rotationPitch = mc.player.rotationPitch;
@@ -394,6 +397,7 @@ public class Aura extends Module {
                                 || (base instanceof EntityEnderCrystal && mc.player.getDistanceSq(base) <= 20)
                                 || (backTrack.getValue() && bestBtBox != null)
                                 || !rtx.getValue()
+                                || rotation.getValue() == rotmod.None
                 ) {
                     if (teleport.getValue()) {
                         mc.player.setPosition(base.posX, base.posY + tpY.getValue(), base.posZ);
@@ -407,9 +411,6 @@ public class Aura extends Module {
                     if (EventManager.serversprint) {
                         mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, Action.STOP_SPRINTING));
                         needSwap = true;
-                    }
-                    if (shiftTap.getValue() && !mc.gameSettings.keyBindSneak.isKeyDown()) {
-                        mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, Action.START_SNEAKING));
                     }
                     if (snap.getValue()) {
                         mc.player.rotationPitch = rotationPitch;
@@ -466,9 +467,6 @@ public class Aura extends Module {
         if (clientLook.getValue()) {
             mc.player.rotationYaw = rotationYaw;
             mc.player.rotationPitch = rotationPitch;
-        }
-        if (shiftTap.getValue() && !mc.gameSettings.keyBindSneak.isKeyDown()) {
-            mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, Action.STOP_SNEAKING));
         }
     }
 
@@ -620,8 +618,7 @@ public class Aura extends Module {
                 || (mc.player.getDistanceSq(target) <= attackDistance.getPow2Value())
                 || bt.isOff()
                 || !(target instanceof EntityPlayer)
-                || (backTrack.getValue() && bt.entAndTrail.get(target) == null)
-                || (backTrack.getValue() && bt.entAndTrail.get(target) != null && bt.entAndTrail.get(target).size() == 0)) {
+                || (backTrack.getValue() && ((IEntity)target).getPosition_history().size() == 0)) {
 
             if (rayTracing.getValue() == RayTracingMode.Beta) {
                 return RayTracingUtils.getVecTarget(target, attackDistance.getValue() + rotateDistance.getValue());
@@ -661,7 +658,7 @@ public class Aura extends Module {
             bestBtBox = null;
             float best_distance = 36;
             BackTrack.Box best_box = null;
-            for (BackTrack.Box boxes : bt.entAndTrail.get(target)) {
+            for (BackTrack.Box boxes : ((IEntity)target).getPosition_history()) {
                 if (getDistanceBT(boxes) < best_distance) {
                     best_box = boxes;
                     best_distance = getDistanceBT(boxes);
@@ -937,7 +934,7 @@ public class Aura extends Module {
 
 
     public enum rotmod {
-        Matrix, AAC, FunnyGame, Matrix2, SunRise, Matrix3
+        Matrix, AAC, FunnyGame, Matrix2, SunRise, Matrix3, None
     }
 
 

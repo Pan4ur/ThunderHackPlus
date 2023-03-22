@@ -3,17 +3,17 @@ package com.mrzak34.thunderhack.modules.combat;
 import com.mrzak34.thunderhack.events.EventEntityMove;
 import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.events.PreRenderEvent;
+import com.mrzak34.thunderhack.mixin.ducks.IEntity;
+import com.mrzak34.thunderhack.mixin.mixins.IRenderManager;
 import com.mrzak34.thunderhack.modules.Module;
+import com.mrzak34.thunderhack.modules.render.LogoutSpots;
 import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.setting.Setting;
+import com.mrzak34.thunderhack.util.Util;
 import com.mrzak34.thunderhack.util.phobos.ThreadUtil;
-import net.minecraft.client.model.ModelBase;
+import com.mrzak34.thunderhack.util.render.RenderUtil;
 import net.minecraft.client.model.ModelPlayer;
-import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.network.play.client.CPacketConfirmTransaction;
 import net.minecraft.network.play.client.CPacketKeepAlive;
@@ -21,105 +21,22 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
-import java.awt.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 public class BackTrack extends Module {
 
+    private final Setting<RenderMode> renderMode = register(new Setting<>("RenderMode", RenderMode.Chams));
+    private final Setting<ColorSetting> color1 = this.register(new Setting<>("Color", new ColorSetting(-2009289807)));
+    private final Setting<ColorSetting> color2 = this.register(new Setting<>("HighLightColor", new ColorSetting(-2009289807)));
+    private final Setting<Integer> btticks = register(new Setting("TrackTicks", 5, 1, 15));
+    private final Setting<Boolean> hlaura = register(new Setting<>("HighLightAura", true));
+    private final Setting<Boolean> holdPackets = register(new Setting<>("ServerSync", true));
 
-    public final Setting<ColorSetting> color1 = this.register(new Setting<>("Color", new ColorSetting(-2009289807)));
-    public final Setting<ColorSetting> color2 = this.register(new Setting<>("HighLightColor", new ColorSetting(-2009289807)));
-    public Setting<Integer> btticks = register(new Setting("TrackTicks", 5, 1, 15));
-    public Setting<Boolean> hlaura = register(new Setting<>("HighLightAura", true));
-    public Setting<Boolean> holdPackets = register(new Setting<>("ServerSync", true));
-    public Map<EntityPlayer, List<Box>> entAndTrail = new HashMap<>();
-    long skip_packet_ka;
-    long skip_packet_ct;
-    long skip_packet_cwt;
-    private final Setting<RenderMode> renderMode = register(new Setting("RenderMode", RenderMode.Chams));
+    long skip_packet_ka, skip_packet_ct, skip_packet_cwt;
+
 
     public BackTrack() {
         super("BackTrack", "откатывает позицию-врагов", "rolls back the-position of enemies", Category.COMBAT);
     }
 
-    public static void drawBoundingBox(Box box, double width, Color color) {
-        Tessellator tessellator = Tessellator.getInstance();
-        BufferBuilder bufferbuilder = tessellator.getBuffer();
-        GlStateManager.glLineWidth((float) width);
-        bufferbuilder.begin(GL11.GL_LINE_STRIP, DefaultVertexFormats.POSITION_COLOR);
-        colorVertex(box.getPosition().x - 0.3, box.getPosition().y, box.getPosition().z - 0.3, color, color.getAlpha(), bufferbuilder);
-        colorVertex(box.getPosition().x - 0.3, box.getPosition().y, box.getPosition().z + 0.3, color, color.getAlpha(), bufferbuilder);
-        colorVertex(box.getPosition().x + 0.3, box.getPosition().y, box.getPosition().z + 0.3, color, color.getAlpha(), bufferbuilder);
-        colorVertex(box.getPosition().x + 0.3, box.getPosition().y, box.getPosition().z - 0.3, color, color.getAlpha(), bufferbuilder);
-        colorVertex(box.getPosition().x - 0.3, box.getPosition().y, box.getPosition().z - 0.3, color, color.getAlpha(), bufferbuilder);
-        colorVertex(box.getPosition().x - 0.3, box.getPosition().y + 1.8f, box.getPosition().z - 0.3, color, color.getAlpha(), bufferbuilder);
-        colorVertex(box.getPosition().x - 0.3, box.getPosition().y + 1.8f, box.getPosition().z + 0.3, color, color.getAlpha(), bufferbuilder);
-        colorVertex(box.getPosition().x - 0.3, box.getPosition().y, box.getPosition().z + 0.3, color, color.getAlpha(), bufferbuilder);
-        colorVertex(box.getPosition().x + 0.3, box.getPosition().y, box.getPosition().z + 0.3, color, color.getAlpha(), bufferbuilder);
-        colorVertex(box.getPosition().x + 0.3, box.getPosition().y + 1.8f, box.getPosition().z + 0.3, color, color.getAlpha(), bufferbuilder);
-        colorVertex(box.getPosition().x - 0.3, box.getPosition().y + 1.8f, box.getPosition().z + 0.3, color, color.getAlpha(), bufferbuilder);
-        colorVertex(box.getPosition().x + 0.3, box.getPosition().y + 1.8f, box.getPosition().z + 0.3, color, color.getAlpha(), bufferbuilder);
-        colorVertex(box.getPosition().x + 0.3, box.getPosition().y + 1.8f, box.getPosition().z - 0.3, color, color.getAlpha(), bufferbuilder);
-        colorVertex(box.getPosition().x + 0.3, box.getPosition().y, box.getPosition().z - 0.3, color, color.getAlpha(), bufferbuilder);
-        colorVertex(box.getPosition().x + 0.3, box.getPosition().y + 1.8f, box.getPosition().z - 0.3, color, color.getAlpha(), bufferbuilder);
-        colorVertex(box.getPosition().x - 0.3, box.getPosition().y + 1.8f, box.getPosition().z - 0.3, color, color.getAlpha(), bufferbuilder);
-        tessellator.draw();
-    }
-
-    private static void colorVertex(double x, double y, double z, Color color, int alpha, BufferBuilder bufferbuilder) {
-        bufferbuilder.pos(x - mc.getRenderManager().viewerPosX, y - mc.getRenderManager().viewerPosY, z - mc.getRenderManager().viewerPosZ).color(color.getRed(), color.getGreen(), color.getBlue(), alpha).endVertex();
-    }
-
-    public static void renderEntity(Box entity, ModelBase modelBase, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale, EntityLivingBase entityIn) {
-        if (modelBase instanceof ModelPlayer) {
-            ModelPlayer modelPlayer = ((ModelPlayer) modelBase);
-            modelPlayer.bipedBodyWear.showModel = false;
-            modelPlayer.bipedLeftLegwear.showModel = false;
-            modelPlayer.bipedRightLegwear.showModel = false;
-            modelPlayer.bipedLeftArmwear.showModel = false;
-            modelPlayer.bipedRightArmwear.showModel = false;
-            modelPlayer.bipedHeadwear.showModel = true;
-            modelPlayer.bipedHead.showModel = false;
-        }
-
-        float partialTicks = mc.getRenderPartialTicks();
-        double x = entity.position.x - mc.getRenderManager().viewerPosX;
-        double y = entity.position.y - mc.getRenderManager().viewerPosY;
-        double z = entity.position.z - mc.getRenderManager().viewerPosZ;
-
-        GlStateManager.pushMatrix();
-
-        GlStateManager.translate((float) x, (float) y, (float) z);
-        GlStateManager.rotate(180 - entity.Yaw, 0, 1, 0);
-        float f4 = prepareScale(scale);
-        float yaw = entity.Yaw;
-
-        boolean alpha = GL11.glIsEnabled(GL11.GL_ALPHA_TEST);
-        GlStateManager.enableAlpha();
-        modelBase.setLivingAnimations(entityIn, limbSwing, limbSwingAmount, partialTicks);
-        modelBase.setRotationAngles(limbSwing, limbSwingAmount, 0, yaw, entity.Pitch, f4, entityIn);
-        modelBase.render(entityIn, limbSwing, limbSwingAmount, 0, yaw, entity.Pitch, f4);
-
-        if (!alpha)
-            GlStateManager.disableAlpha();
-        GlStateManager.popMatrix();
-    }
-
-    private static float prepareScale(float scale) {
-        GlStateManager.enableRescaleNormal();
-        GlStateManager.scale(-1.0F, -1.0F, 1.0F);
-        double widthX = 0.6f;
-        double widthZ = 0.6f;
-
-        GlStateManager.scale(scale + widthX, scale * 1.8f, scale + widthZ);
-        float f = 0.0625F;
-
-        GlStateManager.translate(0.0F, -1.501F, 0.0F);
-        return f;
-    }
 
     @SubscribeEvent
     public void onPreRenderEvent(PreRenderEvent event) {
@@ -127,98 +44,97 @@ public class BackTrack extends Module {
             if (entity == mc.player) {
                 continue;
             }
-            List<Box> trails22 = new ArrayList<>();
-
-            entAndTrail.putIfAbsent(entity, trails22);
-
-            if (entAndTrail.get(entity).size() > 0) {
-                for (int i = 0; i < entAndTrail.get(entity).size(); i++) {
+            if (((IEntity)entity).getPosition_history().size() > 0) {
+                for (int i = 0; i < ((IEntity)entity).getPosition_history().size(); i++) {
                     GlStateManager.pushMatrix();
-                    if (Aura.bestBtBox != entAndTrail.get(entity).get(i) && hlaura.getValue()) {
+                    if (Aura.bestBtBox != ((IEntity)entity).getPosition_history().get(i) && hlaura.getValue()) {
                         if (renderMode.getValue() == RenderMode.Box) {
-                            drawBoundingBox(entAndTrail.get(entity).get(i), 1, color1.getValue().getColorObject());
+                            RenderUtil.drawBoundingBox(((IEntity)entity).getPosition_history().get(i), 1, color1.getValue().getColorObject());
                         } else if (renderMode.getValue() == RenderMode.Chams) {
-/*
-                                GL11.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
-                                GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-                                GlStateManager.glLineWidth(1.5F);
-                                GlStateManager.disableTexture2D();
-                                boolean blend = GL11.glIsEnabled(GL11.GL_BLEND);
-                                GL11.glEnable(GL11.GL_BLEND);
-                                GlStateManager.disableLighting();
-                                GlStateManager.enableAlpha();
-                                boolean cull = GL11.glIsEnabled(GL11.GL_CULL_FACE);
-                                GlStateManager.disableCull( );
+                            RenderUtil.renderEntity(
+                                    ((IEntity)entity).getPosition_history().get(i),
+                                    ((IEntity)entity).getPosition_history().get(i).modelPlayer,
+                                    ((IEntity)entity).getPosition_history().get(i).limbSwing,
+                                    ((IEntity)entity).getPosition_history().get(i).limbSwingAmount,
+                                    ((IEntity)entity).getPosition_history().get(i).Yaw,
+                                    ((IEntity)entity).getPosition_history().get(i).Pitch,
+                                    ((IEntity)entity).getPosition_history().get(i).ent,
+                                    color1.getValue().getColorObject());
+                        } else if(renderMode.getValue() == RenderMode.Ghost){
 
- */
-                            boolean texture = GL11.glIsEnabled(GL11.GL_TEXTURE_2D);
+                            GlStateManager.pushMatrix();
+
+                            boolean lighting = GL11.glIsEnabled(GL11.GL_LIGHTING);
                             boolean blend = GL11.glIsEnabled(GL11.GL_BLEND);
-                            boolean hz = GL11.glIsEnabled(2848);
+                            boolean depthtest = GL11.glIsEnabled(GL11.GL_DEPTH_TEST);
 
+                            GlStateManager.enableLighting();
                             GlStateManager.enableBlend();
-                            GlStateManager.tryBlendFuncSeparate(770, 771, 0, 1);
-                            GlStateManager.disableTexture2D();
-                            GL11.glEnable(2848);
-                            GL11.glHint(3154, 4354);
+                            GlStateManager.enableDepth();
+                            GlStateManager.color(1, 1, 1, 1);
+                            try {
+                                mc.getRenderManager().renderEntity(entity,
+                                        ((IEntity)entity).getPosition_history().get(i).position.x - ((IRenderManager) Util.mc.getRenderManager()).getRenderPosX(),
+                                        ((IEntity)entity).getPosition_history().get(i).position.y - ((IRenderManager) Util.mc.getRenderManager()).getRenderPosY(),
+                                        ((IEntity)entity).getPosition_history().get(i).position.z - ((IRenderManager) Util.mc.getRenderManager()).getRenderPosZ(),
 
-                            entAndTrail.get(entity).get(i).modelPlayer.bipedLeftLegwear.showModel = false;
-                            entAndTrail.get(entity).get(i).modelPlayer.bipedRightLegwear.showModel = false;
-                            entAndTrail.get(entity).get(i).modelPlayer.bipedLeftArmwear.showModel = false;
-                            entAndTrail.get(entity).get(i).modelPlayer.bipedRightArmwear.showModel = false;
-                            entAndTrail.get(entity).get(i).modelPlayer.bipedBodyWear.showModel = false;
-                            entAndTrail.get(entity).get(i).modelPlayer.bipedHead.showModel = true;
-                            entAndTrail.get(entity).get(i).modelPlayer.bipedHeadwear.showModel = false;
-                            GlStateManager.color(color1.getValue().getRed() / 255f, color1.getValue().getGreen() / 255f, color1.getValue().getBlue() / 255f, color1.getValue().getAlpha() / 255f);
-                            GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_FILL);
-                            renderEntity(entAndTrail.get(entity).get(i), entAndTrail.get(entity).get(i).modelPlayer, entAndTrail.get(entity).get(i).limbSwing, entAndTrail.get(entity).get(i).limbSwingAmount, 20, entAndTrail.get(entity).get(i).Yaw, entAndTrail.get(entity).get(i).Pitch, 1, entAndTrail.get(entity).get(i).ent);
-                            GlStateManager.enableTexture2D();
+                                        ((IEntity)entity).getPosition_history().get(i).Yaw, mc.getRenderPartialTicks(), false);
+                            } catch (Exception ignored) {
+                            }
 
-                            if (!hz)
-                                GL11.glDisable(2848);
-                            if (texture)
-                                GlStateManager.enableTexture2D();
+                            if (!depthtest)
+                                GlStateManager.disableDepth();
+                            if (!lighting)
+                                GlStateManager.disableLighting();
                             if (!blend)
                                 GlStateManager.disableBlend();
 
-                             /*
-                                if(!blend)
-                                    GL11.glDisable(GL11.GL_BLEND);
-                                if(cull)
-                                    GL11.glEnable(GL11.GL_CULL_FACE);
-                             */
+                            GlStateManager.popMatrix();
                         }
                     } else {
                         if (renderMode.getValue() == RenderMode.Box) {
-                            drawBoundingBox(entAndTrail.get(entity).get(i), 1, color2.getValue().getColorObject());
+                            RenderUtil.drawBoundingBox(((IEntity)entity).getPosition_history().get(i), 1, color2.getValue().getColorObject());
                         } else if (renderMode.getValue() == RenderMode.Chams) {
+                            RenderUtil.renderEntity(
+                                    ((IEntity)entity).getPosition_history().get(i),
+                                    ((IEntity)entity).getPosition_history().get(i).modelPlayer,
+                                    ((IEntity)entity).getPosition_history().get(i).limbSwing,
+                                    ((IEntity)entity).getPosition_history().get(i).limbSwingAmount,
+                                    ((IEntity)entity).getPosition_history().get(i).Yaw,
+                                    ((IEntity)entity).getPosition_history().get(i).Pitch,
+                                    ((IEntity)entity).getPosition_history().get(i).ent,
+                                    color2.getValue().getColorObject()
+                            );
+                        } else if(renderMode.getValue() == RenderMode.Ghost){
 
-                            boolean texture = GL11.glIsEnabled(GL11.GL_TEXTURE_2D);
+                            GlStateManager.pushMatrix();
+
+                            boolean lighting = GL11.glIsEnabled(GL11.GL_LIGHTING);
                             boolean blend = GL11.glIsEnabled(GL11.GL_BLEND);
-                            boolean hz = GL11.glIsEnabled(2848);
+                            boolean depthtest = GL11.glIsEnabled(GL11.GL_DEPTH_TEST);
 
+                            GlStateManager.enableLighting();
                             GlStateManager.enableBlend();
-                            GlStateManager.tryBlendFuncSeparate(770, 771, 0, 1);
-                            GlStateManager.disableTexture2D();
-                            GL11.glEnable(2848);
-                            GL11.glHint(3154, 4354);
+                            GlStateManager.enableDepth();
+                            GlStateManager.color(1, 1, 1, 0.1f);
+                            try {
+                                mc.getRenderManager().renderEntity(entity,
+                                        ((IEntity)entity).getPosition_history().get(i).position.x,
+                                        ((IEntity)entity).getPosition_history().get(i).position.y,
+                                        ((IEntity)entity).getPosition_history().get(i).position.z,
 
-                            entAndTrail.get(entity).get(i).modelPlayer.bipedLeftLegwear.showModel = false;
-                            entAndTrail.get(entity).get(i).modelPlayer.bipedRightLegwear.showModel = false;
-                            entAndTrail.get(entity).get(i).modelPlayer.bipedLeftArmwear.showModel = false;
-                            entAndTrail.get(entity).get(i).modelPlayer.bipedRightArmwear.showModel = false;
-                            entAndTrail.get(entity).get(i).modelPlayer.bipedBodyWear.showModel = false;
-                            entAndTrail.get(entity).get(i).modelPlayer.bipedHead.showModel = true;
-                            entAndTrail.get(entity).get(i).modelPlayer.bipedHeadwear.showModel = false;
-                            GlStateManager.color(color2.getValue().getRed() / 255f, color2.getValue().getGreen() / 255f, color2.getValue().getBlue() / 255f, color2.getValue().getAlpha() / 255f);
-                            GL11.glPolygonMode(GL11.GL_FRONT_AND_BACK, GL11.GL_FILL);
-                            renderEntity(entAndTrail.get(entity).get(i), entAndTrail.get(entity).get(i).modelPlayer, entAndTrail.get(entity).get(i).limbSwing, entAndTrail.get(entity).get(i).limbSwingAmount, 20, entAndTrail.get(entity).get(i).Yaw, entAndTrail.get(entity).get(i).Pitch, 1, entAndTrail.get(entity).get(i).ent);
+                                        ((IEntity)entity).getPosition_history().get(i).Yaw, mc.getRenderPartialTicks(), false);
+                            } catch (Exception ignored) {
+                            }
 
-                            if (!hz)
-                                GL11.glDisable(2848);
-                            if (texture)
-                                GlStateManager.enableTexture2D();
+                            if (!depthtest)
+                                GlStateManager.disableDepth();
+                            if (!lighting)
+                                GlStateManager.disableLighting();
                             if (!blend)
                                 GlStateManager.disableBlend();
+
+                            GlStateManager.popMatrix();
                         }
                     }
                     GlStateManager.popMatrix();
@@ -229,8 +145,7 @@ public class BackTrack extends Module {
 
     @SubscribeEvent
     public void onPacketSend(PacketEvent.Send event) {
-        if (!holdPackets.getValue()) return;
-        if (fullNullCheck()) return;
+        if (!holdPackets.getValue() || fullNullCheck()) return;
         if (event.getPacket() instanceof CPacketKeepAlive) {
             if (((CPacketKeepAlive) event.getPacket()).getKey() == skip_packet_ka) {
                 return;
@@ -260,36 +175,27 @@ public class BackTrack extends Module {
 
     @SubscribeEvent
     public void onEntityMove(EventEntityMove e) {
-        try {
-            if (e.ctx() == mc.player) {
-                return;
+        if (e.ctx() == mc.player) {
+            return;
+        }
+        if (e.ctx() instanceof EntityPlayer) {
+            if (e.ctx() != null) {
+                EntityPlayer a = (EntityPlayer) e.ctx();
+                ((IEntity)a).getPosition_history().add(new Box(e.ctx().getPositionVector(), btticks.getValue(), a.limbSwing, a.limbSwingAmount, a.rotationYaw, a.rotationPitch, (EntityPlayer) e.ctx()));
             }
-            if (e.ctx() instanceof EntityPlayer) {
-                if (e.ctx() != null) {
-                    try {
-                        EntityPlayer a = (EntityPlayer) e.ctx();
-                        entAndTrail.get(a).add(new Box(e.ctx().getPositionVector(), btticks.getValue(), a.limbSwing, a.limbSwingAmount, a.rotationYaw, a.rotationPitch, (EntityPlayer) e.ctx()));
-                    } catch (Exception ignored) {
-
-                    }
-                }
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
         }
     }
 
     @Override
     public void onUpdate() {
         for (EntityPlayer player : mc.world.playerEntities) {
-            if (entAndTrail.get(player) == null) continue;
-            entAndTrail.get(player).removeIf(Box::update);
+            ((IEntity)player).getPosition_history().removeIf(Box::update);
         }
     }
 
 
     public enum RenderMode {
-        Box, Chams, None
+        Box, Chams, Ghost, None
     }
 
     public static class Box {
@@ -323,6 +229,22 @@ public class BackTrack extends Module {
 
         public Vec3d getPosition() {
             return position;
+        }
+
+        public float getLimbSwing() {
+            return limbSwing;
+        }
+
+        public float getLimbSwingAmount() {
+            return limbSwingAmount;
+        }
+
+        public float getYaw() {
+            return Yaw;
+        }
+
+        public float getPitch() {
+            return Pitch;
         }
     }
 
