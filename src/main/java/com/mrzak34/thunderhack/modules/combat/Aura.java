@@ -29,28 +29,31 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityOtherPlayerMP;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.SharedMonsterAttributes;
+import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.entity.*;
 import net.minecraft.entity.item.EntityEnderCrystal;
 import net.minecraft.entity.monster.EntitySlime;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.MobEffects;
-import net.minecraft.item.EnumAction;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemAxe;
-import net.minecraft.item.ItemSword;
+import net.minecraft.init.SoundEvents;
+import net.minecraft.item.*;
 import net.minecraft.network.play.client.CPacketEntityAction;
 import net.minecraft.network.play.client.CPacketEntityAction.Action;
 import net.minecraft.network.play.client.CPacketHeldItemChange;
 import net.minecraft.network.play.client.CPacketPlayerTryUseItem;
+import net.minecraft.network.play.server.SPacketEntityVelocity;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
+import net.minecraft.stats.StatList;
+import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
@@ -95,6 +98,7 @@ public class Aura extends Module {
     public final Setting<Boolean> shieldDesync = register(new Setting<>("Shield Desync", false)).withParent(exploits);
     public final Setting<Boolean> backTrack = register(new Setting<>("RotateToBackTrack", true)).withParent(exploits);
     public final Setting<Boolean> shiftTap = register(new Setting<>("ShiftTap", false)).withParent(exploits);
+    public final Setting<Boolean> egravity = register(new Setting<>("ExtraGravity", false)).withParent(exploits);
     /*-------------   Misc  ---------------*/
     public final Setting<Parent> misc = register(new Setting<>("Misc", new Parent(false)));
     public final Setting<Boolean> shieldDesyncOnlyOnAura = register(new Setting<>("Wait Target", true, v -> shieldDesync.getValue())).withParent(misc);
@@ -253,6 +257,7 @@ public class Aura extends Module {
     @SubscribeEvent
     public void onRotate(EventSync e) {
         if (target != null) {
+            if (egravity.getValue() && !mc.player.onGround && mc.player.fallDistance > 0 && criticals.getValue()) mc.player.motionY -= 0.003;
             mc.player.rotationYaw = rotationYaw;
             mc.player.rotationPitch = rotationPitch;
             mc.player.rotationYawHead = rotationYaw;
@@ -411,12 +416,18 @@ public class Aura extends Module {
                         mc.player.rotationYaw = rotationYaw;
                     }
 
-                    mc.playerController.attackEntity(mc.player, base);
                     if (Debug.getValue()) {
                         if (target != null && last_best_vec != null) {
-                            Command.sendMessage("Attacked with delay: " + hitttimer.getPassedTimeMs() + " | Distance to target: " + mc.player.getDistance(target) + " | Distance to best point: " + mc.player.getDistance(last_best_vec.x, last_best_vec.y, last_best_vec.z));
+                            Command.sendMessage(
+                                    "Attacked with delay: " + hitttimer.getPassedTimeMs() + " " +
+                                            "| Distance to target: " + mc.player.getDistance(target) + " " +
+                                            "| Distance to best point: " + mc.player.getDistance(last_best_vec.x, last_best_vec.y, last_best_vec.z) + " " +
+                                            "| CAS: " + getCooledAttackStrength() + " " +
+                                            "| Possible damage " + getDamage(target)
+                            );
                         }
                     }
+                    mc.playerController.attackEntity(mc.player, base);
                     hitttimer.reset();
                     mc.player.swingArm(offhand.getValue() ? EnumHand.OFF_HAND : EnumHand.MAIN_HAND);
 
@@ -955,5 +966,23 @@ public class Aura extends Module {
 
     public enum Hitbox {
         HEAD, CHEST, LEGS
+    }
+
+    public float getDamage(Entity targetEntity) {
+        float f = (float)mc.player.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).getAttributeValue();
+        float f1 = EnchantmentHelper.getModifierForCreature(mc.player.getHeldItemMainhand(), ((EntityLivingBase)targetEntity).getCreatureAttribute());
+        float f2 = mc.player.getCooledAttackStrength(0.5F);
+        f = f * (0.2F + f2 * f2 * 0.8F);
+        f1 = f1 * f2;
+        if (f > 0.0F || f1 > 0.0F) {
+            boolean flag2 = f2 > 0.9F && mc.player.fallDistance > 0.0F && !mc.player.onGround && !mc.player.isOnLadder() && !mc.player.isInWater() && !mc.player.isPotionActive(MobEffects.BLINDNESS);
+            flag2 = flag2 && !mc.player.isSprinting();
+            if (flag2)
+            {
+                f *= 1.5f;
+            }
+            f = f + f1;
+        }
+        return f;
     }
 }

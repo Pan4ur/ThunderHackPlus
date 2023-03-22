@@ -162,6 +162,7 @@ public class ModuleManager {
         this.modules.add(new LagNotifier());
         this.modules.add(new BreadCrumbs());
         this.modules.add(new Surround());
+        this.modules.add(new KillFeed());
         this.modules.add(new LogoutSpots());
         this.modules.add(new LegitStrafe());
         this.modules.add(new BackTrack());

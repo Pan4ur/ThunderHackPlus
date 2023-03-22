@@ -46,10 +46,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class AutoTotem extends Module {
-    public static long packet_latency_timer = 0L;
-    public static int last_packet_time = 0;
-    private final Queue<Integer> clickQueue = new LinkedList<>();
-    private final Timer stop_spam = new Timer();
     public Setting<ModeEn> mode = this.register(new Setting<>("Mode", ModeEn.SemiStrict));
     public Setting<Boolean> totem = this.register(new Setting<>("Totem", true, v -> mode.getValue() == ModeEn.SemiStrict));
     public Setting<Boolean> gapple = this.register(new Setting<>("SwordGap", false, v -> mode.getValue() == ModeEn.SemiStrict));
@@ -79,6 +75,12 @@ public class AutoTotem extends Module {
     public Setting<Integer> GappleSlot = this.register(new Setting<>("GAppleSlot", 0, 0, 9, v -> mode.getValue() == ModeEn.Future));
     public Setting<Boolean> offhandoverride = this.register(new Setting<>("OffHandOverride", true, v -> mode.getValue() == ModeEn.Future));
     public Setting<Boolean> crapple = this.register(new Setting<>("Crapple", true, v -> mode.getValue() == ModeEn.Future));
+
+
+    public static long packet_latency_timer = 0L;
+    public static int last_packet_time = 0;
+    private final Queue<Integer> clickQueue = new LinkedList<>();
+    private final Timer stop_spam = new Timer();
     boolean skip_tick = false;
     private final Timer Stricttimer = new Timer();
     private final Timer timer = new Timer();
@@ -488,7 +490,6 @@ public class AutoTotem extends Module {
 
     @SubscribeEvent
     public void onPostMotion(EventPostSync e) {
-        e.addPostEvent(() -> {
             if (mode.getValue() == ModeEn.Future) {
                 if (skip_tick) {
                     skip_tick = false;
@@ -575,12 +576,10 @@ public class AutoTotem extends Module {
                     if (itemSlot != -1) {
                         if (!isOffhand(mc.player.inventoryContainer.getSlot(itemSlot).getStack()) && timer.passedMs(200)) {
                             timer.reset();
-                            mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.OPEN_INVENTORY));
                             mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.STOP_SPRINTING));
                             mc.playerController.windowClick(0, itemSlot, 0, ClickType.PICKUP, mc.player);
                             mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.STOP_SPRINTING));
                             mc.playerController.windowClick(0, 45, 0, ClickType.PICKUP, mc.player);
-                            mc.player.connection.sendPacket(new CPacketConfirmTransaction(mc.player.inventoryContainer.windowId, mc.player.openContainer.getNextTransactionID(mc.player.inventory), true));
                             mc.playerController.updateController();
                             if (mc.player.inventory.getItemStack().isEmpty()) {
                                 return;
@@ -593,7 +592,6 @@ public class AutoTotem extends Module {
                             if (mc.player.inventory.getItemStack().isEmpty()) {
                                 return;
                             }
-
                             int returnSlot = -1;
                             for (int i = 9; i < 45; i++) {
                                 if (mc.player.inventory.getStackInSlot(i).isEmpty()) {
@@ -602,7 +600,6 @@ public class AutoTotem extends Module {
                                 }
                             }
                             if (returnSlot != -1) {
-                                mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.STOP_SPRINTING));
                                 mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.STOP_SPRINTING));
                                 mc.playerController.windowClick(0, returnSlot, 0, ClickType.PICKUP, mc.player);
                                 mc.playerController.updateController();
@@ -617,13 +614,12 @@ public class AutoTotem extends Module {
                     }
                 }
             }
-        });
     }
 
     @SubscribeEvent
     public void onPacketReceive(PacketEvent.Receive event) {
+        if (fullNullCheck()) return;
         if (mode.getValue() == ModeEn.Future) {
-            if (fullNullCheck()) return;
             if (event.getPacket() instanceof SPacketEntityStatus && ((SPacketEntityStatus) event.getPacket()).getOpCode() == 35) {
                 Entity entity = ((SPacketEntityStatus) event.getPacket()).getEntity(mc.world);
                 if (entity != null && entity.equals(mc.player) && timer.passedMs(200)) {
@@ -638,22 +634,18 @@ public class AutoTotem extends Module {
                             }
                         }
                         if (itemSlot != -1) {
-                            mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.OPEN_INVENTORY));
                             mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.STOP_SPRINTING));
                             mc.playerController.windowClick(0, itemSlot, 0, ClickType.PICKUP, mc.player);
                             mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.STOP_SPRINTING));
                             mc.playerController.windowClick(0, 45, 0, ClickType.PICKUP, mc.player);
-                            mc.player.connection.sendPacket(new CPacketConfirmTransaction(mc.player.inventoryContainer.windowId, mc.player.openContainer.getNextTransactionID(mc.player.inventory), true));
                             mc.playerController.updateController();
 
                             if (mc.player.inventory.getItemStack().isEmpty()) {
                                 return;
                             }
-
                             mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.STOP_SPRINTING));
                             mc.playerController.windowClick(0, GappleSlot.getValue() + 36, 0, ClickType.PICKUP, mc.player);
                             mc.playerController.updateController();
-
                             if (mc.player.inventory.getItemStack().isEmpty()) {
                                 return;
                             }

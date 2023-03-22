@@ -1,8 +1,13 @@
 package com.mrzak34.thunderhack.modules.misc;
 
+import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.command.Command;
+import com.mrzak34.thunderhack.events.DeathEvent;
 import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.modules.Module;
+import com.mrzak34.thunderhack.modules.combat.Aura;
+import com.mrzak34.thunderhack.modules.combat.AutoCrystal;
+import com.mrzak34.thunderhack.modules.funnygame.C4Aura;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.ThunderUtils;
 import net.minecraft.network.play.server.SPacketChat;
@@ -47,6 +52,7 @@ public class AutoEZ extends Module {
             "%player% ИЗИ БОТЯРА"
     };
     private final Setting<ModeEn> Mode = register(new Setting("Mode", ModeEn.Basic));
+    private final Setting<ServerMode> server = register(new Setting("Mode", ServerMode.Universal));
 
 
     public AutoEZ() {
@@ -122,6 +128,7 @@ public class AutoEZ extends Module {
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void onPacketReceive(PacketEvent.Receive e) {
         if (fullNullCheck()) return;
+        if(server.getValue() == ServerMode.Universal) return;
         if (e.getPacket() instanceof SPacketChat) {
             final SPacketChat packet = e.getPacket();
             if (packet.getType() != ChatType.GAME_INFO) {
@@ -149,9 +156,50 @@ public class AutoEZ extends Module {
     }
 
 
+
+
+    @SubscribeEvent
+    public void onPlayerDeath(DeathEvent e){
+        if(server.getValue() != ServerMode.Universal) return;
+        if(Aura.target != null && Aura.target == e.player){
+            sayEZ(e.player.getName());
+            return;
+        }
+        if(C4Aura.target != null && C4Aura.target == e.player){
+            sayEZ(e.player.getName());
+            return;
+        }
+        if(Thunderhack.moduleManager.getModuleByClass(AutoCrystal.class).target != null && Thunderhack.moduleManager.getModuleByClass(AutoCrystal.class).target == e.player){
+            sayEZ(e.player.getName());
+        }
+    }
+
+    public void sayEZ(String pn){
+        if (Mode.getValue() == ModeEn.Basic) {
+            int n;
+            n = (int) Math.floor(Math.random() * EZ.length);
+            c = EZ[n].replace("%player%", pn);
+        } else {
+            if (EZWORDS.isEmpty()) {
+                Command.sendMessage("Файл с AutoEZ пустой!");
+                return;
+            }
+            c = EZWORDS.get(new Random().nextInt(EZWORDS.size()));
+            c = c.replaceAll("%player%", pn);
+        }
+
+        mc.player.sendChatMessage(global.getValue() ? "!" + c : c);
+    }
+
+
     public enum ModeEn {
         Custom,
         Basic
+    }
+    public enum ServerMode {
+        Universal,
+        FunnyGame,
+        NexusGrief
     }
 
     // Вы убили игрока Ken257 и забрали у него 802.06$ (нексус ебучий) лооооол и на фанике такое пишет

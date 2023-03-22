@@ -102,23 +102,13 @@ public class EventManager {
             return;
         }
 
-        if (mc.world != null) {
-            try {
-                for (EntityPlayer player : mc.world.playerEntities) {
-                    if (player == null || player.getHealth() > 0.0F)
-                        continue;
-                    MinecraftForge.EVENT_BUS.post(new DeathEvent(player));
-                }
-            } catch (Exception ignored) {
 
-            }
-
-            if (mc.currentScreen instanceof GuiGameOver) {
-                backY = (int) mc.player.posY;
-                backZ = (int) mc.player.posZ;
-                backX = (int) mc.player.posX;
-            }
+        if (mc.currentScreen instanceof GuiGameOver) {
+            backY = (int) mc.player.posY;
+            backZ = (int) mc.player.posZ;
+            backX = (int) mc.player.posX;
         }
+
 
         Thunderhack.moduleManager.onTick();
         ThunderGui2.getInstance().onTick();
