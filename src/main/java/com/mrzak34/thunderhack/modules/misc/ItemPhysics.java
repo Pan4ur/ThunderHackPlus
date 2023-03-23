@@ -26,7 +26,7 @@ public class ItemPhysics extends Module {
 
 
     public ItemPhysics() {
-        super("ItemPhysics", "описание", Category.RENDER);
+        super("ItemPhysics", "физика выкинутых вещей", Category.RENDER);
     }
 
 
