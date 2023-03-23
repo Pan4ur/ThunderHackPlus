@@ -2,6 +2,7 @@ package com.mrzak34.thunderhack.mixin.mixins;
 
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.events.*;
+import com.mrzak34.thunderhack.modules.combat.Surround;
 import com.mrzak34.thunderhack.modules.misc.NoGlitchBlock;
 import com.mrzak34.thunderhack.modules.render.NoRender;
 import net.minecraft.block.state.IBlockState;
@@ -84,8 +85,9 @@ public class MixinWorld {
 
     @Inject(method = {"spawnEntity"}, at = {@At("HEAD")}, cancellable = true)
     public void spawnEntityFireWork(final Entity entityIn, final CallbackInfoReturnable<Boolean> cir) {
-        if (NoRender.getInstance().fireworks.getValue() && NoRender.getInstance().isEnabled() && entityIn instanceof EntityFireworkRocket) {
-            cir.cancel();
+        EventEntitySpawn ees = new EventEntitySpawn(entityIn);
+        if (ees.isCanceled()){
+            cir.setReturnValue(false);
         }
     }
 

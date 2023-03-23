@@ -33,7 +33,7 @@ import static com.mrzak34.thunderhack.util.render.RenderUtil.drawRect;
 import static com.mrzak34.thunderhack.util.render.RenderUtil.interpolate;
 
 public class LogoutSpots extends Module {
-    private final Setting<Integer> removeDistance = this.register(new Setting<Integer>("RemoveDistance", 255, 1, 2000));
+    private final Setting<Integer> removeDistance = this.register(new Setting<>("RemoveDistance", 255, 1, 2000));
     private final Map<String, EntityPlayer> playerCache = Maps.newConcurrentMap();
     private final Map<String, PlayerData> logoutCache = Maps.newConcurrentMap();
     private final Setting<Float> scaling = this.register(new Setting<>("Size", 0.3f, 0.1f, 20.0f));

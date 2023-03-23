@@ -21,6 +21,8 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
+import java.util.List;
+
 public class BackTrack extends Module {
 
     private final Setting<RenderMode> renderMode = register(new Setting<>("RenderMode", RenderMode.Chams));
@@ -40,104 +42,106 @@ public class BackTrack extends Module {
 
     @SubscribeEvent
     public void onPreRenderEvent(PreRenderEvent event) {
-        for (EntityPlayer entity : mc.world.playerEntities) {
-            if (entity == mc.player) {
-                continue;
-            }
-            if (((IEntity)entity).getPosition_history().size() > 0) {
-                for (int i = 0; i < ((IEntity)entity).getPosition_history().size(); i++) {
-                    GlStateManager.pushMatrix();
-                    if (Aura.bestBtBox != ((IEntity)entity).getPosition_history().get(i) && hlaura.getValue()) {
-                        if (renderMode.getValue() == RenderMode.Box) {
-                            RenderUtil.drawBoundingBox(((IEntity)entity).getPosition_history().get(i), 1, color1.getValue().getColorObject());
-                        } else if (renderMode.getValue() == RenderMode.Chams) {
-                            RenderUtil.renderEntity(
-                                    ((IEntity)entity).getPosition_history().get(i),
-                                    ((IEntity)entity).getPosition_history().get(i).modelPlayer,
-                                    ((IEntity)entity).getPosition_history().get(i).limbSwing,
-                                    ((IEntity)entity).getPosition_history().get(i).limbSwingAmount,
-                                    ((IEntity)entity).getPosition_history().get(i).Yaw,
-                                    ((IEntity)entity).getPosition_history().get(i).Pitch,
-                                    ((IEntity)entity).getPosition_history().get(i).ent,
-                                    color1.getValue().getColorObject());
-                        } else if(renderMode.getValue() == RenderMode.Ghost){
+        synchronized (this) {
+            for (EntityPlayer entity : mc.world.playerEntities) {
+                if (entity == mc.player) {
+                    continue;
+                }
+                if (((IEntity) entity).getPosition_history().size() > 0) {
+                    for (int i = 0; i < ((IEntity) entity).getPosition_history().size(); i++) {
+                        GlStateManager.pushMatrix();
+                        if (Aura.bestBtBox != ((IEntity) entity).getPosition_history().get(i) && hlaura.getValue()) {
+                            if (renderMode.getValue() == RenderMode.Box) {
+                                RenderUtil.drawBoundingBox(((IEntity) entity).getPosition_history().get(i), 1, color1.getValue().getColorObject());
+                            } else if (renderMode.getValue() == RenderMode.Chams) {
+                                RenderUtil.renderEntity(
+                                        ((IEntity) entity).getPosition_history().get(i),
+                                        ((IEntity) entity).getPosition_history().get(i).modelPlayer,
+                                        ((IEntity) entity).getPosition_history().get(i).limbSwing,
+                                        ((IEntity) entity).getPosition_history().get(i).limbSwingAmount,
+                                        ((IEntity) entity).getPosition_history().get(i).Yaw,
+                                        ((IEntity) entity).getPosition_history().get(i).Pitch,
+                                        ((IEntity) entity).getPosition_history().get(i).ent,
+                                        color1.getValue().getColorObject());
+                            } else if (renderMode.getValue() == RenderMode.Ghost) {
 
-                            GlStateManager.pushMatrix();
+                                GlStateManager.pushMatrix();
 
-                            boolean lighting = GL11.glIsEnabled(GL11.GL_LIGHTING);
-                            boolean blend = GL11.glIsEnabled(GL11.GL_BLEND);
-                            boolean depthtest = GL11.glIsEnabled(GL11.GL_DEPTH_TEST);
+                                boolean lighting = GL11.glIsEnabled(GL11.GL_LIGHTING);
+                                boolean blend = GL11.glIsEnabled(GL11.GL_BLEND);
+                                boolean depthtest = GL11.glIsEnabled(GL11.GL_DEPTH_TEST);
 
-                            GlStateManager.enableLighting();
-                            GlStateManager.enableBlend();
-                            GlStateManager.enableDepth();
-                            GlStateManager.color(1, 1, 1, 1);
-                            try {
-                                mc.getRenderManager().renderEntity(entity,
-                                        ((IEntity)entity).getPosition_history().get(i).position.x - ((IRenderManager) Util.mc.getRenderManager()).getRenderPosX(),
-                                        ((IEntity)entity).getPosition_history().get(i).position.y - ((IRenderManager) Util.mc.getRenderManager()).getRenderPosY(),
-                                        ((IEntity)entity).getPosition_history().get(i).position.z - ((IRenderManager) Util.mc.getRenderManager()).getRenderPosZ(),
+                                GlStateManager.enableLighting();
+                                GlStateManager.enableBlend();
+                                GlStateManager.enableDepth();
+                                GlStateManager.color(1, 1, 1, 1);
+                                try {
+                                    mc.getRenderManager().renderEntity(entity,
+                                            ((IEntity) entity).getPosition_history().get(i).position.x - ((IRenderManager) Util.mc.getRenderManager()).getRenderPosX(),
+                                            ((IEntity) entity).getPosition_history().get(i).position.y - ((IRenderManager) Util.mc.getRenderManager()).getRenderPosY(),
+                                            ((IEntity) entity).getPosition_history().get(i).position.z - ((IRenderManager) Util.mc.getRenderManager()).getRenderPosZ(),
 
-                                        ((IEntity)entity).getPosition_history().get(i).Yaw, mc.getRenderPartialTicks(), false);
-                            } catch (Exception ignored) {
+                                            ((IEntity) entity).getPosition_history().get(i).Yaw, mc.getRenderPartialTicks(), false);
+                                } catch (Exception ignored) {
+                                }
+
+                                if (!depthtest)
+                                    GlStateManager.disableDepth();
+                                if (!lighting)
+                                    GlStateManager.disableLighting();
+                                if (!blend)
+                                    GlStateManager.disableBlend();
+
+                                GlStateManager.popMatrix();
                             }
+                        } else {
+                            if (renderMode.getValue() == RenderMode.Box) {
+                                RenderUtil.drawBoundingBox(((IEntity) entity).getPosition_history().get(i), 1, color2.getValue().getColorObject());
+                            } else if (renderMode.getValue() == RenderMode.Chams) {
+                                RenderUtil.renderEntity(
+                                        ((IEntity) entity).getPosition_history().get(i),
+                                        ((IEntity) entity).getPosition_history().get(i).modelPlayer,
+                                        ((IEntity) entity).getPosition_history().get(i).limbSwing,
+                                        ((IEntity) entity).getPosition_history().get(i).limbSwingAmount,
+                                        ((IEntity) entity).getPosition_history().get(i).Yaw,
+                                        ((IEntity) entity).getPosition_history().get(i).Pitch,
+                                        ((IEntity) entity).getPosition_history().get(i).ent,
+                                        color2.getValue().getColorObject()
+                                );
+                            } else if (renderMode.getValue() == RenderMode.Ghost) {
 
-                            if (!depthtest)
-                                GlStateManager.disableDepth();
-                            if (!lighting)
-                                GlStateManager.disableLighting();
-                            if (!blend)
-                                GlStateManager.disableBlend();
+                                GlStateManager.pushMatrix();
 
-                            GlStateManager.popMatrix();
-                        }
-                    } else {
-                        if (renderMode.getValue() == RenderMode.Box) {
-                            RenderUtil.drawBoundingBox(((IEntity)entity).getPosition_history().get(i), 1, color2.getValue().getColorObject());
-                        } else if (renderMode.getValue() == RenderMode.Chams) {
-                            RenderUtil.renderEntity(
-                                    ((IEntity)entity).getPosition_history().get(i),
-                                    ((IEntity)entity).getPosition_history().get(i).modelPlayer,
-                                    ((IEntity)entity).getPosition_history().get(i).limbSwing,
-                                    ((IEntity)entity).getPosition_history().get(i).limbSwingAmount,
-                                    ((IEntity)entity).getPosition_history().get(i).Yaw,
-                                    ((IEntity)entity).getPosition_history().get(i).Pitch,
-                                    ((IEntity)entity).getPosition_history().get(i).ent,
-                                    color2.getValue().getColorObject()
-                            );
-                        } else if(renderMode.getValue() == RenderMode.Ghost){
+                                boolean lighting = GL11.glIsEnabled(GL11.GL_LIGHTING);
+                                boolean blend = GL11.glIsEnabled(GL11.GL_BLEND);
+                                boolean depthtest = GL11.glIsEnabled(GL11.GL_DEPTH_TEST);
 
-                            GlStateManager.pushMatrix();
+                                GlStateManager.enableLighting();
+                                GlStateManager.enableBlend();
+                                GlStateManager.enableDepth();
+                                GlStateManager.color(1, 1, 1, 0.1f);
+                                try {
+                                    mc.getRenderManager().renderEntity(entity,
+                                            ((IEntity) entity).getPosition_history().get(i).position.x,
+                                            ((IEntity) entity).getPosition_history().get(i).position.y,
+                                            ((IEntity) entity).getPosition_history().get(i).position.z,
 
-                            boolean lighting = GL11.glIsEnabled(GL11.GL_LIGHTING);
-                            boolean blend = GL11.glIsEnabled(GL11.GL_BLEND);
-                            boolean depthtest = GL11.glIsEnabled(GL11.GL_DEPTH_TEST);
+                                            ((IEntity) entity).getPosition_history().get(i).Yaw, mc.getRenderPartialTicks(), false);
+                                } catch (Exception ignored) {
+                                }
 
-                            GlStateManager.enableLighting();
-                            GlStateManager.enableBlend();
-                            GlStateManager.enableDepth();
-                            GlStateManager.color(1, 1, 1, 0.1f);
-                            try {
-                                mc.getRenderManager().renderEntity(entity,
-                                        ((IEntity)entity).getPosition_history().get(i).position.x,
-                                        ((IEntity)entity).getPosition_history().get(i).position.y,
-                                        ((IEntity)entity).getPosition_history().get(i).position.z,
+                                if (!depthtest)
+                                    GlStateManager.disableDepth();
+                                if (!lighting)
+                                    GlStateManager.disableLighting();
+                                if (!blend)
+                                    GlStateManager.disableBlend();
 
-                                        ((IEntity)entity).getPosition_history().get(i).Yaw, mc.getRenderPartialTicks(), false);
-                            } catch (Exception ignored) {
+                                GlStateManager.popMatrix();
                             }
-
-                            if (!depthtest)
-                                GlStateManager.disableDepth();
-                            if (!lighting)
-                                GlStateManager.disableLighting();
-                            if (!blend)
-                                GlStateManager.disableBlend();
-
-                            GlStateManager.popMatrix();
                         }
+                        GlStateManager.popMatrix();
                     }
-                    GlStateManager.popMatrix();
                 }
             }
         }

@@ -1,5 +1,6 @@
 package com.mrzak34.thunderhack.modules.render;
 
+import com.mrzak34.thunderhack.events.EventEntitySpawn;
 import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.mixin.mixins.IGuiBossOverlay;
 import com.mrzak34.thunderhack.modules.Module;
@@ -10,6 +11,7 @@ import net.minecraft.client.gui.BossInfoClient;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.item.EntityFireworkRocket;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.passive.EntityBat;
 import net.minecraft.entity.projectile.EntityArrow;
@@ -210,6 +212,12 @@ class NoRender extends Module {
         }
     }
 
+    @SubscribeEvent
+    public void onFireWorkSpawned(final EventEntitySpawn event) {
+        if(event.getEntity() instanceof EntityFireworkRocket && fireworks.getValue()){
+            event.setCanceled(true);
+        }
+    }
 
     public enum Fog {
         NONE,
