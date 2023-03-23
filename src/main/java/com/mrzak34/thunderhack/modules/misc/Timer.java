@@ -32,7 +32,7 @@ public class Timer extends Module {
     public Setting<Integer> maxTicks = register(new Setting("Bound", 0, 0, 15, v -> mode.getValue() == Mode.NORMAL));
     public Setting<Float> shiftTicks = register(new Setting("ShiftTicks", 10.0F, 1F, 40f, v -> mode.getValue() == Mode.ReallyWorld));
     public Timer() {
-        super("Timer", "Timer", Category.MOVEMENT);
+        super("Timer", "делает игру быстрее", Category.MOVEMENT);
     }
 
     public static Color TwoColoreffect(Color cl1, Color cl2, double speed) {
