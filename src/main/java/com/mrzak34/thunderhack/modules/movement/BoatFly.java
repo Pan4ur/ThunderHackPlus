@@ -52,7 +52,7 @@ public class BoatFly extends Module {
     private boolean Field2267 = false;
     private boolean Field2268 = false;
     public BoatFly() {
-        super("BoatFly", "BoatFly", Category.MOVEMENT);
+        super("BoatFly", "полёт на лодке и мобах", Category.MOVEMENT);
     }
 
     public static double[] Method1330(double d) {
