@@ -31,7 +31,7 @@ public class BowAim extends Module {
     private double upMultiplier;
     private Vec3d predict;
     public BowAim() {
-        super("AimBot", "AimBot", Category.COMBAT);
+        super("AimBot", "аим бот тока для лука", Category.COMBAT);
     }
 
     @SubscribeEvent
