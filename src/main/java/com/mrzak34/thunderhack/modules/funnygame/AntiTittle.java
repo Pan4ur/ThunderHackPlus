@@ -103,6 +103,8 @@ public class AntiTittle extends Module {
             return true;
         if (message.contains("FunnyGame.su"))
             return true;
+        if (message.contains("Выключите fly"))
+            return true;
 
         if (donators.getValue()) {
             String premessage = message;
