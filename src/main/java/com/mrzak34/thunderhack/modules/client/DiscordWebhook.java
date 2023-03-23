@@ -45,7 +45,7 @@ public class DiscordWebhook extends Module {
 
 
     public DiscordWebhook() {
-        super("DiscordWebhook", "DiscordWebhook", Category.CLIENT);
+        super("DiscordWebhook", "кидает на ваш дс сервер что вы сделали", Category.CLIENT);
     }
 
     public static String readurl() {
