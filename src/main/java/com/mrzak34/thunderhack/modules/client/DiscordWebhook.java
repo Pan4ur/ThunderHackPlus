@@ -158,12 +158,12 @@ public class DiscordWebhook extends Module {
     public void onEnable() {
 
         Command.sendMessage("Использовние: ");
-        Command.sendMessage("1. Введи ссылку на вебхук (со своего дискорд сервера) с помощью команды .whook <ссылка> ");
+        Command.sendMessage("1. Введи ссылку на вебхук (со своего дискорд сервера) с помощью команды .webhook <ссылка> ");
         Command.sendMessage("2. Выбери действия в настройках модуля (по умолчанию отправляет скрины, килы ауры, килы лука, заходы на сервера) ");
 
 
         Command.sendMessage("Using: ");
-        Command.sendMessage("1. Enter the link to the webhook (from your discord server) using the command .whook <link>");
+        Command.sendMessage("1. Enter the link to the webhook (from your discord server) using the command .webhook <link>");
         Command.sendMessage("2. Choose actions in the module settings (by default sends screenshots, aura kills, bow kills, server joins)");
     }
 
@@ -267,7 +267,7 @@ public class DiscordWebhook extends Module {
     }
 
     public String getWord() {
-        int n2 = RandomUtils.nextInt(0, 3);
+        int n2 = RandomUtils.nextInt(0, 5);
         switch (n2) {
             case 0: {
                 return " дал тотем ";
@@ -280,6 +280,12 @@ public class DiscordWebhook extends Module {
             }
             case 3: {
                 return " попнул ";
+            }
+            case 4: {
+                return " взорвал тотем ";
+            }
+            case 5: {
+                return " сломал тотем у ";
             }
         }
         return "";
