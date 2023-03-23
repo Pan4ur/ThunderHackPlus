@@ -13,7 +13,7 @@ public class Models extends Module {
     public Setting<ColorSetting> bodyColor = this.register(new Setting<>("bodyColor", new ColorSetting(-2009289807)));
     public Setting<ColorSetting> legsColor = this.register(new Setting<>("legsColor", new ColorSetting(-2009289807)));
     public Models() {
-        super("Models", "Models", Category.RENDER);
+        super("Models", "ну типа модельки", Category.RENDER);
     }
     public enum mode {
         Amogus, Rabbit, Freddy
