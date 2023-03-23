@@ -27,7 +27,7 @@ public class FastFall extends Module {
     private int ticks;
     private boolean stop;
     public FastFall() {
-        super("FastFall", "FastFall", Category.MOVEMENT);
+        super("FastFall", "как ReverseStep тока с настройками", Category.MOVEMENT);
     }
 
     @Override
