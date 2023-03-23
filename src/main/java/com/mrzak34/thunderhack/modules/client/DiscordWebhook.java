@@ -267,7 +267,7 @@ public class DiscordWebhook extends Module {
     }
 
     public String getWord() {
-        int n2 = RandomUtils.nextInt(0, 3);
+        int n2 = RandomUtils.nextInt(0, 5);
         switch (n2) {
             case 0: {
                 return " дал тотем ";
