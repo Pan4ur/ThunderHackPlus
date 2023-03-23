@@ -36,7 +36,7 @@ public class Jesus extends Module {
     private float lastOffset;
 
     public Jesus() {
-        super("Jesus", "Jesus", Category.MOVEMENT);
+        super("Jesus", "поход по воде", Category.MOVEMENT);
     }
 
     public static IBlockState checkIfBlockInBB(Class<? extends Block> blockClass, int minY) {
