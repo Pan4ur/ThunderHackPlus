@@ -23,7 +23,7 @@ public class AntiTPhere extends Module {
     private final Setting<Modes> mode = register(new Setting("Mode", Modes.Back));
     private boolean flag = false;
     public AntiTPhere() {
-        super("AntiTPhere", "AntiTPhere", Category.FUNNYGAME);
+        super("AntiTPhere", "ливает с проверки от даунов", Category.FUNNYGAME);
     }
 
     @SubscribeEvent
