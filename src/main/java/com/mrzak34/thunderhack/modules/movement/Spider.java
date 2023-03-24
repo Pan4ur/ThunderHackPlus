@@ -26,7 +26,7 @@ public class Spider extends Module {
     private final Setting<mode> a = register(new Setting("Mode", mode.Matrix));
 
     public Spider() {
-        super("Spider", "Spider", Category.MOVEMENT);
+        super("Spider", "можно по стенам бегать", Category.MOVEMENT);
     }
 
     public static EnumFacing getPlaceableSide(BlockPos pos) {
