@@ -12,7 +12,7 @@ public class DMGFly extends Module {
     public static long lastVelocityTime;
     public static double velocityXZ, velocityY;
     public DMGFly() {
-        super("DMGFly", "DMGFly", Category.MOVEMENT);
+        super("DMGFly", "Флай для Matrix античит", Category.MOVEMENT);
     }
 
     public static double[] getSpeed(double speed) {
