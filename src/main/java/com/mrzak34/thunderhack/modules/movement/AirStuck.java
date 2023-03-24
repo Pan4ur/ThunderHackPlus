@@ -8,7 +8,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class AirStuck extends Module {
     public AirStuck() {
-        super("AirStuck", "AirStuck", Category.MOVEMENT);
+        super("AirStuck", "позваляет застрять в воздухе", Category.MOVEMENT);
     }
 
     @Override
