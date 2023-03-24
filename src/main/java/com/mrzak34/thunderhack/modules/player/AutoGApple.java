@@ -22,7 +22,7 @@ public class AutoGApple extends Module {
     private final Timer useDelay = new Timer();
 
     public AutoGApple() {
-        super("AutoGApple", "AutoGApple", Category.PLAYER);
+        super("AutoGApple", "автоматом жрёт гепл", Category.PLAYER);
     }
 
     @SubscribeEvent
