@@ -40,8 +40,10 @@ public class ModuleManager {
         this.modules.add(new AutoSoup());
         this.modules.add(new AimAssist());
         this.modules.add(new AutoBuy());
+        this.modules.add(new DurabilityAlert());
         this.modules.add(new NoGlitchBlock());
         this.modules.add(new AutoTotem());
+        this.modules.add(new AntiAim());
         this.modules.add(new AutoAuth());
         this.modules.add(new AutoBuff());
         this.modules.add(new DiscordEmbeds());

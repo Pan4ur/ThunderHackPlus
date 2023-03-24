@@ -29,6 +29,7 @@ import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
 import java.util.Objects;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 
 public class NameTags extends Module {
@@ -62,16 +63,24 @@ public class NameTags extends Module {
         super("Nametags", "Better Nametags", Module.Category.RENDER);
     }
 
+    private CopyOnWriteArrayList<EntityPlayer> players = new CopyOnWriteArrayList<>();
+
+    @Override
+    public void onUpdate() {
+        players.clear();
+        players.addAll(mc.world.playerEntities);
+    }
+
     @Override
     public void onRender3D(Render3DEvent event) {
         if (!fullNullCheck()) {
-            for (EntityPlayer player : mc.world.playerEntities) {
+            for (EntityPlayer player : players) {
                 if (player == null || player.equals(mc.player) || !player.isEntityAlive() || player.isInvisible() && !this.invisibles.getValue() || this.onlyFov.getValue() && !RotationUtil.isInFov(player))
                     continue;
                 double x = this.interpolate(player.lastTickPosX, player.posX, event.getPartialTicks()) - ((IRenderManager)Util.mc.getRenderManager()).getRenderPosX();
                 double y = this.interpolate(player.lastTickPosY, player.posY, event.getPartialTicks()) - ((IRenderManager)Util.mc.getRenderManager()).getRenderPosY();
                 double z = this.interpolate(player.lastTickPosZ, player.posZ, event.getPartialTicks()) - ((IRenderManager)Util.mc.getRenderManager()).getRenderPosZ();
-                this.renderNameTag(player, x, y, z, event.getPartialTicks());
+                renderNameTag(player, x, y, z, event.getPartialTicks());
             }
         }
     }
@@ -148,9 +157,9 @@ public class NameTags extends Module {
         GlStateManager.rotate(-mc.getRenderManager().playerViewY, 0.0f, 1.0f, 0.0f);
         GlStateManager.rotate(mc.getRenderManager().playerViewX, mc.gameSettings.thirdPersonView == 2 ? -1.0f : 1.0f, 0.0f, 0.0f);
         GlStateManager.scale(-scale, -scale, scale);
-        GlStateManager.disableDepth();
         GlStateManager.enableBlend();
         GlStateManager.enableBlend();
+
         if (this.rect.getValue()) {
             drawRect(-width - 2, -(Util.fr.FONT_HEIGHT + 1), (float) width + 2.0f, 1.5f, mainColor.getValue().getColor());
             if (this.outline.getValue()) {
@@ -192,7 +201,6 @@ public class NameTags extends Module {
         camera.posX = originalPositionX;
         camera.posY = originalPositionY;
         camera.posZ = originalPositionZ;
-        GlStateManager.enableDepth();
         GlStateManager.disableBlend();
         GlStateManager.disablePolygonOffset();
         GlStateManager.doPolygonOffset(1.0f, 1500000.0f);

@@ -8,6 +8,7 @@ import com.mrzak34.thunderhack.mixin.mixins.IEntityPlayerSP;
 import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraft.network.play.server.SPacketPlayerPosLook;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import static com.mrzak34.thunderhack.modules.Module.fullNullCheck;
@@ -33,7 +34,7 @@ public class RotationManager{
     }
 
 
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void onSync(EventSync event) {
         if (fullNullCheck())
             return;

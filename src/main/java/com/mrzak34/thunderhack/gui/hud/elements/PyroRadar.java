@@ -20,6 +20,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.awt.*;
 import java.util.Objects;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class PyroRadar extends Module {
 
@@ -42,10 +43,17 @@ public class PyroRadar extends Module {
         super("PyroRadar", "радар из пайро", Category.HUD);
     }
 
+    private CopyOnWriteArrayList<Entity> entityList = new CopyOnWriteArrayList<>();
+
+    @Override
+    public void onUpdate() {
+        entityList.clear();
+        entityList.addAll(mc.world.loadedEntityList);
+    }
+
     @SubscribeEvent
     public void onRender3D(Render3DEvent event) {
-        // RenderUtil.camera.setPosition(Objects.requireNonNull(mc.getRenderViewEntity()).posX, mc.getRenderViewEntity().posY, mc.getRenderViewEntity().posZ);
-        for (Entity ent : mc.world.loadedEntityList) {
+        for (Entity ent : entityList) {
             if (ent == mc.player) continue;
             if (hidefrustum.getValue())
                 if (RenderUtil.camera.isBoundingBoxInFrustum(ent.getEntityBoundingBox())) continue;
