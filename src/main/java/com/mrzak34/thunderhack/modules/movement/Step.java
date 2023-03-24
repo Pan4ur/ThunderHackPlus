@@ -32,7 +32,7 @@ public class Step extends Module {
      */
 
     public Step() {
-        super("Step", "Step", Category.MOVEMENT);
+        super("Step", "ходить по блокам 1 или 2 блока", Category.MOVEMENT);
     }
 
     @Override
