@@ -41,7 +41,7 @@ public class ItemESP extends Module {
     private final Setting<mode2> Mode2 = register(new Setting("Color Mode", mode2.Astolfo));
 
     public ItemESP() {
-        super("ItemESP", "ItemESP", Module.Category.RENDER);
+        super("ItemESP", "юспишки для вещей", Module.Category.RENDER);
     }
 
     @SubscribeEvent

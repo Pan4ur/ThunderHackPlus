@@ -87,7 +87,7 @@ public class AutoTotem extends Module {
     private int swapBack = -1;
 
     public AutoTotem() {
-        super("AutoTotem", "AutoTotem", Category.COMBAT);
+        super("AutoTotem", "берёт тотем который был попнут", Category.COMBAT);
     }
 
     public static int getItemSlot(Item item, boolean gappleCheck) {
