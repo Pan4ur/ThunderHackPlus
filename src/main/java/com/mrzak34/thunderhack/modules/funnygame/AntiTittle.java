@@ -12,6 +12,7 @@ import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.network.play.server.SPacketChat;
 import net.minecraft.network.play.server.SPacketTitle;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraft.util.text.ITextComponent;
 
 import java.awt.*;
 
@@ -56,13 +57,14 @@ public class AntiTittle extends Module {
         }
         if (chat.getValue() && e.getPacket() instanceof SPacketChat) {
             final SPacketChat packet = e.getPacket();
-            if (shouldCancel(packet.getChatComponent().getFormattedText())) {
+            if (shouldCancel(packet.getChatComponent())) {
                 e.setCanceled(true);
             }
         }
     }
 
-    private boolean shouldCancel(String message) {
+    private boolean shouldCancel(ITextComponent component) {
+        String spamMessage = component.getUnformattedText();
         String[] reklama = {
             "Все очистится через", // жопу
             "Предметы на карте успешно", // проёбаны
@@ -89,8 +91,7 @@ public class AntiTittle extends Module {
             "Подождите, прежде чем снова щелкнуть.", // я вообще-то команды прописывал!
             "Вы находитесь в Лобби. Выберите сервер и пройдите в портал!", // Дай пароль ввести!
             "Чтобы избежать взлома, привяжите свой аккаунт",
-            "напал на вас! Не выходите из игры.",
-            "Вы больше не в бою!",
+            "[Анти-Релог]",
             "чем больше кейсов покупаете",
             "не разрешена в этом регионе.",
             "Вы выпили",
@@ -99,11 +100,12 @@ public class AntiTittle extends Module {
         };
         
         for (String cnam: reklama) {
-            if (message.contains(cnam)) return true;
+            if (spamMessage.contains(cnam)) return true;
         }
 
         if (donators.getValue()) {
-            String premessage = message;
+            String message = component.getFormattedText();
+            String real = message;
             message = message.replace("§r§6§l[§r§b§lПРЕЗИДЕНТ§r§6§l]§r", "§r");
             message = message.replace("§r§d§l[§r§5§lАдмин§r§d§l]§r", "§r");
             message = message.replace("§r§b§l[§r§3§lГл.Админ§r§b§l]§r", "§r");
@@ -115,7 +117,7 @@ public class AntiTittle extends Module {
             message = message.replace("§r§b§l[§r§e§l?§r§d§lСПОНСОР§r§e§l?§r§b§l]", "§r");
             message = message.replace("§r§6§l[§r§e§lЛорд§r§6§l]", "§r");
             message = message.replace("§r§4§l[§r§2§lВЛАДЫКА§r§4§l]", "§r");
-            if (!message.equals(premessage)) {
+            if (!message.equals(real)) {
                 Command.sendMessageWithoutTH(message);
                 return true;
             }
