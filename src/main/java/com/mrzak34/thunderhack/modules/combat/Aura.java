@@ -44,14 +44,10 @@ import net.minecraft.network.play.client.CPacketPlayerTryUseItem;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.math.*;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import org.lwjgl.opengl.GL11;
 
-import javax.vecmath.Vector2f;
+import org.lwjgl.opengl.GL11;
 import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -86,6 +82,8 @@ public class Aura extends Module {
     public final Setting<Integer> fov = register(new Setting("FOV", 180, 5, 180)).withParent(antiCheat);
     public final Setting<Float> hitboxScale = register(new Setting("RTXScale", 2.8f, 0.0f, 3.0f)).withParent(antiCheat);
     public final Setting<Integer> yawStep = register(new Setting("YawStep", 80, 5, 180, v -> rotation.getValue() == rotmod.Matrix)).withParent(antiCheat);
+    public final Setting<Boolean> moveSync = register(new Setting<>("MoveSync", false)).withParent(antiCheat);
+
     /*------------   Exploits  ------------*/
     public final Setting<Parent> exploits = register(new Setting<>("Exploits", new Parent(false)));
     public final Setting<Boolean> resolver = register(new Setting<>("Resolver", false)).withParent(exploits);
@@ -637,7 +635,7 @@ public class Aura extends Module {
 
             if (pointsMode.getValue() == PointsMode.Angle) {
                 for (Vec3d point : points) {
-                    Vector2f r = getDeltaForCoord(new Vector2f(rotationYaw, rotationPitch), point);
+                    Vec2f r = getDeltaForCoord(new Vec2f(rotationYaw, rotationPitch), point);
                     float y = Math.abs(r.y);
                     if (y < best_angle) {
                         best_angle = y;
@@ -681,7 +679,7 @@ public class Aura extends Module {
 
                 if (pointsMode.getValue() == PointsMode.Angle) {
                     for (Vec3d point : points) {
-                        Vector2f r = getDeltaForCoord(new Vector2f(rotationYaw, rotationPitch), point);
+                        Vec2f r = getDeltaForCoord(new Vec2f(rotationYaw, rotationPitch), point);
                         float y = Math.abs(r.y);
                         if (y < best_angle) {
                             best_angle = y;
@@ -873,6 +871,20 @@ public class Aura extends Module {
         }
     }
 
+    // Фалсер выдает rotation strafe со времен неверхука
+    // за инновационные технологии синхронизации киллки с движением XD
+    float save_rotationYaw;
+    @SubscribeEvent
+    public void onMoveDirection(EventMoveDirection e) {
+        if(!e.isPost() && moveSync.getValue()) {
+            save_rotationYaw = mc.player.rotationYaw;
+            mc.player.rotationYaw = rotationYaw;
+        } else {
+            mc.player.rotationYaw = save_rotationYaw;
+        }
+    }
+
+
     public static boolean isInLiquid() {
         return mc.player.isInWater() || mc.player.isInLava();
     }
@@ -888,7 +900,7 @@ public class Aura extends Module {
         return !mc.world.getCollisionBoxes(mc.player, axisAlignedBB).isEmpty();
     }
 
-    public static Vector2f getDeltaForCoord(Vector2f rot, Vec3d point) {
+    public static Vec2f getDeltaForCoord(Vec2f rot, Vec3d point) {
         EntityPlayerSP client = Minecraft.getMinecraft().player;
         double x = point.x - client.posX;
         double y = point.y - client.getPositionEyes(1).y;
@@ -898,17 +910,17 @@ public class Aura extends Module {
         float pitchToTarget = (float) (-Math.toDegrees(Math.atan2(y, dst)));
         float yawDelta = wrapDegrees(yawToTarget - rot.x);
         float pitchDelta = (pitchToTarget - rot.y);
-        return new Vector2f(yawDelta, pitchDelta);
+        return new Vec2f(yawDelta, pitchDelta);
     }
 
-    public static Vector2f getRotationForCoord(Vec3d point) {
+    public static Vec2f getRotationForCoord(Vec3d point) {
         double x = point.x - mc.player.posX;
         double y = point.y - mc.player.getPositionEyes(1).y;
         double z = point.z - mc.player.posZ;
         double dst = Math.sqrt(Math.pow(x, 2) + Math.pow(z, 2));
         float yawToTarget = (float) wrapDegrees(Math.toDegrees(Math.atan2(z, x)) - 90);
         float pitchToTarget = (float) (-Math.toDegrees(Math.atan2(y, dst)));
-        return new Vector2f(yawToTarget, pitchToTarget);
+        return new Vec2f(yawToTarget, pitchToTarget);
     }
 
     public static boolean isActiveItemStackBlocking(EntityPlayer other, int time) {

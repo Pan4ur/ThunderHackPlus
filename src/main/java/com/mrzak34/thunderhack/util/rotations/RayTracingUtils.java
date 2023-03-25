@@ -138,7 +138,7 @@ public class RayTracingUtils {
     }
 
 
-    public static Entity getPointedEntity(Vector2f rot, double dst, boolean walls, Entity target) {
+    public static Entity getPointedEntity(Vec2f rot, double dst, boolean walls, Entity target) {
         double d0 = dst;
         RayTraceResult objectMouseOver = rayTrace(d0, rot.x, rot.y, walls);
         Vec3d vec3d = mc.player.getPositionEyes(1);

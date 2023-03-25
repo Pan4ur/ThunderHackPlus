@@ -6,6 +6,19 @@ import net.minecraftforge.fml.common.eventhandler.Event;
 @Cancelable
 public class EventPlayerTravel extends Event {
     public float Strafe;
+
+    public float getStrafe() {
+        return Strafe;
+    }
+
+    public float getVertical() {
+        return Vertical;
+    }
+
+    public float getForward() {
+        return Forward;
+    }
+
     public float Vertical;
     public float Forward;
 

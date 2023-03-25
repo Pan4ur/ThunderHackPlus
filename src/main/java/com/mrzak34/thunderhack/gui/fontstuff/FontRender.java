@@ -112,6 +112,12 @@ public class FontRender {
     }
 
     public static int getStringWidth6(String str) {
+        if(str == null){
+            return 1;
+        }
+        if(str.equals("")){
+            return 1;
+        }
         return Thunderhack.fontRenderer6.getStringWidth(str);
     }
 

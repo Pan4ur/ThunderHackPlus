@@ -8,10 +8,12 @@ public class EventSync extends Event {
 
     float yaw;
     float pitch;
+    boolean onGround;
 
-    public EventSync(float yaw, float pitch) {
+    public EventSync(float yaw, float pitch, boolean onGround) {
         this.yaw = yaw;
         this.pitch = pitch;
+        this.onGround = onGround;
     }
 
     public float getYaw() {
@@ -22,4 +24,5 @@ public class EventSync extends Event {
         return pitch;
     }
 
+    public boolean isOnGround() {return onGround;}
 }

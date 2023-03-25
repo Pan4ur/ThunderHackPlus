@@ -57,6 +57,8 @@ public class TargetStrafe extends Module {
     public void onEnable() {
         this.wrap = 0F;
         this.switchDir = true;
+        Thunderhack.TICK_TIMER = 1.0f;
+        velocity = 0;
     }
 
     @Override
@@ -104,11 +106,6 @@ public class TargetStrafe extends Module {
         } else {
             strafeTarget = null;
         }
-    }
-
-    public void onToggle() {
-        Thunderhack.TICK_TIMER = 1.0f;
-        velocity = 0;
     }
 
     @SubscribeEvent

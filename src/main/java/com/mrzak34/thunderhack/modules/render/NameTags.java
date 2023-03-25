@@ -209,12 +209,11 @@ public class NameTags extends Module {
 
     private void renderItemStack(ItemStack stack, int x, int y) {
         GlStateManager.pushMatrix();
-        GlStateManager.depthMask(true);
+       // GlStateManager.depthMask(true);
         GlStateManager.clear(256);
         RenderHelper.enableStandardItemLighting();
         mc.getRenderItem().zLevel = -150.0f;
         GlStateManager.disableAlpha();
-        GlStateManager.enableDepth();
         GlStateManager.disableCull();
         mc.getRenderItem().renderItemAndEffectIntoGUI(stack, x, y);
         mc.getRenderItem().renderItemOverlays(mc.fontRenderer, stack, x, y);
@@ -223,9 +222,8 @@ public class NameTags extends Module {
         GlStateManager.enableCull();
         GlStateManager.enableAlpha();
         GlStateManager.scale(0.5f, 0.5f, 0.5f);
-        GlStateManager.disableDepth();
+     //   GlStateManager.disableDepth();
         this.renderEnchantmentText(stack, x, y);
-        GlStateManager.enableDepth();
         GlStateManager.scale(2.0f, 2.0f, 2.0f);
         GlStateManager.popMatrix();
     }

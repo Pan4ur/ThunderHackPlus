@@ -24,12 +24,14 @@ public class AntiAim extends Module {
     public Setting<Integer> yawDelta = this.register(new Setting<>("YawDelta", 60, -360, 360));
     public Setting<Integer> pitchDelta = this.register(new Setting<>("PitchDelta", 10, -90, 90));
     public final Setting<Boolean> bodySync = register(new Setting<>("BodySync", true));
+    public final Setting<Boolean> allowInteract = register(new Setting<>("AllowInteract", true));
 
     private float rotationYaw, rotationPitch, pitch_sinus_step, yaw_sinus_step;
 
     // высокий приоритет для того чтоб не портить ротации важных модулей (CA,KA,Surround)
     @SubscribeEvent(priority = EventPriority.HIGH)
     public void onSync(EventSync e) {
+        if(allowInteract.getValue() && (mc.gameSettings.keyBindAttack.isKeyDown() || mc.gameSettings.keyBindUseItem.isKeyDown())) return;
         if (yawMode.getValue() != Mode.None) {
             mc.player.rotationYaw = rotationYaw;
             if (bodySync.getValue())

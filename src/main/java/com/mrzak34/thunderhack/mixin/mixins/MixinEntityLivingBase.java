@@ -1,10 +1,7 @@
 package com.mrzak34.thunderhack.mixin.mixins;
 
 import com.mrzak34.thunderhack.Thunderhack;
-import com.mrzak34.thunderhack.events.ElytraEvent;
-import com.mrzak34.thunderhack.events.EventJump;
-import com.mrzak34.thunderhack.events.FinishUseItemEvent;
-import com.mrzak34.thunderhack.events.HandleLiquidJumpEvent;
+import com.mrzak34.thunderhack.events.*;
 import com.mrzak34.thunderhack.modules.movement.NoJumpDelay;
 import com.mrzak34.thunderhack.modules.render.Animations;
 import com.mrzak34.thunderhack.util.phobos.IEntityLivingBase;
@@ -19,6 +16,8 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+import static com.mrzak34.thunderhack.util.Util.mc;
 
 @Mixin(value = {EntityLivingBase.class})
 public abstract class MixinEntityLivingBase
@@ -63,11 +62,23 @@ public abstract class MixinEntityLivingBase
     public abstract void setActiveItemStackUseCount(int count);
 
     @Inject(method = "travel", at = @At("HEAD"), cancellable = true)
-    public void onTravel(float strafe, float vertical, float forward, CallbackInfo ci) {
+    public void onTravelPre(float strafe, float vertical, float forward, CallbackInfo ci) {
         ElytraEvent event = new ElytraEvent((EntityLivingBase) (Object) this);
         MinecraftForge.EVENT_BUS.post(event);
+        if(mc.player != null && (EntityLivingBase) (Object) this == mc.player) {
+            EventMoveDirection event2 = new EventMoveDirection(false);
+            MinecraftForge.EVENT_BUS.post(event2);
+        }
         if (event.isCanceled()) {
             ci.cancel();
+        }
+    }
+
+    @Inject(method = "travel", at = @At("RETURN"), cancellable = true)
+    public void onTravelPost(float strafe, float vertical, float forward, CallbackInfo ci) {
+        if(mc.player != null && (EntityLivingBase) (Object) this == mc.player) {
+            EventMoveDirection event = new EventMoveDirection(true);
+            MinecraftForge.EVENT_BUS.post(event);
         }
     }
 

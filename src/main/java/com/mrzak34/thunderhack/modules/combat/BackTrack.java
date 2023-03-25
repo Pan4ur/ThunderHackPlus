@@ -209,6 +209,7 @@ public class BackTrack extends Module {
         private final float limbSwingAmount;
         private final float Yaw;
         private final float Pitch;
+
         private final EntityPlayer ent;
         private int ticks;
 
@@ -222,6 +223,10 @@ public class BackTrack extends Module {
             this.Yaw = Yaw;
             this.ent = ent;
         }
+
+        public ModelPlayer getModelPlayer() {return modelPlayer;}
+
+        public EntityPlayer getEnt() {return ent;}
 
         public int getTicks() {
             return ticks;

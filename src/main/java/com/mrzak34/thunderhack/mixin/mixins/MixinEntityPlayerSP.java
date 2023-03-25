@@ -112,7 +112,7 @@ public abstract class MixinEntityPlayerSP extends AbstractClientPlayer implement
 
     @Inject(method = {"onUpdateWalkingPlayer"}, at = {@At(value = "HEAD")}, cancellable = true)
     private void preMotion(CallbackInfo info) {
-        EventSync event = new EventSync(rotationYaw, rotationPitch);
+        EventSync event = new EventSync(rotationYaw, rotationPitch, onGround);
         MinecraftForge.EVENT_BUS.post(event);
         EventSprint e = new EventSprint(isSprinting());
         MinecraftForge.EVENT_BUS.post(e);
