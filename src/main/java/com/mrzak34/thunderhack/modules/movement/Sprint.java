@@ -2,6 +2,7 @@ package com.mrzak34.thunderhack.modules.movement;
 
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.events.EventMove;
+import com.mrzak34.thunderhack.events.EventSync;
 import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
@@ -14,9 +15,9 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 public class Sprint extends Module {
 
     public static double oldSpeed, contextFriction;
-    public Setting<Float> reduction = this.register(new Setting<>("reduction ", 0.1f, 0f, 0.5f));
     int cooldown;
     private final Setting<mode> Mode = register(new Setting("Mode", mode.Default));
+    public Setting<Float> speed1 = this.register(new Setting<>("Speed", 0.1f, 0f, 0.5f,v->Mode.getValue() == mode.MatrixOmniSprint));
 
 
     public Sprint() {
@@ -51,9 +52,10 @@ public class Sprint extends Module {
         return contextPlayer.world.getBlockState(blockpos).getBlock().slipperiness * 0.91F;
     }
 
-    @Override
-    public void onUpdate() {
+    @SubscribeEvent
+    public void onSync(EventSync e) {
         if (fullNullCheck()) return;
+        if(mc.player.isSneaking()) return;
         if (mc.gameSettings.keyBindForward.isKeyDown()) {
             mc.player.setSprinting(true);
         }
@@ -75,12 +77,15 @@ public class Sprint extends Module {
 
     @SubscribeEvent
     public void onMove(EventMove event) {
-        if (Mode.getValue() == mode.NexusGrief && Thunderhack.moduleManager.getModuleByClass(Speed.class).isDisabled()) {
+        if (Mode.getValue() == mode.MatrixOmniSprint
+                && Thunderhack.moduleManager.getModuleByClass(Speed.class).isDisabled()
+                && Thunderhack.moduleManager.getModuleByClass(Strafe.class).isDisabled()
+                && Thunderhack.moduleManager.getModuleByClass(RusherScaffold.class).isDisabled()) {
 
             double dX = mc.player.posX - mc.player.prevPosX;
             double dZ = mc.player.posZ - mc.player.prevPosZ;
             postMove(Math.sqrt(dX * dX + dZ * dZ));
-            // return;
+
 
             if (strafes()) {
                 double forward = mc.player.movementInput.moveForward;
@@ -103,16 +108,14 @@ public class Sprint extends Module {
                             forward = -1.0;
                         }
                     }
-                    double speed = calculateSpeed(reduction.getValue() / 10f);
+                    double speed = calculateSpeed(speed1.getValue() / 10f);
                     event.set_x(forward * speed * Math.cos(Math.toRadians(yaw + 90.0f)) + strafe * speed * Math.sin(Math.toRadians(yaw + 90.0f)));
                     event.set_z(forward * speed * Math.sin(Math.toRadians(yaw + 90.0f)) - strafe * speed * Math.cos(Math.toRadians(yaw + 90.0f)));
                 }
             } else {
                 oldSpeed = 0;
             }
-            // if (event.getStage() == 0) {
             event.setCanceled(true);
-            //  }
         }
     }
 
@@ -139,9 +142,6 @@ public class Sprint extends Module {
         if (cooldown > 0) {
             return false;
         }
-        if (Thunderhack.moduleManager.getModuleByClass(RusherScaffold.class).isOn()) {
-            return false;
-        }
         if (Thunderhack.moduleManager.getModuleByClass(LongJump.class).isOn()) {
             return false;
         }
@@ -149,7 +149,7 @@ public class Sprint extends Module {
     }
 
     public enum mode {
-        Default, NexusGrief
+        Default, MatrixOmniSprint
     }
 
 }

@@ -578,14 +578,12 @@ public class AutoTotem extends Module {
                             timer.reset();
                             mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.STOP_SPRINTING));
                             mc.playerController.windowClick(0, itemSlot, 0, ClickType.PICKUP, mc.player);
-                            mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.STOP_SPRINTING));
                             mc.playerController.windowClick(0, 45, 0, ClickType.PICKUP, mc.player);
-                            mc.playerController.updateController();
                             if (mc.player.inventory.getItemStack().isEmpty()) {
+                                mc.playerController.updateController();
                                 return;
                             }
 
-                            mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.STOP_SPRINTING));
                             mc.playerController.windowClick(0, GappleSlot.getValue() + 36, 0, ClickType.PICKUP, mc.player);
                             mc.playerController.updateController();
 
@@ -600,10 +598,9 @@ public class AutoTotem extends Module {
                                 }
                             }
                             if (returnSlot != -1) {
-                                mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.STOP_SPRINTING));
                                 mc.playerController.windowClick(0, returnSlot, 0, ClickType.PICKUP, mc.player);
-                                mc.playerController.updateController();
                             }
+                            mc.playerController.updateController();
                         }
                     }
                 }
@@ -617,13 +614,13 @@ public class AutoTotem extends Module {
     }
 
     @SubscribeEvent
-    public void onPacketReceive(PacketEvent.Receive event) {
+    public void onPacketReceive(PacketEvent.ReceivePost event) {
         if (fullNullCheck()) return;
         if (mode.getValue() == ModeEn.Future) {
             if (event.getPacket() instanceof SPacketEntityStatus && ((SPacketEntityStatus) event.getPacket()).getOpCode() == 35) {
                 Entity entity = ((SPacketEntityStatus) event.getPacket()).getEntity(mc.world);
+                // пишет "Condition 'entity != null' is always 'true'", но это пиздеж
                 if (entity != null && entity.equals(mc.player) && timer.passedMs(200)) {
-                    event.addPostEvent(() -> {
                         timer.reset();
                         skip_tick = true;
                         int itemSlot = -1;
@@ -636,17 +633,15 @@ public class AutoTotem extends Module {
                         if (itemSlot != -1) {
                             mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.STOP_SPRINTING));
                             mc.playerController.windowClick(0, itemSlot, 0, ClickType.PICKUP, mc.player);
-                            mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.STOP_SPRINTING));
                             mc.playerController.windowClick(0, 45, 0, ClickType.PICKUP, mc.player);
-                            mc.playerController.updateController();
 
                             if (mc.player.inventory.getItemStack().isEmpty()) {
+                                mc.playerController.updateController();
                                 return;
                             }
-                            mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.STOP_SPRINTING));
                             mc.playerController.windowClick(0, GappleSlot.getValue() + 36, 0, ClickType.PICKUP, mc.player);
-                            mc.playerController.updateController();
                             if (mc.player.inventory.getItemStack().isEmpty()) {
+                                mc.playerController.updateController();
                                 return;
                             }
 
@@ -658,12 +653,10 @@ public class AutoTotem extends Module {
                                 }
                             }
                             if (returnSlot != -1) {
-                                mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.STOP_SPRINTING));
                                 mc.playerController.windowClick(0, returnSlot, 0, ClickType.PICKUP, mc.player);
-                                mc.playerController.updateController();
                             }
+                            mc.playerController.updateController();
                         }
-                    });
                 }
             }
             last_packet_time = (int) (System.currentTimeMillis() - packet_latency_timer);

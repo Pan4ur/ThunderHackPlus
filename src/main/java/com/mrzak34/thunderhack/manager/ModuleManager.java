@@ -40,8 +40,10 @@ public class ModuleManager {
         this.modules.add(new AutoSoup());
         this.modules.add(new AimAssist());
         this.modules.add(new AutoBuy());
+        this.modules.add(new DurabilityAlert());
         this.modules.add(new NoGlitchBlock());
         this.modules.add(new AutoTotem());
+        this.modules.add(new AntiAim());
         this.modules.add(new AutoAuth());
         this.modules.add(new AutoBuff());
         this.modules.add(new DiscordEmbeds());
@@ -157,11 +159,11 @@ public class ModuleManager {
         this.modules.add(new TPSCounter());
         this.modules.add(new WaterMark());
         this.modules.add(new Player());
+        this.modules.add(new Surround());
         this.modules.add(new Speedometer());
         this.modules.add(new ArmorHud());
         this.modules.add(new LagNotifier());
         this.modules.add(new BreadCrumbs());
-        this.modules.add(new Surround());
         this.modules.add(new KillFeed());
         this.modules.add(new LogoutSpots());
         this.modules.add(new LegitStrafe());

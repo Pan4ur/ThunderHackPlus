@@ -14,6 +14,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.awt.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Radar extends HudElement {
     public Radar() {
@@ -28,6 +29,14 @@ public class Radar extends HudElement {
     public Setting<Boolean> jew = register(new Setting<>("Jew", false));
     public Setting<Boolean> ljew = register(new Setting<>("LaaaargeJew", false));
 
+
+    private CopyOnWriteArrayList<EntityPlayer> players = new CopyOnWriteArrayList<>();
+
+    @Override
+    public void onUpdate() {
+        players.clear();
+        players.addAll(mc.world.playerEntities);
+    }
 
     @SubscribeEvent
     public void onRender2D(Render2DEvent e){
@@ -62,7 +71,7 @@ public class Radar extends HudElement {
                 PaletteHelper.getColor(155, 100));
 
 
-        for (EntityPlayer entityPlayer : mc.world.playerEntities) {
+        for (EntityPlayer entityPlayer : players) {
             if (entityPlayer == mc.player)
                 continue;
 

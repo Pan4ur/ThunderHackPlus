@@ -49,6 +49,7 @@ public abstract class MixinEntityPlayerSP extends AbstractClientPlayer implement
     @Shadow
     public abstract boolean isSneaking();
 
+
     @Redirect(method = "onUpdateWalkingPlayer", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/entity/EntityPlayerSP;isCurrentViewEntity()Z"))
     private boolean redirectIsCurrentViewEntity(EntityPlayerSP entityPlayerSP) {
         FreecamEvent event = new FreecamEvent();

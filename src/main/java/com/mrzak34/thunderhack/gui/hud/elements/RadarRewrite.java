@@ -20,6 +20,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
 import java.awt.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import static org.lwjgl.opengl.GL11.*;
 
@@ -91,11 +92,16 @@ public class RadarRewrite extends HudElement {
         return normaliseX() > xOffset2 - 50 && normaliseX() < xOffset2 + 50 && normaliseY() > yOffset2 - 50 && normaliseY() < yOffset2 + 50;
     }
 
+
+
+    private CopyOnWriteArrayList<EntityPlayer> players = new CopyOnWriteArrayList<>();
+
     @Override
     public void onUpdate() {
+        players.clear();
+        players.addAll(mc.world.playerEntities);
         astolfo.update();
     }
-
     @SubscribeEvent
     public void onRender2D(Render2DEvent event) {
         super.onRender2D(event);
@@ -127,7 +133,7 @@ public class RadarRewrite extends HudElement {
         GlStateManager.translate(-xOffset2, -yOffset2, 0);
 
 
-        for (EntityPlayer e : mc.world.playerEntities) {
+        for (EntityPlayer e : players) {
             if (e != mc.player) {
                 GL11.glPushMatrix();
                 float yaw = getRotations(e) - mc.player.rotationYaw;

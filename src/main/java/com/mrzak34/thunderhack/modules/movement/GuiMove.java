@@ -24,6 +24,7 @@ public class GuiMove extends Module {
     public void onUpdate() {
         if (mc.currentScreen != null) {
             if (!(mc.currentScreen instanceof GuiChat)) {
+                mc.player.setSprinting(true);
                 if (Keyboard.isKeyDown(200)) {
                     mc.player.rotationPitch -= 5;
                 }

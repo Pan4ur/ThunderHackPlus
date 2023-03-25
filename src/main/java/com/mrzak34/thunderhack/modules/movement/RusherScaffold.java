@@ -10,6 +10,7 @@ import com.mrzak34.thunderhack.setting.ColorSetting;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.Timer;
 import com.mrzak34.thunderhack.util.render.RenderUtil;
+import com.mrzak34.thunderhack.util.surround.BlockPosWithFacing;
 import net.minecraft.block.Block;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.init.Blocks;
@@ -31,6 +32,7 @@ public class RusherScaffold extends Module {
     public final Setting<ColorSetting> Color2 = this.register(new Setting<>("Color", new ColorSetting(0x8800FF00)));
     private final Setting<Float> lineWidth = this.register(new Setting<>("LineWidth", 1.0f, 0.1f, 5.0f));
     public Setting<Boolean> rotate = this.register(new Setting<>("Rotate", true));
+    public Setting<Boolean> allowShift = this.register(new Setting<>("AllowShift", false));
     public Setting<Boolean> autoswap = this.register(new Setting<>("AutoSwap", true));
     public Setting<Boolean> tower = this.register(new Setting<>("Tower", true));
     public Setting<Boolean> safewalk = this.register(new Setting<>("SafeWalk", true));
@@ -232,7 +234,7 @@ public class RusherScaffold extends Module {
     public void onRender3D(Render3DEvent event) {
         if (render.getValue() && currentblock != null) {
             GlStateManager.pushMatrix();
-            RenderUtil.drawBlockOutline(currentblock.blockPos, Color2.getValue().getColorObject(), lineWidth.getValue(), false, 0);
+            RenderUtil.drawBlockOutline(currentblock.getPosition(), Color2.getValue().getColorObject(), lineWidth.getValue(), false, 0);
             GlStateManager.popMatrix();
         }
     }
@@ -250,7 +252,7 @@ public class RusherScaffold extends Module {
         if (mc.player.posY < 257d) {
             currentblock = null;
 
-            if (mc.player.isSneaking()) return;
+            if (mc.player.isSneaking() && !allowShift.getValue()) return;
 
             int n2 = findBlockToPlace();
             if (n2 == -1) return;
@@ -267,7 +269,7 @@ public class RusherScaffold extends Module {
             currentblock = checkNearBlocksExtended(blockPos2);
             if (currentblock != null) {
                 if (rotate.getValue()) {
-                    float[] rotations = getRotations(currentblock.blockPos, currentblock.enumFacing);
+                    float[] rotations = getRotations(currentblock.getPosition(), currentblock.getFacing());
                     mc.player.rotationYaw = rotations[0];
                     mc.player.renderYawOffset = rotations[0];
                     mc.player.rotationPitch = rotations[1];
@@ -300,25 +302,26 @@ public class RusherScaffold extends Module {
                 }
             }
 
-            boolean sneak = mc.world.getBlockState(currentblock.blockPos).getBlock().onBlockActivated(mc.world, currentblock.blockPos, mc.world.getBlockState(currentblock.blockPos), mc.player, EnumHand.MAIN_HAND, EnumFacing.DOWN, 0.0f, 0.0f, 0.0f);
+            boolean sneak = mc.world.getBlockState(currentblock.getPosition()).getBlock().onBlockActivated(mc.world, currentblock.getPosition(), mc.world.getBlockState(currentblock.getPosition()), mc.player, EnumHand.MAIN_HAND, EnumFacing.DOWN, 0.0f, 0.0f, 0.0f);
             if (sneak)
                 mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.START_SNEAKING));
-            mc.playerController.processRightClickBlock(mc.player, mc.world, currentblock.blockPos, this.currentblock.enumFacing, new Vec3d((double) currentblock.blockPos.getX() + Math.random(), mc.world.getBlockState(currentblock.blockPos).getSelectedBoundingBox(mc.world, currentblock.blockPos).maxY - 0.01, (double) currentblock.blockPos.getZ() + Math.random()), EnumHand.MAIN_HAND);
+            mc.playerController.processRightClickBlock(
+                    mc.player,
+                    mc.world,
+                    currentblock.getPosition(),
+                    this.currentblock.getFacing(),
+                    new Vec3d(
+                            (double) currentblock.getPosition().getX() + Math.random(),
+                            mc.world.getBlockState(currentblock.getPosition()).getSelectedBoundingBox(mc.world, currentblock.getPosition()).maxY - 0.01,
+                            (double) currentblock.getPosition().getZ() + Math.random()
+                    ),
+                    EnumHand.MAIN_HAND);
+
             mc.player.swingArm(EnumHand.MAIN_HAND);
             if (sneak)
                 mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.STOP_SNEAKING));
             mc.player.inventory.currentItem = prev_item;
             mc.player.connection.sendPacket(new CPacketHeldItemChange(mc.player.inventory.currentItem));
-        }
-    }
-
-    public static class BlockPosWithFacing {
-        public BlockPos blockPos;
-        public EnumFacing enumFacing;
-
-        public BlockPosWithFacing(BlockPos blockPos, EnumFacing enumFacing) {
-            this.blockPos = blockPos;
-            this.enumFacing = enumFacing;
         }
     }
 }
