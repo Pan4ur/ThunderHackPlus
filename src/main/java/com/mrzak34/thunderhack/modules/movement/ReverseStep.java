@@ -18,7 +18,7 @@ public class ReverseStep extends Module {
     private final Setting<Mode> mode = this.register(new Setting<>("Mode", Mode.Motion));
 
     public ReverseStep() {
-        super("ReverseStep", "ReverseStep", Category.MOVEMENT);
+        super("ReverseStep", "быстро падать", Category.MOVEMENT);
     }
 
     @SubscribeEvent

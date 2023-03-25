@@ -27,7 +27,7 @@ public class JumpCircle extends Module {
     public Timer timer = new Timer();
     boolean check = false;
     public JumpCircle() {
-        super("JumpCircle", "JumpCircle", Category.RENDER);
+        super("JumpCircle", "ну типа хуйня когда прыгаешь", Category.RENDER);
     }
 
     @Override
