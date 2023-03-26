@@ -1,6 +1,7 @@
 package com.mrzak34.thunderhack.gui.hud.elements;
 
 import com.mojang.realmsclient.gui.ChatFormatting;
+import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.events.EventSync;
 import com.mrzak34.thunderhack.events.Render2DEvent;
 import com.mrzak34.thunderhack.gui.fontstuff.FontRender;
@@ -26,9 +27,9 @@ public class Speedometer extends HudElement {
         super.onRender2D(e);
         String str = "";
         if (!bps.getValue()) {
-            str = "Speed " + ChatFormatting.WHITE + round(getSpeedKpH()) + " km/h";
+            str = "Speed " + ChatFormatting.WHITE + round(getSpeedKpH() * Thunderhack.TICK_TIMER) + " km/h";
         } else {
-            str = String.format("Speed " + ChatFormatting.WHITE + round(getSpeedMpS()) + " b/s");
+            str = String.format("Speed " + ChatFormatting.WHITE + round(getSpeedMpS() * Thunderhack.TICK_TIMER) + " b/s");
         }
         FontRender.drawString6(str, getPosX(), getPosY(), color.getValue().getRawColor(), true);
     }

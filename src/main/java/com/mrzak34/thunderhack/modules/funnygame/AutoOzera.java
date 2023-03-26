@@ -12,6 +12,9 @@ import net.minecraft.util.EnumHand;
 
 public class AutoOzera extends Module {
 
+    private final Setting<Mode> mainMode = register(new Setting<>("Version", Mode.New));
+    public enum Mode {Old, New}
+
     public Setting<Integer> delay = this.register(new Setting<>("DelayOnUse", 200, 100, 2000));
     public Setting<Boolean> negativeLakeEff = this.register(new Setting<>("RemoveEffects", false));
     public Timer timer = new Timer();
@@ -22,9 +25,9 @@ public class AutoOzera extends Module {
 
     @Override
     public void onUpdate() {
-        if (timer.passedMs(delay.getValue()) && InventoryUtil.getOzeraAtHotbar() != -1 && !mc.player.isPotionActive(MobEffects.STRENGTH)) {
+        if (timer.passedMs(delay.getValue()) && InventoryUtil.getOzeraAtHotbar(mainMode.getValue() == Mode.Old) != -1 && !mc.player.isPotionActive(MobEffects.STRENGTH)) {
             int hotbarslot = mc.player.inventory.currentItem;
-            mc.player.connection.sendPacket(new CPacketHeldItemChange(InventoryUtil.getOzeraAtHotbar()));
+            mc.player.connection.sendPacket(new CPacketHeldItemChange(InventoryUtil.getOzeraAtHotbar(mainMode.getValue() == Mode.Old)));
             mc.player.connection.sendPacket(new CPacketPlayerTryUseItem(EnumHand.MAIN_HAND));
             mc.player.connection.sendPacket(new CPacketHeldItemChange(hotbarslot));
             timer.reset();

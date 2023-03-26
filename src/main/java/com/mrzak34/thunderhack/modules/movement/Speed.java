@@ -31,7 +31,6 @@ import static com.mrzak34.thunderhack.util.PyroSpeed.*;
 
 public class Speed extends Module {
 
-    public static boolean needSprintState;
     public double distance;
     public int Field2015 = 4;
     public int FunnyGameStage;
@@ -39,7 +38,6 @@ public class Speed extends Module {
     int velocity = 0;
     int boostticks = 0;
     boolean isBoosting = false;
-    int waterTicks;
     private final Setting<mode> Mode = register(new Setting("Mode", mode.Default));
     public Setting<Integer> bticks = this.register(new Setting<>("boostTicks", 10, 1, 40, v -> Mode.getValue() == mode.Default));
     public Setting<Boolean> strafeBoost = this.register(new Setting<>("StrafeBoost", false, v -> Mode.getValue() == mode.Default));
@@ -53,6 +51,7 @@ public class Speed extends Module {
     private int strictCounter;
     private int strictStage = 4;
     private int ticksPassed = 0;
+    private int strictTicks;
     private double maxVelocity = 0;
     private final Timer velocityTimer = new Timer();
     public Speed() {
@@ -68,6 +67,7 @@ public class Speed extends Module {
         mc.player.jumpMovementFactor = 0.02f;
         Thunderhack.TICK_TIMER = 1f;
         velocity = 0;
+        strictTicks = 0;
     }
 
     @Override
@@ -76,6 +76,7 @@ public class Speed extends Module {
             toggle();
             return;
         }
+        strictTicks = 0;
         maxVelocity = 0;
     }
 
@@ -132,6 +133,7 @@ public class Speed extends Module {
             strictBaseSpeed = 0.2873;
             strictStage = 4;
             strictCounter = 0;
+            strictTicks = 0;
             maxVelocity = 0;
             toggle();
         } else if (event.getPacket() instanceof SPacketExplosion) {
@@ -245,8 +247,7 @@ public class Speed extends Module {
                     double adjustedMotion = 0.66D * (distance - getBaseMotionSpeed());
                     strictBaseSpeed = distance - adjustedMotion;
                 } else {
-                    if (mc.world.getCollisionBoxes(mc.player, mc.player
-                            .getEntityBoundingBox().offset(0.0D, mc.player.motionY, 0.0D)).size() > 0 || mc.player.collidedVertically)
+                    if (mc.world.getCollisionBoxes(mc.player, mc.player.getEntityBoundingBox().offset(0.0D, mc.player.motionY, 0.0D)).size() > 0 || mc.player.collidedVertically)
                         strictStage = 1;
                     strictBaseSpeed = distance - distance / 159.0D;
                 }
@@ -300,6 +301,96 @@ public class Speed extends Module {
                     event.setZ(0.0D);
                 }
 
+                break;
+            }
+            case FunnyGameNew: {
+                if (isMoving()) {
+                    Thunderhack.TICK_TIMER = 1.088f;
+                    if (strictStage == 1) {
+                        strictBaseSpeed = 1.35 * getBaseMoveSpeed() - 0.01;
+                    } else if (strictStage == 2) {
+                        double jumpSpeed = 0.3999999463558197;
+                            if (mc.player.isPotionActive(MobEffects.JUMP_BOOST)) {
+                                double amplifier = mc.player.getActivePotionEffect(MobEffects.JUMP_BOOST).getAmplifier();
+                                jumpSpeed += (amplifier + 1) * 0.1;
+                            }
+
+                        mc.player.motionY = jumpSpeed;
+                        event.setY(jumpSpeed);
+                        double acceleration = 2.149;
+                        strictBaseSpeed *= acceleration;
+                    } else if (strictStage == 3) {
+                        double scaledstrictBaseSpeed = 0.66 * (distance - getBaseMoveSpeed());
+                        strictBaseSpeed = distance - scaledstrictBaseSpeed;
+                    } else {
+                        if ((mc.world.getCollisionBoxes(mc.player, mc.player.getEntityBoundingBox().offset(0, mc.player.motionY, 0)).size() > 0 || mc.player.collidedVertically) && strictStage > 0) {
+                            strictStage = isMoving() ? 1 : 0;
+                        }
+                        strictBaseSpeed = distance - (distance / 159);
+                    }
+
+                    strictBaseSpeed = Math.max(strictBaseSpeed, getBaseMoveSpeed());
+
+                    double baseStrictSpeed = 0.465;
+                    double baseRestrictedSpeed = 0.44;
+
+                        if (mc.player.isPotionActive(MobEffects.SPEED)) {
+                            double amplifier = mc.player.getActivePotionEffect(MobEffects.SPEED).getAmplifier();
+                            baseStrictSpeed *= 1 + (0.2 * (amplifier + 1));
+                            baseRestrictedSpeed *= 1 + (0.2 * (amplifier + 1));
+                        }
+
+                        if (mc.player.isPotionActive(MobEffects.SLOWNESS)) {
+                            double amplifier = mc.player.getActivePotionEffect(MobEffects.SLOWNESS).getAmplifier();
+                            baseStrictSpeed /= 1 + (0.2 * (amplifier + 1));
+                            baseRestrictedSpeed /= 1 + (0.2 * (amplifier + 1));
+                        }
+
+
+                    strictBaseSpeed = Math.min(strictBaseSpeed, strictTicks > 25 ? baseStrictSpeed : baseRestrictedSpeed);
+
+                    strictTicks++;
+
+                    if (strictTicks > 50) {
+                        strictTicks = 0;
+                    }
+
+                    float forward = mc.player.movementInput.moveForward;
+                    float strafe = mc.player.movementInput.moveStrafe;
+                    float yaw = mc.player.prevRotationYaw + (mc.player.rotationYaw - mc.player.prevRotationYaw) * mc.getRenderPartialTicks();
+
+                    if (!isMoving()) {
+                        event.setX(0);
+                        event.setZ(0);
+                    }
+
+                    else if (forward != 0) {
+                        if (strafe >= 1) {
+                            yaw += (forward > 0 ? -45 : 45);
+                            strafe = 0;
+                        }
+
+                        else if (strafe <= -1) {
+                            yaw += (forward > 0 ? 45 : -45);
+                            strafe = 0;
+                        }
+
+                        if (forward > 0) {
+                            forward = 1;
+                        }
+
+                        else if (forward < 0) {
+                            forward = -1;
+                        }
+                    }
+
+                    double cos = Math.cos(Math.toRadians(yaw));
+                    double sin = -Math.sin(Math.toRadians(yaw));
+
+                    event.setX((forward * strictBaseSpeed * sin) + (strafe * strictBaseSpeed * cos));
+                    event.setZ((forward * strictBaseSpeed * cos) - (strafe * strictBaseSpeed * sin));
+                    strictStage++;
+                }
                 break;
             }
             case Default: {
@@ -374,7 +465,7 @@ public class Speed extends Module {
                 break;
             }
         }
-        if (Mode.getValue() == mode.StrafeStrict) {
+        if (Mode.getValue() == mode.StrafeStrict || Mode.getValue() == mode.FunnyGameNew ) {
             event.setCanceled(true);
         }
     }
@@ -409,7 +500,7 @@ public class Speed extends Module {
     }
 
     public enum mode {
-        Default, Grief, StrafeStrict, ReallyWorld, Matrix, MatrixJumpBoost
+        Default, Grief, StrafeStrict, ReallyWorld, Matrix, MatrixJumpBoost,FunnyGameNew
     }
 
 }

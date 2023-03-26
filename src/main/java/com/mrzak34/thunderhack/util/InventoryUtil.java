@@ -320,45 +320,65 @@ public class InventoryUtil implements Util {
         return -1;
     }
 
-    public static int getCappuchinoAtHotbar() {
+    public static int getCappuchinoAtHotbar(boolean old) {
         for (int i = 0; i < 9; ++i) {
             ItemStack itemStack = Util.mc.player.inventory.getStackInSlot(i);
-            if (!(itemStack.getItem() == Items.POTIONITEM)) continue;
+
+            if(old){
+                if (!(itemStack.getItem() == Items.POTIONITEM)) continue;
+            } else {
+                if (!(itemStack.getItem() == Items.DRAGON_BREATH)) continue;
+            }
+
             if (!(itemStack.getDisplayName().contains("Каппучино"))) continue;
             return i;
         }
         return -1;
     }
 
-    public static int getAmericanoAtHotbar() {
+    public static int getAmericanoAtHotbar(boolean old) {
         for (int i = 0; i < 9; ++i) {
             ItemStack itemStack = Util.mc.player.inventory.getStackInSlot(i);
-            if (!(itemStack.getItem() == Items.POTIONITEM)) continue;
+            if(old){
+                if (!(itemStack.getItem() == Items.POTIONITEM)) continue;
+            } else {
+                if (!(itemStack.getItem() == Items.DRAGON_BREATH)) continue;
+            }
             if (!(itemStack.getDisplayName().contains("Американо"))) continue;
             return i;
         }
         return -1;
     }
 
-    public static int getOzeraAtHotbar() {
+    public static int getOzeraAtHotbar(boolean old) {
         for (int i = 0; i < 9; ++i) {
             ItemStack itemStack = Util.mc.player.inventory.getStackInSlot(i);
-            if (!(itemStack.getItem() == Items.POTIONITEM)) continue;
+            if(old){
+                if (!(itemStack.getItem() == Items.POTIONITEM)) continue;
+            } else {
+                if (!(itemStack.getItem() == Items.DRAGON_BREATH)) continue;
+            }
             if (!(itemStack.getDisplayName().contains("Родные озёра"))) continue;
             return i;
         }
         return -1;
     }
 
-    public static ItemStack getPotionItemStack() {
+    public static ItemStack getPotionItemStack(boolean old) {
         for (int i = 0; i < 9; ++i) {
             ItemStack itemStack = Util.mc.player.inventory.getStackInSlot(i);
-            if (!(itemStack.getItem() == Items.POTIONITEM)) continue;
+            if(old){
+                if (!(itemStack.getItem() == Items.POTIONITEM)) continue;
+            } else {
+                if (!(itemStack.getItem() == Items.DRAGON_BREATH)) continue;
+            }
             if (!(itemStack.getDisplayName().contains("Каппучино"))) continue;
             return itemStack;
         }
         return null;
     }
+
+
 
     public static boolean isInstanceOf(ItemStack stack, Class clazz) {
         if (stack == null) {

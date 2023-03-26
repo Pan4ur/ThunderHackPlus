@@ -112,8 +112,8 @@ public class ModuleButton {
                     combobox.setWHeight(17);
 
                     if (combobox.isOpen()) {
-                        offsetY += (combobox.getSetting().getModes().length * 12);
-                        element.setHeight(element.getHeight() + (combobox.getSetting().getModes().length * 12) + 3);
+                        offsetY += (combobox.getSetting().getModes().length * 6);
+                        element.setHeight(element.getHeight() + (combobox.getSetting().getModes().length * 6) + 3);
                     } else {
                         element.setHeight(17);
                     }

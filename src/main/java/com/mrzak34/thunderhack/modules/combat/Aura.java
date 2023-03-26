@@ -136,10 +136,11 @@ public class Aura extends Module {
     private final Timer hitttimer = new Timer();
     private float prevCircleStep, circleStep, prevAdditionYaw;
     private boolean swappedToAxe, swapBack, rotatedBefore;
+    private int tickshift;
     /*-------------------------------------*/
     private Vec3d last_best_vec;
     private float rotation_smoother;
-    private float rotationPitch, rotationYaw;
+    public static float rotationPitch, rotationYaw;
 
     public Aura() {
         super("Aura", "Запомните блядь-киллка тх не мисает-а дает шанс убежать", "attacks entities", Category.COMBAT);
@@ -876,11 +877,13 @@ public class Aura extends Module {
     float save_rotationYaw;
     @SubscribeEvent
     public void onMoveDirection(EventMoveDirection e) {
-        if(!e.isPost() && moveSync.getValue()) {
-            save_rotationYaw = mc.player.rotationYaw;
-            mc.player.rotationYaw = rotationYaw;
-        } else {
-            mc.player.rotationYaw = save_rotationYaw;
+        if(moveSync.getValue()) {
+            if (!e.isPost()) {
+                save_rotationYaw = mc.player.rotationYaw;
+                mc.player.rotationYaw = rotationYaw;
+            } else {
+                mc.player.rotationYaw = save_rotationYaw;
+            }
         }
     }
 

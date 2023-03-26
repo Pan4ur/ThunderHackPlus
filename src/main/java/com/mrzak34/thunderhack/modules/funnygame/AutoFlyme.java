@@ -1,17 +1,26 @@
 package com.mrzak34.thunderhack.modules.funnygame;
 
+import com.mrzak34.thunderhack.events.AttackEvent;
 import com.mrzak34.thunderhack.events.EventSync;
+import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.modules.Module;
+import com.mrzak34.thunderhack.modules.movement.Flight;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.Timer;
 import com.mrzak34.thunderhack.util.math.MathUtil;
+import net.minecraft.network.play.client.CPacketPlayer;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 public class AutoFlyme extends Module {
-    public final Setting<Boolean> space = register(new Setting<>("OnlySpace", true));//(antiCheat);
-    public final Setting<Boolean> instantSpeed = register(new Setting<>("InstantSpeed", true));//(antiCheat);
-    private final Timer timer = new Timer();
+    public final Setting<Boolean> space = register(new Setting<>("OnlySpace", true));
+    public final Setting<Boolean> instantSpeed = register(new Setting<>("InstantSpeed", true));
+    public final Setting<Boolean> criticals = register(new Setting<>("criticals", true));
+    public final Setting<Boolean> hover = register(new Setting<>("hover", false));
+    public Setting<Float> hoverY = this.register(new Setting("hoverY", 0.228f, 0.0f, 1.0f, v -> hover.getValue()));
 
+
+    private final Timer timer = new Timer();
 
     public AutoFlyme() {
         super("AutoFlyme", "Автоматически пишет /flyme", Category.FUNNYGAME);
@@ -29,7 +38,35 @@ public class AutoFlyme extends Module {
             mc.player.sendChatMessage("/flyme");
             timer.reset();
         }
+        if(hover.getValue() && mc.player.capabilities.isFlying && !mc.player.onGround && mc.world.getCollisionBoxes(mc.player, mc.player.getEntityBoundingBox().offset(0.0, -hoverY.getValue(), 0.0)).isEmpty()){
+            mc.player.motionY = -0.05f;
+        }
     }
+
+    boolean cancelSomePackets = false;
+
+    @SubscribeEvent
+    public void onAttack(AttackEvent attackEvent){
+        if (criticals.getValue()) {
+            if (attackEvent.getStage() == 0) {
+                mc.player.connection.sendPacket(new CPacketPlayer.Position(mc.player.posX, mc.player.posY + 0.1100013579, mc.player.posZ, false));
+                mc.player.connection.sendPacket(new CPacketPlayer.Position(mc.player.posX, mc.player.posY - 1.3579E-6, mc.player.posZ, false));
+                cancelSomePackets = true;
+            }
+        }
+    }
+
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    public void onPacketSend(PacketEvent.Send e) {
+        if (e.getPacket() instanceof CPacketPlayer) {
+            if (cancelSomePackets) {
+                cancelSomePackets = false;
+                e.setCanceled(true);
+            }
+        }
+    }
+
+
 
 
     @SubscribeEvent

@@ -27,6 +27,9 @@ public interface ICPacketPlayer {
     @Accessor(value = "moving")
     boolean isMoving();
 
+    @Accessor(value = "moving")
+    void setMoving(boolean m);
+
     @Accessor(value = "rotating")
     boolean isRotating();
 

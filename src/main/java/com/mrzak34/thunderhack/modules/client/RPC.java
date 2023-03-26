@@ -98,7 +98,7 @@ public class RPC extends Module {
             DiscordEventHandlers handlers = new DiscordEventHandlers ( );
             rpc.Discord_Initialize("939112431488225280", handlers, true, "");
             presence.startTimestamp = (System.currentTimeMillis() / 1000L);
-            presence.largeImageText = "v2.40";
+            presence.largeImageText = "v2.41 by Pan4ur#2144";
             rpc.Discord_UpdatePresence(presence);
 
             thread = new Thread(() -> {

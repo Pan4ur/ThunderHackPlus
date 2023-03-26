@@ -240,7 +240,7 @@ public class ThunderGui2 extends GuiScreen {
         // Плита с лого
         RoundedShader.drawRound(main_posX + 5, main_posY + 5, 90, 30, 7f, ThunderHackGui.getInstance().getColorByTheme(1));
         FontRender.drawString2("THUNDERHACK+", main_posX + 10, main_posY + 15, ThunderHackGui.getInstance().getColorByTheme(2).getRGB());
-        FontRender.drawString5("v2.40", main_posX + 75, main_posY + 30, ThunderHackGui.getInstance().getColorByTheme(3).getRGB());
+        FontRender.drawString5("v2.41", main_posX + 75, main_posY + 30, ThunderHackGui.getInstance().getColorByTheme(3).getRGB());
 
         // Левая плита под категриями
         RoundedShader.drawRound(main_posX + 5, main_posY + 40, 90, 140, 7f, ThunderHackGui.getInstance().getColorByTheme(4));

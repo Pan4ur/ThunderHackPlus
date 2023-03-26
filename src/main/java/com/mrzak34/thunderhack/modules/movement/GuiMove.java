@@ -15,10 +15,11 @@ public class GuiMove extends Module {
 
     public Setting<Boolean> clickBypass = register(new Setting<>("strict", false));
 
-
     public GuiMove() {
         super("GuiMove", "GuiMove", Category.MOVEMENT);
     }
+
+    public static boolean pause = false;
 
     @Override
     public void onUpdate() {
@@ -49,12 +50,12 @@ public class GuiMove extends Module {
 
     @SubscribeEvent
     public void onPacketSend(PacketEvent.Send e) {
+        if(pause){
+            pause = false;
+            return;
+        }
         if (e.getPacket() instanceof CPacketClickWindow) {
-            if (clickBypass.getValue()
-                    && mc.player.onGround
-                    && MovementUtil.isMoving()
-                    && mc.world.getCollisionBoxes(mc.player, mc.player.getEntityBoundingBox().offset(0.0, 0.0656, 0.0)).isEmpty()
-            ) {
+            if (clickBypass.getValue() && mc.player.onGround && MovementUtil.isMoving() && mc.world.getCollisionBoxes(mc.player, mc.player.getEntityBoundingBox().offset(0.0, 0.0656, 0.0)).isEmpty()) {
                 if (mc.player.isSprinting()) {
                     mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.STOP_SPRINTING));
                 }

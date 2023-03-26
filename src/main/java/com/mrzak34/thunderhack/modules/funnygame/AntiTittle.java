@@ -12,7 +12,6 @@ import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.network.play.server.SPacketChat;
 import net.minecraft.network.play.server.SPacketTitle;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraft.util.text.ITextComponent;
 
 import java.awt.*;
 
@@ -57,55 +56,56 @@ public class AntiTittle extends Module {
         }
         if (chat.getValue() && e.getPacket() instanceof SPacketChat) {
             final SPacketChat packet = e.getPacket();
-            if (shouldCancel(packet.getChatComponent())) {
+            if (shouldCancel(packet.getChatComponent().getFormattedText())) {
                 e.setCanceled(true);
             }
         }
     }
 
-    private boolean shouldCancel(ITextComponent component) {
-        String spamMessage = component.getUnformattedText();
-        String[] reklama = {
-            "Все очистится через", // жопу
-            "Предметы на карте успешно", // проёбаны
-            "Обычный чат работает на", // 99999 блоков, ведь можно донатить, поэтому передавай инфу в дс
-            "Хочешь выделиться на сервере?", // крашни его, нахуя донатить?
-            "Успей использовать промо-код", //дженро хуесос для получения бана навсегда!
-            "В данный момент действуют большие", //заталкивания хуев вам в задницу, дорогие игроки серверов дженро!
-            "есть любые способы оплаты", // пон. А наличку принимаете?
-            "Открыть купленные ключи",
-            "Группа сервера ВКонтакте",
-            "чем больше ключей вы покупаете", // тем меньше у вас iq
-            "Не хватает денег на привилегию", // возьми в кредит!
-            "Продавать что-либо за реальную валюту", // или не продавать -- зависит только от вас!
-            "Сейчас действуют большие скидки", // которые не распространяются ни на что. Они просто действуют!
-            "/donate", // /hub
-            "Чтобы избежать взлома",
-            "Оскорбление администрации строго", //разрешено!
-            "Включить пвп в своем регионе",
-            "/trade", // /lobby
-            "После вайпа остается пароль+привилегия",
-            "FunnyGame.su",
-            
-            "Выключите fly", // я вообще-то спид тестил!
-            "Подождите, прежде чем снова щелкнуть.", // я вообще-то команды прописывал!
-            "Вы находитесь в Лобби. Выберите сервер и пройдите в портал!", // Дай пароль ввести!
-            "Чтобы избежать взлома, привяжите свой аккаунт",
-            "[Анти-Релог]",
-            "чем больше кейсов покупаете",
-            "не разрешена в этом регионе.",
-            "Вы выпили",
-            "Вы бухнули", // а я с хачами ебусь, ебусь с хачами!
-            "Извините, но Вы не можете" // спамить в чате, за спам нужно доплачивать!
-        };
-        
-        for (String cnam: reklama) {
-            if (spamMessage.contains(cnam)) return true;
-        }
+    private boolean shouldCancel(String message) {
+        if (message.contains("Все очистится через"))
+            return true;
+        if (message.contains("Предметы на карте успешно"))
+            return true;
+        if (message.contains("Обычный чат работает на")) // 99999 блоков, ведь можно донатить, поэтому передавай инфу в дс
+            return true;
+        if (message.contains("Хочешь выделиться на сервере?")) // крашни его, нахуя донатить?
+            return true;
+        if (message.contains("Успей использовать промо-код")) //дженро хуесос для получения бана навсегда!
+            return true;
+        if (message.contains("В данный момент действуют большие")) //заталкивания хуев вам в задницу, дорогие игроки серверов дженро!
+            return true;
+        if (message.contains("есть любые способы оплаты"))
+            return true;
+        if (message.contains("Открыть купленные ключи"))
+            return true;
+        if (message.contains("Группа сервера ВКонтакте"))
+            return true;
+        if (message.contains("чем больше ключей вы покупаете")) // тем меньше у вас iq
+            return true;
+        if (message.contains("Не хватает денег на привилегию"))
+            return true;
+        if (message.contains("Продавать что-либо за реальную валюту"))
+            return true;
+        if (message.contains("Сейчас действуют большие скидки"))
+            return true;
+        if (message.contains("/donate"))
+            return true;
+        if (message.contains("Чтобы избежать взлома"))
+            return true;
+        if (message.contains("Оскорбление администрации строго")) //разрешено!
+            return true;
+        if (message.contains("Включить пвп в своем регионе"))
+            return true;
+        if (message.contains("/trade"))
+            return true;
+        if (message.contains("После вайпа остается пароль+привилегия"))
+            return true;
+        if (message.contains("FunnyGame.su"))
+            return true;
 
         if (donators.getValue()) {
-            String message = component.getFormattedText();
-            String real = message;
+            String premessage = message;
             message = message.replace("§r§6§l[§r§b§lПРЕЗИДЕНТ§r§6§l]§r", "§r");
             message = message.replace("§r§d§l[§r§5§lАдмин§r§d§l]§r", "§r");
             message = message.replace("§r§b§l[§r§3§lГл.Админ§r§b§l]§r", "§r");
@@ -117,7 +117,7 @@ public class AntiTittle extends Module {
             message = message.replace("§r§b§l[§r§e§l?§r§d§lСПОНСОР§r§e§l?§r§b§l]", "§r");
             message = message.replace("§r§6§l[§r§e§lЛорд§r§6§l]", "§r");
             message = message.replace("§r§4§l[§r§2§lВЛАДЫКА§r§4§l]", "§r");
-            if (!message.equals(real)) {
+            if (!message.equals(premessage)) {
                 Command.sendMessageWithoutTH(message);
                 return true;
             }

@@ -51,6 +51,7 @@ public class NameTags extends Module {
     private final Setting<Boolean> scaleing = this.register(new Setting<Boolean>("Scale", false));
     private final Setting<Float> factor = this.register(new Setting<Object>("Factor", 0.3f, 0.1f, 1.0f, v -> this.scaleing.getValue()));
     private final Setting<Boolean> smartScale = this.register(new Setting<Object>("SmartScale", false, v -> this.scaleing.getValue()));
+    private final Setting<Boolean> ench = this.register(new Setting<Boolean>("Enchantments", false));
     private final Setting<ColorSetting> mainColor = this.register(new Setting<>("MainColor", new ColorSetting(new Color(0xBB000007, true).getRGB())));
     private final Setting<ColorSetting> outlineColor = this.register(new Setting<>("OutlineColor", new ColorSetting(new Color(0xBBC7C7C7, true).getRGB())));
     private final Setting<ColorSetting> textColor = this.register(new Setting<>("TextColor", new ColorSetting(new Color(0xBBC7C7C7, true).getRGB())));
@@ -161,7 +162,7 @@ public class NameTags extends Module {
         GlStateManager.enableBlend();
 
         if (this.rect.getValue()) {
-            drawRect(-width - 2, -(Util.fr.FONT_HEIGHT + 1), (float) width + 2.0f, 1.5f, mainColor.getValue().getColor());
+            drawRect(-width - 2, -(Util.fr.FONT_HEIGHT + 1), (float) width + 2.0f, 1.5f, Thunderhack.friendManager.isFriend(player) ? friendColor.getValue().getColor() : mainColor.getValue().getColor() );
             if (this.outline.getValue()) {
                 this.drawOutlineRect((float) (-width - 2), (float) (-(mc.fontRenderer.FONT_HEIGHT + 1)), width + 2.0f, 1.5f, outlineColor.getValue().getColor());
             }
@@ -223,7 +224,8 @@ public class NameTags extends Module {
         GlStateManager.enableAlpha();
         GlStateManager.scale(0.5f, 0.5f, 0.5f);
      //   GlStateManager.disableDepth();
-        this.renderEnchantmentText(stack, x, y);
+        if(ench.getValue())
+            this.renderEnchantmentText(stack, x, y);
         GlStateManager.scale(2.0f, 2.0f, 2.0f);
         GlStateManager.popMatrix();
     }

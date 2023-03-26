@@ -9,17 +9,15 @@ import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.events.PlayerUpdateEvent;
 import com.mrzak34.thunderhack.manager.EventManager;
 import com.mrzak34.thunderhack.modules.Module;
+import com.mrzak34.thunderhack.modules.movement.GuiMove;
 import com.mrzak34.thunderhack.setting.Setting;
-import com.mrzak34.thunderhack.util.CrystalUtils;
-import com.mrzak34.thunderhack.util.EntityUtil;
-import com.mrzak34.thunderhack.util.InventoryUtil;
+import com.mrzak34.thunderhack.util.*;
 import com.mrzak34.thunderhack.util.Timer;
 import com.mrzak34.thunderhack.util.math.MathUtil;
 import net.minecraft.block.BlockObsidian;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.gui.GuiGameOver;
 import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.client.gui.inventory.GuiInventory;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityEnderCrystal;
 import net.minecraft.entity.item.EntityMinecartTNT;
@@ -30,65 +28,71 @@ import net.minecraft.inventory.ClickType;
 import net.minecraft.item.EnumRarity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.play.client.CPacketConfirmTransaction;
-import net.minecraft.network.play.client.CPacketEntityAction;
-import net.minecraft.network.play.client.CPacketHeldItemChange;
-import net.minecraft.network.play.client.CPacketPlayerDigging;
+import net.minecraft.network.play.client.*;
 import net.minecraft.network.play.server.SPacketEntityStatus;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class AutoTotem extends Module {
+
+    // Semi-strict
     public Setting<ModeEn> mode = this.register(new Setting<>("Mode", ModeEn.SemiStrict));
     public Setting<Boolean> totem = this.register(new Setting<>("Totem", true, v -> mode.getValue() == ModeEn.SemiStrict));
     public Setting<Boolean> gapple = this.register(new Setting<>("SwordGap", false, v -> mode.getValue() == ModeEn.SemiStrict));
     public Setting<Boolean> rightClick = this.register(new Setting<>("RightClickGap", false, v -> gapple.getValue() && mode.getValue() == ModeEn.SemiStrict));
     public Setting<Boolean> crystal = this.register(new Setting<>("Crystal", true, v -> mode.getValue() == ModeEn.SemiStrict));
-    public Setting<Boolean> StopSprint = this.register(new Setting<>("StopSprint", false, v -> mode.getValue() != ModeEn.Future));
+    public Setting<Boolean> StopSprint = this.register(new Setting<>("StopSprint", false, v -> mode.getValue() != ModeEn.Strict));
     public Setting<Float> delay = this.register(new Setting<>("Delay", 0F, 0F, 5F, v -> mode.getValue() == ModeEn.SemiStrict));
     public Setting<Boolean> hotbarTotem = this.register(new Setting<>("HotbarTotem", false, v -> mode.getValue() == ModeEn.SemiStrict));
-    public Setting<Float> totemHealthThreshold = this.register(new Setting<>("TotemHealth", 5f, 0f, 36f, v -> mode.getValue() != ModeEn.Strict && mode.getValue() != ModeEn.Future));
+    public Setting<Float> totemHealthThreshold = this.register(new Setting<>("TotemHealth", 5f, 0f, 36f, v -> mode.getValue() != ModeEn.Strict));
     public Setting<CrystalCheck> crystalCheck = this.register(new Setting<>("CrystalCheck", CrystalCheck.DAMAGE, v -> mode.getValue() == ModeEn.SemiStrict));
     public Setting<Float> crystalRange = this.register(new Setting<>("CrystalRange", 10f, 1f, 15f, v -> (crystalCheck.getValue() != CrystalCheck.NONE) && mode.getValue() == ModeEn.SemiStrict));
     public Setting<Boolean> extraSafe = this.register(new Setting<>("ExtraCheck", false, v -> (crystalCheck.getValue() != CrystalCheck.NONE) && mode.getValue() == ModeEn.SemiStrict));
-    public Setting<Boolean> fallCheck = this.register(new Setting<>("FallCheck", true, v -> mode.getValue() != ModeEn.Strict && mode.getValue() != ModeEn.Future));
-    public Setting<Float> fallDist = this.register(new Setting<>("FallDist", 15f, 0f, 50f, v -> fallCheck.getValue() && mode.getValue() == ModeEn.SemiStrict));
+    public Setting<Boolean> fallCheck = this.register(new Setting<>("FallCheck", true, v -> mode.getValue() != ModeEn.Strict));
     public Setting<Boolean> totemOnElytra = this.register(new Setting<>("TotemOnElytra", true, v -> mode.getValue() == ModeEn.SemiStrict));
     public Setting<Boolean> clearAfter = this.register(new Setting<>("SwapBack", true, v -> mode.getValue() == ModeEn.SemiStrict));
     public Setting<Boolean> hard = this.register(new Setting<>("AlwaysDefault", false, v -> mode.getValue() == ModeEn.SemiStrict));
     public Setting<Boolean> notFromHotbar = this.register(new Setting<>("NotFromHotbar", false, v -> mode.getValue() == ModeEn.SemiStrict));
     public Setting<Default> defaultItem = this.register(new Setting<>("DefaultItem", Default.TOTEM, v -> mode.getValue() == ModeEn.SemiStrict));
+    //
+
+    // Matrix
     public Setting<Boolean> absorptionHP = this.register(new Setting<>("absorptionHP", true, v -> mode.getValue() == ModeEn.Matrix));
     public Setting<Boolean> checkTNT = this.register(new Setting<>("CheckTNT", true, v -> mode.getValue() == ModeEn.Matrix));
     public Setting<Boolean> checkObsidian = this.register(new Setting<>("CheckObsidian", true, v -> mode.getValue() == ModeEn.Matrix));
-    public Setting<Boolean> deathVerbose = this.register(new Setting<>("Death Verbose", true, v -> mode.getValue() == ModeEn.Future));
-    public Setting<OffHand> offhand = this.register(new Setting<>("OffHand", OffHand.Totem, v -> mode.getValue() == ModeEn.Future));
-    public Setting<Float> healthF = this.register(new Setting<>("Health", 16f, 0f, 20f, v -> mode.getValue() == ModeEn.Future));
-    public Setting<Boolean> lethal = this.register(new Setting<>("Lethal", true, v -> mode.getValue() == ModeEn.Future));
-    public Setting<Integer> GappleSlot = this.register(new Setting<>("GAppleSlot", 0, 0, 9, v -> mode.getValue() == ModeEn.Future));
-    public Setting<Boolean> offhandoverride = this.register(new Setting<>("OffHandOverride", true, v -> mode.getValue() == ModeEn.Future));
-    public Setting<Boolean> crapple = this.register(new Setting<>("Crapple", true, v -> mode.getValue() == ModeEn.Future));
+    //
 
+    // Strict
+    public Setting<Boolean> deathVerbose = this.register(new Setting<>("Death Verbose", true, v -> mode.getValue() == ModeEn.Strict));
+    public Setting<OffHand> offhand = this.register(new Setting<>("OffHand", OffHand.Totem, v -> mode.getValue() == ModeEn.Strict));
+    public Setting<Float> healthF = this.register(new Setting<>("Health", 16f, 0f, 20f, v -> mode.getValue() == ModeEn.Strict));
+    public Setting<Boolean> lethal = this.register(new Setting<>("Lethal", true, v -> mode.getValue() == ModeEn.Strict));
+    public Setting<Integer> GappleSlot = this.register(new Setting<>("GAppleSlot", 0, 0, 8, v -> mode.getValue() == ModeEn.Strict));
+    public Setting<Boolean> offhandoverride = this.register(new Setting<>("OffHandOverride", true, v -> mode.getValue() == ModeEn.Strict));
+    public Setting<Boolean> crapple = this.register(new Setting<>("Crapple", true, v -> mode.getValue() == ModeEn.Strict));
+    public Setting<Boolean> funnyGame = this.register(new Setting<>("FunnyGameBypass", true, v -> mode.getValue() == ModeEn.Strict));
+    //
 
     public static long packet_latency_timer = 0L;
     public static int last_packet_time = 0;
     private final Queue<Integer> clickQueue = new LinkedList<>();
     private final Timer stop_spam = new Timer();
-    boolean skip_tick = false;
-    private final Timer Stricttimer = new Timer();
     private final Timer timer = new Timer();
     private int swapBack = -1;
 
+
     public AutoTotem() {
-        super("AutoTotem", "берёт тотем который был попнут", Category.COMBAT);
+        super("AutoTotem", "AutoTotem", Category.COMBAT);
     }
+
 
     public static int getItemSlot(Item item, boolean gappleCheck) {
         for (int i = 0; i < 36; ++i) {
@@ -108,6 +112,7 @@ public class AutoTotem extends Module {
         return -1;
     }
 
+
     private static boolean noGapples() {
         for (int i = 0; i < 36; ++i) {
             ItemStack itemStackInSlot = mc.player.inventory.getStackInSlot(i);
@@ -118,9 +123,9 @@ public class AutoTotem extends Module {
         return true;
     }
 
-    public static List<BlockPos> getSphere(final BlockPos blockPos, final float n, final int n2, final boolean b,
-                                           final boolean b2, final int n3) {
-        final ArrayList<BlockPos> list = new ArrayList<BlockPos>();
+
+    public static List<BlockPos> getSphere(final BlockPos blockPos, final float n, final int n2, final boolean b, final boolean b2, final int n3) {
+        final ArrayList<BlockPos> list = new ArrayList<>();
         final int x = blockPos.getX();
         final int y = blockPos.getY();
         final int z = blockPos.getZ();
@@ -136,12 +141,6 @@ public class AutoTotem extends Module {
         }
         return list;
     }
-
-
-
-
-
-
 
 
     /*-----------------  Semi-Strict  ----------------*/
@@ -168,21 +167,6 @@ public class AutoTotem extends Module {
         return currentItem - 1;
     }
 
-    @Override
-    public void onUpdate() {
-        if (mode.getValue() != ModeEn.Strict) return;
-        if (mc.currentScreen instanceof GuiContainer && !(mc.currentScreen instanceof GuiInventory)) return;
-        if (getItemSlot(Items.TOTEM_OF_UNDYING, false) != -1) {
-            if (mc.player.getHeldItemOffhand().getItem() != Items.TOTEM_OF_UNDYING) {
-                moveToOffhand(getItemSlot(Items.TOTEM_OF_UNDYING, false));
-            }
-        } else if (getItemSlot(Items.GOLDEN_APPLE, true) != -1) {
-            if (mc.player.getHeldItemOffhand().getItem() != Items.GOLDEN_APPLE && mc.player.getHeldItemOffhand().getItem() != Items.TOTEM_OF_UNDYING) {
-                moveToOffhand(getItemSlot(Items.GOLDEN_APPLE, true));
-            }
-        }
-    }
-
     @SubscribeEvent
     public void onPlayerUpdate(PlayerUpdateEvent e) {
         if (mode.getValue() != ModeEn.Matrix) return;
@@ -196,7 +180,7 @@ public class AutoTotem extends Module {
         }
         int prevCurrentItem = mc.player.inventory.currentItem;
         int currentItem = findNearestCurrentItem();
-        boolean totemCheck = totemHealthThreshold.getValue() >= hp || crystalCheck() || (fallCheck.getValue() && mc.player.fallDistance >= fallDist.getValue() && !mc.player.isElytraFlying()) || checkTNT() || checkObsidian();
+        boolean totemCheck = totemHealthThreshold.getValue() >= hp || crystalCheck() || (fallCheck.getValue() && (EntityUtil.getHealth(mc.player) - (((mc.player.fallDistance - 3) / 2F) + 3.5F) < 0.5) && !mc.player.isElytraFlying()) || checkTNT() || checkObsidian();
         boolean totemInHand = mc.player.getHeldItemOffhand().getItem() == Items.TOTEM_OF_UNDYING;
         if (totemCheck) {
             if (totemSlot >= 0 && !totemInHand) {
@@ -283,7 +267,7 @@ public class AutoTotem extends Module {
                 if (totem.getValue()) {
                     if (mc.player.getHealth() + mc.player.getAbsorptionAmount() <= totemHealthThreshold.getValue()
                             || (totemOnElytra.getValue() && mc.player.isElytraFlying())
-                            || (fallCheck.getValue() && mc.player.fallDistance >= fallDist.getValue() && !mc.player.isElytraFlying())) {
+                            || (fallCheck.getValue() && (EntityUtil.getHealth(mc.player) - (((mc.player.fallDistance - 3) / 2F) + 3.5F) < 0.5) && !mc.player.isElytraFlying())) {
 
                         putItemIntoOffhand(Items.TOTEM_OF_UNDYING);
                         return;
@@ -445,18 +429,6 @@ public class AutoTotem extends Module {
         return totalDamage;
     }
 
-    public void moveToOffhand(int from) {
-        if (!Stricttimer.passedMs(100)) return;
-        if (from == -1) return;
-        if (EventManager.serversprint && StopSprint.getValue())
-            mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.STOP_SPRINTING));
-        mc.playerController.windowClick(mc.player.inventoryContainer.windowId, from, 0, ClickType.PICKUP, mc.player);
-        mc.playerController.windowClick(mc.player.inventoryContainer.windowId, 45, 0, ClickType.PICKUP, mc.player);
-        mc.playerController.windowClick(mc.player.inventoryContainer.windowId, from, 0, ClickType.PICKUP, mc.player);
-        mc.playerController.updateController();
-        Stricttimer.reset();
-    }
-
     private boolean checkTNT() {
         if (!checkTNT.getValue()) {
             return false;
@@ -490,176 +462,170 @@ public class AutoTotem extends Module {
 
     @SubscribeEvent
     public void onPostMotion(EventPostSync e) {
-            if (mode.getValue() == ModeEn.Future) {
-                if (skip_tick) {
-                    skip_tick = false;
-                    return;
-                }
-                if (mc.currentScreen == null) {
-                    Item item;
-                    if (offhand.getValue() == OffHand.Totem) {
-                        item = Items.TOTEM_OF_UNDYING;
-                    } else if (offhand.getValue() == OffHand.Crystal) {
-                        item = Items.END_CRYSTAL;
-                    } else {
-                        item = Items.GOLDEN_APPLE;
-                    }
-                    if (offhandoverride.getValue()) {
-                        if (isSword(mc.player.getHeldItemMainhand().getItem()) && mc.gameSettings.keyBindUseItem.isKeyDown()) {
-                            item = Items.GOLDEN_APPLE;
+        if (mode.getValue() == ModeEn.Strict) {
+            if (mc.currentScreen == null) {
+                int itemSlot = getItemSlot();
+                if (itemSlot != -1) {
+                    if (!isOffhand(mc.player.inventoryContainer.getSlot(itemSlot).getStack()) && timer.passedMs(200)) {
+                        timer.reset();
+                        mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.STOP_SPRINTING));
+                        mc.playerController.windowClick(0, itemSlot, 0, ClickType.PICKUP, mc.player);
+                        mc.playerController.windowClick(0, 45, 0, ClickType.PICKUP, mc.player);
+                        if (mc.player.inventory.getItemStack().isEmpty()) {
+                            mc.player.connection.sendPacket(new CPacketCloseWindow(mc.player.inventoryContainer.windowId));
+                            mc.playerController.updateController();
+                            return;
                         }
-                    }
-                    if (lethal.getValue()) {
-                        float fallDamage = ((mc.player.fallDistance - 3) / 2F) + 3.5F;
-                        if (EntityUtil.getHealth(mc.player) - fallDamage < 0.5 && !mc.player.isOverWater()) {
-                            item = Items.TOTEM_OF_UNDYING;
+
+                        if(mc.player.inventory.getItemStack().getItem() == Items.GOLDEN_APPLE)
+                            mc.playerController.windowClick(0, GappleSlot.getValue() + 36, 0, ClickType.PICKUP, mc.player);
+
+                        if (mc.player.inventory.getItemStack().isEmpty()) {
+                            mc.player.connection.sendPacket(new CPacketCloseWindow(mc.player.inventoryContainer.windowId));
+                            mc.playerController.updateController();
+                            return;
                         }
-                        if (mc.player.isElytraFlying()) {
-                            item = Items.TOTEM_OF_UNDYING;
-                        }
-                        for (Entity entity : mc.world.loadedEntityList) {
-                            if (entity == null || entity.isDead) {
-                                continue;
-                            }
-                            double crystalRange = mc.player.getDistance(entity);
-                            if (crystalRange > 6) {
-                                continue;
-                            }
-                            if (entity instanceof EntityEnderCrystal) {
-                                if (EntityUtil.getHealth(mc.player) - CrystalUtils.calculateDamage((EntityEnderCrystal) entity, mc.player) < 0.5) {
-                                    item = Items.TOTEM_OF_UNDYING;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                    if (EntityUtil.getHealth(mc.player) <= healthF.getValue()) {
-                        item = Items.TOTEM_OF_UNDYING;
-                    }
-                    int itemSlot = -1;
-                    int gappleSlot = -1;
-                    int crappleSlot = -1;
-                    for (int i = 9; i < 45; i++) {
-                        if (mc.player.inventoryContainer.getSlot(i).getStack().getItem().equals(item)) {
-                            if (item.equals(Items.GOLDEN_APPLE)) {
-                                ItemStack stack = mc.player.inventoryContainer.getSlot(i).getStack();
-                                if (stack.hasEffect()) {
-                                    gappleSlot = i;
-                                } else {
-                                    crappleSlot = i;
-                                }
-                            } else {
-                                itemSlot = i;
+                        int returnSlot = -1;
+                        for (int i = 9; i < 45; i++) {
+                            if (mc.player.inventory.getStackInSlot(i).isEmpty()) {
+                                returnSlot = i;
                                 break;
                             }
                         }
-                    }
-                    if (item.equals(Items.GOLDEN_APPLE)) {
-                        if (crapple.getValue()) {
-                            if (mc.player.isPotionActive(MobEffects.ABSORPTION)) {
-                                if (crappleSlot != -1) {
-                                    itemSlot = crappleSlot;
-                                } else if (gappleSlot != -1) {
-                                    itemSlot = gappleSlot;
-                                }
-                            } else if (gappleSlot != -1) {
-                                itemSlot = gappleSlot;
-                            }
-                        } else {
-                            if (gappleSlot != -1) {
-                                itemSlot = gappleSlot;
-                            } else if (crappleSlot != -1) {
-                                itemSlot = crappleSlot;
-                            }
+                        if (returnSlot != -1) {
+                            mc.playerController.windowClick(0, returnSlot, 0, ClickType.PICKUP, mc.player);
                         }
-                    }
-                    if (itemSlot != -1) {
-                        if (!isOffhand(mc.player.inventoryContainer.getSlot(itemSlot).getStack()) && timer.passedMs(200)) {
-                            timer.reset();
-                            mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.STOP_SPRINTING));
-                            mc.playerController.windowClick(0, itemSlot, 0, ClickType.PICKUP, mc.player);
-                            mc.playerController.windowClick(0, 45, 0, ClickType.PICKUP, mc.player);
-                            if (mc.player.inventory.getItemStack().isEmpty()) {
-                                mc.playerController.updateController();
-                                return;
-                            }
-
-                            mc.playerController.windowClick(0, GappleSlot.getValue() + 36, 0, ClickType.PICKUP, mc.player);
-                            mc.playerController.updateController();
-
-                            if (mc.player.inventory.getItemStack().isEmpty()) {
-                                return;
-                            }
-                            int returnSlot = -1;
-                            for (int i = 9; i < 45; i++) {
-                                if (mc.player.inventory.getStackInSlot(i).isEmpty()) {
-                                    returnSlot = i;
-                                    break;
-                                }
-                            }
-                            if (returnSlot != -1) {
-                                mc.playerController.windowClick(0, returnSlot, 0, ClickType.PICKUP, mc.player);
-                            }
-                            mc.playerController.updateController();
-                        }
-                    }
-                }
-                if (deathVerbose.getValue()) {
-                    if (mc.currentScreen instanceof GuiGameOver && stop_spam.passedMs(3000)) {
-                        Command.sendMessage(getVerbose());
-                        stop_spam.reset();
+                        mc.player.connection.sendPacket(new CPacketCloseWindow(mc.player.inventoryContainer.windowId));
+                        mc.playerController.updateController();
                     }
                 }
             }
+            if (deathVerbose.getValue()) {
+                if (mc.currentScreen instanceof GuiGameOver && stop_spam.passedMs(3000)) {
+                    Command.sendMessage(getVerbose());
+                    stop_spam.reset();
+                }
+            }
+        }
     }
 
     @SubscribeEvent
     public void onPacketReceive(PacketEvent.ReceivePost event) {
         if (fullNullCheck()) return;
-        if (mode.getValue() == ModeEn.Future) {
+        if (mode.getValue() == ModeEn.Strict) {
             if (event.getPacket() instanceof SPacketEntityStatus && ((SPacketEntityStatus) event.getPacket()).getOpCode() == 35) {
                 Entity entity = ((SPacketEntityStatus) event.getPacket()).getEntity(mc.world);
                 // пишет "Condition 'entity != null' is always 'true'", но это пиздеж
                 if (entity != null && entity.equals(mc.player) && timer.passedMs(200)) {
-                        timer.reset();
-                        skip_tick = true;
-                        int itemSlot = -1;
-                        for (int i = 9; i < 45; i++) {
-                            if (mc.player.inventoryContainer.getSlot(i).getStack().getItem().equals(Items.TOTEM_OF_UNDYING)) {
-                                itemSlot = i;
-                                break;
-                            }
-                        }
-                        if (itemSlot != -1) {
-                            mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.STOP_SPRINTING));
-                            mc.playerController.windowClick(0, itemSlot, 0, ClickType.PICKUP, mc.player);
-                            mc.playerController.windowClick(0, 45, 0, ClickType.PICKUP, mc.player);
-
-                            if (mc.player.inventory.getItemStack().isEmpty()) {
-                                mc.playerController.updateController();
-                                return;
-                            }
-                            mc.playerController.windowClick(0, GappleSlot.getValue() + 36, 0, ClickType.PICKUP, mc.player);
-                            if (mc.player.inventory.getItemStack().isEmpty()) {
-                                mc.playerController.updateController();
-                                return;
-                            }
-
-                            int returnSlot = -1;
-                            for (int i = 9; i < 45; i++) {
-                                if (mc.player.inventory.getStackInSlot(i).isEmpty()) {
-                                    returnSlot = i;
-                                    break;
-                                }
-                            }
-                            if (returnSlot != -1) {
-                                mc.playerController.windowClick(0, returnSlot, 0, ClickType.PICKUP, mc.player);
-                            }
-                            mc.playerController.updateController();
-                        }
+                    timer.reset();
+                    int itemSlot = getItemSlot();
+                    if (itemSlot != -1) {
+                        mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.STOP_SPRINTING));
+                        mc.playerController.windowClick(0, itemSlot, 0, ClickType.PICKUP, mc.player);
+                        mc.playerController.windowClick(0, 45, 0, ClickType.PICKUP, mc.player);
+                        mc.player.connection.sendPacket(new CPacketCloseWindow(mc.player.inventoryContainer.windowId));
+                        mc.playerController.updateController();
+                    }
                 }
             }
             last_packet_time = (int) (System.currentTimeMillis() - packet_latency_timer);
+        }
+    }
+
+    public int getItemSlot(){
+        Item item;
+        if (offhand.getValue() == OffHand.Totem) {
+            item = Items.TOTEM_OF_UNDYING;
+        } else if (offhand.getValue() == OffHand.Crystal) {
+            item = Items.END_CRYSTAL;
+        } else {
+            item = Items.GOLDEN_APPLE;
+        }
+        if (offhandoverride.getValue()) {
+            if (isSword(mc.player.getHeldItemMainhand().getItem()) && mc.gameSettings.keyBindUseItem.isKeyDown()) {
+                item = Items.GOLDEN_APPLE;
+            }
+        }
+        if (lethal.getValue()) {
+            if (EntityUtil.getHealth(mc.player) - (((mc.player.fallDistance - 3) / 2F) + 3.5F) < 0.5 && !mc.player.isOverWater()) {
+                item = Items.TOTEM_OF_UNDYING;
+            }
+            if (mc.player.isElytraFlying()) {
+                item = Items.TOTEM_OF_UNDYING;
+            }
+            for (Entity entity : mc.world.loadedEntityList) {
+                if (entity == null || entity.isDead) {
+                    continue;
+                }
+                double crystalRange = mc.player.getDistance(entity);
+                if (crystalRange > 6) {
+                    continue;
+                }
+                if (entity instanceof EntityEnderCrystal) {
+                    if (EntityUtil.getHealth(mc.player) - CrystalUtils.calculateDamage((EntityEnderCrystal) entity, mc.player) < 0.5) {
+                        item = Items.TOTEM_OF_UNDYING;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (EntityUtil.getHealth(mc.player) <= healthF.getValue()) {
+            item = Items.TOTEM_OF_UNDYING;
+        }
+
+        int itemSlot = -1;
+        int gappleSlot = -1;
+        int crappleSlot = -1;
+
+        for (int i = 9; i < 45; i++) {
+            if (mc.player.inventoryContainer.getSlot(i).getStack().getItem().equals(item)) {
+                if (item.equals(Items.GOLDEN_APPLE)) {
+                    ItemStack stack = mc.player.inventoryContainer.getSlot(i).getStack();
+                    if (stack.hasEffect()) {
+                        gappleSlot = i;
+                    } else {
+                        crappleSlot = i;
+                    }
+                } else {
+                    itemSlot = i;
+                    break;
+                }
+            }
+        }
+
+        if (item.equals(Items.GOLDEN_APPLE)) {
+            if (crapple.getValue()) {
+                if (mc.player.isPotionActive(MobEffects.ABSORPTION)) {
+                    if (crappleSlot != -1) {
+                        itemSlot = crappleSlot;
+                    } else if (gappleSlot != -1) {
+                        itemSlot = gappleSlot;
+                    }
+                } else if (gappleSlot != -1) {
+                    itemSlot = gappleSlot;
+                }
+            } else {
+                if (gappleSlot != -1) {
+                    itemSlot = gappleSlot;
+                } else if (crappleSlot != -1) {
+                    itemSlot = crappleSlot;
+                }
+            }
+        }
+        return itemSlot;
+    }
+
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    public void onPacketSend(PacketEvent.Send e) {
+        GuiMove.pause = true;
+        if (e.getPacket() instanceof CPacketClickWindow && mode.getValue() == ModeEn.Strict && funnyGame.getValue()) {
+            if (mc.player.onGround && MovementUtil.isMoving() && mc.world.getCollisionBoxes(mc.player, mc.player.getEntityBoundingBox().offset(0.0, 0.0656, 0.0)).isEmpty()) {
+                if (mc.player.isSprinting()) {
+                    mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.STOP_SPRINTING));
+                }
+                mc.player.connection.sendPacket(new CPacketPlayer.Position(mc.player.posX, mc.player.posY + 0.0656, mc.player.posZ, false));
+            }
         }
     }
 
@@ -693,7 +659,6 @@ public class AutoTotem extends Module {
     }
 
     private enum ModeEn {
-        Future,
         Strict,
         SemiStrict,
         Matrix

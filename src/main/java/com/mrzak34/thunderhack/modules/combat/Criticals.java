@@ -2,12 +2,15 @@ package com.mrzak34.thunderhack.modules.combat;
 
 import com.mrzak34.thunderhack.events.AttackEvent;
 import com.mrzak34.thunderhack.events.PacketEvent;
+import com.mrzak34.thunderhack.mixin.mixins.ICPacketPlayer;
+import com.mrzak34.thunderhack.mixin.mixins.IEntityPlayerSP;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.Timer;
 import com.mrzak34.thunderhack.mixin.ducks.IEntity;
 import net.minecraft.entity.item.EntityEnderCrystal;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.network.Packet;
 import net.minecraft.network.play.client.CPacketPlayer;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -77,9 +80,6 @@ public class Criticals extends Module {
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void onPacketSend(PacketEvent.Send e) {
-        if (mode.getValue() != Mode.FunnyGame) {
-            return;
-        }
         if (e.getPacket() instanceof CPacketPlayer) {
             if (cancelSomePackets) {
                 cancelSomePackets = false;

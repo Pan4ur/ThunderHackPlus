@@ -25,6 +25,8 @@ import static com.mrzak34.thunderhack.util.PlayerUtils.getPlayerPos;
 
 public class AutoPot extends Module {
     public static int neededCap = 0;
+    private final Setting<Mode> mainMode = register(new Setting<>("Version",Mode.New));
+    public enum Mode {Old, New}
     public Setting<Integer> triggerhealth = this.register(new Setting<>("TriggerHealth", 10, 1, 36));
     public Setting<Integer> delay = this.register(new Setting<>("delay", 200, 1, 2000));
     public Setting<Boolean> animation = register(new Setting<>("Animation", true));
@@ -43,18 +45,18 @@ public class AutoPot extends Module {
 
     @Override
     public void onUpdate() {
-        if (mc.player.getHealth() < triggerhealth.getValue() && timer.passedMs(delay.getValue()) && InventoryUtil.getCappuchinoAtHotbar() != -1) {
-            itemActivationItem = InventoryUtil.getPotionItemStack();
+        if (mc.player.getHealth() < triggerhealth.getValue() && timer.passedMs(delay.getValue()) && InventoryUtil.getCappuchinoAtHotbar(mainMode.getValue() == Mode.Old) != -1) {
+            itemActivationItem = InventoryUtil.getPotionItemStack(mainMode.getValue() == Mode.Old);
             int hotbarslot = mc.player.inventory.currentItem;
             mc.world.playSound(getPlayerPos(), SoundEvents.BLOCK_BREWING_STAND_BREW, SoundCategory.AMBIENT, 150.0f, 1.0F, true);
-            mc.player.connection.sendPacket(new CPacketHeldItemChange(InventoryUtil.getCappuchinoAtHotbar()));
+            mc.player.connection.sendPacket(new CPacketHeldItemChange(InventoryUtil.getCappuchinoAtHotbar(mainMode.getValue() == Mode.Old)));
             mc.player.connection.sendPacket(new CPacketPlayerTryUseItem(EnumHand.MAIN_HAND));
             mc.player.connection.sendPacket(new CPacketHeldItemChange(hotbarslot));
             ++neededCap;
             aboba();
             timer.reset();
         }
-        if ((InventoryUtil.getCappuchinoAtHotbar() == -1) && alerttimer.passedMs(1000)) {
+        if ((InventoryUtil.getCappuchinoAtHotbar(mainMode.getValue() == Mode.Old) == -1) && alerttimer.passedMs(1000)) {
             Command.sendMessage("Нема зелек!!!!");
             mc.world.playSound(getPlayerPos(), SoundEvents.ENTITY_BLAZE_HURT, SoundCategory.AMBIENT, 150.0f, 10.0F, true);
             alerttimer.reset();
