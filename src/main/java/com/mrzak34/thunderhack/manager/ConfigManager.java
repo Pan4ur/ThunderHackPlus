@@ -29,6 +29,7 @@ public class ConfigManager implements Util {
     public static File DiscordEmbeds = new File(TempFolder, "embeds");
     public static File MiscFolder = new File(MainFolder, "misc");
     public static File KitsFolder = new File(MiscFolder, "kits");
+
     //friends
     //enemies
     //webhook
@@ -51,7 +52,6 @@ public class ConfigManager implements Util {
         if (!MiscFolder.exists()) MiscFolder.mkdirs();
         if (!KitsFolder.exists()) KitsFolder.mkdirs();
         if (!DiscordEmbeds.exists()) DiscordEmbeds.mkdirs();
-
     }
 
     public static String getConfigDate(String name) {

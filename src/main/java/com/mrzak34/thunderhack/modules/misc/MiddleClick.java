@@ -14,6 +14,7 @@ import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
+import net.minecraft.inventory.ClickType;
 import net.minecraft.item.ItemFood;
 import net.minecraft.network.play.client.CPacketHeldItemChange;
 import net.minecraft.util.EnumHand;
@@ -26,12 +27,15 @@ public class MiddleClick extends Module {
     public Setting<Boolean> rocket = register(new Setting<>("Rocket", false));
     public Setting<Boolean> ep = register(new Setting<>("Pearl", true));
     public Setting<Boolean> silentPearl = register(new Setting<>("SilentPearl", true,v-> ep.getValue()));
-    public Setting<Integer> swapDelay = this.register(new Setting<>("SwapDelay", 100, 0, 1000));
+    public Setting<Boolean> inventoryPearl = register(new Setting<>("InventoryPearl", true,v-> ep.getValue()));
+
+    public Setting<Integer> swapDelay = this.register(new Setting<>("SwapDelay", 100, 0, 1000,v-> !silentPearl.getValue()));
     public Setting<Boolean> xp = register(new Setting<>("XP", false));
-    public Setting<Boolean> feetExp = register(new Setting<>("FeetXP", false));
-    public Setting<Boolean> silent = register(new Setting<>("SilentXP", true));
+    public Setting<Boolean> feetExp = register(new Setting<>("FeetXP", false,v->xp.getValue()));
+    public Setting<Boolean> silent = register(new Setting<>("SilentXP", true,v->xp.getValue()));
     public Setting<Boolean> whileEating = register(new Setting<>("WhileEating", true));
     public Setting<Boolean> pickBlock = register(new Setting<>("CancelMC", true));
+
     public Timer timr = new Timer();
     private int lastSlot = -1;
 
@@ -42,15 +46,13 @@ public class MiddleClick extends Module {
 
     @SubscribeEvent
     public void onPreMotion(EventSync event) {
-        if (mc.player == null || mc.world == null) return;
+        if (fullNullCheck()) return;
 
-        if (feetExp.getValue() && Mouse.isButtonDown(2)) {
-            if (!xp.getValue()) return;
+        if (xp.getValue() && feetExp.getValue() && Mouse.isButtonDown(2)) {
             mc.player.rotationPitch = 90f;
         }
 
-        if (friend.getValue() && mc.objectMouseOver != null && mc.objectMouseOver.entityHit != null) {
-            if (!Mouse.isButtonDown(2)) return;
+        if (friend.getValue() && mc.objectMouseOver != null && mc.objectMouseOver.entityHit != null && Mouse.isButtonDown(2)) {
             Entity entity = mc.objectMouseOver.entityHit;
             if (entity instanceof EntityPlayer && timr.passedMs(2500)) {
                 if (Thunderhack.friendManager.isFriend(entity.getName())) {
@@ -68,8 +70,7 @@ public class MiddleClick extends Module {
             }
         }
 
-        if (rocket.getValue() && findRocketSlot() != -1 && timr.passedMs(500)) {
-            if (!Mouse.isButtonDown(2)) return;
+        if (rocket.getValue() && findRocketSlot() != -1 && timr.passedMs(500) && Mouse.isButtonDown(2)) {
             int rocketSlot = findRocketSlot();
             int originalSlot = mc.player.inventory.currentItem;
 
@@ -85,29 +86,47 @@ public class MiddleClick extends Module {
                 return;
             }
         }
-        if (ep.getValue() && timr.passedMs(500) && mc.currentScreen == null) {
-            if (!Mouse.isButtonDown(2)) return;
+        if (ep.getValue() && timr.passedMs(500) && mc.currentScreen == null && Mouse.isButtonDown(2)) {
             if(silentPearl.getValue()) {
-                int epSlot = findEPSlot();
-                int originalSlot = mc.player.inventory.currentItem;
-                if (epSlot != -1) {
-                    mc.player.inventory.currentItem = epSlot;
-                    mc.player.connection.sendPacket(new CPacketHeldItemChange(epSlot));
-                    ((IMinecraft)mc).invokeRightClick();
-                    mc.player.inventory.currentItem = originalSlot;
-                    mc.player.connection.sendPacket(new CPacketHeldItemChange(originalSlot));
+                if(!inventoryPearl.getValue() || (inventoryPearl.getValue() && findEPSlot() != -1)) {
+                    int epSlot = findEPSlot();
+                    int originalSlot = mc.player.inventory.currentItem;
+                    if (epSlot != -1) {
+                        mc.player.inventory.currentItem = epSlot;
+                        mc.player.connection.sendPacket(new CPacketHeldItemChange(epSlot));
+                        ((IMinecraft) mc).invokeRightClick();
+                        mc.player.inventory.currentItem = originalSlot;
+                        mc.player.connection.sendPacket(new CPacketHeldItemChange(originalSlot));
+                    }
+                } else {
+                    int epSlot = InventoryUtil.getItemSlot(Items.ENDER_PEARL);
+                    int currentItem = mc.player.inventory.currentItem;
+                    if(epSlot != -1) {
+                        mc.player.connection.sendPacket(new CPacketHeldItemChange(currentItem));
+                        mc.playerController.windowClick(0, epSlot, currentItem, ClickType.SWAP, mc.player);
+                        ((IMinecraft) mc).invokeRightClick();
+                        mc.playerController.windowClick(0, epSlot, currentItem, ClickType.SWAP, mc.player);
+                        mc.playerController.updateController();
+                    }
                 }
             } else {
-                int epSlot = findEPSlot();
-                int originalSlot = mc.player.inventory.currentItem;
-                if (epSlot != -1) {
-                    new PearlThread(mc.player, epSlot, originalSlot,swapDelay.getValue()).start();
+                if(!inventoryPearl.getValue() || (inventoryPearl.getValue() && findEPSlot() != -1)) {
+                    int epSlot = findEPSlot();
+                    int originalSlot = mc.player.inventory.currentItem;
+                    if (epSlot != -1) {
+                        new PearlThread(mc.player, epSlot, originalSlot,swapDelay.getValue(),false).start();
+                    }
+                } else {
+                    int epSlot = InventoryUtil.getItemSlot(Items.ENDER_PEARL);
+                    int currentItem = mc.player.inventory.currentItem;
+                    if(epSlot != -1) {
+                        mc.player.connection.sendPacket(new CPacketHeldItemChange(mc.player.inventory.currentItem));
+                        new PearlThread(mc.player, epSlot, currentItem,swapDelay.getValue(),true).start();
+                    }
                 }
             }
             timr.reset();
-
         }
-
     }
 
     @SubscribeEvent
@@ -119,7 +138,6 @@ public class MiddleClick extends Module {
                     int lastSlot = mc.player.inventory.currentItem;
                     InventoryUtil.switchTo(slot);
                     mc.playerController.processRightClick(mc.player, mc.world, InventoryUtil.getHand(slot));
-
                     if (silent.getValue()) {
                         InventoryUtil.switchTo(lastSlot);
                     }
@@ -188,24 +206,49 @@ public class MiddleClick extends Module {
     public class PearlThread extends Thread {
         public EntityPlayerSP player;
         int epSlot,originalSlot,delay;
+        boolean inv;
 
-        public PearlThread(EntityPlayerSP entityPlayerSP, int epSlot, int originalSlot,int delay) {
+        public PearlThread(EntityPlayerSP entityPlayerSP, int epSlot, int originalSlot,int delay,boolean inventory) {
             this.player = entityPlayerSP;
             this.epSlot = epSlot;
             this.originalSlot = originalSlot;
             this.delay = delay;
+            inv = inventory;
         }
+
 
         @Override
         public void run() {
-            mc.player.inventory.currentItem = epSlot;
-            mc.player.connection.sendPacket(new CPacketHeldItemChange(epSlot));
-            try {sleep(delay);} catch (Exception ignored) {}
-            ((IMinecraft)mc).invokeRightClick();
-            try {sleep(delay);} catch (Exception ignored) {}
-            mc.player.inventory.currentItem = originalSlot;
-            mc.player.connection.sendPacket(new CPacketHeldItemChange(originalSlot));
-            super.run();
+            if (!inv) {
+                mc.player.inventory.currentItem = epSlot;
+                mc.player.connection.sendPacket(new CPacketHeldItemChange(epSlot));
+                try {
+                    sleep(delay);
+                } catch (Exception ignored) {
+                }
+                ((IMinecraft) mc).invokeRightClick();
+                try {
+                    sleep(delay);
+                } catch (Exception ignored) {
+                }
+                mc.player.inventory.currentItem = originalSlot;
+                mc.player.connection.sendPacket(new CPacketHeldItemChange(originalSlot));
+                super.run();
+            } else {
+                mc.playerController.windowClick(0, epSlot, originalSlot, ClickType.SWAP, mc.player);
+                try {
+                    sleep(delay);
+                } catch (Exception ignored) {
+                }
+                ((IMinecraft) mc).invokeRightClick();
+                try {
+                    sleep(delay);
+                } catch (Exception ignored) {
+                }
+                mc.playerController.windowClick(0, epSlot, originalSlot, ClickType.SWAP, mc.player);
+                mc.playerController.updateController();
+                super.run();
+            }
         }
     }
 }

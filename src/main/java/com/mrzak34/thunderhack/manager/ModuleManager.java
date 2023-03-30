@@ -47,6 +47,7 @@ public class ModuleManager {
         this.modules.add(new AntiAim());
         this.modules.add(new AutoAuth());
         this.modules.add(new AutoBuff());
+        this.modules.add(new ConsoleLogger());
         this.modules.add(new DiscordEmbeds());
         this.modules.add(new Welcomer());
         this.modules.add(new FastFall());
@@ -226,6 +227,7 @@ public class ModuleManager {
         this.modules.add(new DMGParticles());
         this.modules.add(new AutoRespawn());
         this.modules.add(new PhotoMath());
+        this.modules.add(new GAppleCooldown());
         this.modules.add(new KDShop());
         this.modules.add(new AntiBowBomb());
         this.modules.add(new EffectsRemover());

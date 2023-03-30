@@ -35,6 +35,20 @@ public class InventoryUtil implements Util {
         return b;
     }
 
+    public static int getItemSlot(Item input) {
+        if (input == mc.player.getHeldItemOffhand().getItem()) return -1;
+        for (int i = 36; i >= 0; i--) {
+            final Item item = mc.player.inventory.getStackInSlot(i).getItem();
+            if (item == input) {
+                if (i < 9) {
+                    i += 36;
+                }
+                return i;
+            }
+        }
+        return -1;
+    }
+
     public static int getItemCount(Item item) {
         if (mc.player == null) {
             return 0;

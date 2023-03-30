@@ -13,15 +13,17 @@ import java.awt.*;
 import static org.lwjgl.opengl.GL11.*;
 
 public class CrystalChams extends Module {
+
     public final Setting<ColorSetting> color = this.register(new Setting<>("Color", new ColorSetting(3649978)));
     public final Setting<ColorSetting> wireFrameColor = this.register(new Setting<>("WireframeColor", new ColorSetting(3649978)));
-    public Setting<Float> lineWidth = this.register(new Setting<Float>("LineWidth", 1.0f, 0.1f, 6.0f));
-    public Setting<Boolean> chams = this.register(new Setting<Boolean>("Chams", true));
-    public Setting<Boolean> throughWalls = this.register(new Setting<Boolean>("ThroughWalls", true));
-    public Setting<Boolean> wireframe = this.register(new Setting<Boolean>("Wireframe", true));
-    public Setting<Boolean> wireWalls = this.register(new Setting<Boolean>("WireThroughWalls", true));
-    public Setting<Boolean> texture = this.register(new Setting<Boolean>("Texture", false));
+    public Setting<Float> lineWidth = this.register(new Setting<>("LineWidth", 1.0f, 0.1f, 6.0f));
+    public Setting<Boolean> chams = this.register(new Setting<>("Chams", true));
+    public Setting<Boolean> throughWalls = this.register(new Setting<>("ThroughWalls", true));
+    public Setting<Boolean> wireframe = this.register(new Setting<>("Wireframe", true));
+    public Setting<Boolean> wireWalls = this.register(new Setting<>("WireThroughWalls", true));
+    public Setting<Boolean> texture = this.register(new Setting<>("Texture", false));
     private final Setting<ChamsMode> mode = register(new Setting("Mode", ChamsMode.Normal));
+
     public CrystalChams() {
         super("CrystalChams", "CrystalChams", Category.MISC);
     }

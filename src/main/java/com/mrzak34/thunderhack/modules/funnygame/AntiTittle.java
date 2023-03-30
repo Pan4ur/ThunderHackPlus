@@ -9,6 +9,7 @@ import com.mrzak34.thunderhack.util.Util;
 import com.mrzak34.thunderhack.util.render.PaletteHelper;
 import com.mrzak34.thunderhack.util.render.RenderUtil;
 import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.SPacketChat;
 import net.minecraft.network.play.server.SPacketTitle;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;

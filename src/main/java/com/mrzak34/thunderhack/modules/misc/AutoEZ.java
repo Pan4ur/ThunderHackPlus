@@ -52,7 +52,7 @@ public class AutoEZ extends Module {
             "%player% ИЗИ БОТЯРА"
     };
     private final Setting<ModeEn> Mode = register(new Setting("Mode", ModeEn.Basic));
-    private final Setting<ServerMode> server = register(new Setting("Mode", ServerMode.Universal));
+    private final Setting<ServerMode> server = register(new Setting("Sever", ServerMode.Universal));
 
 
     public AutoEZ() {

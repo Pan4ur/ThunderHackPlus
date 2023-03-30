@@ -12,6 +12,7 @@ import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.lwjgl.opengl.GL11;
 
+import java.awt.*;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -66,6 +67,17 @@ public class BreadCrumbs extends Module {
         glBegin(GL_LINE_STRIP);
         for (Vec3d pos : positions) {
             RenderUtil.glColor(injectAlpha(color.getValue().getColorObject(),50));
+            glVertex3d(
+                    pos.x - ((IRenderManager) mc.getRenderManager()).getRenderPosX(),
+                    pos.y - ((IRenderManager) mc.getRenderManager()).getRenderPosY(),
+                    pos.z - ((IRenderManager) mc.getRenderManager()).getRenderPosZ());
+        }
+        glEnd();
+
+        GL11.glLineWidth(1);
+        glBegin(GL_LINE_STRIP);
+        for (Vec3d pos : positions) {
+            RenderUtil.glColor(new Color(-1));
             glVertex3d(
                     pos.x - ((IRenderManager) mc.getRenderManager()).getRenderPosX(),
                     pos.y - ((IRenderManager) mc.getRenderManager()).getRenderPosY(),

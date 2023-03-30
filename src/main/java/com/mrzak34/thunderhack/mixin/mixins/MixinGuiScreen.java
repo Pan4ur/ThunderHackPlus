@@ -13,8 +13,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(value = {GuiScreen.class})
-public class MixinGuiScreen
-        extends Gui {
+public class MixinGuiScreen extends Gui {
     @Inject(method = {"renderToolTip"}, at = {@At(value = "HEAD")}, cancellable = true)
     public void renderToolTipHook(ItemStack stack, int x, int y, CallbackInfo info) {
         if (ToolTips.getInstance().isOn() && stack.getItem() instanceof ItemShulkerBox) {

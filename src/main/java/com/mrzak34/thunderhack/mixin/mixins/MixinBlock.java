@@ -1,6 +1,7 @@
 package com.mrzak34.thunderhack.mixin.mixins;
 
 import com.mrzak34.thunderhack.Thunderhack;
+import com.mrzak34.thunderhack.events.EventBlockInteract;
 import com.mrzak34.thunderhack.modules.player.AutoTool;
 import com.mrzak34.thunderhack.modules.player.NoClip;
 import com.mrzak34.thunderhack.modules.render.XRay;
@@ -9,14 +10,13 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Enchantments;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.common.MinecraftForge;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -94,6 +94,15 @@ public abstract class MixinBlock{
         }
     }
 
+    @Inject(method = "canCollideCheck", at = @At("HEAD"), cancellable = true)
+    public void canCollideCheck(IBlockState state, boolean hitIfLiquid, CallbackInfoReturnable<Boolean> cir) {
+        Block block = state.getBlock();
+        EventBlockInteract event = new EventBlockInteract(block);
+        MinecraftForge.EVENT_BUS.post(event);
+        if (event.isCanceled()) {
+            cir.setReturnValue(false);
+        }
+    }
 
     public float getDigSpeed(IBlockState state, ItemStack stack)
     {
