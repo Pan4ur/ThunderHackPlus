@@ -33,7 +33,7 @@ public class AimAssist extends Module {
     private final Setting<sortEn> sort = register(new Setting("TargetMode", sortEn.Distance));
 
     public AimAssist() {
-        super("AimAssist", "AimAssist", Category.COMBAT);
+        super("AimAssist", "аим бот для мечей кроме луков", Category.COMBAT);
     }
 
     public static boolean canSeeEntityAtFov(Entity entityLiving, float scope) {

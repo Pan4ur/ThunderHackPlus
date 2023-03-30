@@ -25,7 +25,7 @@ public class ClickTP extends Module {
     private final Setting<Boolean> ground = register(new Setting<>("ground", false));
     private final Setting<Boolean> spoofs = register(new Setting<>("spoofs", false));
     public ClickTP() {
-        super("ClickTP", "ClickTP", Category.MOVEMENT);
+        super("ClickTP", "телепорт", Category.MOVEMENT);
     }
 
     @SubscribeEvent
