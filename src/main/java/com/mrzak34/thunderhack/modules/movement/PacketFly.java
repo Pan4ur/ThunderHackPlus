@@ -22,6 +22,7 @@ import net.minecraft.network.play.server.SPacketPlayerPosLook;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.network.FMLNetworkEvent;
 import org.lwjgl.input.Keyboard;
 
 import java.util.ArrayList;
@@ -90,6 +91,11 @@ public class PacketFly extends Module {
         return -randomValue;
     }
 
+    @SubscribeEvent
+	public void onDisconnect(FMLNetworkEvent.ClientDisconnectionFromServerEvent event) {
+		this.toggle();
+	}
+    
     @Override
     public void onUpdate() {
         // Prevents getting kicked from messing up your game
@@ -357,7 +363,7 @@ public class PacketFly extends Module {
         if (mc.player != null) {
             mc.player.setVelocity(0, 0, 0);
         }
-        //KonasGlobals.INSTANCE.timerManager.resetTimer(this);
+        //KonasGlobals.INSTANCE.timerManager.resetTimer(this); // хыхыхых
         Thunderhack.TICK_TIMER = 1.0f;
     }
 
