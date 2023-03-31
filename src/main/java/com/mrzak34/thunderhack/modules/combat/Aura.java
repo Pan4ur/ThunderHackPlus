@@ -895,7 +895,7 @@ public class Aura extends Module {
         return Math.abs(1 + Math.sin(input)) / 2;
     }
 
-	public static boolean isBlockAbove() {
+	public static boolean isBlockAboveHead() {
 		// эта херня, если вызывать её часто, крашнет майнкрафт,
 		// если он работает с минимальным количеством оперативки
         // панчур, протести, норм или нет (у меня норм)
