@@ -1,6 +1,5 @@
 package com.mrzak34.thunderhack.modules.combat;
 
-
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.events.*;
@@ -896,12 +895,16 @@ public class Aura extends Module {
         return Math.abs(1 + Math.sin(input)) / 2;
     }
 
-    public static boolean isBlockAboveHead() {
-        AxisAlignedBB axisAlignedBB = new AxisAlignedBB(mc.player.posX - 0.3, mc.player.posY + mc.player.getEyeHeight(),
-                mc.player.posZ + 0.3, mc.player.posX + 0.3, mc.player.posY + (!mc.player.onGround ? 1.5 : 2.5),
-                mc.player.posZ - 0.3);
-        return !mc.world.getCollisionBoxes(mc.player, axisAlignedBB).isEmpty();
-    }
+	public static boolean isBlockAbove() {
+		// эта херня, если вызывать её часто, крашнет майнкрафт,
+		// если он работает с минимальным количеством оперативки
+        // панчур, протести, норм или нет (у меня норм)
+//		AxisAlignedBB axisAlignedBB = new AxisAlignedBB(mc.player.posX - 0.3, mc.player.posY + mc.player.getEyeHeight(),
+//				mc.player.posZ + 0.3, mc.player.posX + 0.3, mc.player.posY + (!mc.player.onGround ? 1.5 : 2.5),
+//				mc.player.posZ - 0.3);
+//		return !mc.world.getCollisionBoxes(mc.player, axisAlignedBB).isEmpty();
+		return mc.world.getBlockState(new BlockPos(mc.player.posX, mc.player.posY + 2, mc.player.posZ)) != Blocks.AIR.getDefaultState();
+	}
 
     public static Vec2f getDeltaForCoord(Vec2f rot, Vec3d point) {
         EntityPlayerSP client = Minecraft.getMinecraft().player;
