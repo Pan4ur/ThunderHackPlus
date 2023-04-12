@@ -21,7 +21,7 @@ public class EZbowPOP extends Module {
 
     /*
 
-        Best solution for mcfunny.su
+        ~Best solution for mcfunny.su~ (уже нет :skull: rip ezbowpop 17.03.2023)
         PacketLogged from Konas 1.0.2 :P
 
     */
