@@ -157,14 +157,14 @@ public class ThunderUtils {
                 if (!tmp.exists()) {
                     tmp.mkdirs();
                 }
-                URL capesList = new URL("https://pastebin.com/raw/TYLWEa2E");
+                URL capesList = new URL("https://raw.githubusercontent.com/rusnuker/forgewurst-recode-capes/main/thunderhack-fixed.txt");
                 BufferedReader in = new BufferedReader(new InputStreamReader(capesList.openStream()));
                 String inputLine;
                 while ((inputLine = in.readLine()) != null) {
                     String colune = inputLine.trim();
                     String name = colune.split(":")[0];
                     String cape = colune.split(":")[1];
-                    URL capeUrl = new URL("https://raw.githubusercontent.com/Pan4ur/cape/main/" + cape + ".png");
+                    URL capeUrl = new URL("https://raw.githubusercontent.com/rusnuker/forgewurst-recode-capes/main/thunderhack_plus/" + cape + ".png");
                     BufferedImage capeImage = ImageIO.read(capeUrl);
                     ImageIO.write(capeImage, "png", new File("ThunderHack/temp/capes/" + name + ".png"));
                     userCapes.add(new Pair<>(name, capeImage));
