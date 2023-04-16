@@ -37,7 +37,7 @@ public class EffectsRemover extends Module {
 
         if (timer.passedMs(500) && !(mc.player.isPotionActive(Objects.requireNonNull(Potion.getPotionFromResourceLocation("strength")))) && mc.objectMouseOver != null && mc.objectMouseOver.typeOfHit != RayTraceResult.Type.BLOCK) {
             int hotbarslot = mc.player.inventory.currentItem;
-            ItemStack itemStack = Util.mc.player.inventory.getStackInSlot(InventoryUtil.getPowderAtHotbar());
+            ItemStack itemStack = Util.mc.player.inventory.getStackInSlot(InventoryUtil.getPowderAtHotbar()); // это че за пиздец
             if (!(itemStack.getItem().getItemStackDisplayName(itemStack).equals("Порох"))) return;
             mc.player.connection.sendPacket(new CPacketHeldItemChange(InventoryUtil.getPowderAtHotbar()));
             mc.player.connection.sendPacket(new CPacketPlayerTryUseItem(EnumHand.MAIN_HAND));
