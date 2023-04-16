@@ -49,7 +49,7 @@ public class EffectsRemover extends Module {
             if (Thunderhack.moduleManager.getModuleByClass(Aura.class).isEnabled()) {
                 if (mc.player.isPotionActive(MobEffects.JUMP_BOOST)) {
                     nig = Objects.requireNonNull(mc.player.getActivePotionEffect(MobEffects.JUMP_BOOST)).getDuration();
-                    EffectsRemover.mc.player.removeActivePotionEffect(Potion.getPotionFromResourceLocation("jump_boost"));
+                    EffectsRemover.mc.player.removeActivePotionEffect(Potion.getPotionFromResourceLocation("jump_boost")); // блять кто это писал
                     jboost = true;
                 }
             }
