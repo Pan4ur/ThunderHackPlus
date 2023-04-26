@@ -246,6 +246,7 @@ public class ModuleManager {
         this.modules.add(new HudEditor());
         this.modules.add(new AutoPot());
         this.modules.add(new StaffBoard());
+        this.modules.add(new CelkaEFly());
 
         this.modules.add(new MSTSpeed());
         this.modules.add(new Animations());
