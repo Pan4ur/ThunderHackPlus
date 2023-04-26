@@ -34,13 +34,13 @@ public class CelkaEFly extends Module {
     ///////////////////////////////////////////////////////
 
 
-    private final Setting<Float> xzSpeed = this.register(new Setting<>("XZ Speed", 1.9f, 0.5f, 1.9f));
-    private final Setting<Float> ySpeed = this.register(new Setting<>("Y Speed", 0.47f, 0f, 2f));
-    private final Setting<Integer> fireSlot = this.register(new Setting<>("Firework Slot", 0, 0, 8));
-    private final Setting<Float> fireDelay = this.register(new Setting<>("Firework Delay", 1.5f, 0, 1.5f));
-    private final Setting<Boolean> stayMad = this.register(new Setting<Object>("Stay Off The Ground", true));
-    private final Setting<Boolean> keepFlying = this.register(new Setting<Object>("Keep Flying", false));
-    private final Setting<Boolean> bowBomb = this.register(new Setting<Object>("Bow Bomb", false));
+    private final Setting<Float> xzSpeed = this.register(new Setting<>("XZ Speed", 1.9f, 0.5f, 1.9f)); // горизонтальная скорость
+    private final Setting<Float> ySpeed = this.register(new Setting<>("Y Speed", 0.47f, 0f, 2f)); // вертикальная скорость
+    private final Setting<Integer> fireSlot = this.register(new Setting<>("Firework Slot", 0, 0, 8)); // если модуль не найдет фейерверк в хотбаре, то переложит в этот слот
+    private final Setting<Float> fireDelay = this.register(new Setting<>("Firework Delay", 1.5f, 0, 1.5f)); // интервал использования фейерверков
+    private final Setting<Boolean> stayMad = this.register(new Setting<Object>("Stay Off The Ground", true)); // не допускать касания земли
+    private final Setting<Boolean> keepFlying = this.register(new Setting<Object>("Keep Flying", false)); // продолжить лететь если кончились фейерверки (иначе наденется нагрудник и модуль выключится)
+    private final Setting<Boolean> bowBomb = this.register(new Setting<Object>("Bow Bomb", false)); // усиленная тряска для буста скорости стрел
 
     private int lastItem = -1; // пустой слот или слот с нагрудником
     private float acceleration; // множитель ускорения
@@ -60,10 +60,10 @@ public class CelkaEFly extends Module {
         for (int i = 0; i < 36; i++) { // пробегаемся по слотам инвентаря
             ItemStack s = mc.player.inventory.getStackInSlot(i); // гетаем вещь из слота
             if (s.getItem() == Items.FIREWORKS) { // если вещь - фейрверк..
-                return i < 9 ? i + 36 : i; // возвращаем слот феерверков, учитывая что нужно прибавлять 36, если они в хотбаре
+                return i < 9 ? i + 36 : i; // возвращаем слот фейерверки, учитывая что нужно прибавлять 36, если они в хотбаре
             }
         }
-        return -1; // возвращаем -1 (чтобы далее понимать что феерверков у нас нет)
+        return -1; // возвращаем -1 (чтобы далее понимать что фейерверков у нас нет)
     }
 
     @Override
@@ -93,13 +93,13 @@ public class CelkaEFly extends Module {
 
     @Override
     public void onUpdate() {
-        if (InventoryUtil.getFireWorks() == -1) { // если у нас нет феерверков в хотбаре..
-            int fireworkSlot = getFireworks(); // вводим переменную слота феерверков (чтобы не вызывать цикл for несколько раз)
-            if(fireworkSlot != -1){ // если у нас есть феерверки в инвентаре..
-                mc.playerController.windowClick(0, fireworkSlot, 0, ClickType.PICKUP, mc.player); // клик по слоту  феерверками
-                mc.playerController.windowClick(0, fireSlot.getValue() + 36, 0, ClickType.PICKUP, mc.player); // клик по слоту который указан в настройках (в целке "Слот с феерверком")
+        if (InventoryUtil.getFireWorks() == -1) { // если у нас нет фейерверков в хотбаре..
+            int fireworkSlot = getFireworks(); // вводим переменную слота фейерверков (чтобы не вызывать цикл for несколько раз)
+            if(fireworkSlot != -1){ // если у нас есть фейерверки в инвентаре..
+                mc.playerController.windowClick(0, fireworkSlot, 0, ClickType.PICKUP, mc.player); // клик по слоту  фейерверками
+                mc.playerController.windowClick(0, fireSlot.getValue() + 36, 0, ClickType.PICKUP, mc.player); // клик по слоту который указан в настройках (в целке "Слот с фейерверком")
                 if(!mc.player.inventory.getItemStack().isEmpty())  // если в мышке осталась вещь..
-                    mc.playerController.windowClick(0, fireworkSlot, 0, ClickType.PICKUP, mc.player); // перекладываем эту вещь в освободившийся слот от феерверков
+                    mc.playerController.windowClick(0, fireworkSlot, 0, ClickType.PICKUP, mc.player); // перекладываем эту вещь в освободившийся слот от фейерверков
                 return; // возвращаемся для повторной проверки
             }
             Command.sendMessage("Нет фейерверков!"); // оповещаем
@@ -117,8 +117,8 @@ public class CelkaEFly extends Module {
             TakeOff = true; // ставим флаг готовности к тейк оффу
         } else if (TakeOff && mc.player.fallDistance > 0.05) { // если готовы и падаем..
             mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.START_FALL_FLYING)); // посылаем пакет раскрытия элитр
-            mc.player.connection.sendPacket(new CPacketHeldItemChange(InventoryUtil.getFireWorks())); // переключаемся на феерверки
-            mc.player.connection.sendPacket(new CPacketPlayerTryUseItem(EnumHand.MAIN_HAND)); // юзаем феерверк
+            mc.player.connection.sendPacket(new CPacketHeldItemChange(InventoryUtil.getFireWorks())); // переключаемся на фейерверки
+            mc.player.connection.sendPacket(new CPacketPlayerTryUseItem(EnumHand.MAIN_HAND)); // юзаем фейерверк
             mc.player.connection.sendPacket(new CPacketPlayerTryUseItem(EnumHand.MAIN_HAND)); // калестиал юзает первый раз 2 фурки, сделаем также
             mc.player.connection.sendPacket(new CPacketHeldItemChange(mc.player.inventory.currentItem)); // переключаемся обратно
             TakeOff = false; // убираем флаг готовности к тейк оффу
@@ -136,10 +136,10 @@ public class CelkaEFly extends Module {
         e.setCanceled(true); // отменяем, для изменения значений
         double motionY = 0; // вводим переменную дельты моушена по Y
         if (((IEntityPlayerSP) mc.player).wasFallFlying()) { // если мы летим на элитре
-            if (mc.player.ticksExisted % (int)(fireDelay.getValue() * 20) == 0) { // каждые fireDelay * 20 тиков (в целестиале "Задержка феерверка") ..
+            if (mc.player.ticksExisted % (int)(fireDelay.getValue() * 20) == 0) { // каждые fireDelay * 20 тиков (в целестиале "Задержка фейерверка") ..
                 if (InventoryUtil.getFireWorks() >= 0) { // если у нас есть феерверки..
-                    mc.player.connection.sendPacket(new CPacketHeldItemChange(InventoryUtil.getFireWorks())); // переключаемся на феерверки
-                    mc.player.connection.sendPacket(new CPacketPlayerTryUseItem(EnumHand.MAIN_HAND)); // юзаем феерверк
+                    mc.player.connection.sendPacket(new CPacketHeldItemChange(InventoryUtil.getFireWorks())); // переключаемся на фейерверки
+                    mc.player.connection.sendPacket(new CPacketPlayerTryUseItem(EnumHand.MAIN_HAND)); // юзаем фейерверк
                     mc.player.connection.sendPacket(new CPacketHeldItemChange(mc.player.inventory.currentItem)); // переключаемся обратно
                 }
             }
