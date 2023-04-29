@@ -102,7 +102,7 @@ public class Strafe extends Module {
         if (mc.player.onGround) {
             n6 = frictionFactor;
         }
-        float n7 = (float) ((FrictionFactor.getValue() / 10000 ) / Math.pow(n6, 3.0));
+        float n7 = (float) (((float) FrictionFactor.getValue() / 10000f ) / Math.pow(n6, 3.0));
         float n8;
         if (mc.player.onGround) {
             n8 = speedAttributes * n7;
