@@ -247,7 +247,7 @@ public class ModuleManager {
         this.modules.add(new AutoPot());
         this.modules.add(new StaffBoard());
         this.modules.add(new CelkaEFly());
-
+        this.modules.add(new ElytraFix());
         this.modules.add(new MSTSpeed());
         this.modules.add(new Animations());
         this.modules.add(new C4Aura());

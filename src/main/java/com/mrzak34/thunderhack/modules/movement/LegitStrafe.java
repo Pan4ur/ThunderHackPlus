@@ -11,14 +11,11 @@ import com.mrzak34.thunderhack.util.Timer;
 import com.mrzak34.thunderhack.util.render.RenderUtil;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.ClickType;
-import net.minecraft.inventory.EntityEquipmentSlot;
-import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.client.CPacketEntityAction;
 import net.minecraft.network.play.server.SPacketPlayerPosLook;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-import static com.mrzak34.thunderhack.modules.movement.Strafe.findNullSlot;
 import static com.mrzak34.thunderhack.modules.player.ElytraSwap.*;
 import static com.mrzak34.thunderhack.util.MovementUtil.isMoving;
 
@@ -33,7 +30,6 @@ public class LegitStrafe extends Module {
     int prevElytraSlot = -1;
     int acceleration_ticks = 0;
     private final Timer timer = new Timer();
-    private final Timer fixTimer = new Timer();
     public LegitStrafe() {
         super("GlideFly", "флай на саник-хуй пососаник", Category.MOVEMENT);
     }
@@ -163,28 +159,8 @@ public class LegitStrafe extends Module {
             }
         }
         acceleration_ticks++;
-        fixElytra();
     }
 
-    public void fixElytra() {
-        ItemStack stack = mc.player.inventory.getItemStack();
-        if (stack != null && stack.getItem() instanceof ItemArmor && fixTimer.passed(300)) {
-            ItemArmor ia = (ItemArmor) stack.getItem();
-            if (ia.armorType == EntityEquipmentSlot.CHEST && mc.player.inventory.armorItemInSlot(2).getItem() == Items.ELYTRA) {
-                mc.playerController.windowClick(0, 6, 1, ClickType.PICKUP, mc.player);
-                int nullSlot = findNullSlot();
-                boolean needDrop = nullSlot == 999;
-                if (needDrop) {
-                    nullSlot = 9;
-                }
-                mc.playerController.windowClick(0, nullSlot, 1, ClickType.PICKUP, mc.player);
-                if (needDrop) {
-                    mc.playerController.windowClick(0, -999, 1, ClickType.PICKUP, mc.player);
-                }
-                fixTimer.reset();
-            }
-        }
-    }
 
     public void disabler2(int elytra) {
         if (elytra != -2) {
