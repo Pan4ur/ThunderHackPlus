@@ -16,7 +16,7 @@ public class Sprint extends Module {
 
     public static double oldSpeed, contextFriction;
     int cooldown;
-    private final Setting<mode> Mode = register(new Setting("Mode", mode.Default));
+    public final Setting<mode> Mode = register(new Setting("Mode", mode.Default));
     public Setting<Float> speed1 = this.register(new Setting<>("Speed", 0.1f, 0f, 0.5f,v->Mode.getValue() == mode.MatrixOmniSprint));
 
 

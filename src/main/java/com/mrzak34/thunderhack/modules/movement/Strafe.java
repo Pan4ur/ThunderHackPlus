@@ -1,150 +1,123 @@
 package com.mrzak34.thunderhack.modules.movement;
 
+import com.google.common.eventbus.Subscribe;
+import com.mojang.realmsclient.gui.ChatFormatting;
 import com.mrzak34.thunderhack.Thunderhack;
+import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.events.*;
 import com.mrzak34.thunderhack.manager.EventManager;
 import com.mrzak34.thunderhack.mixin.mixins.IEntityPlayerSP;
-import com.mrzak34.thunderhack.mixin.mixins.IKeyBinding;
+import com.mrzak34.thunderhack.mixin.mixins.ISPacketEntityVelocity;
 import com.mrzak34.thunderhack.modules.Module;
 import com.mrzak34.thunderhack.setting.Setting;
 import com.mrzak34.thunderhack.util.InventoryUtil;
+import com.mrzak34.thunderhack.util.MovementUtil;
 import com.mrzak34.thunderhack.util.Timer;
-import com.mrzak34.thunderhack.mixin.ducks.IEntity;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Items;
 import net.minecraft.init.MobEffects;
 import net.minecraft.inventory.ClickType;
-import net.minecraft.inventory.EntityEquipmentSlot;
-import net.minecraft.item.ItemAir;
-import net.minecraft.item.ItemArmor;
-import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.client.CPacketEntityAction;
+import net.minecraft.network.play.server.SPacketEntityVelocity;
 import net.minecraft.network.play.server.SPacketPlayerPosLook;
 import net.minecraft.util.math.BlockPos;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-import static com.mrzak34.thunderhack.modules.movement.LegitStrafe.setSpeed;
 import static com.mrzak34.thunderhack.util.MovementUtil.getSpeed;
 import static com.mrzak34.thunderhack.util.MovementUtil.isMoving;
 
 public class Strafe extends Module {
-    public static double oldSpeed, contextFriction;
-    public static boolean needSwap, prevSprint, needSprintState;
-    public static int counter, noSlowTicks;
-    public static float jumpTicks = 0;
-    public Setting<Float> setSpeed = this.register(new Setting<>("speed", 1.3F, 0.0F, 2f));
-    boolean skip = false;
     private final Setting<Mode> mode = this.register(new Setting<>("Mode", Mode.Matrix));
-    public Setting<Boolean> elytra = register(new Setting<>("ElytraBoost", false, v -> mode.getValue() == Mode.Matrix));
+    private final Setting<Boost> boost = this.register(new Setting<>("Boost", Boost.None,v-> mode.getValue() == Mode.Matrix));
+    public Setting<Float> setSpeed = this.register(new Setting<>("speed", 1.3F, 0.0F, 2f,v-> boost.getValue() == Boost.Elytra));
     public Setting<Boolean> onlyDown = register(new Setting<>("OnlyDown", false, v -> mode.getValue() == Mode.SunriseFast));
     private final Setting<Float> maxSpeed = this.register(new Setting<>("MaxSpeed", 0.9f, 0.0f, 2f, v -> mode.getValue() == Mode.SunriseFast));
+    private final Setting<Float> velReduction = this.register(new Setting<>("Reduction", 6.0f, 0.1f, 10f, v -> boost.getValue() == Boost.Damage));
+    private final Setting<Float> maxVelocitySpeed = this.register(new Setting<>("MaxVelocity", 0.8f, 0.1f, 2f, v -> boost.getValue() == Boost.Damage));
+    public Setting<Boolean> extra = register(new Setting<>("Extra", false, v -> mode.getValue() == Mode.Matrix && boost.getValue() == Boost.Elytra));
+    public Setting<Boolean> resetExtra = register(new Setting<>("ResetExtra", false, v -> extra.getValue()));
+    private final Setting<Float> fdl1 = this.register(new Setting<>("Min Falldist", 1f, 0.0f, 3f, v -> extra.getValue()));
+    private final Setting<Float> fdl2 = this.register(new Setting<>("Max Falldist", 2f, 0.0f, 5f, v -> extra.getValue()));
+    private final Setting<Float> jme = this.register(new Setting<>("JumpMotionElytra", 0.65f, 0.1f, 1f, v -> extra.getValue()));
+    private final Setting<Float> jmd = this.register(new Setting<>("JumpMotion", 0.2f, 0.1f, 1f, v -> extra.getValue()));
+    private final Setting<Float> dpredict = this.register(new Setting<>("DisablerPredict", 0.5f, 0.01f, 1f, v -> extra.getValue()));
+    private final Setting<Float> ogf = this.register(new Setting<>("OffGroundFriction", 2.55f, 0.01f, 3f, v -> extra.getValue()));
+    private final Setting<Float> sprintm = this.register(new Setting<>("SprintMultiplier", 1.3f, 0.01f, 3f, v -> extra.getValue()));
+    private final Setting<Integer> FrictionFactor = this.register(new Setting<>("FrictionFactor", 1646, 800, 3000, v -> extra.getValue()));
+
+
     private float waterTicks = 0;
-    private final Timer fixTimer = new Timer();
+    public static double oldSpeed, contextFriction;
+    public static boolean needSwap, needSprintState;
+    public static int noSlowTicks;
+    public static float jumpTicks = 0;
+    boolean skip = false;
+
     private final Timer elytraDelay = new Timer();
     private final Timer startDelay = new Timer();
+
     public Strafe() {
         super("Strafe", "testMove", Category.MOVEMENT);
     }
 
-    public static float getDirection() {
-        float rotationYaw = mc.player.rotationYaw;
 
-        float strafeFactor = 0f;
+    @Override
+    public void onEnable() {
+        oldSpeed = 0;
+        startDelay.reset();
+        skip = true;
+    }
 
-        if (mc.player.movementInput.moveForward > 0)
-            strafeFactor = 1;
-        if (mc.player.movementInput.moveForward < 0)
-            strafeFactor = -1;
-
-        if (strafeFactor == 0) {
-            if (mc.player.movementInput.moveStrafe > 0)
-                rotationYaw -= 90;
-
-            if (mc.player.movementInput.moveStrafe < 0)
-                rotationYaw += 90;
-        } else {
-            if (mc.player.movementInput.moveStrafe > 0)
-                rotationYaw -= 45 * strafeFactor;
-
-            if (mc.player.movementInput.moveStrafe < 0)
-                rotationYaw += 45 * strafeFactor;
+    public boolean canStrafe() {
+        if (mc.player.isSneaking()) {
+            return false;
         }
-
-        if (strafeFactor < 0)
-            rotationYaw -= 180;
-
-        return (float) Math.toRadians(rotationYaw);
-    }
-
-    public static void setStrafe(double motion) {
-        if (!isMoving()) return;
-        double radians = getDirection();
-        mc.player.motionX = -Math.sin(radians) * motion;
-        mc.player.motionZ = Math.cos(radians) * motion;
-    }
-
-    public static float getMotion() {
-        return (float) Math.sqrt(mc.player.motionX * mc.player.motionX + mc.player.motionZ * mc.player.motionZ);
-    }
-
-    public static void setMotion(double motion) {
-        double forward = mc.player.movementInput.moveForward;
-        double strafe = mc.player.movementInput.moveStrafe;
-        float yaw = mc.player.rotationYaw;
-        if (forward == 0 && strafe == 0) {
-            mc.player.motionX = 0;
-            mc.player.motionZ = 0;
-            oldSpeed = 0;
-        } else {
-            if (forward != 0) {
-                if (strafe > 0) {
-                    yaw += (float) (forward > 0 ? -45 : 45);
-                } else if (strafe < 0) {
-                    yaw += (float) (forward > 0 ? 45 : -45);
-                }
-                strafe = 0;
-                if (forward > 0) {
-                    forward = 1;
-                } else if (forward < 0) {
-                    forward = -1;
-                }
-            }
-            double cosinus = Math.cos(Math.toRadians(yaw + 90.0f));
-            double sinus = Math.sin(Math.toRadians(yaw + 90.0f));
-
-            mc.player.motionX = forward * motion * cosinus + strafe * motion * sinus;
-            mc.player.motionZ = forward * motion * sinus - strafe * motion * cosinus;
+        if (mc.player.isInLava()) {
+            return false;
         }
+        if(Thunderhack.moduleManager.getModuleByClass(RusherScaffold.class).isEnabled()){
+            return false;
+        }
+        if(Thunderhack.moduleManager.getModuleByClass(Speed.class).isEnabled()){
+            return false;
+        }
+        if(Thunderhack.moduleManager.getModuleByClass(CelkaEFly.class).isEnabled()){
+            return false;
+        }
+        if(Thunderhack.moduleManager.getModuleByClass(Sprint.class).isEnabled() && Thunderhack.moduleManager.getModuleByClass(Sprint.class).Mode.getValue() == Sprint.mode.MatrixOmniSprint){
+            if(mc.player.ticksExisted % 5 == 0) Command.sendMessage(ChatFormatting.RED +  "ВЫРУБИ БЛЯДСКИЙ СПРИНТ В РЕЖИМЕ ОМНИСПРИНТ!");
+            return false;
+        }
+        if (mc.player.isInWater() || waterTicks > 0) {
+            return false;
+        }
+        return !mc.player.capabilities.isFlying;
     }
 
-    public static double calculateSpeed(MatrixMove move) {
-        Minecraft mc = Minecraft.getMinecraft();
-        boolean fromGround = mc.player.onGround;
-        boolean toGround = move.toGround();
-        boolean jump = move.getMotionY() > 0;
-        float speedAttributes = getAIMoveSpeed(mc.player);
-        final float frictionFactor = getFrictionFactor(mc.player, move);
+    public double calculateSpeed(EventMove move) {
+        float speedAttributes = getAIMoveSpeed();
+        final float frictionFactor = mc.world.getBlockState(BlockPos.PooledMutableBlockPos.retain(mc.player.posX, mc.player.getEntityBoundingBox().minY - 0.1f, mc.player.posZ)).getBlock().slipperiness * 0.91F;
         float n6 = mc.player.isPotionActive(MobEffects.JUMP_BOOST) && mc.player.isHandActive() ? 0.88f : (float) (oldSpeed > 0.32 && mc.player.isHandActive() ? 0.88 : 0.91F);
-        if (fromGround) {
+        if (mc.player.onGround) {
             n6 = frictionFactor;
         }
-        float n7 = (float) (0.16277135908603668 / Math.pow(n6, 3.01));
+        float n7 = (float) ((FrictionFactor.getValue() / 10000 ) / Math.pow(n6, 3.0));
         float n8;
-        if (fromGround) {
+        if (mc.player.onGround) {
             n8 = speedAttributes * n7;
-            if (jump) {
-                n8 += 0.2f;
+            if (move.get_y() > 0) {
+                n8 += boost.getValue() == Boost.Elytra && InventoryUtil.getElytra() != -1 && oldSpeed > 0.4 ? jme.getValue() : jmd.getValue(); // хуярим лонг джампами чтоб матрикс не втыкал
             }
         } else {
-            n8 = 0.0255f;
+            n8 = ogf.getValue() / 100f;
         }
         boolean noslow = false;
         double max2 = oldSpeed + n8;
         double max = 0.0;
-        if (mc.player.isHandActive() && !jump) {
+        if (mc.player.isHandActive() && move.get_y() <= 0) {
             double n10 = oldSpeed + n8 * 0.25;
-            double motionY2 = move.getMotionY();
+            double motionY2 = move.get_y();
             if (motionY2 != 0.0 && Math.abs(motionY2) < 0.08) {
                 n10 += 0.055;
             }
@@ -160,198 +133,135 @@ public class Strafe extends Module {
         if (noSlowTicks > 3) {
             max2 = max - 0.019;
         } else {
-            max2 = Math.max(noslow ? 0 : 0.25, max2) - (counter++ % 2 == 0 ? 0.001 : 0.002);
+            max2 = Math.max(noslow ? 0 : 0.25, max2) - (mc.player.ticksExisted % 2 == 0 ? 0.001 : 0.002);
         }
+
         contextFriction = n6;
-        if (!toGround && !fromGround) {
+
+        if (!mc.player.onGround) {
+            needSprintState = !((IEntityPlayerSP) mc.player).getServerSprintState();
             needSwap = true;
         } else {
-            prevSprint = false;
-        }
-        if (!fromGround && !toGround) {
-            needSprintState = !((IEntityPlayerSP) mc.player).getServerSprintState();
-        }
-        if (toGround && fromGround) {
             needSprintState = false;
         }
         return max2;
     }
 
-    public static float getAIMoveSpeed(EntityPlayer contextPlayer) {
-        boolean prevSprinting = contextPlayer.isSprinting();
-        contextPlayer.setSprinting(false);
-        float speed = contextPlayer.getAIMoveSpeed() * 1.3f;
-        contextPlayer.setSprinting(prevSprinting);
+    public float getAIMoveSpeed() {
+        boolean prevSprinting = mc.player.isSprinting();
+        mc.player.setSprinting(false);
+        float speed = mc.player.getAIMoveSpeed() * sprintm.getValue();
+        mc.player.setSprinting(prevSprinting);
         return speed;
     }
 
-    private static float getFrictionFactor(EntityPlayer contextPlayer, MatrixMove move) {
-        BlockPos.PooledMutableBlockPos blockpos$pooledmutableblockpos = BlockPos.PooledMutableBlockPos.retain(move.getFromX(), move.getAABBFrom().minY - 1.0D, move.getFromZ());
-        return contextPlayer.world.getBlockState(blockpos$pooledmutableblockpos).getBlock().slipperiness * 0.91F;
-    }
-
-    public static int findNullSlot() {
-        for (int i = 0; i < 36; i++) {
-            ItemStack stack = mc.player.inventory.getStackInSlot(i);
-            if (stack.getItem() instanceof ItemAir) {
-                if (i < 9) {
-                    i += 36;
-                }
-                return i;
-            }
-        }
-        return 999;
-    }
-
-    public static void strafe(float speed) {
-        if (!isMoving()) {
-            return;
-        }
-        double yaw = getDirection();
-        mc.player.motionX = -Math.sin(yaw) * (double) speed;
-        mc.player.motionZ = Math.cos(yaw) * (double) speed;
-    }
-
     public static void disabler(int elytra) {
-        if (elytra != -2) {
+        if (elytra != -2)
+        {
             mc.playerController.windowClick(0, elytra, 1, ClickType.PICKUP, mc.player);
             mc.playerController.windowClick(0, 6, 1, ClickType.PICKUP, mc.player);
         }
+
         mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.START_FALL_FLYING));
         mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.START_FALL_FLYING));
-        if (elytra != -2) {
+
+        if (elytra != -2)
+        {
             mc.playerController.windowClick(0, 6, 1, ClickType.PICKUP, mc.player);
             mc.playerController.windowClick(0, elytra, 1, ClickType.PICKUP, mc.player);
         }
     }
 
     @SubscribeEvent
-    public void onPlayerUpdate(PlayerUpdateEvent e) {
+    public void onMove(EventMove event) {
         if (mode.getValue() == Mode.Matrix) {
-            if (!elytra.getValue()) return;
-            int elytra = getHotbarSlotOfItem();
+            int elytraSlot = InventoryUtil.getElytra();
 
-            if (mc.player.isInWater() || mc.player.isInLava() || waterTicks > 0 || elytra == -1 || ((IEntity)mc.player).isInWeb())
-                return;
-            if (mc.player.fallDistance != 0 && mc.player.fallDistance < 0.1 && mc.player.motionY < -0.1) {
-                if (elytra != -2) {
-                    mc.playerController.windowClick(0, elytra, 1, ClickType.PICKUP, mc.player);
-                    mc.playerController.windowClick(0, 6, 1, ClickType.PICKUP, mc.player);
-                }
-
-                mc.getConnection().sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.START_FALL_FLYING));
-                mc.getConnection().sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.START_FALL_FLYING));
-
-                if (elytra != -2) {
-                    mc.playerController.windowClick(0, 6, 1, ClickType.PICKUP, mc.player);
-                    mc.playerController.windowClick(0, elytra, 1, ClickType.PICKUP, mc.player);
-                }
-            }
-        }
-        if (jumpTicks > 0) {
-            jumpTicks--;
-        }
-    }
-
-    @SubscribeEvent
-    public void onMove(MatrixMove event) {
-        if (mode.getValue() == Mode.Matrix) {
-            int elytraSlot = getHotbarSlotOfItem();
-
-            if (elytra.getValue() && elytraSlot != -1) {
-                if (isMoving() && !mc.player.onGround && mc.player.fallDistance >= 0.15 && event.toGround()) {
-                    setMotion(setSpeed.getValue());
-                    oldSpeed = (setSpeed.getValue() / 1.06);
+            if (boost.getValue() == Boost.Elytra && elytraSlot != -1) {
+                if (isMoving() && !mc.player.onGround && !mc.world.getCollisionBoxes(mc.player, mc.player.getEntityBoundingBox().offset(0.0, event.get_y(), 0.0f)).isEmpty() && mc.player.fallDistance < fdl2.getValue() && mc.player.fallDistance > fdl1.getValue()) {
+                    oldSpeed = setSpeed.getValue();
                 }
             }
 
-            if (mc.player.isInWater()) {
-                waterTicks = 10;
-            } else {
-                waterTicks--;
-            }
-
-            if (strafes()) {
-                double forward = mc.player.movementInput.moveForward;
-                double strafe = mc.player.movementInput.moveStrafe;
-                float yaw = mc.player.rotationYaw;
-                if (forward == 0.0 && strafe == 0.0) {
-                    oldSpeed = 0;
-                    event.setMotionX(0);
-                    event.setMotionZ(0);
+            if (canStrafe()) {
+                if (MovementUtil.isMoving()) {
+                    double[] motions = MovementUtil.forward(calculateSpeed(event));
+                    event.set_x(motions[0]);
+                    event.set_z(motions[1]);
                 } else {
-
-                    if (forward != 0.0) {
-                        if (strafe > 0.0) {
-                            yaw += ((forward > 0.0) ? -45 : 45);
-                        } else if (strafe < 0.0) {
-                            yaw += ((forward > 0.0) ? 45 : -45);
-                        }
-
-                        strafe = 0.0;
-                        if (forward > 0.0) {
-                            forward = 1.0;
-                        } else if (forward < 0.0) {
-                            forward = -1.0;
-                        }
-                    }
-                    double speed = calculateSpeed(event);
-                    double cos = Math.cos(Math.toRadians(yaw + 90.0f)), sin = Math.sin(Math.toRadians(yaw + 90.0f));
-                    event.setMotionX(forward * speed * cos + strafe * speed * sin);
-                    event.setMotionZ(forward * speed * sin - strafe * speed * cos);
-                    event.setCanceled(true);
+                    oldSpeed = 0;
+                    event.set_x(0);
+                    event.set_z(0);
                 }
             } else {
                 oldSpeed = 0;
             }
         }
+        event.setCanceled(true);
     }
 
     @SubscribeEvent
     public void updateValues(EventSync e) {
-        double distTraveledLastTickX = mc.player.posX - mc.player.prevPosX;
-        double distTraveledLastTickZ = mc.player.posZ - mc.player.prevPosZ;
-        oldSpeed = (Math.sqrt(distTraveledLastTickX * distTraveledLastTickX + distTraveledLastTickZ * distTraveledLastTickZ)) * contextFriction;
+        oldSpeed = Math.hypot(mc.player.posX - mc.player.prevPosX,mc.player.posZ - mc.player.prevPosZ) * contextFriction;
+        if (boost.getValue() == Boost.Elytra && isMoving() && !mc.player.onGround && !mc.world.getCollisionBoxes(mc.player, mc.player.getEntityBoundingBox().expand(-0.29,0,-0.29).offset(0.0, -dpredict.getValue(), 0.0f)).isEmpty() && mc.player.fallDistance < fdl2.getDefaultValue() && mc.player.fallDistance > fdl1.getValue() && elytraDelay.passedMs(400)) {
+            disabler(InventoryUtil.getElytra());
+            elytraDelay.reset();
+        }
+
+        if (mc.player.isInWater()) {
+            waterTicks = 10;
+        } else {
+            waterTicks--;
+        }
+
+        if (jumpTicks > 0) {
+            jumpTicks--;
+        }
+
+        if(resetExtra.getValue()){
+            fdl1.setValue(1f);
+            fdl2.setValue(2f);
+            jme.setValue(0.65f);
+            jmd.setValue(0.2f);
+            dpredict.setValue(0.5f);
+            ogf.setValue(2.55f);
+            sprintm.setValue(1.3f);
+            FrictionFactor.setValue(1646);
+            resetExtra.setValue(false);
+        }
     }
 
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
     public void onPacketReceive(PacketEvent.Receive e) {
         if (e.getPacket() instanceof SPacketPlayerPosLook) {
             oldSpeed = 0;
         }
+        SPacketEntityVelocity velocity;
+        if (e.getPacket() instanceof SPacketEntityVelocity  && (velocity = e.getPacket()).getEntityID() == mc.player.getEntityId() && boost.getValue() == Boost.Damage) {
+            if(mc.player.onGround) return;
+
+            int vX =  velocity.getMotionX();
+            int vZ =  velocity.getMotionZ();
+
+            if (vX < 0) vX *= -1;
+            if (vZ < 0) vZ *= -1;
+
+            oldSpeed = (vX + vZ) / (velReduction.getValue() * 1000f);
+            oldSpeed = Math.min(oldSpeed, maxVelocitySpeed.getValue());
+
+            ((ISPacketEntityVelocity) velocity).setMotionX(0);
+            ((ISPacketEntityVelocity) velocity).setMotionY(0);
+            ((ISPacketEntityVelocity) velocity).setMotionZ(0);
+        }
     }
 
-    @Override
-    public void onEnable() {
-        oldSpeed = 0;
-        startDelay.reset();
-        skip = true;
-    }
-
-    public boolean strafes() {
-        if (mc.player == null)
-            return false;
-        if (mc.player.isSneaking()) {
-            return false;
-        }
-        if (mc.player.isInLava()) {
-            return false;
-        }
-        if(Thunderhack.moduleManager.getModuleByClass(RusherScaffold.class).isEnabled()){
-            return false;
-        }
-        if (mc.player.isInWater() || waterTicks > 0) {
-            return false;
-        }
-        return !mc.player.capabilities.isFlying;
-    }
 
     @SubscribeEvent
     public void actionEvent(EventSprint eventAction) {
         if (mode.getValue() == Mode.SunriseFast) {
             return;
         }
-        if (strafes()) {
+        if (canStrafe()) {
             if (EventManager.serversprint != needSprintState) {
                 eventAction.setSprintState(!EventManager.serversprint);
             }
@@ -362,46 +272,6 @@ public class Strafe extends Module {
         }
     }
 
-    private int getHotbarSlotOfItem() {
-        for (ItemStack stack : mc.player.getArmorInventoryList()) {
-            if (stack.getItem() == Items.ELYTRA) {
-                return -2;
-            }
-        }
-        int slot = -1;
-        for (int i = 0; i < 36; i++) {
-            ItemStack s = mc.player.inventory.getStackInSlot(i);
-            if (s.getItem() == Items.ELYTRA) {
-                slot = i;
-                break;
-            }
-        }
-        if (slot < 9 && slot != -1) {
-            slot = slot + 36;
-        }
-        return slot;
-    }
-
-    public void fixElytra() {
-        ItemStack stack = mc.player.inventory.getItemStack();
-        if (stack != null && stack.getItem() instanceof ItemArmor && fixTimer.passed(300)) {
-            ItemArmor ia = (ItemArmor) stack.getItem();
-            if (ia.armorType == EntityEquipmentSlot.CHEST && mc.player.inventory.armorItemInSlot(2).getItem() == Items.ELYTRA) {
-                mc.playerController.windowClick(0, 6, 1, ClickType.PICKUP, mc.player);
-                int nullSlot = findNullSlot();
-                boolean needDrop = nullSlot == 999;
-                if (needDrop) {
-                    nullSlot = 9;
-                }
-                mc.playerController.windowClick(0, nullSlot, 1, ClickType.PICKUP, mc.player);
-                if (needDrop) {
-                    mc.playerController.windowClick(0, -999, 1, ClickType.PICKUP, mc.player);
-                }
-                fixTimer.reset();
-            }
-        }
-    }
-
     @SubscribeEvent
     public void onUpdate(PlayerUpdateEvent event) {
         if (mode.getValue() == Mode.ElytraMiniJump) {
@@ -409,17 +279,16 @@ public class Strafe extends Module {
                 mc.player.jump();
                 return;
             }
-            if (!mc.world.getCollisionBoxes(mc.player, mc.player.getEntityBoundingBox().offset(0.0, -0.9, 0.0f)).isEmpty() && elytraDelay.passedMs(250) && startDelay.passedMs(500)) {
+            if (!mc.world.getCollisionBoxes(mc.player, mc.player.getEntityBoundingBox().expand(-0.29,0,-0.29).offset(0.0, -0.9, 0.0f)).isEmpty() && elytraDelay.passedMs(250) && startDelay.passedMs(500)) {
                 int elytra = InventoryUtil.getElytra();
                 if (elytra == -1) {
-                    this.toggle();
+                    toggle();
                 } else {
-                    mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.STOP_SPRINTING));
                     disabler(elytra);
                 }
-                mc.player.motionY = 0;
+                mc.player.motionY = 0f;
                 if (isMoving()) {
-                    setSpeed(setSpeed.getValue());
+                    MovementUtil.setMotion(setSpeed.getValue());
                 }
                 elytraDelay.reset();
             }
@@ -434,17 +303,17 @@ public class Strafe extends Module {
                 }
             }
             if (!skip) {
-                if (mc.player.onGround && !((IKeyBinding)mc.gameSettings.keyBindJump).isPressed()) {
+                if (mc.player.onGround && !mc.player.movementInput.jump) {
                     mc.player.jump();
                     if (jumpTicks != 0) {
-                        strafe((float) (0.2));
+                        MovementUtil.setMotion(0.2);
                         return;
                     }
                     jumpTicks = 11;
-                    strafe((float) (getSpeed() * setSpeed.getValue()));
+                    MovementUtil.setMotion((float) (getSpeed() * setSpeed.getValue()));
                 }
-                if (!mc.world.getCollisionBoxes(mc.player, mc.player.getEntityBoundingBox().offset(0.0, -0.84, 0.0f)).isEmpty() && (!onlyDown.getValue() || mc.player.fallDistance > 0.05)) {
-                    setMotion(Math.min(getSpeed() * setSpeed.getValue(), maxSpeed.getValue()));
+                if (!mc.world.getCollisionBoxes(mc.player, mc.player.getEntityBoundingBox().expand(-0.29,0,-0.29).offset(0.0, -0.84, 0.0f)).isEmpty() && (!onlyDown.getValue() || mc.player.fallDistance > 0.05)) {
+                    MovementUtil.setMotion(Math.min(getSpeed() * setSpeed.getValue(), maxSpeed.getValue()));
                 }
             } else {
                 if (mc.player.onGround)
@@ -454,13 +323,13 @@ public class Strafe extends Module {
                 }
             }
         }
-        fixElytra();
     }
-
 
     private enum Mode {
         Matrix, ElytraMiniJump, SunriseFast
     }
 
-
+    private enum Boost {
+        None, Elytra, Damage
+    }
 }

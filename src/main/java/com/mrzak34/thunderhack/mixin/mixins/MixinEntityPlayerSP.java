@@ -1,11 +1,8 @@
 package com.mrzak34.thunderhack.mixin.mixins;
 
-import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.events.*;
 import com.mrzak34.thunderhack.manager.EventManager;
 import com.mrzak34.thunderhack.mixin.ducks.IEntityPlayerSP;
-import com.mrzak34.thunderhack.modules.movement.Speed;
-import com.mrzak34.thunderhack.modules.movement.Strafe;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.AbstractClientPlayer;
 import net.minecraft.client.entity.EntityPlayerSP;
@@ -14,7 +11,6 @@ import net.minecraft.entity.MoverType;
 import net.minecraft.network.play.client.CPacketEntityAction;
 import net.minecraft.stats.RecipeBook;
 import net.minecraft.stats.StatisticsManager;
-import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import org.spongepowered.asm.mixin.Mixin;
@@ -24,9 +20,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-
-import java.util.ArrayDeque;
-import java.util.Deque;
 
 import static com.mrzak34.thunderhack.util.Util.mc;
 
@@ -139,20 +132,6 @@ public abstract class MixinEntityPlayerSP extends AbstractClientPlayer implement
         if (event.isCanceled()) {
             super.move(type, event.get_x(), event.get_y(), event.get_z());
             info.cancel();
-        }
-        //TODO Не забыть бы что этот эвент работает только при спидах и стрейфах (в целях оптимизации)
-        if (Thunderhack.moduleManager.getModuleByClass(Speed.class).isEnabled() || Thunderhack.moduleManager.getModuleByClass(Strafe.class).isEnabled()) {
-            AxisAlignedBB before = getEntityBoundingBox();
-
-            //TODO \|/  вот этой хуйни
-            boolean predictGround = !mc.world.getCollisionBoxes(mc.player, mc.player.getEntityBoundingBox().offset(0.0, -0.228, 0.0)).isEmpty() && fallDistance > 0.1f && !mc.player.onGround;
-
-            MatrixMove move = new MatrixMove(mc.player.posX, mc.player.posY, mc.player.posZ, x, y, z, predictGround, before);
-            MinecraftForge.EVENT_BUS.post(move);
-            if (move.isCanceled()) {
-                super.move(type, move.getMotionX(), move.getMotionY(), move.getMotionZ());
-                info.cancel();
-            }
         }
     }
 

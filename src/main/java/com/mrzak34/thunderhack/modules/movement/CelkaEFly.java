@@ -1,7 +1,10 @@
 package com.mrzak34.thunderhack.modules.movement;
 
+import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.command.Command;
 import com.mrzak34.thunderhack.events.EventMove;
+import com.mrzak34.thunderhack.events.PacketEvent;
+import com.mrzak34.thunderhack.events.PlayerUpdateEvent;
 import com.mrzak34.thunderhack.mixin.mixins.IEntityPlayerSP;
 import com.mrzak34.thunderhack.mixin.mixins.MixinEntityPlayerSP;
 import com.mrzak34.thunderhack.modules.Module;
@@ -16,6 +19,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.client.CPacketEntityAction;
 import net.minecraft.network.play.client.CPacketHeldItemChange;
 import net.minecraft.network.play.client.CPacketPlayerTryUseItem;
+import net.minecraft.network.play.server.SPacketPlayerPosLook;
 import net.minecraft.util.EnumHand;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
@@ -23,6 +27,7 @@ public class CelkaEFly extends Module {
     public CelkaEFly() {
         super("CelkaEFly", "CelkaEFly", Category.MOVEMENT);
     }
+
 
     /////////////// !!!!!!!! АЛО !!!!!!!! //////////////////
     //
@@ -34,7 +39,7 @@ public class CelkaEFly extends Module {
     ///////////////////////////////////////////////////////
 
 
-    private final Setting<Float> xzSpeed = this.register(new Setting<>("XZ Speed", 1.9f, 0.5f, 1.9f)); // горизонтальная скорость
+    private final Setting<Float> xzSpeed = this.register(new Setting<>("XZ Speed", 1.9f, 0.5f, 3f)); // горизонтальная скорость
     private final Setting<Float> ySpeed = this.register(new Setting<>("Y Speed", 0.47f, 0f, 2f)); // вертикальная скорость
     private final Setting<Integer> fireSlot = this.register(new Setting<>("Firework Slot", 0, 0, 8)); // если модуль не найдет фейерверк в хотбаре, то переложит в этот слот
     private final Setting<Float> fireDelay = this.register(new Setting<>("Firework Delay", 1.5f, 0, 1.5f)); // интервал использования фейерверков
@@ -44,7 +49,7 @@ public class CelkaEFly extends Module {
 
     private int lastItem = -1; // пустой слот или слот с нагрудником
     private float acceleration; // множитель ускорения
-    private boolean TakeOff = false; // флаг готовности к тейк оффу
+    private boolean TakeOff, start; // флаг готовности к тейк оффу и старту
 
     private int getElytra() {
         for (int i = 0; i < 36; i++) { // пробегаемся по слотам инвентаря
@@ -68,6 +73,7 @@ public class CelkaEFly extends Module {
 
     @Override
     public void onEnable() {
+        start = true;
         acceleration = 0f; // сбрасываем множитель ускорения
         if(mc.player.inventory.getStackInSlot(38).getItem() == Items.ELYTRA) return; // возвращаемся если элитра надета на нас
         int elytra = getElytra(); // гетаем слот элитры
@@ -83,6 +89,7 @@ public class CelkaEFly extends Module {
     @Override
     public void onDisable() {
         acceleration = 0f; // сбрасываем множитель ускорения
+        if (keepFlying.getValue()) return; // не свапаем элитру на нагрудник если включен чек "keepFlying" ("Продолжать полёт" в целке)
         if(lastItem == -1) return; // если мы не запоминали слот (если модуль был включен до захода в мир), возвращаемся
         mc.playerController.windowClick(0, 6, 0, ClickType.PICKUP, mc.player); // клик по слоту брони игрока
         mc.playerController.windowClick(0, this.lastItem, 0, ClickType.PICKUP, mc.player); // клик по слоту который мы запомнили
@@ -96,7 +103,7 @@ public class CelkaEFly extends Module {
         if (InventoryUtil.getFireWorks() == -1) { // если у нас нет фейерверков в хотбаре..
             int fireworkSlot = getFireworks(); // вводим переменную слота фейерверков (чтобы не вызывать цикл for несколько раз)
             if(fireworkSlot != -1){ // если у нас есть фейерверки в инвентаре..
-                mc.playerController.windowClick(0, fireworkSlot, 0, ClickType.PICKUP, mc.player); // клик по слоту  фейерверками
+                mc.playerController.windowClick(0, fireworkSlot, 0, ClickType.PICKUP, mc.player); // клик по слоту с фейерверками
                 mc.playerController.windowClick(0, fireSlot.getValue() + 36, 0, ClickType.PICKUP, mc.player); // клик по слоту который указан в настройках (в целке "Слот с фейерверком")
                 if(!mc.player.inventory.getItemStack().isEmpty())  // если в мышке осталась вещь..
                     mc.playerController.windowClick(0, fireworkSlot, 0, ClickType.PICKUP, mc.player); // перекладываем эту вещь в освободившийся слот от фейерверков
@@ -115,12 +122,10 @@ public class CelkaEFly extends Module {
         if (mc.player.onGround) { // если игрок на земле
             mc.player.jump(); // подпрыгиваем
             TakeOff = true; // ставим флаг готовности к тейк оффу
+            start = true; // ставим флаг готовности к старту
         } else if (TakeOff && mc.player.fallDistance > 0.05) { // если готовы и падаем..
             mc.player.connection.sendPacket(new CPacketEntityAction(mc.player, CPacketEntityAction.Action.START_FALL_FLYING)); // посылаем пакет раскрытия элитр
-            mc.player.connection.sendPacket(new CPacketHeldItemChange(InventoryUtil.getFireWorks())); // переключаемся на фейерверки
-            mc.player.connection.sendPacket(new CPacketPlayerTryUseItem(EnumHand.MAIN_HAND)); // юзаем фейерверк
-            mc.player.connection.sendPacket(new CPacketPlayerTryUseItem(EnumHand.MAIN_HAND)); // калестиал юзает первый раз 2 фурки, сделаем также
-            mc.player.connection.sendPacket(new CPacketHeldItemChange(mc.player.inventory.currentItem)); // переключаемся обратно
+            useFireWork();
             TakeOff = false; // убираем флаг готовности к тейк оффу
         }
     }
@@ -135,13 +140,15 @@ public class CelkaEFly extends Module {
     public void onMove(EventMove e){
         e.setCanceled(true); // отменяем, для изменения значений
         double motionY = 0; // вводим переменную дельты моушена по Y
-        if (((IEntityPlayerSP) mc.player).wasFallFlying()) { // если мы летим на элитре
+
+        if (mc.player.isElytraFlying()) { // если мы летим на элитре
+            if(start) { // если стоит флаг старта
+                start = false; // убираем флаг старта
+                useFireWork(); // юзаем фейерверк
+            }
+
             if (mc.player.ticksExisted % (int)(fireDelay.getValue() * 20) == 0) { // каждые fireDelay * 20 тиков (в целестиале "Задержка фейерверка") ..
-                if (InventoryUtil.getFireWorks() >= 0) { // если у нас есть феерверки..
-                    mc.player.connection.sendPacket(new CPacketHeldItemChange(InventoryUtil.getFireWorks())); // переключаемся на фейерверки
-                    mc.player.connection.sendPacket(new CPacketPlayerTryUseItem(EnumHand.MAIN_HAND)); // юзаем фейерверк
-                    mc.player.connection.sendPacket(new CPacketHeldItemChange(mc.player.inventory.currentItem)); // переключаемся обратно
-                }
+                useFireWork(); // юзаем фейерверк
             }
 
             if(!MovementUtil.isMoving()){ // если мы не движемся (именно не давим на WASD)
@@ -164,11 +171,27 @@ public class CelkaEFly extends Module {
                     motionY = -ySpeed.getValue(); // опускаемся вниз со скоростью ySpeed (в целестиале "Скорость по Y")
             } else { // иначе (если кнопки не нажаты)
                 if(bowBomb.getValue()) // если включен чек bowBomb (в целке "Супер лук")
-                    motionY += mc.player.ticksExisted % 2 == 0 ? -0.42f : 0.42f; // дельта будет равна  -0.42 или 0.42 через тик
+                    motionY += mc.player.ticksExisted % 2 == 0 ? -0.42f : 0.42f; // дельта будет равна -0.42 или 0.42 через тик
                 else  // иначе
-                    motionY += mc.player.ticksExisted % 2 == 0 ? -0.08f : 0.08f; // дельта будет равна  -0.08 или 0.08 через тик
+                    motionY += mc.player.ticksExisted % 2 == 0 ? -0.08f : 0.08f; // дельта будет равна -0.08 или 0.08 через тик
             }
             e.set_y(motionY); // выставляем моушен Y
         }
+    }
+
+    public void useFireWork() {
+        int firework_slot = InventoryUtil.getFireWorks(); // гетаем слот с фейерверками
+        if(mc.player.getHeldItemOffhand().getItem() == Items.FIREWORKS){ // если в левой руке есть фейерверки..
+            mc.player.connection.sendPacket(new CPacketPlayerTryUseItem(EnumHand.OFF_HAND)); // юзаем фейерверк
+        } else if(firework_slot != -1) { // иначе если у нас есть фейерверки в хотбаре..
+            mc.player.connection.sendPacket(new CPacketHeldItemChange(firework_slot)); // переключаемся на фейерверки
+            mc.player.connection.sendPacket(new CPacketPlayerTryUseItem(EnumHand.MAIN_HAND)); // юзаем фейерверк
+            mc.player.connection.sendPacket(new CPacketHeldItemChange(mc.player.inventory.currentItem)); // переключаемся обратно
+        }
+    }
+
+    @SubscribeEvent
+    public void onPaccketReceive(PacketEvent.Receive e){
+        if(e.getPacket() instanceof SPacketPlayerPosLook) acceleration = 0; // если нас флагнуло - сбрасываем множитель ускорения
     }
 }

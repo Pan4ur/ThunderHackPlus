@@ -3,7 +3,6 @@ package com.mrzak34.thunderhack.modules.movement;
 import com.mrzak34.thunderhack.Thunderhack;
 import com.mrzak34.thunderhack.events.EventMove;
 import com.mrzak34.thunderhack.events.EventSync;
-import com.mrzak34.thunderhack.events.MatrixMove;
 import com.mrzak34.thunderhack.events.PacketEvent;
 import com.mrzak34.thunderhack.mixin.mixins.IKeyBinding;
 import com.mrzak34.thunderhack.modules.Module;
@@ -470,20 +469,6 @@ public class Speed extends Module {
         }
     }
 
-    @SubscribeEvent
-    public void onMove(MatrixMove move) {
-        if (Mode.getValue() != mode.Matrix) {
-            return;
-        }
-        if (!mc.player.onGround && move.toGround()) {
-            move.setMotionX(move.getMotionX() * 2);
-            move.setMotionZ(move.getMotionZ() * 2);
-            mc.player.motionX *= 2;
-            mc.player.motionZ *= 2;
-
-        }
-    }
-
     public double getBaseMotionSpeed() {
         double baseSpeed = 0.2873D;
         if (mc.player.isPotionActive(MobEffects.SPEED)) {
@@ -500,7 +485,7 @@ public class Speed extends Module {
     }
 
     public enum mode {
-        Default, Grief, StrafeStrict, ReallyWorld, Matrix, MatrixJumpBoost,FunnyGameNew
+        Default, Grief, StrafeStrict, ReallyWorld, MatrixJumpBoost,FunnyGameNew
     }
 
 }
