@@ -19,8 +19,8 @@ import java.awt.*;
 import java.util.ArrayList;
 
 public class ElytraSwap extends Module {
-    private final ResourceLocation toelytra = new ResourceLocation("textures/swapel.png");
-    private final ResourceLocation tochest = new ResourceLocation("textures/swapch.png");
+    private final ResourceLocation toelytra = new ResourceLocation("textures/swapch.png");
+    private final ResourceLocation tochest = new ResourceLocation("textures/swapel.png");
     public Setting<Boolean> image = this.register(new Setting<Boolean>("indicator", true));
     public Setting<Integer> imagex = this.register(new Setting<Integer>("indicatorX", 512, 0, 1023, v -> image.getValue()));
     public Setting<Integer> imagey = this.register(new Setting<Integer>("indicatorY", 512, 0, 1023, v -> image.getValue()));
