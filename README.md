@@ -5,6 +5,9 @@
 </p>
 
 ## Info:
+
+[![Download](https://img.shields.io/badge/Download%20me!-1aad00)](https://github.com/Pan4ur/ThunderHackPlus/releases/download/2.41/ThunderHack_v2.41.jar)
+
 - Minecraft version: forge 1.12.2
 - Client version: v2.40
 - Default ClickGui keybind - **"P"**
