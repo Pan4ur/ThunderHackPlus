@@ -21,7 +21,7 @@ public class ToggleCommand extends Command {
                 return;
             }
             for(Module m : Thunderhack.moduleManager.modules) {
-                if(Objects.equals(m.getName(), commands[0])) {
+                if(Objects.equals(m.getName().toLowerCase(), commands[0].toLowerCase())) {
                     m.toggle();
                     Command.sendMessage("Toggled module: " + m.getName());
                     foundModule = true;
