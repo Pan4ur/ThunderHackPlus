@@ -14,6 +14,8 @@ import net.minecraftforge.fml.client.registry.RenderingRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.lwjgl.opengl.Display;
 
 import java.awt.*;
@@ -23,6 +25,7 @@ import java.util.Objects;
 
 @Mod(modid = "thunderhack", name = "ThunderHack", version = "2.41", acceptableRemoteVersions = "*")
 public class Thunderhack {
+    public static Logger LOG = LogManager.getLogger("ThunderHack");
 
     @Mod.Instance
     public static Thunderhack INSTANCE;
@@ -97,11 +100,19 @@ public class Thunderhack {
             icons = new CFontRenderer(Font.createFont(Font.PLAIN, Objects.requireNonNull(Thunderhack.class.getResourceAsStream("/fonts/icons.ttf"))).deriveFont(20.f), true, true);
             middleicons = new CFontRenderer(Font.createFont(Font.PLAIN, Objects.requireNonNull(Thunderhack.class.getResourceAsStream("/fonts/icons.ttf"))).deriveFont(46.f), true, true);
             BIGicons = new CFontRenderer(Font.createFont(Font.PLAIN, Objects.requireNonNull(Thunderhack.class.getResourceAsStream("/fonts/icons.ttf"))).deriveFont(72.f), true, true);
+            LOG.info("FontRenderer initialized");
         } catch (Exception e) {
             e.printStackTrace();
         }
 
+        /*-----------------    Services  ---------------------*/
+
         noMotionUpdateService = new NoMotionUpdateService();
+
+        /*--------------------------------------------------------*/
+
+        /*-----------------    Managers  ---------------------*/
+
         servtickManager = new ServerTickManager();
         positionManager = new PositionManager();
         rotationManager = new RotationManager();
@@ -117,9 +128,17 @@ public class Thunderhack {
         moduleManager = new ModuleManager();
         eventManager = new EventManager();
         macromanager = new MacroManager();
+
+        /*--------------------------------------------------------*/
+
         yahz = new Scheduler();
 
         noMotionUpdateService.init();
+
+        LOG.info("Services initialized.");
+
+        /*-----------------    Managers initialization ---------------------*/
+
         positionManager.init();
         rotationManager.init();
         servtickManager.init();
@@ -130,12 +149,18 @@ public class Thunderhack {
         switchManager.init();
         eventManager.init();
         serverManager.init();
+
+        LOG.info("Managers initialized.");
+
+        /*--------------------------------------------------------*/
+
         FriendManager.loadFriends();
         yahz.init();
         ConfigManager.load(ConfigManager.getCurrentConfig());
         moduleManager.onLoad();
         ThunderUtils.syncCapes();
         MacroManager.onLoad();
+
         if (Util.mc.getSession() != null && !alts.contains(Util.mc.getSession().getUsername())) {
             alts.add(Util.mc.getSession().getUsername());
         }
@@ -189,7 +214,7 @@ public class Thunderhack {
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event) {
         RenderingRegistry.registerEntityRenderingHandler(EntityGib.class, RenderGib::new);
-        GlobalExecutor.EXECUTOR.submit(() -> Sphere.cacheSphere());
+        GlobalExecutor.EXECUTOR.submit(Sphere::cacheSphere);
     }
 
     @Mod.EventHandler
