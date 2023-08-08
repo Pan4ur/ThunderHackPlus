@@ -16,6 +16,10 @@ public class ToggleCommand extends Command {
     @Override
     public void execute(String[] commands) {
         if (commands.length == 1) {
+            if(commands[0].isEmpty()) {
+                Command.sendMessage("Incomplete command, must be .toggle <moduleName>");
+                return;
+            }
             for(Module m : Thunderhack.moduleManager.modules) {
                 if(Objects.equals(m.getName(), commands[0])) {
                     m.toggle();
