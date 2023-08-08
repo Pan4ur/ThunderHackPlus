@@ -20,6 +20,7 @@ public class CommandManager {
         this.commands.add(new PrefixCommand());
         this.commands.add(new NpbCommand());
         this.commands.add(new loginCommand());
+        this.commands.add(new ToggleCommand());
         this.commands.add(new ConfigCommand());
         this.commands.add(new CfgCommand());
         this.commands.add(new SearchCommand());
