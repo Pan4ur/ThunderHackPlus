@@ -1,5 +1,6 @@
 package com.mrzak34.thunderhack.util;
 
+import com.mrzak34.thunderhack.Thunderhack;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
 import net.minecraft.block.material.Material;
@@ -14,6 +15,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.init.MobEffects;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.CombatRules;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumFacing;
@@ -32,49 +34,83 @@ public class CrystalUtils {
 
     public static float getBlastReduction(EntityLivingBase entity, float damageInput, Explosion explosion) {
         float damage = damageInput;
-        if (entity instanceof EntityPlayer) {
-            EntityPlayer ep = (EntityPlayer) entity;
-            DamageSource ds = DamageSource.causeExplosionDamage(explosion);
-            damage = CombatRules.getDamageAfterAbsorb(damage, (float) ep.getTotalArmorValue(), (float) ep.getEntityAttribute(SharedMonsterAttributes.ARMOR_TOUGHNESS).getAttributeValue());
-            int k = 0;
-            try {
-                k = EnchantmentHelper.getEnchantmentModifierDamage(ep.getArmorInventoryList(), ds);
-            } catch (Exception ignored) {
 
+        if (entity instanceof EntityPlayer) {
+            EntityPlayer player = (EntityPlayer) entity;
+            DamageSource damageSource = DamageSource.causeExplosionDamage(explosion);
+
+            damage = CombatRules.getDamageAfterAbsorb(
+                    damage,
+                    (float) player.getTotalArmorValue(),
+                    (float) player.getEntityAttribute(SharedMonsterAttributes.ARMOR_TOUGHNESS).getAttributeValue()
+            );
+
+            int protectionModifier = 0;
+            try {
+                protectionModifier = EnchantmentHelper.getEnchantmentModifierDamage(player.getArmorInventoryList(), damageSource);
+            } catch (Exception ignored) {
             }
-            float f = MathHelper.clamp(k, 0.0F, 20.0F);
-            damage = damage * (1.0F - f / 25.0F);
+
+            float protectionRatio = MathHelper.clamp(protectionModifier, 0.0F, 20.0F);
+            damage = damage * (1.0F - protectionRatio / 25.0F);
 
             if (entity.isPotionActive(MobEffects.RESISTANCE)) {
-                damage = damage - (damage / 4);
+                damage -= (damage / 4);
             }
 
             damage = Math.max(damage, 0.0F);
             return damage;
         }
-        damage = CombatRules.getDamageAfterAbsorb(damage, (float) entity.getTotalArmorValue(), (float) entity.getEntityAttribute(SharedMonsterAttributes.ARMOR_TOUGHNESS).getAttributeValue());
+
+        damage = CombatRules.getDamageAfterAbsorb(
+                damage,
+                (float) entity.getTotalArmorValue(),
+                (float) entity.getEntityAttribute(SharedMonsterAttributes.ARMOR_TOUGHNESS).getAttributeValue()
+        );
+
         return damage;
     }
 
+
     public static float getDamageMultiplied(float damage) {
-        int diff = mc.world.getDifficulty().getId();
-        return damage * (diff == 0 ? 0 : (diff == 2 ? 1 : (diff == 1 ? 0.5f : 1.5f)));
+        int difficultyId = mc.world.getDifficulty().getId();
+
+        if (difficultyId == 0) {
+            return 0;
+        } else if (difficultyId == 1) {
+            return damage * 0.5f;
+        } else if (difficultyId == 2) {
+            return damage;
+        } else if (difficultyId == 3) {
+            return damage * 1.5f;
+        }
+
+        return damage; // Unknown difficulty, return original damage
     }
+
 
     public static Vec3d getEntityPosVec(Entity entity, int ticks) {
-        return entity.getPositionVector().add(getMotionVec(entity, ticks));
+        Vec3d currentPosition = entity.getPositionVector();
+        Vec3d motionVec = getMotionVec(entity, ticks);
+
+        return currentPosition.add(motionVec);
     }
 
+
     public static Vec3d getMotionVec(Entity entity, int ticks) {
-        double dX = entity.posX - entity.prevPosX;
-        double dZ = entity.posZ - entity.prevPosZ;
+        double deltaX = entity.posX - entity.prevPosX;
+        double deltaZ = entity.posZ - entity.prevPosZ;
         double entityMotionPosX = 0;
         double entityMotionPosZ = 0;
 
         for (int i = 1; i <= ticks; i++) {
-            if (mc.world.getBlockState(new BlockPos(entity.posX + dX * i, entity.posY, entity.posZ + dZ * i)).getBlock() instanceof BlockAir) {
-                entityMotionPosX = dX * i;
-                entityMotionPosZ = dZ * i;
+            double futurePosX = entity.posX + deltaX * i;
+            double futurePosZ = entity.posZ + deltaZ * i;
+            BlockPos futurePosBlock = new BlockPos(futurePosX, entity.posY, futurePosZ);
+
+            if (mc.world.getBlockState(futurePosBlock).getBlock() instanceof BlockAir) {
+                entityMotionPosX = deltaX * i;
+                entityMotionPosZ = deltaZ * i;
             } else {
                 break;
             }
@@ -82,6 +118,7 @@ public class CrystalUtils {
 
         return new Vec3d(entityMotionPosX, 0, entityMotionPosZ);
     }
+
 
     public static int ping() {
         if (mc.getConnection() == null) {
@@ -98,24 +135,29 @@ public class CrystalUtils {
     }
 
     public static int getCrystalSlot() {
-        int crystalSlot = -1;
-
-        if (Util.mc.player.getHeldItemMainhand().getItem() == Items.END_CRYSTAL) {
-            crystalSlot = Util.mc.player.inventory.currentItem;
+        int heldCrystalSlot = findCrystalSlot(Util.mc.player.getHeldItemMainhand());
+        if (heldCrystalSlot != -1) {
+            return heldCrystalSlot;
         }
 
-
-        if (crystalSlot == -1) {
-            for (int l = 0; l < 9; ++l) {
-                if (Util.mc.player.inventory.getStackInSlot(l).getItem() == Items.END_CRYSTAL) {
-                    crystalSlot = l;
-                    break;
-                }
+        for (int slot = 0; slot < 9; ++slot) {
+            ItemStack slotStack = Util.mc.player.inventory.getStackInSlot(slot);
+            int inventoryCrystalSlot = findCrystalSlot(slotStack);
+            if (inventoryCrystalSlot != -1) {
+                return inventoryCrystalSlot;
             }
         }
 
-        return crystalSlot;
+        return -1; // No crystals found
     }
+
+    private static int findCrystalSlot(ItemStack itemStack) {
+        if (itemStack.getItem() == Items.END_CRYSTAL) {
+            return Util.mc.player.inventory.getSlotFor(itemStack);
+        }
+        return -1;
+    }
+
 
 
     public static boolean canPlaceCrystal(BlockPos blockPos) {
@@ -308,29 +350,45 @@ public class CrystalUtils {
 
     public static float calculateDamage(double posX, double posY, double posZ, Entity entity) {
         float doubleExplosionSize = 12.0F;
-        double distancedsize;
         Vec3d entityPosVec = getEntityPosVec(entity, 3);
-        distancedsize = entityPosVec.distanceTo(new Vec3d(posX, posY, posZ)) / (double) doubleExplosionSize;
-        Vec3d vec3d = new Vec3d(posX, posY, posZ);
+        double distance = entityPosVec.distanceTo(new Vec3d(posX, posY, posZ)) / (doubleExplosionSize);
+        Vec3d impactPos = new Vec3d(posX, posY, posZ);
+
         double blockDensity = 0.0D;
         try {
-            blockDensity = entity.world.getBlockDensity(vec3d, entity.getEntityBoundingBox().offset(getMotionVec(entity, 3)));
-        } catch (Exception ignored) {
+            blockDensity = entity.world.getBlockDensity(impactPos, entity.getEntityBoundingBox().offset(getMotionVec(entity, 3)));
+        } catch (Exception e) {
+            Thunderhack.LOG.error(e);
+        }
 
-        }
-        double v = (1.0D - distancedsize) * blockDensity;
-        float damage = (float) ((int) ((v * v + v) / 2.0D * 7.0D * (double) doubleExplosionSize + 1.0D));
-        double finald = 1;
+        double scaledDistance = 1.0D - distance;
+        double scaledDensity = scaledDistance * blockDensity;
+        double damageValue = (scaledDensity * scaledDensity + scaledDensity) / 2.0D * 7.0D * doubleExplosionSize + 1.0D;
+
         if (entity instanceof EntityLivingBase) {
-            finald = getBlastReduction((EntityLivingBase) entity, getDamageMultiplied(damage), new Explosion(mc.world, mc.player, posX, posY, posZ, 6F, false, true));
+            EntityLivingBase livingEntity = (EntityLivingBase) entity;
+            float damageMultiplied = getDamageMultiplied((float) damageValue);
+            double blastReduction = getBlastReduction(livingEntity, damageMultiplied, new Explosion(mc.world, mc.player, posX, posY, posZ, 6F, false, true));
+            return (float) blastReduction;
         }
-        return (float) finald;
+
+        return (float) damageValue;
     }
+
 
 
     public static float calculateDamage(EntityEnderCrystal crystal, Entity entity) {
-        return calculateDamage(crystal.posX, crystal.posY, crystal.posZ, entity);
+        if (crystal == null || entity == null) {
+            return 0.0F; // invalid inputs. return minimum damage
+        }
+
+        double crystalX = crystal.posX;
+        double crystalY = crystal.posY;
+        double crystalZ = crystal.posZ;
+
+        return calculateDamage(crystalX, crystalY, crystalZ, entity);
     }
+
 
 
 }
