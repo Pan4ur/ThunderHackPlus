@@ -458,16 +458,42 @@ public class AutoCrystal extends Module {
     }
 
     public static boolean canBeFeetPlaced(EntityPlayer player, boolean ignoreCrystals, boolean noBoost2) {
-        BlockPos origin = (player.getPosition()).down();
+        BlockPos origin = player.getPosition().down();
+        World world = player.world;
+
+        if (!world.isAreaLoaded(origin, 1)) {
+            return false;
+        }
+
         for (EnumFacing face : HORIZONTALS) {
             BlockPos off = origin.offset(face);
-            IBlockState state = mc.world.getBlockState(off);
-            if (canPlaceCrystal(off, ignoreCrystals, noBoost2)) return true;
+
+            if (!world.isBlockLoaded(off)) {
+                continue;
+            }
+
+            IBlockState state = world.getBlockState(off);
+
+            if (canPlaceCrystal(off, ignoreCrystals, noBoost2)) {
+                return true;
+            }
+
             BlockPos off2 = off.offset(face);
-            if (canPlaceCrystal(off2, ignoreCrystals, noBoost2) && state.getBlock() == Blocks.AIR) return true;
+
+            if (!world.isBlockLoaded(off2)) {
+                continue;
+            }
+
+            IBlockState stateOff2 = world.getBlockState(off2);
+
+            if (canPlaceCrystal(off2, ignoreCrystals, noBoost2) && state.getBlock() == Blocks.AIR) {
+                return true;
+            }
         }
+
         return false;
     }
+
 
     public static EntityPlayer getByFov(List<EntityPlayer> players, double maxRange) {
         EntityPlayer closest = null;
@@ -491,14 +517,16 @@ public class AutoCrystal extends Module {
     public static EntityPlayer getByAngle(List<EntityPlayer> players, double maxRange) {
         EntityPlayer closest = null;
         double closestAngle = 360.0;
+        double fovHalf = mc.gameSettings.fovSetting / 2.0;
+
         for (EntityPlayer player : players) {
             if (!isValid(player, maxRange)) {
                 continue;
             }
 
             double angle = getAngle(player, 1.4);
-            if (angle < closestAngle
-                    && angle < mc.gameSettings.fovSetting / 2) {
+
+            if (angle < closestAngle && angle < fovHalf) {
                 closest = player;
                 closestAngle = angle;
             }
@@ -507,15 +535,76 @@ public class AutoCrystal extends Module {
         return closest;
     }
 
-    public static AxisAlignedBB interpolatePos(BlockPos pos, float height) {
-        return new AxisAlignedBB(
-                pos.getX(),
-                pos.getY(),
-                pos.getZ(),
-                pos.getX()  + 1,
-                pos.getY()  + height,
-                pos.getZ() + 1);
+    private static boolean isValid(EntityPlayer player, double maxRange) {
+        if (player == null || player == mc.player || player.isDead || player.getHealth() <= 0.0F) {
+            return false;
+        }
+
+        double distanceSq = mc.player.getDistanceSq(player);
+
+        return distanceSq <= maxRange * maxRange;
     }
+
+    private static double getAngle(EntityPlayer player, double height) {
+        EntityPlayer localPlayer = mc.player;
+
+        if (localPlayer == null || player == null) {
+            return 0.0;
+        }
+
+        double xDiff = player.posX - localPlayer.posX;
+        double yDiff = (player.posY + height) - (localPlayer.posY + localPlayer.getEyeHeight());
+        double zDiff = player.posZ - localPlayer.posZ;
+
+        if (xDiff == 0.0 && zDiff == 0.0) {
+            return yDiff > 0 ? 90.0 : -90.0;
+        }
+
+        double angle = Math.toDegrees(Math.atan2(zDiff, xDiff)) - 90.0;
+
+        if (angle < 0) {
+            angle += 360.0;
+        }
+
+        return angle;
+    }
+
+
+    public static AxisAlignedBB interpolatePos(BlockPos pos, float height) {
+        if (pos == null) {
+            return null;
+        }
+
+        double x1 = pos.getX();
+        double y1 = pos.getY();
+        double z1 = pos.getZ();
+        double x2 = x1 + 1.0;
+        double y2 = y1 + height;
+        double z2 = z1 + 1.0;
+
+        y2 = Math.min(y2, 255.0);
+
+        if (x1 > x2) {
+            double temp = x1;
+            x1 = x2;
+            x2 = temp;
+        }
+
+        if (y1 > y2) {
+            double temp = y1;
+            y1 = y2;
+            y2 = temp;
+        }
+
+        if (z1 > z2) {
+            double temp = z1;
+            z1 = z2;
+            z2 = temp;
+        }
+
+        return new AxisAlignedBB(x1, y1, z1, x2, y2, z2);
+    }
+
 
     public boolean isNotCheckingRotations() {
         return noPacketFlyRotationChecks.getValue() && (Thunderhack.moduleManager.getModuleByClass(PacketFly.class).isEnabled());
@@ -552,19 +641,23 @@ public class AutoCrystal extends Module {
 
     public void setRenderPos(BlockPos pos, String text) {
         renderTimer.reset();
-        if (pos != null && !pos.equals(slidePos) && (!smoothSlide.getValue() || slideTimer.passedMs(slideTime.getValue()))) {
-            slidePos = renderPos;
-            slideTimer.reset();
-        }
 
-        if (pos != null && (multiZoom.getValue() || !pos.equals(renderPos))) {
-            zoomTimer.reset();
+        if (pos != null) {
+            if (!pos.equals(slidePos) && (!smoothSlide.getValue() || slideTimer.passedMs(slideTime.getValue()))) {
+                slidePos = renderPos;
+                slideTimer.reset();
+            }
+
+            if (multiZoom.getValue() || !pos.equals(renderPos)) {
+                zoomTimer.reset();
+            }
         }
 
         this.renderPos = pos;
         this.damage = text;
         this.bypassPos = null;
     }
+
 
     public BlockPos getRenderPos() {
         if (renderTimer.passedMs(renderTime.getValue())) {
@@ -608,16 +701,21 @@ public class AutoCrystal extends Module {
 
 
     public float getMinDamage() {
-        return holdFacePlace.getValue()
-                && mc.currentScreen == null
-                && Mouse.isButtonDown(0)
-                && (!(mc.player.getHeldItemMainhand().getItem()
-                instanceof ItemPickaxe)
-                || pickAxeHold.getValue())
-                || dangerFacePlace.getValue()
-                ? minFaceDmg.getValue()
-                : minDamage.getValue();
+        boolean isHoldingMouseLeft = Mouse.isButtonDown(0);
+        boolean isScreenNotOpen = mc.currentScreen == null;
+        boolean isNotUsingPickaxe = !(mc.player.getHeldItemMainhand().getItem() instanceof ItemPickaxe);
+        boolean shouldUsePickaxeHold = pickAxeHold.getValue();
+        boolean shouldHoldFacePlace = holdFacePlace.getValue();
+        boolean shouldDangerFacePlace = dangerFacePlace.getValue();
+
+        if (shouldHoldFacePlace && isScreenNotOpen && isHoldingMouseLeft &&
+                (isNotUsingPickaxe || shouldUsePickaxeHold) || shouldDangerFacePlace) {
+            return minFaceDmg.getValue();
+        } else {
+            return minDamage.getValue();
+        }
     }
+
 
 
     public void runPost() {
@@ -646,7 +744,7 @@ public class AutoCrystal extends Module {
             idHelper.setHighestID(0);
         } catch (Throwable t) // Possible since MultiThread stuff...
         {
-            t.printStackTrace();
+            Thunderhack.LOG.error(t);
         }
     }
 
@@ -679,46 +777,72 @@ public class AutoCrystal extends Module {
     }
 
     private void doExecutorTick() {
-        if (mc.player != null
-                && mc.world != null
-                && asyncServerThread.getValue()
-                && rotate.getValue() == ACRotate.None
-                && serverThread.getValue()
-                && multiThread.getValue()) {
-            if (Thunderhack.servtickManager.valid(Thunderhack.servtickManager.getTickTimeAdjusted(), Thunderhack.servtickManager.normalize(Thunderhack.servtickManager.getSpawnTime() - tickThreshold.getValue()), Thunderhack.servtickManager.normalize(Thunderhack.servtickManager.getSpawnTime() - preSpawn.getValue()))) {
-                if (!earlyFeetThread.getValue()) {
+        if (mc.player == null || mc.world == null) {
+            return;
+        }
+
+        boolean asyncServer = asyncServerThread.getValue();
+        ACRotate rotateMode = rotate.getValue();
+        boolean serverThreadEnabled = serverThread.getValue();
+        boolean multiThreadEnabled = multiThread.getValue();
+
+        if (asyncServer && rotateMode == ACRotate.None && serverThreadEnabled && multiThreadEnabled) {
+            long tickTimeAdjusted = Thunderhack.servtickManager.getTickTimeAdjusted();
+            long spawnTime = Thunderhack.servtickManager.getSpawnTime();
+            long tickThresholdValue = tickThreshold.getValue();
+            long preSpawnValue = preSpawn.getValue();
+
+            boolean isValidTickTime = Thunderhack.servtickManager.valid(
+                    (int) tickTimeAdjusted,
+                    Thunderhack.servtickManager.normalize((int) (spawnTime - tickThresholdValue)),
+                    Thunderhack.servtickManager.normalize((int) (spawnTime - preSpawnValue)));
+
+            if (isValidTickTime) {
+                boolean earlyFeet = earlyFeetThread.getValue();
+                boolean lateBreak = lateBreakThread.getValue();
+
+                if (!earlyFeet) {
                     threadHelper.startThread();
-                } else if (lateBreakThread.getValue()) {
+                } else if (lateBreak) {
                     threadHelper.startThread(true, false);
                 }
             } else {
-                EntityPlayer closest = getClosestEnemy();
-                if (closest != null
-                        && isSemiSafe(closest, true, newVer.getValue())
-                        && canBeFeetPlaced(closest, true,
-                        newVer.getValue())
-                        && earlyFeetThread.getValue()
-                        && Thunderhack.servtickManager.valid(Thunderhack.servtickManager.getTickTimeAdjusted(),
-                        0, maxEarlyThread.getValue())) {
-                    threadHelper.startThread(false, true);
+                EntityPlayer closestEnemy = getClosestEnemy();
+
+                if (closestEnemy != null) {
+                    boolean newVersion = newVer.getValue();
+                    boolean isSemiSafe = isSemiSafe(closestEnemy, true, newVersion);
+                    boolean canBeFeetPlaced = canBeFeetPlaced(closestEnemy, true, newVersion);
+                    boolean earlyFeet = earlyFeetThread.getValue();
+                    long maxEarlyThreadValue = maxEarlyThread.getValue();
+
+                    if (isSemiSafe && canBeFeetPlaced && earlyFeet &&
+                            Thunderhack.servtickManager.valid((int) tickTimeAdjusted, 0, (int) maxEarlyThreadValue)) {
+                        threadHelper.startThread(false, true);
+                    }
                 }
             }
         }
     }
+
 
     public boolean isSuicideModule() {
         return false;
     }
 
     public BlockPos getBypassPos() {
-        if (bypassTimer.passedMs(bypassRotationTime.getValue())
-                || !forceBypass.getValue()
-                || !rayTraceBypass.getValue()) {
+        boolean shouldResetBypassPos =
+                bypassTimer.passedMs(bypassRotationTime.getValue()) ||
+                        !forceBypass.getValue() ||
+                        !rayTraceBypass.getValue();
+
+        if (shouldResetBypassPos) {
             bypassPos = null;
         }
 
         return bypassPos;
     }
+
 
     public void setBypassPos(BlockPos pos) {
         bypassTimer.reset();
@@ -827,13 +951,13 @@ public class AutoCrystal extends Module {
     }
 
     @SubscribeEvent
-    public void onBoobs(UpdateEntitiesEvent e) {
+    public void onUpdateEntities(UpdateEntitiesEvent e) {
         ExtrapolationHelper.onUpdateEntity(e);
     }
 
     @Override
     public void onLogin() {
-        resetModule(); // TODO
+        resetModule();
     }
 
     @SubscribeEvent
@@ -892,9 +1016,9 @@ public class AutoCrystal extends Module {
         if (e.getPacket() instanceof SPacketSpawnObject) {
             try {
                 onEvent33(e);
-            } catch (Throwable t) // ConcurrentModification in our ArmorList
+            } catch (Throwable t)
             {
-                t.printStackTrace();
+                Thunderhack.LOG.error(t);
             }
         }
         if (e.getPacket() instanceof SPacketSoundEffect) {
@@ -958,7 +1082,7 @@ public class AutoCrystal extends Module {
         }
     }
 
-    private Timer inv_timer = new Timer();
+    private final Timer inv_timer = new Timer();
     private int prev_crystals_ammount;
     private int crys_speed;
 
@@ -1073,7 +1197,7 @@ public class AutoCrystal extends Module {
     }
 
     @SubscribeEvent
-    public void nigga(EventSync event) {
+    public void onEventSync(EventSync event) {
 
         if (!multiThread.getValue()
                 && motionCalc.getValue()
@@ -1217,42 +1341,46 @@ public class AutoCrystal extends Module {
     }
 
     public EntityPlayer getTTRG(List<EntityPlayer> players, List<EntityPlayer> enemies, Float maxRange) {
-
         switch (targetMode.getValue()) {
             case Fov: {
-                EntityPlayer enemy = getByFov(enemies, maxRange);
-                if (enemy == null) {
-                    return getByFov(players, maxRange);
-                }
-                return enemy;
+                EntityPlayer prioritizedEnemy = getByFov(enemies, maxRange);
+                return prioritizedEnemy != null ? prioritizedEnemy : getByFov(players, maxRange);
             }
             case Angle: {
-                EntityPlayer enemy = getByAngle(enemies, maxRange);
-                return enemy == null ? getByAngle(players, maxRange) : enemy;
+                EntityPlayer prioritizedEnemy = getByAngle(enemies, maxRange);
+                return prioritizedEnemy != null ? prioritizedEnemy : getByAngle(players, maxRange);
             }
-            case Damage: {
-                return null;
-            }
-            case Closest: {
+            case Closest:
                 return getClosestEnemy(mc.player.posX,
                         mc.player.posY,
                         mc.player.posZ,
                         maxRange,
                         enemies,
                         players);
-            }
+            default:
+                return null;
         }
-        return null;
-
     }
+
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     protected boolean shouldCalc22() {
-        return multiThread.getValue()
-                && entityThread.getValue()
-                && (rotate.getValue() == ACRotate.None
-                || rotationThread.getValue() != RotationThread.Predict);
+        boolean useMultiThread = multiThread.getValue();
+        boolean useEntityThread = entityThread.getValue();
+        boolean shouldNotRotate = rotate.getValue() == ACRotate.None;
+        boolean avoidPredictRotation = rotationThread.getValue() != RotationThread.Predict;
+
+        if (!useMultiThread || !useEntityThread) {
+            return false;
+        }
+
+        if (shouldNotRotate) {
+            return true;
+        }
+
+        return avoidPredictRotation;
     }
+
 
     protected EntityPlayer getEntity22(int id) {
         List<Entity> entities = mc.world.loadedEntityList;
@@ -1443,17 +1571,23 @@ public class AutoCrystal extends Module {
 
     private float getSelfDamage(Entity entity) {
         float damage = damageHelper.getDamage(entity);
-        //  if (damage > EntityUtil.getHealth(mc.player) - 1.0f || damage > DMG.getValue())
-        //{
-        //   Managers.SAFETY.setSafe(false);
-        // }
 
-        return damage > maxSelfBreak.getValue()
-                || damage > EntityUtil.getHealth(mc.player) - 1.0f
-                && !suicide.getValue()
-                ? -1.0f
-                : damage;
+        float maxAllowedSelfBreak = maxSelfBreak.getValue();
+        float playerHealth = EntityUtil.getHealth(mc.player);
+        float minimumSafeHealth = playerHealth - 1.0f;
+
+        if (damage > maxAllowedSelfBreak || damage > minimumSafeHealth) {
+            // uncomment maye
+            // Managers.SAFETY.setSafe(false);
+
+            if (!suicide.getValue()) {
+                return -1.0f;
+            }
+        }
+
+        return damage;
     }
+
 
 
     @SubscribeEvent
