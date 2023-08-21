@@ -11,25 +11,27 @@ public class ToggleCommand extends Command {
         super("Toggle");
     }
 
-    public boolean foundModule = false;
-
     @Override
     public void execute(String[] commands) {
-        if (commands.length == 1) {
-            if(commands[0].isEmpty()) {
-                Command.sendMessage("Incomplete command, must be .toggle <moduleName>");
-                return;
-            }
-            for(Module m : Thunderhack.moduleManager.modules) {
-                if(Objects.equals(m.getName().toLowerCase(), commands[0].toLowerCase())) {
-                    m.toggle();
-                    Command.sendMessage("Toggled module: " + m.getName());
-                    foundModule = true;
-                    break;
-                }
-            }
+        if (commands.length != 1 || commands[0].isEmpty()) {
+            Command.sendMessage("Usage: .toggle <moduleName>");
+            return;
+        }
 
-            Command.sendMessage("Couldn't find module: " + commands[0]);
+        String moduleName = commands[0].toLowerCase();
+        boolean foundModule = false;
+
+        for (Module module : Thunderhack.moduleManager.modules) {
+            if (Objects.equals(module.getName().toLowerCase(), moduleName)) {
+                module.toggle();
+                Command.sendMessage("Toggled module: " + module.getName());
+                foundModule = true;
+                break;
+            }
+        }
+
+        if (!foundModule) {
+            Command.sendMessage("Couldn't find module: " + moduleName);
         }
     }
 }
