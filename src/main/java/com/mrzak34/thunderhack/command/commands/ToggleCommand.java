@@ -15,7 +15,9 @@ public class ToggleCommand extends Command {
 
     @Override
     public void execute(String[] commands) {
+
         if (commands.length == 1) {
+
             if(commands[0].isEmpty()) {
                 Command.sendMessage("Incomplete command, must be .toggle <moduleName>");
                 return;

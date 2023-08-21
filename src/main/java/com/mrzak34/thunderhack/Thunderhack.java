@@ -56,7 +56,6 @@ public class Thunderhack {
     public static MacroManager macromanager;
     public static Scheduler yahz;
     public static CFontRenderer fontRenderer;
-
     /*--------------------------------------------------------*/
 
 
@@ -74,7 +73,6 @@ public class Thunderhack {
     public static CFontRenderer middleicons;
     public static CFontRenderer BIGicons;
     private static boolean unloaded = false;
-
     /*--------------------------------------------------------*/
 
     public static void load() {
@@ -89,6 +87,7 @@ public class Thunderhack {
         ConfigManager.init();
 
         try {
+            /*-----------------    Fonts  ---------------------*/
             fontRenderer = new CFontRenderer(Font.createFont(Font.PLAIN, Objects.requireNonNull(Thunderhack.class.getResourceAsStream("/fonts/ThunderFont2.ttf"))).deriveFont(24.f), true, true);
             fontRenderer2 = new CFontRenderer(Font.createFont(Font.PLAIN, Objects.requireNonNull(Thunderhack.class.getResourceAsStream("/fonts/ThunderFont3.ttf"))).deriveFont(28.f), true, true);
             fontRenderer3 = new CFontRenderer(Font.createFont(Font.PLAIN, Objects.requireNonNull(Thunderhack.class.getResourceAsStream("/fonts/ThunderFont2.ttf"))).deriveFont(18.f), true, true);
@@ -97,22 +96,24 @@ public class Thunderhack {
             fontRenderer6 = new CFontRenderer(Font.createFont(Font.PLAIN, Objects.requireNonNull(Thunderhack.class.getResourceAsStream("/fonts/Monsterrat.ttf"))).deriveFont(14.f), true, true);
             fontRenderer7 = new CFontRenderer(Font.createFont(Font.PLAIN, Objects.requireNonNull(Thunderhack.class.getResourceAsStream("/fonts/Monsterrat.ttf"))).deriveFont(10.f), true, true);
             fontRenderer8 = new CFontRenderer(Font.createFont(Font.PLAIN, Objects.requireNonNull(Thunderhack.class.getResourceAsStream("/fonts/ThunderFont3.ttf"))).deriveFont(62.f), true, true);
+            /*--------------------------------------------------------*/
+
+            /*-----------------    Icons  ---------------------*/
             icons = new CFontRenderer(Font.createFont(Font.PLAIN, Objects.requireNonNull(Thunderhack.class.getResourceAsStream("/fonts/icons.ttf"))).deriveFont(20.f), true, true);
             middleicons = new CFontRenderer(Font.createFont(Font.PLAIN, Objects.requireNonNull(Thunderhack.class.getResourceAsStream("/fonts/icons.ttf"))).deriveFont(46.f), true, true);
             BIGicons = new CFontRenderer(Font.createFont(Font.PLAIN, Objects.requireNonNull(Thunderhack.class.getResourceAsStream("/fonts/icons.ttf"))).deriveFont(72.f), true, true);
+            /*--------------------------------------------------------*/
+
             LOG.info("FontRenderer initialized");
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         /*-----------------    Services  ---------------------*/
-
         noMotionUpdateService = new NoMotionUpdateService();
-
         /*--------------------------------------------------------*/
 
         /*-----------------    Managers  ---------------------*/
-
         servtickManager = new ServerTickManager();
         positionManager = new PositionManager();
         rotationManager = new RotationManager();
@@ -128,17 +129,14 @@ public class Thunderhack {
         moduleManager = new ModuleManager();
         eventManager = new EventManager();
         macromanager = new MacroManager();
+        yahz = new Scheduler();
+
+        LOG.info("Services Started.");
 
         /*--------------------------------------------------------*/
 
-        yahz = new Scheduler();
-
-        noMotionUpdateService.init();
-
-        LOG.info("Services initialized.");
-
         /*-----------------    Managers initialization ---------------------*/
-
+        noMotionUpdateService.init();
         positionManager.init();
         rotationManager.init();
         servtickManager.init();
@@ -151,7 +149,6 @@ public class Thunderhack {
         serverManager.init();
 
         LOG.info("Managers initialized.");
-
         /*--------------------------------------------------------*/
 
         FriendManager.loadFriends();
@@ -178,7 +175,11 @@ public class Thunderhack {
         if (!unloaded) {
             eventManager.onUnload();
 
+            /*-----------------    Unload Services  ---------------------*/
             noMotionUpdateService.unload();
+            /*--------------------------------------------------------*/
+
+            /*-----------------    Unload Managers  ---------------------*/
             positionManager.unload();
             rotationManager.unload();
             servtickManager.unload();
@@ -187,14 +188,22 @@ public class Thunderhack {
             combatManager.unload();
             switchManager.unload();
             serverManager.unload();
-            yahz.unload();
             moduleManager.onUnload();
+            /*--------------------------------------------------------*/
+
+            yahz.unload();
+
+            /*-----------------    Save Managers  ---------------------*/
             ConfigManager.save(ConfigManager.getCurrentConfig());
             MacroManager.saveMacro();
+            /*--------------------------------------------------------*/
+
             moduleManager.onUnloadPost();
+
             unloaded = true;
         }
 
+        /*-----------------    Nullify Managers  ---------------------*/
         eventManager = null;
         friendManager = null;
         fontRenderer = null;
@@ -203,6 +212,7 @@ public class Thunderhack {
         commandManager = null;
         serverManager = null;
         servtickManager = null;
+        /*--------------------------------------------------------*/
     }
 
     public static void reload() {
