@@ -37,7 +37,6 @@ public class Thunderhack {
     public static Color copy_color;
     public static NoMotionUpdateService noMotionUpdateService;
 
-
     /*-----------------    Managers  ---------------------*/
     public static ServerTickManager servtickManager;
     public static PositionManager positionManager;
@@ -56,13 +55,10 @@ public class Thunderhack {
     public static EventManager eventManager;
     public static MacroManager macromanager;
     public static Scheduler yahz;
-    public static CFontRenderer fontRenderer;
     /*--------------------------------------------------------*/
 
-
-
-
     /*-----------------    Fonts  ---------------------*/
+    public static CFontRenderer fontRenderer;
     public static CFontRenderer fontRenderer2;
     public static CFontRenderer fontRenderer3;
     public static CFontRenderer fontRenderer4;
@@ -73,8 +69,10 @@ public class Thunderhack {
     public static CFontRenderer icons;
     public static CFontRenderer middleicons;
     public static CFontRenderer BIGicons;
-    private static boolean unloaded = false;
     /*--------------------------------------------------------*/
+
+    private static boolean unloaded = false;
+
 
     public static void load() {
         // Configuration loading
@@ -168,21 +166,23 @@ public class Thunderhack {
 
     public static void unload(boolean initReloadManager) {
         Display.setTitle("Minecraft 1.12.2");
+
         if (initReloadManager) {
             reloadManager = new ReloadManager();
             reloadManager.init(commandManager != null ? commandManager.getPrefix() : ".");
         }
+
         ConfigManager.saveAlts();
         ConfigManager.saveSearch();
         FriendManager.saveFriends();
+
         if (!unloaded) {
             eventManager.onUnload();
 
-            /*-----------------    Unload Services  ---------------------*/
+            // Unload Services
             noMotionUpdateService.unload();
-            /*--------------------------------------------------------*/
 
-            /*-----------------    Unload Managers  ---------------------*/
+            // Unload Managers
             positionManager.unload();
             rotationManager.unload();
             servtickManager.unload();
@@ -192,21 +192,19 @@ public class Thunderhack {
             switchManager.unload();
             serverManager.unload();
             moduleManager.onUnload();
-            /*--------------------------------------------------------*/
 
             yahz.unload();
 
-            /*-----------------    Save Managers  ---------------------*/
+            // Save Managers
             ConfigManager.save(ConfigManager.getCurrentConfig());
             MacroManager.saveMacro();
-            /*--------------------------------------------------------*/
 
             moduleManager.onUnloadPost();
 
             unloaded = true;
         }
 
-        /*-----------------    Nullify Managers  ---------------------*/
+        // Nullify Managers
         eventManager = null;
         friendManager = null;
         fontRenderer = null;
@@ -215,20 +213,17 @@ public class Thunderhack {
         commandManager = null;
         serverManager = null;
         servtickManager = null;
-        /*--------------------------------------------------------*/
     }
+
 
     public static void reload() {
         Thunderhack.unload(false);
-
         Thunderhack.load();
     }
-
 
     @Mod.EventHandler
     public void preInit(FMLPreInitializationEvent event) {
         RenderingRegistry.registerEntityRenderingHandler(EntityGib.class, RenderGib::new);
-
         GlobalExecutor.EXECUTOR.submit(Sphere::cacheSphere);
     }
 
@@ -242,6 +237,5 @@ public class Thunderhack {
 
         MinecraftForge.EVENT_BUS.register(networkHandler);
     }
-
 }
 
