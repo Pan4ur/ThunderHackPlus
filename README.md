@@ -4,6 +4,10 @@
     <img src="https://i.imgur.com/Su6VscQ.png" style="width: 69%">
 </p>
 
+
+> :warning: **ThunderHackPlus is outdated as 1.12.2!** use [ThunderHack Recode](https://github.com/Pan4ur/ThunderHack-Recode)
+
+
 ## Info:
 
 [![Download](https://img.shields.io/badge/Download%20me!-1aad00)](https://github.com/Pan4ur/ThunderHackPlus/releases/download/2.41/ThunderHack_v2.41.jar)
