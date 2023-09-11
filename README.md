@@ -3,6 +3,12 @@
 <p align="center">
     <img src="https://i.imgur.com/Su6VscQ.png" style="width: 69%">
 </p>
+<div align="center">
+    
+[![Discord Mine](https://img.shields.io/discord/1140266441082404924?label=discord&logo=discord&logoColor=white)](https://discord.gg/bJajFP3kCX)
+![Downloads](https://img.shields.io/github/downloads/Pan4ur/ThunderHackPlus/total.svg)
+
+</div>
 
 
 > :warning: **ThunderHackPlus is outdated as 1.12.2!** use [ThunderHack Recode](https://github.com/Pan4ur/ThunderHack-Recode)
