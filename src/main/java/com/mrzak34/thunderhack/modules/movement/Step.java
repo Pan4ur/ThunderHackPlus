@@ -26,38 +26,24 @@ public class Step extends Module {
     private final Setting<Mode> mode = this.register(new Setting<>("Mode", Mode.NORMAL));
     private boolean timer;
     private Entity entityRiding;
-    /**
-     * @author Doogie13, linustouchtips, aesthetical
-     * @since 12/27/2021
-     */
 
     public Step() {
-        super("Step", "ходить по блокам 1 или 2 блока", Category.MOVEMENT);
+        super("Step", "Ходить выше, чем дозволено", Category.MOVEMENT);
     }
 
     @Override
     public void onDisable() {
-        super.onDisable();
         mc.player.stepHeight = 0.6F;
-        if (entityRiding != null) {
-            if (entityRiding instanceof EntityHorse || entityRiding instanceof EntityLlama || entityRiding instanceof EntityMule || entityRiding instanceof EntityPig && entityRiding.isBeingRidden() && ((EntityPig) entityRiding).canBeSteered()) {
-                entityRiding.stepHeight = 1;
-            } else {
-                entityRiding.stepHeight = 0.5F;
-            }
-        }
+        resetEntityStepHeight();
     }
 
     @Override
     public void onUpdate() {
-        if (mc.player.capabilities.isFlying || Thunderhack.moduleManager.getModuleByClass(FreeCam.class).isOn()) {
+        if (mc.player.capabilities.isFlying || Thunderhack.moduleManager.getModuleByClass(FreeCam.class).isOn() || Jesus.isInLiquid()) {
             mc.player.stepHeight = 0.6F;
             return;
         }
-        if (Jesus.isInLiquid()) {
-            mc.player.stepHeight = 0.6F;
-            return;
-        }
+        
         if (timer && mc.player.onGround) {
             Thunderhack.TICK_TIMER = 1f;
             timer = false;
@@ -66,22 +52,14 @@ public class Step extends Module {
         if (mc.player.onGround && stepTimer.passedMs(stepDelay.getValue())) {
             if (mc.player.isRiding() && mc.player.getRidingEntity() != null) {
                 entityRiding = mc.player.getRidingEntity();
-                if (entityStep.getValue()) {
+                if (entityStep.getValue())
                     mc.player.getRidingEntity().stepHeight = height.getValue().floatValue();
-                }
             } else {
                 mc.player.stepHeight = height.getValue().floatValue();
             }
         } else {
             if (mc.player.isRiding() && mc.player.getRidingEntity() != null) {
-                entityRiding = mc.player.getRidingEntity();
-                if (entityRiding != null) {
-                    if (entityRiding instanceof EntityHorse || entityRiding instanceof EntityLlama || entityRiding instanceof EntityMule || entityRiding instanceof EntityPig && entityRiding.isBeingRidden() && ((EntityPig) entityRiding).canBeSteered()) {
-                        entityRiding.stepHeight = 1;
-                    } else {
-                        entityRiding.stepHeight = 0.5F;
-                    }
-                }
+                resetEntityStepHeight();
             } else {
                 mc.player.stepHeight = 0.6F;
             }
@@ -92,20 +70,33 @@ public class Step extends Module {
     public void onStep(StepEvent event) {
         if (mode.getValue().equals(Mode.NORMAL)) {
             double stepHeight = event.getAxisAlignedBB().minY - mc.player.posY;
-            if (stepHeight <= 0 || stepHeight > height.getValue()) {
+            
+            if (stepHeight <= 0 || stepHeight > height.getValue())
                 return;
-            }
+            
             double[] offsets = getOffset(stepHeight);
             if (offsets != null && offsets.length > 1) {
                 if (useTimer.getValue()) {
                     Thunderhack.TICK_TIMER = 1F / offsets.length;
                     timer = true;
                 }
-                for (double offset : offsets) {
+                
+                for (double offset: offsets)
                     mc.player.connection.sendPacket(new CPacketPlayer.Position(mc.player.posX, mc.player.posY + offset, mc.player.posZ, false));
-                }
             }
+            
             stepTimer.reset();
+        }
+    }
+
+    private void resetEntityStepHeight() {
+        entityRiding = mc.player.getRidingEntity();
+        if (entityRiding != null) {
+            if (entityRiding instanceof EntityHorse || entityRiding instanceof EntityLlama || entityRiding instanceof EntityMule || entityRiding instanceof EntityPig && entityRiding.isBeingRidden() && ((EntityPig) entityRiding).canBeSteered()) {
+                entityRiding.stepHeight = 1;
+            } else {
+                entityRiding.stepHeight = 0.5F;
+            }
         }
     }
 
